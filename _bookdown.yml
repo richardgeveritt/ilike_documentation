@@ -1,0 +1,8 @@
+book_filename: "book"
+output_dir: docs
+rmd_files: ["index.Rmd", "01-intro.Rmd", "references.Rmd"]
+language:
+  ui:
+    chapter_name: "Chapter "
+delete_merged_file: true
+repo: https://github.com/maugu/book
