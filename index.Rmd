@@ -1,5 +1,5 @@
 --- 
-title: "Some notes"
+title: "ilike documentation"
 author: "Richard G. Everitt"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
