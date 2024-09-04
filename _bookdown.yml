@@ -5,4 +5,4 @@ language:
   ui:
     chapter_name: "Chapter "
 delete_merged_file: true
-repo: https://github.com/maugu/book
+repo: https://github.com/richardgeveritt/ilike_documentation
