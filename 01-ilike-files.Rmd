@@ -16,7 +16,7 @@ The ilike file must contain all of the functions required to run the desired alg
 
 An ilike file consists of "blocks" of content, each of which specifies a component of the model (or in some cases the the inference algorithm). In an example of a simple model, the prior may be specified in one block, the likelihood in another, and the data in another. A block may consist of more than one function.
 
-Each function in an ilike file must have a *function type* specified in a header in the line above the function. A header is enclosed in the characters `\***` at the beginning and `***\` at the end, with the function type written directly after the beginning characters `\***`. See, for example, in section \ref@{toy-example}, the function that specifies how to evaluate the log of a prior density that has the header `/***evaluate_log_prior***/`, which defines the function type to be `evaluate_log_prior`.
+Each function in an ilike file must have a *function type* specified in a header in the line above the function. A header is enclosed in the characters `\***` at the beginning and `***\` at the end, with the function type written directly after the beginning characters `\***`. See, for example, in section \ref@(toy-example), the function that specifies how to evaluate the log of a prior density that has the header `/***evaluate_log_prior***/`, which defines the function type to be `evaluate_log_prior`.
 
 For example, a block containing a prior may include two functions: `evaluate_log_prior` and `simulate_prior`. The functions included in a block depend on which algorithm we would like to run.
 
@@ -89,7 +89,7 @@ There are several points that are worth highlighting about this function:
 
 * It is a standard C++ function that, independently of being compiled by ilike would compile using a C++ compiler if all of the correct header files are included^[In fact this is also true for a whole ilike file. The headers that need to be included for the ilike package can be found in the package `inst/include` directory. Other headers from other R packages that ilike depends on are also required (see the `LinkingTo` section in the package `DESCRIPTION` file.].
 
-* It has a return type (`double`) and argument(s) (`const Parameters &`)^[If the argument, for example, seem mysterious to you, don't worry about this just yet. This documentation should tell you most of what you need to know to get started. If you want to understand more, [this tutorial](https://cplusplus.com/doc/tutorial/functions/) is a reasonable starting point.] that are pre-determined by the ilike package. The key point is that if a function under the `evaluate_log_prior` type does not have this return type and arguments (including the `const` and the `&`), you will receive an error.
+* It has a return type (`double`) and argument(s) (`const Parameters &`)^[If you are not familiar with C++, and you are not clear about what this means, don't worry about this just yet. This documentation should tell you most of what you need to know to get started. If you want to understand more, [this tutorial](https://cplusplus.com/doc/tutorial/functions/) is a reasonable starting point.] that are pre-determined by the ilike package. The key point is that if a function under the `evaluate_log_prior` type does not have this return type and arguments (including the `const` and the `&`), you will receive an error. The return type and arguments for each function type are given in section \ref@(blocks).
 
 * The type `Parameters` is a class defined in the ilike package source. It operates in a similar way to an R list, or a python dictionary. There are more details about this in section \ref@(ilike-cpp-classes).
 
@@ -900,6 +900,65 @@ double dunif(const arma::mat &x,
 For the $(i,j)$th element of `x`, evaluate the log of the uniform density between the $(i,j)$th element of `lower` and the $(i,j)$th element of `upper`, then take the sum of the result (i.e. the product of independent uniform densities).
 
 ## R functions {#R}
+
+Whilst C++ functions are the most computationally efficient when used in ilike inference algorithms, using an R function may be simpler and offer close to the same performance. To use an R function in ilike, the following must be specified:
+
+1. Details in a function header, of how the R function interfaces to ilike.
+
+2. The R function itself, specified in a file with the same name as the ilike file, but with the `.R` extension.
+
+This section details how to specify both the header, and the R function.
+
+### Function headers for R functions
+
+For C++ functions, a function header takes the form of, for example, `/***evaluate_log_prior***/`, with the associated function following on the subsequent line. For R functions, the function type must be followed (after a comma `,`)  by the a call to the R function. For example, suppose the prior is given by a standard normal distribution, then the header would be
+
+```{Rcpp,eval=FALSE}
+/***evaluate_log_prior, dnorm(parameters$x,log=TRUE)***/
+```
+
+where `parameters$x` is the value at which the prior is to be evaluated. Here the use of `parameters$x` will be interpreted as taking the parameter `x` from the `parameters` object.
+
+Just as when using C++ functions, each function type has a set of arguments it may use (in this case, `parameters`): these are detailed in section \ref@(blocks). There is some flexibility in how to use these arguments. For example, the `parameters` object may be used as a whole, or individual elements may be extracted from it. The example
+
+```{Rcpp,eval=FALSE}
+/***evaluate_log_prior, dnorm(parameters$x,log=TRUE)***/
+```
+
+takes the approach of extraxting the `x` element from the `parameters` object. In the following example, the `parameters` object is used as a whole:
+
+```{Rcpp,eval=FALSE}
+/***evaluate_log_prior, my_density_log_evaluate(parameters)***/
+```
+
+Here `my_density_log_evaluate` is a function in the accompanying R file that takes the `parameters` object as an argument, for example
+
+```{R,eval=FALSE}
+my_density_log_evaluate <- function(parameters) {
+  return(dnorm(parameters$x,log=TRUE))
+}
+```
+
+Here `parameters` is an R list: the R analogue of the C++ class `Parameters` as was used in the C++ code.
+
+For some function types, the output needs to be stored in an object. For example, recall the function that loads the data in the example in \ref@(toy-example):
+
+```{Rcpp,eval=FALSE}
+/***data,y=get_data()***/
+```
+
+Here, as above, the function `get_data` is defined in the accompanying R file. The use of the `=` sign will result in the output of the function being stored in a `Data` object (the output type of the `data` function type) under the variable name `y`. This data can then be accessed in, say, the `evaluate_log_likelihood` function type using `data["y"]` in a C++ function, or `data$y` in an R function. Recall the likelihood from the example in section \ref@(toy-example):
+
+```{Rcpp,eval=FALSE}
+/***evaluate_log_likelihood***/
+double llhd(const Parameters &parameters,
+            const Data &data)
+{
+  arma::colvec θ = parameters["θ"];
+  double y = data["y"];
+  return sum(dnorm(y,θ[0]+θ[1],1.0));
+}
+```
 
 ## python functions {#python}
 
