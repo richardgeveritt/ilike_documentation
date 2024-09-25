@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>1.1 Example | ilike documentation</title>
+  <meta name="description" content="Documentation for the ilike R package." />
+  <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="1.1 Example | ilike documentation" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="Documentation for the ilike R package." />
+  <meta name="github-repo" content="richardgeveritt/ilike_documentation" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="1.1 Example | ilike documentation" />
+  
+  <meta name="twitter:description" content="Documentation for the ilike R package." />
+  
+
+<meta name="author" content="Richard G. Everitt" />
+
+
+<meta name="date" content="2024-09-05" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="index.html"/>
+<link rel="next" href="ilike-files.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">ilike documentation</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preface</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="first_example.html"><a href="first_example.html"><i class="fa fa-check"></i><b>1.1</b> Example</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="first_example.html"><a href="first_example.html#model"><i class="fa fa-check"></i><b>1.1.1</b> Model</a></li>
+<li class="chapter" data-level="1.1.2" data-path="first_example.html"><a href="first_example.html#ilike-file"><i class="fa fa-check"></i><b>1.1.2</b> .ilike file</a></li>
+<li class="chapter" data-level="1.1.3" data-path="first_example.html"><a href="first_example.html#running-mcmc"><i class="fa fa-check"></i><b>1.1.3</b> Running MCMC</a></li>
+<li class="chapter" data-level="1.1.4" data-path="first_example.html"><a href="first_example.html#visualising-the-output"><i class="fa fa-check"></i><b>1.1.4</b> Visualising the output</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="ilike-files.html"><a href="ilike-files.html"><i class="fa fa-check"></i><b>2</b> .ilike files</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="ilike-file-structure.html"><a href="ilike-file-structure.html"><i class="fa fa-check"></i><b>2.1</b> File structure</a>
+<ul>
+<li class="chapter" data-level="2.1.1" data-path="ilike-file-structure.html"><a href="ilike-file-structure.html#example-revisited"><i class="fa fa-check"></i><b>2.1.1</b> Example revisited</a></li>
+</ul></li>
+<li class="chapter" data-level="2.2" data-path="parametersdata.html"><a href="parametersdata.html"><i class="fa fa-check"></i><b>2.2</b> Parameters/data</a></li>
+<li class="chapter" data-level="2.3" data-path="c-functions-c.html"><a href="c-functions-c.html"><i class="fa fa-check"></i><b>2.3</b> C++ functions {#C++}</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="c-functions-c.html"><a href="c-functions-c.html#c-functions-available-in-the-ilike-package"><i class="fa fa-check"></i><b>2.3.1</b> C++ functions available in the ilike package</a></li>
+</ul></li>
+<li class="chapter" data-level="2.4" data-path="R.html"><a href="R.html"><i class="fa fa-check"></i><b>2.4</b> R functions</a></li>
+<li class="chapter" data-level="2.5" data-path="python.html"><a href="python.html"><i class="fa fa-check"></i><b>2.5</b> python functions</a></li>
+<li class="chapter" data-level="2.6" data-path="julia.html"><a href="julia.html"><i class="fa fa-check"></i><b>2.6</b> julia functions</a></li>
+<li class="chapter" data-level="2.7" data-path="ilike.html"><a href="ilike.html"><i class="fa fa-check"></i><b>2.7</b> ilike functions</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="blocks.html"><a href="blocks.html"><i class="fa fa-check"></i><b>3</b> ilike blocks</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>3.1</b> Data</a></li>
+<li class="chapter" data-level="3.2" data-path="priors.html"><a href="priors.html"><i class="fa fa-check"></i><b>3.2</b> Priors</a></li>
+<li class="chapter" data-level="3.3" data-path="likelihoods.html"><a href="likelihoods.html"><i class="fa fa-check"></i><b>3.3</b> Likelihoods</a></li>
+<li class="chapter" data-level="3.4" data-path="importance-sampling-proposals.html"><a href="importance-sampling-proposals.html"><i class="fa fa-check"></i><b>3.4</b> Importance sampling proposals</a></li>
+<li class="chapter" data-level="3.5" data-path="mcmc-proposals.html"><a href="mcmc-proposals.html"><i class="fa fa-check"></i><b>3.5</b> MCMC proposals</a></li>
+<li class="chapter" data-level="3.6" data-path="transition-model.html"><a href="transition-model.html"><i class="fa fa-check"></i><b>3.6</b> Transition model</a></li>
+<li class="chapter" data-level="3.7" data-path="filter.html"><a href="filter.html"><i class="fa fa-check"></i><b>3.7</b> Filter</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="inference.html"><a href="inference.html"><i class="fa fa-check"></i><b>4</b> Inference algorithms</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="random-numbers.html"><a href="random-numbers.html"><i class="fa fa-check"></i><b>4.1</b> Random numbers</a></li>
+<li class="chapter" data-level="4.2" data-path="model-and-algorithm-parameters.html"><a href="model-and-algorithm-parameters.html"><i class="fa fa-check"></i><b>4.2</b> Model and algorithm parameters</a></li>
+<li class="chapter" data-level="4.3" data-path="importance-sampling.html"><a href="importance-sampling.html"><i class="fa fa-check"></i><b>4.3</b> Importance sampling</a>
+<ul>
+<li class="chapter" data-level="4.3.1" data-path="importance-sampling.html"><a href="importance-sampling.html#ilike-file-requirements"><i class="fa fa-check"></i><b>4.3.1</b> .ilike file requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="markov-chain-monte-carlo.html"><a href="markov-chain-monte-carlo.html"><i class="fa fa-check"></i><b>4.4</b> Markov chain Monte Carlo</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="markov-chain-monte-carlo.html"><a href="markov-chain-monte-carlo.html#ilike-file-requirements-1"><i class="fa fa-check"></i><b>4.4.1</b> .ilike file requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="sequential-monte-carlo.html"><a href="sequential-monte-carlo.html"><i class="fa fa-check"></i><b>4.5</b> Sequential Monte Carlo</a>
+<ul>
+<li class="chapter" data-level="4.5.1" data-path="sequential-monte-carlo.html"><a href="sequential-monte-carlo.html#ilike-file-requirements-2"><i class="fa fa-check"></i><b>4.5.1</b> .ilike file requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="iterative-ensemble-kalman-inversion.html"><a href="iterative-ensemble-kalman-inversion.html"><i class="fa fa-check"></i><b>4.6</b> Iterative ensemble Kalman inversion</a>
+<ul>
+<li class="chapter" data-level="4.6.1" data-path="iterative-ensemble-kalman-inversion.html"><a href="iterative-ensemble-kalman-inversion.html#ilike-file-requirements-3"><i class="fa fa-check"></i><b>4.6.1</b> .ilike file requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="4.7" data-path="particle-filters.html"><a href="particle-filters.html"><i class="fa fa-check"></i><b>4.7</b> Particle filters</a>
+<ul>
+<li class="chapter" data-level="4.7.1" data-path="particle-filters.html"><a href="particle-filters.html#ilike-file-requirements-4"><i class="fa fa-check"></i><b>4.7.1</b> .ilike file requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="4.8" data-path="ensemble-kalman-filters.html"><a href="ensemble-kalman-filters.html"><i class="fa fa-check"></i><b>4.8</b> Ensemble Kalman filters</a>
+<ul>
+<li class="chapter" data-level="4.8.1" data-path="ensemble-kalman-filters.html"><a href="ensemble-kalman-filters.html#ilike-file-requirements-5"><i class="fa fa-check"></i><b>4.8.1</b> .ilike file requirements</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="output.html"><a href="output.html"><i class="fa fa-check"></i><b>5</b> Loading and visualising output</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="is-and-smc-output.html"><a href="is-and-smc-output.html"><i class="fa fa-check"></i><b>5.1</b> IS and SMC output</a></li>
+<li class="chapter" data-level="5.2" data-path="ensemble-kalman-output.html"><a href="ensemble-kalman-output.html"><i class="fa fa-check"></i><b>5.2</b> Ensemble Kalman output</a></li>
+<li class="chapter" data-level="5.3" data-path="mcmc-output.html"><a href="mcmc-output.html"><i class="fa fa-check"></i><b>5.3</b> MCMC output</a></li>
+<li class="chapter" data-level="5.4" data-path="further-detail-about-output-files.html"><a href="further-detail-about-output-files.html"><i class="fa fa-check"></i><b>5.4</b> Further detail about output files</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="bugs.html"><a href="bugs.html"><i class="fa fa-check"></i><b>6</b> Known issues and glaring omissions</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="known-issues.html"><a href="known-issues.html"><i class="fa fa-check"></i><b>6.1</b> Known issues</a></li>
+<li class="chapter" data-level="6.2" data-path="glaring-omissions.html"><a href="glaring-omissions.html"><i class="fa fa-check"></i><b>6.2</b> Glaring omissions</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">ilike documentation</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="first_example" class="section level2 hasAnchor" number="1.1">
+<h2><span class="header-section-number">1.1</span> Example<a href="first_example.html#first_example" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="model" class="section level3 hasAnchor" number="1.1.1">
+<h3><span class="header-section-number">1.1.1</span> Model<a href="first_example.html#model" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>We are going to use the ilike package to run MCMC to approximate the posterior distribution of a two-dimensional parameter <span class="math inline">\(\theta = (\theta_1,\theta_2)\)</span>, where <span class="math inline">\(\theta_1 + \theta_2\)</span> gives the mean of a normal distribution with standard deviation 1.</p>
+<p>The model used is:</p>
+<p><span class="math display">\[
+\theta \sim \mathcal{MVN}(\mathbf{0}_2,10 \mathbf{I}_2),
+\]</span>
+<span class="math display">\[
+y \sim \mathcal{N}(\theta_1 + \theta_2,1),
+\]</span>
+where <span class="math inline">\(\mathbf{0}_2\)</span> is the 2-dimensional column vector of zeros and <span class="math inline">\(\mathbf{I}_2\)</span> is the 2-dimensional identity matrix. We fit this model to 100 observations of <span class="math inline">\(y\)</span> drawn from a standard normal distribution.</p>
+</div>
+<div id="ilike-file" class="section level3 hasAnchor" number="1.1.2">
+<h3><span class="header-section-number">1.1.2</span> .ilike file<a href="first_example.html#ilike-file" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The code below gives an example of a valid .ilike file.</p>
+<pre><code>/***data,y=get_data()***/
+
+/***evaluate_log_prior***/
+double prior_eval(const Parameters &amp;parameters)
+{
+  arma::colvec θ = parameters[&quot;θ&quot;];
+  return dnorm(θ[0],prior_mean,prior_sd) + dnorm(θ[1],prior_mean,prior_sd);
+}
+
+/***evaluate_log_likelihood***/
+double llhd(const Parameters &amp;parameters,
+            const Data &amp;data)
+{
+  arma::colvec θ = parameters[&quot;θ&quot;];
+  double y = data[&quot;y&quot;];
+  return sum(dnorm(y,θ[0]+θ[1],1.0));
+}
+
+/***m_proposal,ilike::mvnorm_rw(θ,p1)***/
+
+/***mcmc_termination,ilike::iterations(100000)***/</code></pre>
+<p>Let’s not get too hung up on all of the details yet - let’s instead focus on the structure of the file. It contains 5 functions, each containing a header line enclosed by <code>/***</code> and <code>***/</code>. The format is a little different between the functions, since three different approaches are used to specify them. I’ll give a brief overview after we see the code.</p>
+<p>A brief description of each function now follows. A full description will be given in later sections.</p>
+<ol style="list-style-type: decimal">
+<li><code>/***data,y=get_data()***/</code>. This header specifies the data. The data itself is not shown in the file, since this responsibility is delegated to an R function <code>get_data()</code>, which is found in a different file. The <code>get_data()</code> function returns a matrix of 100 points drawn from a standard Gaussian, as follows:</li>
+</ol>
+<pre><code>get_data &lt;- function()
+{
+  return(as.matrix(rnorm(100)))
+}</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li><p><code>/***evaluate_log_prior***/</code>. The function underneath this header evaluates the log of a prior distribution, given by the product of two normal distributions. This is written in C++, using the class <code>Parameters</code>, which behaves like an R list (or python dictionary). A C++ function called <code>dnorm</code> is provided by the package in order to make writing the C++ functions a little easier.</p></li>
+<li><p><code>/***evaluate_log_likelihood***/</code>. Again, the function underneath this header is specified using C++, this time specifying the likelihood. Vectors and matricies in ilike are stored using <a href="https://arma.sourceforge.net/docs.html">armadillo</a>.</p></li>
+<li><p><code>/***m_proposal,ilike::mvnorm_rw(θ,p1)***/</code>. This header specifies the proposal to use in a Metropolis algorithm. The use of <code>ilike::</code> is used to denote the use of a native ilike function, in this case <code>mvnorm_rw</code> which specifies a multivariate Gaussian random walk proposal. The first parameter <code>θ</code> gives the name of the parameter to be moved using this proposal, the second <code>p1</code> will be read in as an argument, giving the proposal covariance when the MCMC algorithm is called.</p></li>
+<li><p><code>/***mcmc_termination,ilike::iterations(100000)***/</code>. This uses the ilike function <code>iterations</code> to specify that the MCMC will be terminated after 100000 iterations.</p></li>
+</ol>
+<p>To use this model it must first be compiled. To do this we call</p>
+<pre><code>library(ilike)
+model = compile(&quot;toy_model_rwm.ilike&quot;)</code></pre>
+<p>where <code>toy_model_rwm.ilike</code> is the file containing the code we described above.</p>
+</div>
+<div id="running-mcmc" class="section level3 hasAnchor" number="1.1.3">
+<h3><span class="header-section-number">1.1.3</span> Running MCMC<a href="first_example.html#running-mcmc" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>We run the Metropolis algorithm on this model/data by calling:</p>
+<pre><code>mcmc(model,
+     results_name = &quot;toy_model_rwm&quot;,
+     initial_values = list(list(θ=c(0,0))),
+     model_parameter_list = list(300.0*diag(2)))</code></pre>
+<p>The first argument is the <code>model</code> we compiled in the previous step. <code>results_name</code>, specifies the folder where the results will be written. <code>initial_values</code> gives the initial values of the chain. <code>model_parameter_list</code> gives the value of <code>p1</code>, the proposal covariance.</p>
+<p>No output is provided to the R console on running an MCMC algorithm - it can be found in the folder <code>results_name</code>, which is created in the current working directory. The following section gives an example of loading the output into R, and plotting it.</p>
+</div>
+<div id="visualising-the-output" class="section level3 hasAnchor" number="1.1.4">
+<h3><span class="header-section-number">1.1.4</span> Visualising the output<a href="first_example.html#visualising-the-output" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The ilike package contains functions for loading the output from ilike algorithms into R, in a format amenable to summarising or plotting. For this simple example, we can plot the output as a scatter plot using the <a href="https://CRAN.R-project.org/package=ggsmc"><code>ggsmc</code></a> package.</p>
+<pre><code>output = load_mcmc_output(&quot;toy_model_rwm&quot;,ilike.output = TRUE)
+library(ggsmc)
+plot_scatter(output,x_parameter = &quot;θ&quot;,x_dimension=1,y_parameter=&quot;θ&quot;,y_dimension=2,use_initial_points = FALSE)</code></pre>
+<p><img src="toy_scatter.png" /></p>
+<p>We can plot trace plots using <a href="https://CRAN.R-project.org/package=ggmcmc"><code>ggmcmc</code></a></p>
+<pre><code>output = load_mcmc_output(&quot;toy_model_rwm&quot;)
+library(ggmcmc)
+ggs_traceplot(output)</code></pre>
+<p><img src="toy_trace.png" /></p>
+
+</div>
+</div>
+<!-- </div> -->
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="index.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="ilike-files.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/richardgeveritt/ilike_documentation/edit/master/index.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["ilike docs.pdf", "ilike docs.epub"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

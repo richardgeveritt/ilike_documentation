@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>2.2 C++ functions {#C++} | ilike documentation</title>
+  <meta name="description" content="Documentation for the ilike R package." />
+  <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="2.2 C++ functions {#C++} | ilike documentation" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="Documentation for the ilike R package." />
+  <meta name="github-repo" content="richardgeveritt/ilike_documentation" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="2.2 C++ functions {#C++} | ilike documentation" />
+  
+  <meta name="twitter:description" content="Documentation for the ilike R package." />
+  
+
+<meta name="author" content="Richard G. Everitt" />
+
+
+<meta name="date" content="2024-09-05" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="file-structure.html"/>
+<link rel="next" href="R.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">ilike documentation</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preface</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="toy-example.html"><a href="toy-example.html"><i class="fa fa-check"></i><b>1.1</b> Example</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="toy-example.html"><a href="toy-example.html#model"><i class="fa fa-check"></i><b>1.1.1</b> Model</a></li>
+<li class="chapter" data-level="1.1.2" data-path="toy-example.html"><a href="toy-example.html#ilike-file"><i class="fa fa-check"></i><b>1.1.2</b> .ilike file</a></li>
+<li class="chapter" data-level="1.1.3" data-path="toy-example.html"><a href="toy-example.html#running-mcmc"><i class="fa fa-check"></i><b>1.1.3</b> Running MCMC</a></li>
+<li class="chapter" data-level="1.1.4" data-path="toy-example.html"><a href="toy-example.html#visualising-the-output"><i class="fa fa-check"></i><b>1.1.4</b> Visualising the output</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="ilike-files.html"><a href="ilike-files.html"><i class="fa fa-check"></i><b>2</b> .ilike files</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="file-structure.html"><a href="file-structure.html"><i class="fa fa-check"></i><b>2.1</b> File structure</a>
+<ul>
+<li class="chapter" data-level="2.1.1" data-path="file-structure.html"><a href="file-structure.html#example-revisited"><i class="fa fa-check"></i><b>2.1.1</b> Example revisited</a></li>
+</ul></li>
+<li class="chapter" data-level="2.2" data-path="c-functions-c.html"><a href="c-functions-c.html"><i class="fa fa-check"></i><b>2.2</b> C++ functions {#C++}</a>
+<ul>
+<li class="chapter" data-level="2.2.1" data-path="c-functions-c.html"><a href="c-functions-c.html#ilike-c-classes"><i class="fa fa-check"></i><b>2.2.1</b> ilike C++ classes</a></li>
+<li class="chapter" data-level="2.2.2" data-path="c-functions-c.html"><a href="c-functions-c.html#ilike-c-functions"><i class="fa fa-check"></i><b>2.2.2</b> ilike C++ functions</a></li>
+</ul></li>
+<li class="chapter" data-level="2.3" data-path="R.html"><a href="R.html"><i class="fa fa-check"></i><b>2.3</b> R functions</a></li>
+<li class="chapter" data-level="2.4" data-path="python.html"><a href="python.html"><i class="fa fa-check"></i><b>2.4</b> python functions</a></li>
+<li class="chapter" data-level="2.5" data-path="julia.html"><a href="julia.html"><i class="fa fa-check"></i><b>2.5</b> julia functions</a></li>
+<li class="chapter" data-level="2.6" data-path="ilike-functions.html"><a href="ilike-functions.html"><i class="fa fa-check"></i><b>2.6</b> ilike functions</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="blocks.html"><a href="blocks.html"><i class="fa fa-check"></i><b>3</b> ilike blocks</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>3.1</b> Data</a></li>
+<li class="chapter" data-level="3.2" data-path="priors.html"><a href="priors.html"><i class="fa fa-check"></i><b>3.2</b> Priors</a></li>
+<li class="chapter" data-level="3.3" data-path="likelihoods.html"><a href="likelihoods.html"><i class="fa fa-check"></i><b>3.3</b> Likelihoods</a></li>
+<li class="chapter" data-level="3.4" data-path="importance-sampling-proposals.html"><a href="importance-sampling-proposals.html"><i class="fa fa-check"></i><b>3.4</b> Importance sampling proposals</a></li>
+<li class="chapter" data-level="3.5" data-path="mcmc-proposals.html"><a href="mcmc-proposals.html"><i class="fa fa-check"></i><b>3.5</b> MCMC proposals</a></li>
+<li class="chapter" data-level="3.6" data-path="transition-model.html"><a href="transition-model.html"><i class="fa fa-check"></i><b>3.6</b> Transition model</a></li>
+<li class="chapter" data-level="3.7" data-path="filter.html"><a href="filter.html"><i class="fa fa-check"></i><b>3.7</b> Filter</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="inference.html"><a href="inference.html"><i class="fa fa-check"></i><b>4</b> Inference algorithms</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="random-numbers.html"><a href="random-numbers.html"><i class="fa fa-check"></i><b>4.1</b> Random numbers</a></li>
+<li class="chapter" data-level="4.2" data-path="model-and-algorithm-parameters.html"><a href="model-and-algorithm-parameters.html"><i class="fa fa-check"></i><b>4.2</b> Model and algorithm parameters</a></li>
+<li class="chapter" data-level="4.3" data-path="importance-sampling.html"><a href="importance-sampling.html"><i class="fa fa-check"></i><b>4.3</b> Importance sampling</a>
+<ul>
+<li class="chapter" data-level="4.3.1" data-path="importance-sampling.html"><a href="importance-sampling.html#ilike-file-requirements"><i class="fa fa-check"></i><b>4.3.1</b> .ilike file requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="markov-chain-monte-carlo.html"><a href="markov-chain-monte-carlo.html"><i class="fa fa-check"></i><b>4.4</b> Markov chain Monte Carlo</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="markov-chain-monte-carlo.html"><a href="markov-chain-monte-carlo.html#ilike-file-requirements-1"><i class="fa fa-check"></i><b>4.4.1</b> .ilike file requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="sequential-monte-carlo.html"><a href="sequential-monte-carlo.html"><i class="fa fa-check"></i><b>4.5</b> Sequential Monte Carlo</a>
+<ul>
+<li class="chapter" data-level="4.5.1" data-path="sequential-monte-carlo.html"><a href="sequential-monte-carlo.html#ilike-file-requirements-2"><i class="fa fa-check"></i><b>4.5.1</b> .ilike file requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="iterative-ensemble-kalman-inversion.html"><a href="iterative-ensemble-kalman-inversion.html"><i class="fa fa-check"></i><b>4.6</b> Iterative ensemble Kalman inversion</a>
+<ul>
+<li class="chapter" data-level="4.6.1" data-path="iterative-ensemble-kalman-inversion.html"><a href="iterative-ensemble-kalman-inversion.html#ilike-file-requirements-3"><i class="fa fa-check"></i><b>4.6.1</b> .ilike file requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="4.7" data-path="particle-filters.html"><a href="particle-filters.html"><i class="fa fa-check"></i><b>4.7</b> Particle filters</a>
+<ul>
+<li class="chapter" data-level="4.7.1" data-path="particle-filters.html"><a href="particle-filters.html#ilike-file-requirements-4"><i class="fa fa-check"></i><b>4.7.1</b> .ilike file requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="4.8" data-path="ensemble-kalman-filters.html"><a href="ensemble-kalman-filters.html"><i class="fa fa-check"></i><b>4.8</b> Ensemble Kalman filters</a>
+<ul>
+<li class="chapter" data-level="4.8.1" data-path="ensemble-kalman-filters.html"><a href="ensemble-kalman-filters.html#ilike-file-requirements-5"><i class="fa fa-check"></i><b>4.8.1</b> .ilike file requirements</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="output.html"><a href="output.html"><i class="fa fa-check"></i><b>5</b> Loading and visualising output</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="is-and-smc-output.html"><a href="is-and-smc-output.html"><i class="fa fa-check"></i><b>5.1</b> IS and SMC output</a></li>
+<li class="chapter" data-level="5.2" data-path="ensemble-kalman-output.html"><a href="ensemble-kalman-output.html"><i class="fa fa-check"></i><b>5.2</b> Ensemble Kalman output</a></li>
+<li class="chapter" data-level="5.3" data-path="mcmc-output.html"><a href="mcmc-output.html"><i class="fa fa-check"></i><b>5.3</b> MCMC output</a></li>
+<li class="chapter" data-level="5.4" data-path="further-detail-about-output-files.html"><a href="further-detail-about-output-files.html"><i class="fa fa-check"></i><b>5.4</b> Further detail about output files</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="bugs.html"><a href="bugs.html"><i class="fa fa-check"></i><b>6</b> Known issues and glaring omissions</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="known-issues.html"><a href="known-issues.html"><i class="fa fa-check"></i><b>6.1</b> Known issues</a></li>
+<li class="chapter" data-level="6.2" data-path="glaring-omissions.html"><a href="glaring-omissions.html"><i class="fa fa-check"></i><b>6.2</b> Glaring omissions</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="bugs.html"><a href="bugs.html#bugs"><i class="fa fa-check"></i><b>7</b> Known issues and glaring omissions</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="known-issues-1.html"><a href="known-issues-1.html"><i class="fa fa-check"></i><b>7.1</b> Known issues</a></li>
+<li class="chapter" data-level="7.2" data-path="glaring-omissions-1.html"><a href="glaring-omissions-1.html"><i class="fa fa-check"></i><b>7.2</b> Glaring omissions</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">ilike documentation</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="c-functions-c" class="section level2 hasAnchor" number="2.2">
+<h2><span class="header-section-number">2.2</span> C++ functions {#C++}<a href="c-functions-c.html#c-functions-c" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="ilike-c-classes" class="section level3 hasAnchor" number="2.2.1">
+<h3><span class="header-section-number">2.2.1</span> ilike C++ classes<a href="c-functions-c.html#ilike-c-classes" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+</div>
+<div id="ilike-c-functions" class="section level3 hasAnchor" number="2.2.2">
+<h3><span class="header-section-number">2.2.2</span> ilike C++ functions<a href="c-functions-c.html#ilike-c-functions" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="file-structure.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="R.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/richardgeveritt/ilike_documentation/edit/master/01-ilike-files.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["ilike docs.pdf", "ilike docs.epub"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>

@@ -1,12 +1,13 @@
 bookdown::gitbook:
+  split_by: section
   css: style.css
   config:
     toc:
       before: |
-        <li><a href="./">Book</a></li>
+        <li><a href="./">ilike documentation</a></li>
       after: |
         <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
-    edit: https://github.com/rstudio/bookdown-demo/edit/master/%s
+    edit: https://github.com/richardgeveritt/ilike_documentation/edit/master/%s
     download: ["pdf", "epub"]
 bookdown::pdf_book:
   includes:
