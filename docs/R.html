@@ -23,7 +23,7 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2024-09-25" />
+<meta name="date" content="2024-10-02" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -56,7 +56,7 @@
 
 <style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -66,7 +66,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -128,6 +128,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
+  margin-bottom: 0em;
 }
 .hanging div.csl-entry {
   margin-left:2em;
@@ -185,21 +186,32 @@ div.csl-indent {
 <li class="chapter" data-level="2.3.2" data-path="C.html"><a href="C.html#ilike-cpp-classes"><i class="fa fa-check"></i><b>2.3.2</b> ilike C++ classes</a></li>
 <li class="chapter" data-level="2.3.3" data-path="C.html"><a href="C.html#ilike-cpp-functions"><i class="fa fa-check"></i><b>2.3.3</b> ilike C++ functions</a></li>
 </ul></li>
-<li class="chapter" data-level="2.4" data-path="R.html"><a href="R.html"><i class="fa fa-check"></i><b>2.4</b> R functions</a></li>
-<li class="chapter" data-level="2.5" data-path="python.html"><a href="python.html"><i class="fa fa-check"></i><b>2.5</b> python functions</a></li>
-<li class="chapter" data-level="2.6" data-path="julia.html"><a href="julia.html"><i class="fa fa-check"></i><b>2.6</b> julia functions</a></li>
+<li class="chapter" data-level="2.4" data-path="R.html"><a href="R.html"><i class="fa fa-check"></i><b>2.4</b> R functions</a>
+<ul>
+<li class="chapter" data-level="2.4.1" data-path="R.html"><a href="R.html#function-arguments-for-r-functions"><i class="fa fa-check"></i><b>2.4.1</b> Function arguments for R functions</a></li>
+<li class="chapter" data-level="2.4.2" data-path="R.html"><a href="R.html#function-headers-for-r-functions"><i class="fa fa-check"></i><b>2.4.2</b> Function headers for R functions</a></li>
+</ul></li>
+<li class="chapter" data-level="2.5" data-path="python.html"><a href="python.html"><i class="fa fa-check"></i><b>2.5</b> Python functions</a>
+<ul>
+<li class="chapter" data-level="2.5.1" data-path="python.html"><a href="python.html#using-jax-to-calculate-gradients"><i class="fa fa-check"></i><b>2.5.1</b> Using jax to calculate gradients</a></li>
+</ul></li>
+<li class="chapter" data-level="2.6" data-path="julia.html"><a href="julia.html"><i class="fa fa-check"></i><b>2.6</b> Julia functions</a></li>
 <li class="chapter" data-level="2.7" data-path="ilike-functions.html"><a href="ilike-functions.html"><i class="fa fa-check"></i><b>2.7</b> ilike functions</a></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="blocks.html"><a href="blocks.html"><i class="fa fa-check"></i><b>3</b> ilike blocks</a>
 <ul>
-<li class="chapter" data-level="3.1" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>3.1</b> Data</a></li>
-<li class="chapter" data-level="3.2" data-path="priors.html"><a href="priors.html"><i class="fa fa-check"></i><b>3.2</b> Priors</a></li>
-<li class="chapter" data-level="3.3" data-path="likelihoods.html"><a href="likelihoods.html"><i class="fa fa-check"></i><b>3.3</b> Likelihoods</a></li>
-<li class="chapter" data-level="3.4" data-path="importance-sampling-proposals.html"><a href="importance-sampling-proposals.html"><i class="fa fa-check"></i><b>3.4</b> Importance sampling proposals</a></li>
-<li class="chapter" data-level="3.5" data-path="mcmc-proposals.html"><a href="mcmc-proposals.html"><i class="fa fa-check"></i><b>3.5</b> MCMC proposals</a></li>
-<li class="chapter" data-level="3.6" data-path="transition-model.html"><a href="transition-model.html"><i class="fa fa-check"></i><b>3.6</b> Transition model</a></li>
-<li class="chapter" data-level="3.7" data-path="filter.html"><a href="filter.html"><i class="fa fa-check"></i><b>3.7</b> Filter</a></li>
-<li class="chapter" data-level="3.8" data-path="gradient.html"><a href="gradient.html"><i class="fa fa-check"></i><b>3.8</b> Gradient</a></li>
+<li class="chapter" data-level="3.1" data-path="factor-blocks.html"><a href="factor-blocks.html"><i class="fa fa-check"></i><b>3.1</b> Factor blocks</a>
+<ul>
+<li class="chapter" data-level="3.1.1" data-path="factor-blocks.html"><a href="factor-blocks.html#prior"><i class="fa fa-check"></i><b>3.1.1</b> Prior</a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>3.2</b> Data</a></li>
+<li class="chapter" data-level="3.3" data-path="priors.html"><a href="priors.html"><i class="fa fa-check"></i><b>3.3</b> Priors</a></li>
+<li class="chapter" data-level="3.4" data-path="likelihoods.html"><a href="likelihoods.html"><i class="fa fa-check"></i><b>3.4</b> Likelihoods</a></li>
+<li class="chapter" data-level="3.5" data-path="importance-sampling-proposals.html"><a href="importance-sampling-proposals.html"><i class="fa fa-check"></i><b>3.5</b> Importance sampling proposals</a></li>
+<li class="chapter" data-level="3.6" data-path="mcmc-proposals.html"><a href="mcmc-proposals.html"><i class="fa fa-check"></i><b>3.6</b> MCMC proposals</a></li>
+<li class="chapter" data-level="3.7" data-path="transition-model.html"><a href="transition-model.html"><i class="fa fa-check"></i><b>3.7</b> Transition model</a></li>
+<li class="chapter" data-level="3.8" data-path="filter.html"><a href="filter.html"><i class="fa fa-check"></i><b>3.8</b> Filter</a></li>
+<li class="chapter" data-level="3.9" data-path="gradient.html"><a href="gradient.html"><i class="fa fa-check"></i><b>3.9</b> Gradient</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="inference.html"><a href="inference.html"><i class="fa fa-check"></i><b>4</b> Inference algorithms</a>
 <ul>
@@ -269,6 +281,51 @@ div.csl-indent {
             <section class="normal" id="section-">
 <div id="R" class="section level2 hasAnchor" number="2.4">
 <h2><span class="header-section-number">2.4</span> R functions<a href="R.html#R" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Whilst C++ functions are the most computationally efficient when used in ilike inference algorithms, using an R function may be simpler and offer close to the same performance. To use an R function in ilike, the following must be specified:</p>
+<ol style="list-style-type: decimal">
+<li><p>Details in a function header, of how the R function interfaces to ilike.</p></li>
+<li><p>The R function itself, specified in a file with the same name as the ilike file, but with the <code>.R</code> extension.</p></li>
+</ol>
+<p>This section discusses arguments in R functions, and details how to specify both the header, and the R function. Note that R functions cannot be used when parallel versions of the inference algorithms are used.</p>
+<div id="function-arguments-for-r-functions" class="section level3 hasAnchor" number="2.4.1">
+<h3><span class="header-section-number">2.4.1</span> Function arguments for R functions<a href="R.html#function-arguments-for-r-functions" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>When using C++ functions, each function type has predefined arguments, as detailed in section <a href="blocks.html#blocks">3</a>. For example, the <code>evaluate_log_prior</code> function type has a <code>Parameters</code> object as its argument. A R function of the same type need not have these arguments, but it does have access to all of the same arguments used in the corresponding C++ function. For example an <code>evaluate_log_prior</code> function has access to an object called <code>parameters</code> that has the same content as the corresponding argument in the C++ code has.</p>
+<p>When using the arguments in R functions, users should also be aware of the following:</p>
+<ul>
+<li><p>When used in an R function, a <code>Parameters</code> object is an R list, whose elements can be accessed using the R syntax <code>parameters$variable</code>.</p></li>
+<li><p>A <code>Data</code> object is used in the same ways as a <code>Parameters</code> object - it is an R list, and elements may be accessed using <code>data$variable</code>.</p></li>
+<li><p>The names of the objects that may be used is pre-specified (and described in in section <a href="blocks.html#blocks">3</a>). For example, the objects available in the <code>evaluate_log_likelihood</code> function type are named <code>parameters</code> and <code>data</code>.</p></li>
+<li><p>In case you read the section on C++ functions and were wondering, random number streams do not need to be used in R functions.</p></li>
+</ul>
+</div>
+<div id="function-headers-for-r-functions" class="section level3 hasAnchor" number="2.4.2">
+<h3><span class="header-section-number">2.4.2</span> Function headers for R functions<a href="R.html#function-headers-for-r-functions" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>For C++ functions, a function header takes the form of, for example, <code>/***evaluate_log_prior***/</code>, with the associated function following on the subsequent line. For R functions, the function type must be followed (after a comma <code>,</code>) by the a call to the R function. For example, suppose the prior is given by a standard normal distribution, then the header would be</p>
+<div class="sourceCode" id="cb73"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb73-1"><a href="R.html#cb73-1" tabindex="-1"></a><span class="co">/***evaluate_log_prior, dnorm(parameters$x,log=TRUE)***/</span></span></code></pre></div>
+<p>where <code>parameters$x</code> is the value at which the prior is to be evaluated. Here the use of <code>parameters$x</code> will be interpreted as taking the parameter <code>x</code> from the <code>parameters</code> object.</p>
+<p>Just as when using C++ functions, each function type has a set of arguments it may use (in this case, <code>parameters</code>): these are detailed in section <a href="blocks.html#blocks">3</a>. There is some flexibility in how to use these arguments. For example, the <code>parameters</code> object may be used as a whole, or individual elements may be extracted from it. The example</p>
+<div class="sourceCode" id="cb74"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb74-1"><a href="R.html#cb74-1" tabindex="-1"></a><span class="co">/***evaluate_log_prior, dnorm(parameters$x,log=TRUE)***/</span></span></code></pre></div>
+<p>takes the approach of extracting the <code>x</code> element from the <code>parameters</code> object. In the following example, the <code>parameters</code> object is used as a whole:</p>
+<div class="sourceCode" id="cb75"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb75-1"><a href="R.html#cb75-1" tabindex="-1"></a><span class="co">/***evaluate_log_prior, my_density_log_evaluate(parameters)***/</span></span></code></pre></div>
+<p>Here <code>my_density_log_evaluate</code> is a function in the accompanying R file that takes the <code>parameters</code> object as an argument, for example</p>
+<div class="sourceCode" id="cb76"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb76-1"><a href="R.html#cb76-1" tabindex="-1"></a>my_density_log_evaluate <span class="ot">&lt;-</span> <span class="cf">function</span>(parameters) {</span>
+<span id="cb76-2"><a href="R.html#cb76-2" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">dnorm</span>(parameters<span class="sc">$</span>x,<span class="at">log=</span><span class="cn">TRUE</span>))</span>
+<span id="cb76-3"><a href="R.html#cb76-3" tabindex="-1"></a>}</span></code></pre></div>
+<p>Here <code>parameters</code> is an R list: the R analogue of the C++ class <code>Parameters</code> as was used in the C++ code.</p>
+<p>For some function types, the output needs to be stored in an object. For example, recall the function that loads the data in the example in <a href="toy-example.html#toy-example">1.1</a>:</p>
+<div class="sourceCode" id="cb77"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb77-1"><a href="R.html#cb77-1" tabindex="-1"></a><span class="co">/***data,y=get_data()***/</span></span></code></pre></div>
+<p>Here, as above, the function <code>get_data</code> is defined in the accompanying R file. The use of the <code>=</code> sign will result in the output of the function being stored in a <code>Data</code> object (the output type of the <code>data</code> function type) under the variable name <code>y</code>. This data can then be accessed in, say, the <code>evaluate_log_likelihood</code> function type using <code>data["y"]</code> in a C++ function, or <code>data$y</code> in an R function. Recall the likelihood from the example in section <a href="toy-example.html#toy-example">1.1</a>:</p>
+<div class="sourceCode" id="cb78"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb78-1"><a href="R.html#cb78-1" tabindex="-1"></a><span class="co">/***evaluate_log_likelihood***/</span></span>
+<span id="cb78-2"><a href="R.html#cb78-2" tabindex="-1"></a><span class="dt">double</span> llhd<span class="op">(</span><span class="at">const</span> Parameters <span class="op">&amp;</span>parameters<span class="op">,</span></span>
+<span id="cb78-3"><a href="R.html#cb78-3" tabindex="-1"></a>            <span class="at">const</span> Data <span class="op">&amp;</span>data<span class="op">)</span></span>
+<span id="cb78-4"><a href="R.html#cb78-4" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb78-5"><a href="R.html#cb78-5" tabindex="-1"></a>  arma<span class="op">::</span>colvec θ <span class="op">=</span> parameters<span class="op">[</span><span class="st">&quot;θ&quot;</span><span class="op">];</span></span>
+<span id="cb78-6"><a href="R.html#cb78-6" tabindex="-1"></a>  <span class="dt">double</span> y <span class="op">=</span> data<span class="op">[</span><span class="st">&quot;y&quot;</span><span class="op">];</span></span>
+<span id="cb78-7"><a href="R.html#cb78-7" tabindex="-1"></a>  <span class="cf">return</span> sum<span class="op">(</span>dnorm<span class="op">(</span>y<span class="op">,</span>θ<span class="op">[</span><span class="dv">0</span><span class="op">]+</span>θ<span class="op">[</span><span class="dv">1</span><span class="op">],</span><span class="fl">1.0</span><span class="op">));</span></span>
+<span id="cb78-8"><a href="R.html#cb78-8" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>In some cases the R functions might rely on external packages. In this case, the R function should load the package at the beginning of the .R file (e.g. <code>library(mvtnorm)</code>), and the package should also be listed in the <code>external_packages</code> argument when calling the <code>compile</code> function. For example:</p>
+<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb79-1"><a href="R.html#cb79-1" tabindex="-1"></a>model <span class="ot">=</span> <span class="fu">compile</span>(<span class="st">&quot;myfile.ilike&quot;</span>, <span class="at">external_packages =</span> <span class="fu">c</span>(<span class="st">&quot;mvtnorm&quot;</span>,<span class="st">&quot;gk&quot;</span>))</span></code></pre></div>
+</div>
 </div>
             </section>
 

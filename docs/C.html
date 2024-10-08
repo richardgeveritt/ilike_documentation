@@ -23,7 +23,7 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2024-09-25" />
+<meta name="date" content="2024-10-02" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -56,7 +56,7 @@
 
 <style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -66,7 +66,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -128,6 +128,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
+  margin-bottom: 0em;
 }
 .hanging div.csl-entry {
   margin-left:2em;
@@ -185,21 +186,32 @@ div.csl-indent {
 <li class="chapter" data-level="2.3.2" data-path="C.html"><a href="C.html#ilike-cpp-classes"><i class="fa fa-check"></i><b>2.3.2</b> ilike C++ classes</a></li>
 <li class="chapter" data-level="2.3.3" data-path="C.html"><a href="C.html#ilike-cpp-functions"><i class="fa fa-check"></i><b>2.3.3</b> ilike C++ functions</a></li>
 </ul></li>
-<li class="chapter" data-level="2.4" data-path="R.html"><a href="R.html"><i class="fa fa-check"></i><b>2.4</b> R functions</a></li>
-<li class="chapter" data-level="2.5" data-path="python.html"><a href="python.html"><i class="fa fa-check"></i><b>2.5</b> python functions</a></li>
-<li class="chapter" data-level="2.6" data-path="julia.html"><a href="julia.html"><i class="fa fa-check"></i><b>2.6</b> julia functions</a></li>
+<li class="chapter" data-level="2.4" data-path="R.html"><a href="R.html"><i class="fa fa-check"></i><b>2.4</b> R functions</a>
+<ul>
+<li class="chapter" data-level="2.4.1" data-path="R.html"><a href="R.html#function-arguments-for-r-functions"><i class="fa fa-check"></i><b>2.4.1</b> Function arguments for R functions</a></li>
+<li class="chapter" data-level="2.4.2" data-path="R.html"><a href="R.html#function-headers-for-r-functions"><i class="fa fa-check"></i><b>2.4.2</b> Function headers for R functions</a></li>
+</ul></li>
+<li class="chapter" data-level="2.5" data-path="python.html"><a href="python.html"><i class="fa fa-check"></i><b>2.5</b> Python functions</a>
+<ul>
+<li class="chapter" data-level="2.5.1" data-path="python.html"><a href="python.html#using-jax-to-calculate-gradients"><i class="fa fa-check"></i><b>2.5.1</b> Using jax to calculate gradients</a></li>
+</ul></li>
+<li class="chapter" data-level="2.6" data-path="julia.html"><a href="julia.html"><i class="fa fa-check"></i><b>2.6</b> Julia functions</a></li>
 <li class="chapter" data-level="2.7" data-path="ilike-functions.html"><a href="ilike-functions.html"><i class="fa fa-check"></i><b>2.7</b> ilike functions</a></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="blocks.html"><a href="blocks.html"><i class="fa fa-check"></i><b>3</b> ilike blocks</a>
 <ul>
-<li class="chapter" data-level="3.1" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>3.1</b> Data</a></li>
-<li class="chapter" data-level="3.2" data-path="priors.html"><a href="priors.html"><i class="fa fa-check"></i><b>3.2</b> Priors</a></li>
-<li class="chapter" data-level="3.3" data-path="likelihoods.html"><a href="likelihoods.html"><i class="fa fa-check"></i><b>3.3</b> Likelihoods</a></li>
-<li class="chapter" data-level="3.4" data-path="importance-sampling-proposals.html"><a href="importance-sampling-proposals.html"><i class="fa fa-check"></i><b>3.4</b> Importance sampling proposals</a></li>
-<li class="chapter" data-level="3.5" data-path="mcmc-proposals.html"><a href="mcmc-proposals.html"><i class="fa fa-check"></i><b>3.5</b> MCMC proposals</a></li>
-<li class="chapter" data-level="3.6" data-path="transition-model.html"><a href="transition-model.html"><i class="fa fa-check"></i><b>3.6</b> Transition model</a></li>
-<li class="chapter" data-level="3.7" data-path="filter.html"><a href="filter.html"><i class="fa fa-check"></i><b>3.7</b> Filter</a></li>
-<li class="chapter" data-level="3.8" data-path="gradient.html"><a href="gradient.html"><i class="fa fa-check"></i><b>3.8</b> Gradient</a></li>
+<li class="chapter" data-level="3.1" data-path="factor-blocks.html"><a href="factor-blocks.html"><i class="fa fa-check"></i><b>3.1</b> Factor blocks</a>
+<ul>
+<li class="chapter" data-level="3.1.1" data-path="factor-blocks.html"><a href="factor-blocks.html#prior"><i class="fa fa-check"></i><b>3.1.1</b> Prior</a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>3.2</b> Data</a></li>
+<li class="chapter" data-level="3.3" data-path="priors.html"><a href="priors.html"><i class="fa fa-check"></i><b>3.3</b> Priors</a></li>
+<li class="chapter" data-level="3.4" data-path="likelihoods.html"><a href="likelihoods.html"><i class="fa fa-check"></i><b>3.4</b> Likelihoods</a></li>
+<li class="chapter" data-level="3.5" data-path="importance-sampling-proposals.html"><a href="importance-sampling-proposals.html"><i class="fa fa-check"></i><b>3.5</b> Importance sampling proposals</a></li>
+<li class="chapter" data-level="3.6" data-path="mcmc-proposals.html"><a href="mcmc-proposals.html"><i class="fa fa-check"></i><b>3.6</b> MCMC proposals</a></li>
+<li class="chapter" data-level="3.7" data-path="transition-model.html"><a href="transition-model.html"><i class="fa fa-check"></i><b>3.7</b> Transition model</a></li>
+<li class="chapter" data-level="3.8" data-path="filter.html"><a href="filter.html"><i class="fa fa-check"></i><b>3.8</b> Filter</a></li>
+<li class="chapter" data-level="3.9" data-path="gradient.html"><a href="gradient.html"><i class="fa fa-check"></i><b>3.9</b> Gradient</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="inference.html"><a href="inference.html"><i class="fa fa-check"></i><b>4</b> Inference algorithms</a>
 <ul>
@@ -269,8 +281,8 @@ div.csl-indent {
             <section class="normal" id="section-">
 <div id="C" class="section level2 hasAnchor" number="2.3">
 <h2><span class="header-section-number">2.3</span> C++ functions<a href="C.html#C" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>ilike inference will be most computationally efficient if the functions are specified in C++ (or in the native ilike functions in section (ilike-functions)). The interface is designed with the aim that it is possible to use C++ functions for users with a range of different backgrounds: from those who know relatively little C++ (for whom R-like functions are provided to facilitate the process); to those who have an existing C++ code base that they would like to use to, for example, define a simulator-based model.</p>
-<p>We have already seen an example of C++ functions in section (toy-example). Here is the <code>evaluate_log_prior</code> function from that example.</p>
+<p>ilike inference will be most computationally efficient if the functions are specified in C++ (or in the native ilike functions in section <a href="ilike-functions.html#ilike-functions">2.7</a>). The interface is designed with the aim that it is possible to use C++ functions for users with a range of different backgrounds: from those who know relatively little C++ (for whom R-like functions are provided to facilitate the process); to those who have an existing C++ code base that they would like to use to, for example, define a simulator-based model.</p>
+<p>We have already seen an example of C++ functions in section <a href="toy-example.html#toy-example">1.1</a>. Here is the <code>evaluate_log_prior</code> function from that example.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="C.html#cb3-1" tabindex="-1"></a><span class="co">/***evaluate_log_prior***/</span></span>
 <span id="cb3-2"><a href="C.html#cb3-2" tabindex="-1"></a><span class="dt">double</span> prior_eval<span class="op">(</span><span class="at">const</span> Parameters <span class="op">&amp;</span>parameters<span class="op">)</span></span>
 <span id="cb3-3"><a href="C.html#cb3-3" tabindex="-1"></a><span class="op">{</span></span>
@@ -282,10 +294,10 @@ div.csl-indent {
 <ul>
 <li><p>The name of the function can be anything you like.</p></li>
 <li><p>It is a standard C++ function that, independently of being compiled by ilike would compile using a C++ compiler if all of the correct header files are included<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>.</p></li>
-<li><p>It has a return type (<code>double</code>) and argument(s) (<code>const Parameters &amp;</code>)<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a> that are pre-determined by the ilike package. The key point is that if a function under the <code>evaluate_log_prior</code> type does not have this return type and arguments (including the <code>const</code> and the <code>&amp;</code>), you will receive an error.</p></li>
-<li><p>The type <code>Parameters</code> is a class defined in the ilike package source. It operates in a similar way to an R list, or a python dictionary. There are more details about this in section (ilike-cpp-classes).</p></li>
+<li><p>It has a return type (<code>double</code>) and argument(s) (<code>const Parameters &amp;</code>)<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a> that are pre-determined by the ilike package. The key point is that if a function under the <code>evaluate_log_prior</code> type does not have this return type and arguments (including the <code>const</code> and the <code>&amp;</code>), you will receive an error. The return type and arguments for each function type are given in section <a href="blocks.html#blocks">3</a>.</p></li>
+<li><p>The type <code>Parameters</code> is a class defined in the ilike package source. It operates in a similar way to an R list, or a python dictionary. There are more details about this in section <a href="C.html#ilike-cpp-classes">2.3.2</a>.</p></li>
 <li><p>arma::colvec is vector type found in the <a href="https://arma.sourceforge.net/docs.html">armadillo</a> library. Any functions written to be compiled in ilike have access to this library courtesy of the R package <code>RcppArmadillo</code> <span class="citation">(<a href="#ref-eddelbuettel2014rcpparmadillo">Eddelbuettel and Sanderson 2014</a>)</span>. Parameter vectors are stored in the <code>Parameters</code> classes using armadillo matrices.</p></li>
-<li><p>The function <code>dnorm</code> is an C++ function provided in the ilike package for use in ilike files (or for anyone writing <code>Rcpp</code> code). More details about these functions can be found in section (ilike-cpp-functions).</p></li>
+<li><p>The function <code>dnorm</code> is an C++ function provided in the ilike package for use in ilike files (or for anyone writing <code>Rcpp</code> code). More details about these functions can be found in section <a href="C.html#ilike-cpp-functions">2.3.3</a>.</p></li>
 </ul>
 <p>In conclusion, to write a C++ function in an ilike file:</p>
 <ol style="list-style-type: decimal">
@@ -294,7 +306,7 @@ div.csl-indent {
 </ol>
 <div id="including-additional-code" class="section level3 hasAnchor" number="2.3.1">
 <h3><span class="header-section-number">2.3.1</span> Including additional code<a href="C.html#including-additional-code" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<p>For anything beyond a simple model, writing all of the implementation of, say, a likelihood, within a single C++ function is quite constraining. Fortunately an ilike file gives you more flexibility than this. As an example, consider an altered version of the beginning of the ilike file from section (toy-example), in which we have added a <code>simulate_prior</code> function to go with the <code>evaluate_log_prior</code> function.</p>
+<p>For anything beyond a simple model, writing all of the implementation of, say, a likelihood, within a single C++ function is quite constraining. Fortunately an ilike file gives you more flexibility than this. As an example, consider an altered version of the beginning of the ilike file from section <a href="toy-example.html#toy-example">1.1</a>, in which we have added a <code>simulate_prior</code> function to go with the <code>evaluate_log_prior</code> function.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="C.html#cb4-1" tabindex="-1"></a><span class="co">/***data,y=get_data()***/</span></span>
 <span id="cb4-2"><a href="C.html#cb4-2" tabindex="-1"></a>  </span>
 <span id="cb4-3"><a href="C.html#cb4-3" tabindex="-1"></a><span class="co">/***evaluate_log_prior***/</span></span>
@@ -369,17 +381,17 @@ div.csl-indent {
 <h4><span class="header-section-number">2.3.2.1</span> Constructors<a href="C.html#constructors" class="anchor-section" aria-label="Anchor link to header"></a></h4>
 <div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="C.html#cb8-1" tabindex="-1"></a>Parameters<span class="op">();</span></span></code></pre></div>
 <p>This constructs an empty Parameters object.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="C.html#cb9-1" tabindex="-1"></a>Parameters<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op"> &amp;</span>variable_in<span class="op">,</span></span>
+<div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="C.html#cb9-1" tabindex="-1"></a>Parameters<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string <span class="op">&amp;</span>variable_in<span class="op">,</span></span>
 <span id="cb9-2"><a href="C.html#cb9-2" tabindex="-1"></a>           <span class="dt">double</span> value_in<span class="op">);</span></span></code></pre></div>
 <p>This constructs a Parameters object with the given <code>double</code> stored in a <span class="math inline">\(1\times 1\)</span> dimensional <code>arma::mat</code> matrix, indexed by the key given by the <code>std::string</code>.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="C.html#cb10-1" tabindex="-1"></a>Parameters<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op"> &amp;</span>variable_in<span class="op">,</span></span>
+<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="C.html#cb10-1" tabindex="-1"></a>Parameters<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string <span class="op">&amp;</span>variable_in<span class="op">,</span></span>
 <span id="cb10-2"><a href="C.html#cb10-2" tabindex="-1"></a>           <span class="at">const</span> arma<span class="op">::</span>mat <span class="op">&amp;</span>value_in<span class="op">);</span></span></code></pre></div>
 <p>This constructs a Parameters object with the given <code>arma::mat</code> stored in the Parameters object with index by the key given by the <code>std::string</code>. An <code>arma::colvec</code> can also be supplied as an argument to this function, with the armadillo library dealing with the conversion between the types.</p>
 </div>
 <div id="element-access" class="section level4 hasAnchor" number="2.3.2.2">
 <h4><span class="header-section-number">2.3.2.2</span> Element access<a href="C.html#element-access" class="anchor-section" aria-label="Anchor link to header"></a></h4>
-<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="C.html#cb11-1" tabindex="-1"></a>arma<span class="op">::</span>mat<span class="op">&amp;</span> <span class="kw">operator</span><span class="op">[](</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op"> &amp;</span>variable<span class="op">);</span></span>
-<span id="cb11-2"><a href="C.html#cb11-2" tabindex="-1"></a>arma<span class="op">::</span>mat <span class="kw">operator</span><span class="op">[](</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op"> &amp;</span>variable<span class="op">)</span> <span class="at">const</span><span class="op">;</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="C.html#cb11-1" tabindex="-1"></a>arma<span class="op">::</span>mat<span class="op">&amp;</span> <span class="kw">operator</span><span class="op">[](</span><span class="at">const</span> <span class="bu">std::</span>string <span class="op">&amp;</span>variable<span class="op">);</span></span>
+<span id="cb11-2"><a href="C.html#cb11-2" tabindex="-1"></a>arma<span class="op">::</span>mat <span class="kw">operator</span><span class="op">[](</span><span class="at">const</span> <span class="bu">std::</span>string <span class="op">&amp;</span>variable<span class="op">)</span> <span class="at">const</span><span class="op">;</span></span></code></pre></div>
 <p>These functions allow: (a) the assignment to an existing <code>Parameters</code> object of a new <code>arma::mat</code>, indexed by the key given by the <code>std::string</code>; and (b) accessing in a <code>Parameters</code>object the <code>arma::mat</code>, indexed by the key given by the <code>std::string</code>.</p>
 <p>For example, to store a column vector with the key <code>"x"</code>:</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="C.html#cb12-1" tabindex="-1"></a>arma<span class="op">::</span>colvec a_vector<span class="op">(</span><span class="dv">2</span><span class="op">);</span></span>
@@ -427,7 +439,7 @@ div.csl-indent {
 <h4><span class="header-section-number">2.3.2.5</span> Printing<a href="C.html#printing" class="anchor-section" aria-label="Anchor link to header"></a></h4>
 <div class="sourceCode" id="cb18"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="C.html#cb18-1" tabindex="-1"></a><span class="bu">std::</span>ostream<span class="op">&amp;</span> <span class="kw">operator</span><span class="op">&lt;&lt;(</span><span class="bu">std::</span>ostream<span class="op">&amp;</span> os<span class="op">,</span> <span class="at">const</span> Parameters <span class="op">&amp;</span>p<span class="op">);</span></span></code></pre></div>
 <p>This function prints a <code>Parameters</code> object to an output stream. For example, to print to console:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb19-1"><a href="C.html#cb19-1" tabindex="-1"></a><span class="bu">std::</span>cout<span class="op"> &lt;&lt;</span> parameters<span class="op">;</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb19-1"><a href="C.html#cb19-1" tabindex="-1"></a><span class="bu">std::</span>cout <span class="op">&lt;&lt;</span> parameters<span class="op">;</span></span></code></pre></div>
 </div>
 </div>
 <div id="ilike-cpp-functions" class="section level3 hasAnchor" number="2.3.3">
@@ -526,7 +538,7 @@ div.csl-indent {
 <span id="cb34-2"><a href="C.html#cb34-2" tabindex="-1"></a>              <span class="dt">double</span> meanlog<span class="op">,</span></span>
 <span id="cb34-3"><a href="C.html#cb34-3" tabindex="-1"></a>              <span class="dt">double</span> sdlog<span class="op">)</span></span>
 <span id="cb34-4"><a href="C.html#cb34-4" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb34-5"><a href="C.html#cb34-5" tabindex="-1"></a>  <span class="ex">boost::</span>random<span class="ex">::</span>lognormal_distribution<span class="op">&lt;</span><span class="dt">double</span><span class="op">&gt;</span> my_gamma<span class="op">(</span>meanlog<span class="op">,</span> sdlog<span class="op">);</span></span>
+<span id="cb34-5"><a href="C.html#cb34-5" tabindex="-1"></a>  <span class="ex">boost::</span>random::lognormal_distribution<span class="op">&lt;</span><span class="dt">double</span><span class="op">&gt;</span> my_gamma<span class="op">(</span>meanlog<span class="op">,</span> sdlog<span class="op">);</span></span>
 <span id="cb34-6"><a href="C.html#cb34-6" tabindex="-1"></a>  <span class="cf">return</span> my_gamma<span class="op">(</span>rng<span class="op">);</span></span>
 <span id="cb34-7"><a href="C.html#cb34-7" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>Generates a random number from the log-normal distribution with mean of the log of the variable <code>meanlog</code> and standard deviation of the log of the variable <code>sdlog</code>.</p>
@@ -778,7 +790,7 @@ div.csl-indent {
 </div>
 </div>
 <h3>References<a href="references.html#references" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-BH" class="csl-entry">
 Eddelbuettel, Dirk, John W. Emerson, and Michael J. Kane. 2024. <em>BH: Boost c++ Header Files</em>. <a href="https://CRAN.R-project.org/package=BH">https://CRAN.R-project.org/package=BH</a>.
 </div>
@@ -799,7 +811,7 @@ Stubner, Ralf. 2023. <em>Dqrng: Fast Pseudo Random Number Generators</em>. <a hr
 <hr />
 <ol start="3">
 <li id="fn3"><p>In fact this is also true for a whole ilike file. The headers that need to be included for the ilike package can be found in the package <code>inst/include</code> directory. Other headers from other R packages that ilike depends on are also required (see the <code>LinkingTo</code> section in the package <code>DESCRIPTION</code> file.<a href="C.html#fnref3" class="footnote-back">↩︎</a></p></li>
-<li id="fn4"><p>If the argument, for example, seem mysterious to you, don’t worry about this just yet. This documentation should tell you most of what you need to know to get started. If you want to understand more, <a href="https://cplusplus.com/doc/tutorial/functions/">this tutorial</a> is a reasonable starting point.<a href="C.html#fnref4" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p>If you are not familiar with C++, and you are not clear about what this means, don’t worry about this just yet. This documentation should tell you most of what you need to know to get started. If you want to understand more, <a href="https://cplusplus.com/doc/tutorial/functions/">this tutorial</a> is a reasonable starting point.<a href="C.html#fnref4" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
             </section>

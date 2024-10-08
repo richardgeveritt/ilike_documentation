@@ -1,6 +1,6 @@
 # ilike files {#ilike-files}
 
-The ilike package uses an ilike file is used to specify the statistical model (priors and likelihoods) on which we will perform inference, along with the data and functions and parameters for the inference algorithm. This section gives a full description of how to specify this file.
+The ilike package uses an ilike file is used to specify the statistical model (priors and likelihoods) on which we will perform inference, along with the data and functions and parameters for the inference algorithm. This section gives a full description of how to specify this file. If the description here seems a bit intimidating, then head over to section \@ref(examples) to see some worked examples first, and come back to this section if you need clarification on anything.
 
 An ilike file is an adapted version of a C++ source file: but don't let this put you off if you don't know C++! It is possible to specify an ilike file without knowing any C++ at all. The functions in an ilike file can be specified using C++, R, python, julia. A section will be devoted to specifying the file via each of these languages. Additionally, some functions in the file may be specified by using commands that are native to the ilike package, and different functions in the file may be specified using different languages. The ilike file is compiled before it is used for running inference algorithms.
 
@@ -16,7 +16,7 @@ The ilike file must contain all of the functions required to run the desired alg
 
 An ilike file consists of "blocks" of content, each of which specifies a component of the model (or in some cases the the inference algorithm). In an example of a simple model, the prior may be specified in one block, the likelihood in another, and the data in another. A block may consist of more than one function.
 
-Each function in an ilike file must have a *function type* specified in a header in the line above the function. A header is enclosed in the characters `\***` at the beginning and `***\` at the end, with the function type written directly after the beginning characters `\***`. See, for example, in section \ref@(toy-example), the function that specifies how to evaluate the log of a prior density that has the header `/***evaluate_log_prior***/`, which defines the function type to be `evaluate_log_prior`.
+Each function in an ilike file must have a *function type* specified in a header in the line above the function. A header is enclosed in the characters `\***` at the beginning and `***\` at the end, with the function type written directly after the beginning characters `\***`. See, for example, in section \@ref(toy-example), the function that specifies how to evaluate the log of a prior density that has the header `/***evaluate_log_prior***/`, which defines the function type to be `evaluate_log_prior`.
 
 For example, a block containing a prior may include two functions: `evaluate_log_prior` and `simulate_prior`. The functions included in a block depend on which algorithm we would like to run.
 
@@ -27,11 +27,13 @@ Blocks may be specified *explicitly* or determined *automatically*:
 
 Specifying blocks explicitly using `//#` has the benefit of avoiding ambiguity. If you decide to use the explicit approach, you need not read the next subsection, which explains how to write a file where the blocks are determined automatically.
 
+Whether specified explicitly or automatically, the block type (and subtype if this exists) is determined by the function types in the block. The function types that are used to determine the block type are described in section \@ref(blocks). For example, if a block contains  `evaluate_log_prior` and `simulate_prior`, the block type is "factor" and the subtype is "prior".
+
 ### Specifying blocks automatically {#blocks-automatically}
 
-All of the example files used in this documentation use the automatic approach to specifying a model. For simple models, we anticipate that the user will not need to think very much about the precise structure of the model file. Nevertheless, this section details precisely how the compiler determines the blocks present in the file. If you are interested in 
+All of the example files used in this documentation use the automatic approach to specifying a model. For simple models, we anticipate that the user will not need to think very much about the precise structure of the model file. Nevertheless, this section details precisely how the compiler determines the blocks present in the file.
 
-The compiler reads the model file from top to bottom and determines when a block is "opened" and when it is "closed". There are multiple different types of block (some of which have subtypes), each of which is defined by containing different function types (this is fully described in section \ref@(blocks)). One of each block type can be "open" as the compiler processes the file. The first time a block of each type is encountered in the file by the compiler, a block of that type will be opened. A block is closed when either:
+The compiler reads the model file from top to bottom and determines when a block is "opened" and when it is "closed". There are multiple different types of block (some of which have subtypes), each of which is defined by containing different function types (this is fully described in section \@ref(blocks)). One of each block type can be "open" as the compiler processes the file. The first time a block of each type is encountered in the file by the compiler, a block of that type will be opened. A block is closed when either:
 
 1. A new block of the same type is opened. This happens when the next function type in the file is either:
 
@@ -65,12 +67,11 @@ model = compile("myfile.ilike", keep_temporary_model_code = TRUE)
 
 This file will be left in the working directory: its filename will be something like `model_for_compilation1_2655087.cpp`. The number at the end is generated at random to mitigate encountering a memory issue that leads R to crash^[Many thanks to Jouni Helske for suggesting this fix, and a shout out to his `bssm` package [@helske2021bssm] that uses a similar approach to passing C++ functions through an R interface.].
 
-
 ## C++ functions {#C}
 
-ilike inference will be most computationally efficient if the functions are specified in C++ (or in the native ilike functions in section \ref@(ilike-functions)). The interface is designed with the aim that it is possible to use C++ functions for users with a range of different backgrounds: from those who know relatively little C++ (for whom R-like functions are provided to facilitate the process); to those who have an existing C++ code base that they would like to use to, for example, define a simulator-based model.
+ilike inference will be most computationally efficient if the functions are specified in C++ (or in the native ilike functions in section \@ref(ilike-functions)). The interface is designed with the aim that it is possible to use C++ functions for users with a range of different backgrounds: from those who know relatively little C++ (for whom R-like functions are provided to facilitate the process); to those who have an existing C++ code base that they would like to use to, for example, define a simulator-based model.
 
-We have already seen an example of C++ functions in section \ref@(toy-example). Here is the `evaluate_log_prior` function from that example.
+We have already seen an example of C++ functions in section \@ref(toy-example). Here is the `evaluate_log_prior` function from that example.
 
 ```{Rcpp,eval=FALSE}
 /***evaluate_log_prior***/
@@ -89,13 +90,13 @@ There are several points that are worth highlighting about this function:
 
 * It is a standard C++ function that, independently of being compiled by ilike would compile using a C++ compiler if all of the correct header files are included^[In fact this is also true for a whole ilike file. The headers that need to be included for the ilike package can be found in the package `inst/include` directory. Other headers from other R packages that ilike depends on are also required (see the `LinkingTo` section in the package `DESCRIPTION` file.].
 
-* It has a return type (`double`) and argument(s) (`const Parameters &`)^[If you are not familiar with C++, and you are not clear about what this means, don't worry about this just yet. This documentation should tell you most of what you need to know to get started. If you want to understand more, [this tutorial](https://cplusplus.com/doc/tutorial/functions/) is a reasonable starting point.] that are pre-determined by the ilike package. The key point is that if a function under the `evaluate_log_prior` type does not have this return type and arguments (including the `const` and the `&`), you will receive an error. The return type and arguments for each function type are given in section \ref@(blocks).
+* It has a return type (`double`) and argument(s) (`const Parameters &`)^[If you are not familiar with C++, and you are not clear about what this means, don't worry about this just yet. This documentation should tell you most of what you need to know to get started. If you want to understand more, [this tutorial](https://cplusplus.com/doc/tutorial/functions/) is a reasonable starting point.] that are pre-determined by the ilike package. The key point is that if a function under the `evaluate_log_prior` type does not have this return type and arguments (including the `const` and the `&`), you will receive an error. The return type and arguments for each function type are given in section \@ref(blocks).
 
-* The type `Parameters` is a class defined in the ilike package source. It operates in a similar way to an R list, or a python dictionary. There are more details about this in section \ref@(ilike-cpp-classes).
+* The type `Parameters` is a class defined in the ilike package source. It operates in a similar way to an R list, or a python dictionary. There are more details about this in section \@ref(ilike-cpp-classes).
 
 * arma::colvec is vector type found in the [armadillo](https://arma.sourceforge.net/docs.html) library. Any functions written to be compiled in ilike have access to this library courtesy of the R package `RcppArmadillo` [@eddelbuettel2014rcpparmadillo]. Parameter vectors are stored in the `Parameters` classes using armadillo matrices.
 
-* The function `dnorm` is an C++ function provided in the ilike package for use in ilike files (or for anyone writing `Rcpp` code). More details about these functions can be found in section \ref@(ilike-cpp-functions).
+* The function `dnorm` is an C++ function provided in the ilike package for use in ilike files (or for anyone writing `Rcpp` code). More details about these functions can be found in section \@ref(ilike-cpp-functions).
 
 In conclusion, to write a C++ function in an ilike file:
 
@@ -105,7 +106,7 @@ In conclusion, to write a C++ function in an ilike file:
 
 ### Including additional code
 
-For anything beyond a simple model, writing all of the implementation of, say, a likelihood, within a single C++ function is quite constraining. Fortunately an ilike file gives you more flexibility than this. As an example, consider an altered version of the beginning of the ilike file from section \ref@(toy-example), in which we have added a `simulate_prior` function to go with the `evaluate_log_prior` function.
+For anything beyond a simple model, writing all of the implementation of, say, a likelihood, within a single C++ function is quite constraining. Fortunately an ilike file gives you more flexibility than this. As an example, consider an altered version of the beginning of the ilike file from section \@ref(toy-example), in which we have added a `simulate_prior` function to go with the `evaluate_log_prior` function.
 
 ```{Rcpp,eval=FALSE}
 /***data,y=get_data()***/
@@ -907,7 +908,21 @@ Whilst C++ functions are the most computationally efficient when used in ilike i
 
 2. The R function itself, specified in a file with the same name as the ilike file, but with the `.R` extension.
 
-This section details how to specify both the header, and the R function.
+This section discusses arguments in R functions, and details how to specify both the header, and the R function. Note that R functions cannot be used when parallel versions of the inference algorithms are used.
+
+### Function arguments for R functions
+
+When using C++ functions, each function type has predefined arguments, as detailed in section \@ref(blocks). For example, the `evaluate_log_prior` function type has a `Parameters` object as its argument. A R function of the same type need not have these arguments, but it does have access to all of the same arguments used in the corresponding C++ function. For example an `evaluate_log_prior` function has access to an object called `parameters` that has the same content as the corresponding argument in the C++ code has.
+
+When using the arguments in R functions, users should also be aware of the following:
+
+- When used in an R function, a `Parameters` object is an R list, whose elements can be accessed using the R syntax `parameters$variable`.
+
+- A `Data` object is used in the same ways as a `Parameters` object - it is an R list, and elements may be accessed using `data$variable`.
+
+- The names of the objects that may be used is pre-specified (and described in in section \@ref(blocks)). For example, the objects available in the `evaluate_log_likelihood` function type are named `parameters` and `data`.
+
+- In case you read the section on C++ functions and were wondering, random number streams do not need to be used in R functions.
 
 ### Function headers for R functions
 
@@ -919,13 +934,13 @@ For C++ functions, a function header takes the form of, for example, `/***evalua
 
 where `parameters$x` is the value at which the prior is to be evaluated. Here the use of `parameters$x` will be interpreted as taking the parameter `x` from the `parameters` object.
 
-Just as when using C++ functions, each function type has a set of arguments it may use (in this case, `parameters`): these are detailed in section \ref@(blocks). There is some flexibility in how to use these arguments. For example, the `parameters` object may be used as a whole, or individual elements may be extracted from it. The example
+Just as when using C++ functions, each function type has a set of arguments it may use (in this case, `parameters`): these are detailed in section \@ref(blocks). There is some flexibility in how to use these arguments. For example, the `parameters` object may be used as a whole, or individual elements may be extracted from it. The example
 
 ```{Rcpp,eval=FALSE}
 /***evaluate_log_prior, dnorm(parameters$x,log=TRUE)***/
 ```
 
-takes the approach of extraxting the `x` element from the `parameters` object. In the following example, the `parameters` object is used as a whole:
+takes the approach of extracting the `x` element from the `parameters` object. In the following example, the `parameters` object is used as a whole:
 
 ```{Rcpp,eval=FALSE}
 /***evaluate_log_prior, my_density_log_evaluate(parameters)***/
@@ -941,13 +956,13 @@ my_density_log_evaluate <- function(parameters) {
 
 Here `parameters` is an R list: the R analogue of the C++ class `Parameters` as was used in the C++ code.
 
-For some function types, the output needs to be stored in an object. For example, recall the function that loads the data in the example in \ref@(toy-example):
+For some function types, the output needs to be stored in an object. For example, recall the function that loads the data in the example in \@ref(toy-example):
 
 ```{Rcpp,eval=FALSE}
 /***data,y=get_data()***/
 ```
 
-Here, as above, the function `get_data` is defined in the accompanying R file. The use of the `=` sign will result in the output of the function being stored in a `Data` object (the output type of the `data` function type) under the variable name `y`. This data can then be accessed in, say, the `evaluate_log_likelihood` function type using `data["y"]` in a C++ function, or `data$y` in an R function. Recall the likelihood from the example in section \ref@(toy-example):
+Here, as above, the function `get_data` is defined in the accompanying R file. The use of the `=` sign will result in the output of the function being stored in a `Data` object (the output type of the `data` function type) under the variable name `y`. This data can then be accessed in, say, the `evaluate_log_likelihood` function type using `data["y"]` in a C++ function, or `data$y` in an R function. Recall the likelihood from the example in section \@ref(toy-example):
 
 ```{Rcpp,eval=FALSE}
 /***evaluate_log_likelihood***/
@@ -960,14 +975,152 @@ double llhd(const Parameters &parameters,
 }
 ```
 
-## python functions {#python}
+In some cases the R functions might rely on external packages. In this case, the R function should load the package at the beginning of the .R file (e.g. `library(mvtnorm)`), and the package should also be listed in the `external_packages` argument when calling the `compile` function. For example:
 
-## julia functions {#julia}
+```{r,eval=FALSE}
+model = compile("myfile.ilike", external_packages = c("mvtnorm","gk"))
+```
+
+## Python functions {#python}
+
+In this section, we will detail how to use Python functions in ilike. The process is similar to that of using R functions. The function header must be specified in the same way as for R functions, with the function type followed by a call to the Python function. The Python function itself is specified in a file with the same name as the ilike file, but with the `.py` extension. Behind the scenes, the `reticulate` R package is used to make the python function callable from R, and hence from ilike.
+
+The use of R as an intermediary between the Python code and the ilike inference engine results in an overhead in using Python functions, since each time a Python function is called the Python data structures must be converted to Rcpp data structures (and/or vice versa, depending on the function type). Depending on the algorithm/model combination you are using, this overhead may be significant. For example, an MCMC that uses an exact likelihood may be significantly slower when using a Python function, since the conversion overhead may be significant when compared to the cost of the likelihood evaluation. However, an ABC-MCMC algorithm that involves a costly simulation step may not be significantly affected by the overhead of using a Python function.
+
+Python functions may be called directly from the function header just as R functions are. The code in the function header should be treated as R code, even if the function being called is a Python function - so R syntax should be used when accessing arguments in the header line (e.g. use `parameters$x` in this line to access variable `x` in the `parameters` object). In the Python function itself, `Parameters` and `Data` objects will take the form of a Python dictionary (so `parameters["x"]` would be used to access variable `x`). Python functions cannot be used with parallel inference algorithms.
+
+The following example demonstrates how to use a Python function in ilike, in this case an additive Gaussian noise model, specified with the function type `evaluate_log_likelihood`:
+
+```{Rcpp,eval=FALSE}
+/***evaluate_log_likelihood,my_log_llhd(parameters,data)***/
+```
+
+`my_log_llhd` is specified in a file with the same name as the ilike file, but with the `.py` extension. The function `my_log_llhd` is defined as follows:
+
+```{python,eval=FALSE}
+import numpy as np
+from scipy.stats import norm
+
+def my_log_llhd(parameters,data):
+  Sigma = 1.0
+  return sum(norm.logpdf(data["y"],parameters["mu"],Sigma))
+```
+
+There is one part of the specification in the function header that might need to differ compared to when using an R function. When passing an integer argument to a Python function, the argument must be cast to an integer in the function header. For example, suppose the Python function `my_rnorm` (used in the data function in this case) takes an integer argument `n`, then the function header would be:
+
+```{Rcpp,eval=FALSE}
+/***data,y=my_rnorm(100L,0,1)***/
+```
+
+(note the key point: using `100L` instead of `100`) with the Python file containing:
+
+```{python,eval=FALSE}
+import numpy as np
+from scipy.stats import norm
+
+def my_rnorm(n):
+  return norm.rvs(size=n)
+```
+
+### Using jax to calculate gradients
+
+The `jax` library can be used to calculate gradients of Python functions. The following example demonstrates how to use `jax` to calculate the gradient of the log likelihood function in the additive Gaussian noise model. In the ilike file:
+
+```{Rcpp,eval=FALSE}
+/***evaluate_log_likelihood,my_log_llhd(parameters,data)***/
+
+/***evaluate_gradient_log_likelihood,my_grad_log_llhd(variable,parameters,data)***/
+```
+
+and in the .py file:
+
+```{python,eval=FALSE}
+import jax.numpy as jnp
+from jax.scipy.stats import norm
+from jax import grad, jit
+from functools import reduce
+from jax import vmap
+
+def logpdf_func(mu,datum):
+  Sigma = 1.0
+  mu = jnp.array(mu)
+  return jit(norm.logpdf)(datum, mu, Sigma)
+
+def log_llhd_core(mu,y):
+  logp = jit(vmap(logpdf_func,(None,0), 0))(mu,y)
+  return sum(logp)
+
+def my_log_llhd(parameters,data):
+  return log_llhd_core(parameters["mu"],data["y"])
+
+def my_grad_log_llhd(variable,parameters,data):
+  return numpy.array(jit(grad(log_llhd_core, argnums=0))(parameters["mu"],data["y"]))
+```
+
+## Julia functions {#julia}
+
+The use of Julia functions in ilike is similar to that of R and Python functions. The function header must be specified in the same way as for R and Python functions, with the function type followed by a call to the Julia function. The Julia function itself is specified in a file with the same name as the ilike file, but with the `.jl` extension. Behind the scenes, the `JuliaCall` R package is used to make the Julia function callable from R, and hence from ilike.
+
+The use of Julia functions is similar to the use of Python functions. They may be called directly from the function header just as R functions are, and again, code in the function header should be treated as R code, even if the function being called is a Julia function (so, for example, use `parameters$x` in this line to access variable `x` in the `parameters` object). Julia functions cannot be used with parallel inference algorithms.
+
+For example, in this case, for variety, we will use a lognormal pdf function in the ilike file:
+
+```{Rcpp,eval=FALSE}
+/***evaluate_log_prior,my_dlnorm(parameters.tau,1,1,TRUE)***/
+```
+
+`my_dlnorm` is a Julia function, specified in the Julia file using
+
+```{julia,eval=FALSE}
+function my_dlnorm(tau,m,s,l)
+  μ_for_mean(m1, σ) = log(m1) - σ^2/2
+  d = LogNormal(μ_for_mean(m, s), s)
+  if (l==true)
+    logpdf(d,tau)
+  else
+    pdf(d,tau)
+  end
+end
+```
+
+Just as when calling a Python function, when passing an integer argument to a Julia function, the argument must be cast to an integer in the function header. For example, suppose the Julia function `my_rnorm` (used in the data function in this case) takes an integer argument `n`, then the function header would be:
+
+```{Rcpp,eval=FALSE}
+/***data,y=my_rnorm(100L)***/
+```
+
+(note the key point: using `100L` instead of `100`) with the Julia file containing:
+
+```{julia,eval=FALSE}
+function my_rnorm(n)
+  d = Normal()
+  rand(d, n)
+end
+```
+
+Also in common with the Python interface, there is an overhead to calling Julia functions from ilike. This overhead is even more computationally costly than calling Python functions. Therefore, it is recommended to use Julia functions only when necessary.
+
+When using Julia functions, the directory containing the Julia bin file must be specified when `complile` is called. Further, when using Julia functions that rely on external packages the package should be listed in the `julia_required_libraries` argument when calling the `compile` function. For example:
+
+```{r,eval=FALSE}
+model = compile("myfile.ilike",
+                julia_bin_dir = "/path/to/julia/bin",
+                julia_required_libraries = c("Distributions"))
+```
 
 ## ilike functions {#ilike-functions}
 
+ilike contains a number of in-built functions that, under the hood, call C++ code contained in the ilike package. These functions are the only way of specifying some options in the ilike inference engine, and may also be used to specify parts of the model and/or algorithm. The functions are called in the ilike file in the same way as R, Python, and Julia functions, with the function type followed by a call to the function. For example, to specify the number of iterations in the MCMC algorithm, the `ilike::iterations` function is used:
 
-<!-- You can label chapter and section titles using `{#label}` after them, e.g., we can reference Chapter \@ref(intro). If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \@ref(methods). -->
+```{Rcpp,eval=FALSE}
+/***mcmc_termination,ilike::iterations(100000)***/
+```
+
+Other uses for ilike functions include specifying the proposal in an MCMC algorithm, or the prior distribution for a parameter. ilike functions also allow access to some key algoritms in ilike, for example approximate Bayesian computation (ABC). Documentation of all available ilike functions can be found in section \@ref(blocks).
+
+All ilike functions must include the prefix `ilike::` to distinguish them from a call to an R, Python or Julia function. ilike functions only have inputs, and do not return any values. The input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.
+
+
 
 <!-- Figures and tables with captions will be placed in `figure` and `table` environments, respectively. -->
 

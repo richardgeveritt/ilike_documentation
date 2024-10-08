@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>3.1 Factor blocks | ilike documentation</title>
+  <meta name="description" content="Documentation for the ilike R package." />
+  <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="3.1 Factor blocks | ilike documentation" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="Documentation for the ilike R package." />
+  <meta name="github-repo" content="richardgeveritt/ilike_documentation" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="3.1 Factor blocks | ilike documentation" />
+  
+  <meta name="twitter:description" content="Documentation for the ilike R package." />
+  
+
+<meta name="author" content="Richard G. Everitt" />
+
+
+<meta name="date" content="2024-10-03" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="blocks.html"/>
+<link rel="next" href="data-block.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">ilike documentation</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preface</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="toy-example.html"><a href="toy-example.html"><i class="fa fa-check"></i><b>1.1</b> Example</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="toy-example.html"><a href="toy-example.html#model"><i class="fa fa-check"></i><b>1.1.1</b> Model</a></li>
+<li class="chapter" data-level="1.1.2" data-path="toy-example.html"><a href="toy-example.html#ilike-file"><i class="fa fa-check"></i><b>1.1.2</b> ilike file</a></li>
+<li class="chapter" data-level="1.1.3" data-path="toy-example.html"><a href="toy-example.html#running-mcmc"><i class="fa fa-check"></i><b>1.1.3</b> Running MCMC</a></li>
+<li class="chapter" data-level="1.1.4" data-path="toy-example.html"><a href="toy-example.html#visualising-the-output"><i class="fa fa-check"></i><b>1.1.4</b> Visualising the output</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="ilike-files.html"><a href="ilike-files.html"><i class="fa fa-check"></i><b>2</b> ilike files</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="file-structure.html"><a href="file-structure.html"><i class="fa fa-check"></i><b>2.1</b> File structure</a>
+<ul>
+<li class="chapter" data-level="2.1.1" data-path="file-structure.html"><a href="file-structure.html#blocks-automatically"><i class="fa fa-check"></i><b>2.1.1</b> Specifying blocks automatically</a></li>
+</ul></li>
+<li class="chapter" data-level="2.2" data-path="compiling.html"><a href="compiling.html"><i class="fa fa-check"></i><b>2.2</b> Compiling an ilike file</a></li>
+<li class="chapter" data-level="2.3" data-path="C.html"><a href="C.html"><i class="fa fa-check"></i><b>2.3</b> C++ functions</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="C.html"><a href="C.html#including-additional-code"><i class="fa fa-check"></i><b>2.3.1</b> Including additional code</a></li>
+<li class="chapter" data-level="2.3.2" data-path="C.html"><a href="C.html#ilike-cpp-classes"><i class="fa fa-check"></i><b>2.3.2</b> ilike C++ classes</a></li>
+<li class="chapter" data-level="2.3.3" data-path="C.html"><a href="C.html#ilike-cpp-functions"><i class="fa fa-check"></i><b>2.3.3</b> ilike C++ functions</a></li>
+</ul></li>
+<li class="chapter" data-level="2.4" data-path="R.html"><a href="R.html"><i class="fa fa-check"></i><b>2.4</b> R functions</a>
+<ul>
+<li class="chapter" data-level="2.4.1" data-path="R.html"><a href="R.html#function-arguments-for-r-functions"><i class="fa fa-check"></i><b>2.4.1</b> Function arguments for R functions</a></li>
+<li class="chapter" data-level="2.4.2" data-path="R.html"><a href="R.html#function-headers-for-r-functions"><i class="fa fa-check"></i><b>2.4.2</b> Function headers for R functions</a></li>
+</ul></li>
+<li class="chapter" data-level="2.5" data-path="python.html"><a href="python.html"><i class="fa fa-check"></i><b>2.5</b> Python functions</a>
+<ul>
+<li class="chapter" data-level="2.5.1" data-path="python.html"><a href="python.html#using-jax-to-calculate-gradients"><i class="fa fa-check"></i><b>2.5.1</b> Using jax to calculate gradients</a></li>
+</ul></li>
+<li class="chapter" data-level="2.6" data-path="julia.html"><a href="julia.html"><i class="fa fa-check"></i><b>2.6</b> Julia functions</a></li>
+<li class="chapter" data-level="2.7" data-path="ilike-functions.html"><a href="ilike-functions.html"><i class="fa fa-check"></i><b>2.7</b> ilike functions</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="blocks.html"><a href="blocks.html"><i class="fa fa-check"></i><b>3</b> ilike blocks</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="factor-blocks.html"><a href="factor-blocks.html"><i class="fa fa-check"></i><b>3.1</b> Factor blocks</a>
+<ul>
+<li class="chapter" data-level="3.1.1" data-path="factor-blocks.html"><a href="factor-blocks.html#prior"><i class="fa fa-check"></i><b>3.1.1</b> Prior</a></li>
+<li class="chapter" data-level="3.1.2" data-path="factor-blocks.html"><a href="factor-blocks.html#exact-likelihood"><i class="fa fa-check"></i><b>3.1.2</b> Exact likelihood</a></li>
+<li class="chapter" data-level="3.1.3" data-path="factor-blocks.html"><a href="factor-blocks.html#simulation-based-likelihood"><i class="fa fa-check"></i><b>3.1.3</b> Simulation-based likelihood</a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="data-block.html"><a href="data-block.html"><i class="fa fa-check"></i><b>3.2</b> Data block</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="data-block.html"><a href="data-block.html#data"><i class="fa fa-check"></i><b>3.2.1</b> Data</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="inference.html"><a href="inference.html"><i class="fa fa-check"></i><b>4</b> Inference algorithms</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="random-numbers.html"><a href="random-numbers.html"><i class="fa fa-check"></i><b>4.1</b> Random numbers</a></li>
+<li class="chapter" data-level="4.2" data-path="parameters.html"><a href="parameters.html"><i class="fa fa-check"></i><b>4.2</b> Model and algorithm parameters</a></li>
+<li class="chapter" data-level="4.3" data-path="importance-sampling.html"><a href="importance-sampling.html"><i class="fa fa-check"></i><b>4.3</b> Importance sampling</a>
+<ul>
+<li class="chapter" data-level="4.3.1" data-path="importance-sampling.html"><a href="importance-sampling.html#ilike-file-requirements"><i class="fa fa-check"></i><b>4.3.1</b> .ilike file requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="markov-chain-monte-carlo.html"><a href="markov-chain-monte-carlo.html"><i class="fa fa-check"></i><b>4.4</b> Markov chain Monte Carlo</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="markov-chain-monte-carlo.html"><a href="markov-chain-monte-carlo.html#ilike-file-requirements-1"><i class="fa fa-check"></i><b>4.4.1</b> .ilike file requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="sequential-monte-carlo.html"><a href="sequential-monte-carlo.html"><i class="fa fa-check"></i><b>4.5</b> Sequential Monte Carlo</a>
+<ul>
+<li class="chapter" data-level="4.5.1" data-path="sequential-monte-carlo.html"><a href="sequential-monte-carlo.html#ilike-file-requirements-2"><i class="fa fa-check"></i><b>4.5.1</b> .ilike file requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="iterative-ensemble-kalman-inversion.html"><a href="iterative-ensemble-kalman-inversion.html"><i class="fa fa-check"></i><b>4.6</b> Iterative ensemble Kalman inversion</a>
+<ul>
+<li class="chapter" data-level="4.6.1" data-path="iterative-ensemble-kalman-inversion.html"><a href="iterative-ensemble-kalman-inversion.html#ilike-file-requirements-3"><i class="fa fa-check"></i><b>4.6.1</b> .ilike file requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="4.7" data-path="particle-filters.html"><a href="particle-filters.html"><i class="fa fa-check"></i><b>4.7</b> Particle filters</a>
+<ul>
+<li class="chapter" data-level="4.7.1" data-path="particle-filters.html"><a href="particle-filters.html#ilike-file-requirements-4"><i class="fa fa-check"></i><b>4.7.1</b> .ilike file requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="4.8" data-path="ensemble-kalman-filters.html"><a href="ensemble-kalman-filters.html"><i class="fa fa-check"></i><b>4.8</b> Ensemble Kalman filters</a>
+<ul>
+<li class="chapter" data-level="4.8.1" data-path="ensemble-kalman-filters.html"><a href="ensemble-kalman-filters.html#ilike-file-requirements-5"><i class="fa fa-check"></i><b>4.8.1</b> .ilike file requirements</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="output.html"><a href="output.html"><i class="fa fa-check"></i><b>5</b> Loading and visualising output</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="is-and-smc-output.html"><a href="is-and-smc-output.html"><i class="fa fa-check"></i><b>5.1</b> IS and SMC output</a></li>
+<li class="chapter" data-level="5.2" data-path="ensemble-kalman-output.html"><a href="ensemble-kalman-output.html"><i class="fa fa-check"></i><b>5.2</b> Ensemble Kalman output</a></li>
+<li class="chapter" data-level="5.3" data-path="mcmc-output.html"><a href="mcmc-output.html"><i class="fa fa-check"></i><b>5.3</b> MCMC output</a></li>
+<li class="chapter" data-level="5.4" data-path="further-detail-about-output-files.html"><a href="further-detail-about-output-files.html"><i class="fa fa-check"></i><b>5.4</b> Further detail about output files</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="examples.html"><a href="examples.html"><i class="fa fa-check"></i><b>6</b> Examples</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="running-code.html"><a href="running-code.html"><i class="fa fa-check"></i><b>6.1</b> Running code</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="bugs.html"><a href="bugs.html"><i class="fa fa-check"></i><b>7</b> Known issues and glaring omissions</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="known-issues.html"><a href="known-issues.html"><i class="fa fa-check"></i><b>7.1</b> Known issues</a></li>
+<li class="chapter" data-level="7.2" data-path="glaring-omissions.html"><a href="glaring-omissions.html"><i class="fa fa-check"></i><b>7.2</b> Glaring omissions</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">ilike documentation</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="factor-blocks" class="section level2 hasAnchor" number="3.1">
+<h2><span class="header-section-number">3.1</span> Factor blocks<a href="factor-blocks.html#factor-blocks" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="prior" class="section level3 hasAnchor" number="3.1.1">
+<h3><span class="header-section-number">3.1.1</span> Prior<a href="factor-blocks.html#prior" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>There are two ways of specifying priors:</p>
+<ol style="list-style-type: decimal">
+<li>Through some combination of function types (e.g. <code>evaluate_log_prior</code>, <code>simulate_prior</code>) defined below. The user only needs to specify the function types required by the algorithm they wish to use. For example:</li>
+</ol>
+<p>– <code>evaluate_log_prior</code> for Metropolis-Hastings where the prior needs to be evaluated in the acceptance ratio;</p>
+<p>– <code>simulate_prior</code> for importance sampling where the prior is used as the proposal, and the prior cancels and does not need to be evaluated in the weight update;</p>
+<p>– <code>evaluate_gradient_log_prior</code> for an unadjusted Langevin MCMC which requires the gradient of the prior to make moves.</p>
+<ol start="2" style="list-style-type: decimal">
+<li>Through the function type <code>prior</code>, which allows the user to specify the prior through an ilike function (e.g. <code>ilike::norm</code>), which results in the specification of all of the other prior function types (i.e. <code>evaluate_log_prior</code>, <code>simulate_prior</code>, <code>evaluate_gradient_log_prior</code> and <code>evaluate_second_gradient_log_prior</code> are all specified by using <code>ilike::norm</code>).</li>
+</ol>
+<p>We now detail the function types available for specifying a prior.</p>
+<div id="evaluate_log_prior" class="section level4 hasAnchor" number="3.1.1.1">
+<h4><span class="header-section-number">3.1.1.1</span> evaluate_log_prior<a href="factor-blocks.html#evaluate_log_prior" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The <code>evaluate_log_prior</code> function type calculates the log prior density of the parameters.</p>
+<p>Input: The point at which the log of the prior is to be evaluated.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>parameters</code> in an R function</p>
+<p>Output: The log prior density of the parameters.</p>
+<p>– of type <code>double</code> in a C++ function</p>
+<p>– of type <code>numeric</code> in R.</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="factor-blocks.html#cb1-1" tabindex="-1"></a><span class="co">/***evaluate_log_prior***/</span></span>
+<span id="cb1-2"><a href="factor-blocks.html#cb1-2" tabindex="-1"></a><span class="dt">double</span> prior_eval<span class="op">(</span><span class="at">const</span> Parameters <span class="op">&amp;</span>parameters<span class="op">)</span></span>
+<span id="cb1-3"><a href="factor-blocks.html#cb1-3" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb1-4"><a href="factor-blocks.html#cb1-4" tabindex="-1"></a>  <span class="cf">return</span> dnorm<span class="op">(</span>parameters<span class="op">[</span><span class="st">&quot;θ&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">]);</span></span>
+<span id="cb1-5"><a href="factor-blocks.html#cb1-5" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="factor-blocks.html#cb2-1" tabindex="-1"></a><span class="co">/***evaluate_log_prior,dnorm(parameters$θ)***/</span></span></code></pre></div>
+</div>
+<div id="simulate_prior" class="section level4 hasAnchor" number="3.1.1.2">
+<h4><span class="header-section-number">3.1.1.2</span> simulate_prior<a href="factor-blocks.html#simulate_prior" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The <code>simulate_prior</code> function type samples from the prior distribution.</p>
+<p>Input: (C++ only) The random number generator.</p>
+<p>– of type <code>RandomNumberGenerator &amp;</code> in a C++ function</p>
+<p>Output: The simulated value.</p>
+<p>– of class <code>Parameters</code> in a C++ function</p>
+<p>– an R list in R, where at present the interface restricts the user to a single vector/matrix of data, which is indexed by a string provided by the user to the left of an <code>=</code> sign in the function header.</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="factor-blocks.html#cb3-1" tabindex="-1"></a><span class="co">/***simulate_prior***/</span></span>
+<span id="cb3-2"><a href="factor-blocks.html#cb3-2" tabindex="-1"></a>Parameters prior_sim<span class="op">(</span>RandomNumberGenerator <span class="op">&amp;</span>rng<span class="op">)</span></span>
+<span id="cb3-3"><a href="factor-blocks.html#cb3-3" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb3-4"><a href="factor-blocks.html#cb3-4" tabindex="-1"></a>  <span class="cf">return</span> Parameters<span class="op">(</span><span class="st">&quot;θ&quot;</span><span class="op">,</span>rnorm<span class="op">(</span>rng<span class="op">));</span></span>
+<span id="cb3-5"><a href="factor-blocks.html#cb3-5" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="factor-blocks.html#cb4-1" tabindex="-1"></a><span class="co">/***simulate_prior,θ=rnorm(1)***/</span></span></code></pre></div>
+</div>
+<div id="evaluate_gradient_log_prior" class="section level4 hasAnchor" number="3.1.1.3">
+<h4><span class="header-section-number">3.1.1.3</span> evaluate_gradient_log_prior<a href="factor-blocks.html#evaluate_gradient_log_prior" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The <code>evaluate_gradient_log_prior</code> function type gives the differential of the log prior density of the parameters.</p>
+<p>Input: The variable with respect to which we wish to find the gradient.</p>
+<p>– of type <code>const std::string &amp;</code> in a C++ function</p>
+<p>– available an R string <code>variable</code> in an R function</p>
+<p>Input: The point at which the gradient of the log prior is to be evaluated.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>parameters</code> in an R function</p>
+<p>Output: The gradient of the log prior density of the parameters.</p>
+<p>– of type <code>arma::mat</code> in a C++ function</p>
+<p>– of type <code>matrix</code> in R.</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="factor-blocks.html#cb5-1" tabindex="-1"></a><span class="co">/***evaluate_gradient_log_prior***/</span></span>
+<span id="cb5-2"><a href="factor-blocks.html#cb5-2" tabindex="-1"></a>arma<span class="op">::</span>mat prior_gradient_eval<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string <span class="op">&amp;</span>variable<span class="op">,</span></span>
+<span id="cb5-3"><a href="factor-blocks.html#cb5-3" tabindex="-1"></a>                              <span class="at">const</span> Parameters <span class="op">&amp;</span>parameters<span class="op">)</span></span>
+<span id="cb5-4"><a href="factor-blocks.html#cb5-4" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb5-5"><a href="factor-blocks.html#cb5-5" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>variable<span class="op">==</span><span class="st">&quot;θ&quot;</span><span class="op">)</span></span>
+<span id="cb5-6"><a href="factor-blocks.html#cb5-6" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb5-7"><a href="factor-blocks.html#cb5-7" tabindex="-1"></a>    arma<span class="op">::</span>mat grad<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb5-8"><a href="factor-blocks.html#cb5-8" tabindex="-1"></a>    grad<span class="op">(</span><span class="dv">0</span><span class="op">,</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> <span class="op">-</span>parameters<span class="op">[</span><span class="st">&quot;θ&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">];</span></span>
+<span id="cb5-9"><a href="factor-blocks.html#cb5-9" tabindex="-1"></a>    <span class="cf">return</span> grad<span class="op">;</span></span>
+<span id="cb5-10"><a href="factor-blocks.html#cb5-10" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb5-11"><a href="factor-blocks.html#cb5-11" tabindex="-1"></a>  <span class="cf">else</span></span>
+<span id="cb5-12"><a href="factor-blocks.html#cb5-12" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb5-13"><a href="factor-blocks.html#cb5-13" tabindex="-1"></a>    Rcpp<span class="op">::</span>stop<span class="op">(</span><span class="st">&quot;Unknown variable in prior gradient.&quot;</span><span class="op">);</span></span>
+<span id="cb5-14"><a href="factor-blocks.html#cb5-14" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb5-15"><a href="factor-blocks.html#cb5-15" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="factor-blocks.html#cb6-1" tabindex="-1"></a><span class="co">/***evaluate_gradient_log_prior,if (variable==&quot;θ&quot;) {-parameters$θ} else {stop(&quot;Unknown variable in prior gradient.&quot;)}***/</span></span></code></pre></div>
+</div>
+<div id="evaluate_second_gradient_log_prior" class="section level4 hasAnchor" number="3.1.1.4">
+<h4><span class="header-section-number">3.1.1.4</span> evaluate_second_gradient_log_prior<a href="factor-blocks.html#evaluate_second_gradient_log_prior" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The <code>evaluate_gradient_log_prior</code> function type gives the second differential of the log prior density of the parameters.</p>
+<p>Input: The first variable with respect to which we wish to find the gradient.</p>
+<p>– of type <code>const std::string &amp;</code> in a C++ function</p>
+<p>– available an R string <code>variable1</code> in an R function</p>
+<p>Input: The second variable with respect to which we wish to find the gradient.</p>
+<p>– of type <code>const std::string &amp;</code> in a C++ function</p>
+<p>– available an R string <code>variable2</code> in an R function</p>
+<p>Input: The point at which the gradient of the log prior is to be evaluated.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>parameters</code> in an R function</p>
+<p>Output: The Hessian of the log prior density, evaluated at the given point.</p>
+<p>– of type <code>arma::mat</code> in a C++ function</p>
+<p>– of type <code>matrix</code> in R</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="factor-blocks.html#cb7-1" tabindex="-1"></a><span class="co">/***evaluate_second_gradient_log_prior***/</span></span>
+<span id="cb7-2"><a href="factor-blocks.html#cb7-2" tabindex="-1"></a>arma<span class="op">::</span>mat prior_gradient_eval<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string <span class="op">&amp;</span>variable1<span class="op">,</span></span>
+<span id="cb7-3"><a href="factor-blocks.html#cb7-3" tabindex="-1"></a>                              <span class="at">const</span> <span class="bu">std::</span>string <span class="op">&amp;</span>variable2<span class="op">,</span></span>
+<span id="cb7-4"><a href="factor-blocks.html#cb7-4" tabindex="-1"></a>                              <span class="at">const</span> Parameters <span class="op">&amp;</span>parameters<span class="op">)</span></span>
+<span id="cb7-5"><a href="factor-blocks.html#cb7-5" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb7-6"><a href="factor-blocks.html#cb7-6" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">((</span>variable1<span class="op">==</span><span class="st">&quot;θ&quot;</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="op">(</span>variable2<span class="op">==</span><span class="st">&quot;θ&quot;</span><span class="op">))</span></span>
+<span id="cb7-7"><a href="factor-blocks.html#cb7-7" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb7-8"><a href="factor-blocks.html#cb7-8" tabindex="-1"></a>    arma<span class="op">::</span>mat grad<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb7-9"><a href="factor-blocks.html#cb7-9" tabindex="-1"></a>    grad<span class="op">(</span><span class="dv">0</span><span class="op">,</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1.0</span><span class="op">;</span></span>
+<span id="cb7-10"><a href="factor-blocks.html#cb7-10" tabindex="-1"></a>    <span class="cf">return</span> grad<span class="op">;</span></span>
+<span id="cb7-11"><a href="factor-blocks.html#cb7-11" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-12"><a href="factor-blocks.html#cb7-12" tabindex="-1"></a>  <span class="cf">else</span></span>
+<span id="cb7-13"><a href="factor-blocks.html#cb7-13" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb7-14"><a href="factor-blocks.html#cb7-14" tabindex="-1"></a>    Rcpp<span class="op">::</span>stop<span class="op">(</span><span class="st">&quot;Unknown variable in prior second gradient.&quot;</span><span class="op">);</span></span>
+<span id="cb7-15"><a href="factor-blocks.html#cb7-15" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-16"><a href="factor-blocks.html#cb7-16" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="factor-blocks.html#cb8-1" tabindex="-1"></a><span class="co">/***evaluate_second_gradient_log_prior,if ((variable1==&quot;θ&quot;) &amp;&amp; (variable2==&quot;θ&quot;)) {-1} else {stop(&quot;Unknown variable in prior second gradient.&quot;)}***/</span></span></code></pre></div>
+</div>
+<div id="prior-1" class="section level4 hasAnchor" number="3.1.1.5">
+<h4><span class="header-section-number">3.1.1.5</span> prior<a href="factor-blocks.html#prior-1" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The <code>prior</code> function type allows the user to specify the prior through an ilike function (e.g. <code>ilike::norm</code>), which results in the specification of all of the other prior function types. For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order.</p>
+<p>Example of the use of one of these functions (<code>ilike::norm</code>) follows.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="factor-blocks.html#cb9-1" tabindex="-1"></a><span class="co">/***prior,ilike::norm(θ,0,1)***/</span></span></code></pre></div>
+<p>The following ilike functions are available:</p>
+<ul>
+<li><p><code>ilike::norm</code>: a normal prior. Inputs:</p>
+<ol style="list-style-type: decimal">
+<li><p>string: the variable for which the prior is specified</p></li>
+<li><p>numeric: the mean of the normal distribution</p></li>
+<li><p>numeric: the standard deviation of the normal distribution</p></li>
+</ol></li>
+<li><p><code>ilike::mvnorm</code>: a multivariate normal prior. Inputs:</p>
+<p>– string: the variable for which the prior is specified</p>
+<p>– numeric vector/matrix: the mean of the multivariate normal distribution</p>
+<p>– matrix: the covariance of the multivariate normal distribution</p></li>
+<li><p><code>ilike::lnorm</code>: a lognormal prior. Inputs:</p>
+<p>– string: the variable for which the prior is specified</p>
+<p>– numeric: the mean of the log of the variable</p>
+<p>– numeric: the standard deviation of the log of the variable</p></li>
+<li><p><code>ilike::mvnorm</code>: a multivariate loggnormal prior. Inputs:</p>
+<p>– string: the variable for which the prior is specified</p>
+<p>– numeric vector/matrix: the mean of the log of the variable</p>
+<p>– matrix: the covariance of the log of the variable</p></li>
+<li><p><code>ilike::gamma</code>: a gamma prior. Inputs:</p>
+<p>– string: the variable for which the prior is specified</p>
+<p>– numeric: the shape of the gamma distribution</p>
+<p>– numeric: the rate of the gamma distribution</p></li>
+</ul>
+</div>
+</div>
+<div id="exact-likelihood" class="section level3 hasAnchor" number="3.1.2">
+<h3><span class="header-section-number">3.1.2</span> Exact likelihood<a href="factor-blocks.html#exact-likelihood" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The functions in this section allow the specification of a user-defined likelihood. Only the functions required by the chosen inference algorithm need be specified.</p>
+<p>Usually we recommend specifying, rather than a likelihood, the data model. This will ensure that, when running importance sampling for example, the normalising constant estimate returned by that algorithm will be an estimate of the marginal likelihood. However, where the goal is simulating from or approximating the posterior distribution, specifying the model up to proportionality is sufficient.</p>
+<div id="evaluate_log_likelihood" class="section level4 hasAnchor" number="3.1.2.1">
+<h4><span class="header-section-number">3.1.2.1</span> evaluate_log_likelihood<a href="factor-blocks.html#evaluate_log_likelihood" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The <code>evaluate_log_likelihood</code> function type calculates the log likelihood of the parameters.</p>
+<p>Input: The point at which the log likelihood is to be evaluated.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>parameters</code> in an R function</p>
+<p>Input: The observed data for which the log likelihood is to be evaluated.</p>
+<p>– of type <code>const Data &amp;</code> in a C++ function</p>
+<p>– available as R list <code>data</code> in an R function</p>
+<p>Output: The log likelihood of the parameters using the observed data.</p>
+<p>– of type <code>double</code> in a C++ function</p>
+<p>– of type <code>numeric</code> in R.</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="factor-blocks.html#cb10-1" tabindex="-1"></a><span class="co">/***evaluate_log_likelihood***/</span></span>
+<span id="cb10-2"><a href="factor-blocks.html#cb10-2" tabindex="-1"></a><span class="dt">double</span> likelihood_eval<span class="op">(</span><span class="at">const</span> Parameters <span class="op">&amp;</span>parameters<span class="op">,</span></span>
+<span id="cb10-3"><a href="factor-blocks.html#cb10-3" tabindex="-1"></a>                       <span class="at">const</span> Data <span class="op">&amp;</span>data<span class="op">)</span></span>
+<span id="cb10-4"><a href="factor-blocks.html#cb10-4" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb10-5"><a href="factor-blocks.html#cb10-5" tabindex="-1"></a>  <span class="dt">double</span> y <span class="op">=</span> data<span class="op">[</span><span class="st">&quot;y&quot;</span><span class="op">];</span></span>
+<span id="cb10-6"><a href="factor-blocks.html#cb10-6" tabindex="-1"></a>  <span class="cf">return</span> sum<span class="op">(</span>dnorm<span class="op">(</span>y<span class="op">,</span>parameters<span class="op">[</span><span class="st">&quot;θ&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">],</span><span class="fl">1.0</span><span class="op">));</span></span>
+<span id="cb10-7"><a href="factor-blocks.html#cb10-7" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="factor-blocks.html#cb11-1" tabindex="-1"></a><span class="co">/***evaluate_log_likelihood,sum(dnorm(data$y,parameters$θ,1.0))***/</span></span></code></pre></div>
+</div>
+<div id="evaluate_gradient_log_likelihood" class="section level4 hasAnchor" number="3.1.2.2">
+<h4><span class="header-section-number">3.1.2.2</span> evaluate_gradient_log_likelihood<a href="factor-blocks.html#evaluate_gradient_log_likelihood" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The <code>evaluate_gradient_log_likelihood</code> function type calculates the gradient of the log likelihood of the parameters.</p>
+<p>Input: The variable with respect to which we wish to find the gradient.</p>
+<p>– of type <code>const std::string &amp;</code> in a C++ function</p>
+<p>– available an R string <code>variable</code> in an R function</p>
+<p>Input: The point at which the gradient of the log likelihood is to be evaluated.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>parameters</code> in an R function</p>
+<p>Input: The observed data for which the gradient of the log likelihood is to be evaluated.</p>
+<p>– of type <code>const Data &amp;</code> in a C++ function</p>
+<p>– available as R list <code>data</code> in an R function</p>
+<p>Output: The gradient of the log likelihood of the parameters.</p>
+<p>– of type <code>arma::mat</code> in a C++ function</p>
+<p>– of type <code>matrix</code> in R.</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="factor-blocks.html#cb12-1" tabindex="-1"></a><span class="co">/***evaluate_gradient_log_likelihood***/</span></span>
+<span id="cb12-2"><a href="factor-blocks.html#cb12-2" tabindex="-1"></a>arma<span class="op">::</span>mat likelihood_gradient_eval<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string <span class="op">&amp;</span>variable<span class="op">,</span></span>
+<span id="cb12-3"><a href="factor-blocks.html#cb12-3" tabindex="-1"></a>                                   <span class="at">const</span> Parameters <span class="op">&amp;</span>parameters<span class="op">,</span></span>
+<span id="cb12-4"><a href="factor-blocks.html#cb12-4" tabindex="-1"></a>                                   <span class="at">const</span> Data <span class="op">&amp;</span>data<span class="op">)</span></span>
+<span id="cb12-5"><a href="factor-blocks.html#cb12-5" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb12-6"><a href="factor-blocks.html#cb12-6" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>variable<span class="op">==</span><span class="st">&quot;θ&quot;</span><span class="op">)</span></span>
+<span id="cb12-7"><a href="factor-blocks.html#cb12-7" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb12-8"><a href="factor-blocks.html#cb12-8" tabindex="-1"></a>    arma<span class="op">::</span>colvec y <span class="op">=</span> data<span class="op">[</span><span class="st">&quot;y&quot;</span><span class="op">];</span></span>
+<span id="cb12-9"><a href="factor-blocks.html#cb12-9" tabindex="-1"></a>    arma<span class="op">::</span>mat grad<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb12-10"><a href="factor-blocks.html#cb12-10" tabindex="-1"></a>    grad<span class="op">(</span><span class="dv">0</span><span class="op">,</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> arma<span class="op">::</span>sum<span class="op">((</span>y<span class="op">-</span>parameters<span class="op">[</span><span class="st">&quot;θ&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">])/</span><span class="fl">1.0</span><span class="op">);</span></span>
+<span id="cb12-11"><a href="factor-blocks.html#cb12-11" tabindex="-1"></a>    <span class="cf">return</span> grad<span class="op">;</span></span>
+<span id="cb12-12"><a href="factor-blocks.html#cb12-12" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb12-13"><a href="factor-blocks.html#cb12-13" tabindex="-1"></a>  <span class="cf">else</span></span>
+<span id="cb12-14"><a href="factor-blocks.html#cb12-14" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb12-15"><a href="factor-blocks.html#cb12-15" tabindex="-1"></a>    Rcpp<span class="op">::</span>stop<span class="op">(</span><span class="st">&quot;Unknown variable in likelihood gradient.&quot;</span><span class="op">);</span></span>
+<span id="cb12-16"><a href="factor-blocks.html#cb12-16" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb12-17"><a href="factor-blocks.html#cb12-17" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="factor-blocks.html#cb13-1" tabindex="-1"></a><span class="co">/***evaluate_gradient_log_likelihood,if (variable==&quot;θ&quot;) {sum((data$y-parameters$θ)/1.0)} else {stop(&quot;Unknown variable in likelihood gradient.&quot;)}***/</span></span></code></pre></div>
+</div>
+<div id="evaluate_second_gradient_log_likelihood" class="section level4 hasAnchor" number="3.1.2.3">
+<h4><span class="header-section-number">3.1.2.3</span> evaluate_second_gradient_log_likelihood<a href="factor-blocks.html#evaluate_second_gradient_log_likelihood" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The <code>evaluate_gradient_log_prior</code> function type gives the second differential of the log likelihood of the parameters.</p>
+<p>Input: The first variable with respect to which we wish to find the gradient.</p>
+<p>– of type <code>const std::string &amp;</code> in a C++ function</p>
+<p>– available an R string <code>variable1</code> in an R function</p>
+<p>Input: The second variable with respect to which we wish to find the gradient.</p>
+<p>– of type <code>const std::string &amp;</code> in a C++ function</p>
+<p>– available an R string <code>variable2</code> in an R function</p>
+<p>Input: The point at which the gradient of the log prior is to be evaluated.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>parameters</code> in an R function</p>
+<p>Output: The Hessian of the log likelihood, evaluated at the given point.</p>
+<p>– of type <code>arma::mat</code> in a C++ function</p>
+<p>– of type <code>matrix</code> in R.</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="factor-blocks.html#cb14-1" tabindex="-1"></a><span class="co">/***evaluate_second_gradient_log_likelihood***/</span></span>
+<span id="cb14-2"><a href="factor-blocks.html#cb14-2" tabindex="-1"></a>arma<span class="op">::</span>mat likelihood_hessian_eval<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string <span class="op">&amp;</span>variable1<span class="op">,</span></span>
+<span id="cb14-3"><a href="factor-blocks.html#cb14-3" tabindex="-1"></a>                                  <span class="at">const</span> <span class="bu">std::</span>string <span class="op">&amp;</span>variable2<span class="op">,</span></span>
+<span id="cb14-4"><a href="factor-blocks.html#cb14-4" tabindex="-1"></a>                                  <span class="at">const</span> Parameters <span class="op">&amp;</span>parameters<span class="op">,</span></span>
+<span id="cb14-5"><a href="factor-blocks.html#cb14-5" tabindex="-1"></a>                                  <span class="at">const</span> Data <span class="op">&amp;</span>data<span class="op">)</span></span>
+<span id="cb14-6"><a href="factor-blocks.html#cb14-6" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb14-7"><a href="factor-blocks.html#cb14-7" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>variable1<span class="op">==</span><span class="st">&quot;θ&quot;</span> <span class="op">&amp;&amp;</span> variable2<span class="op">==</span><span class="st">&quot;θ&quot;</span><span class="op">)</span></span>
+<span id="cb14-8"><a href="factor-blocks.html#cb14-8" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb14-9"><a href="factor-blocks.html#cb14-9" tabindex="-1"></a>    arma<span class="op">::</span>mat hess<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb14-10"><a href="factor-blocks.html#cb14-10" tabindex="-1"></a>    hess<span class="op">(</span><span class="dv">0</span><span class="op">,</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> <span class="op">-</span>data<span class="op">[</span><span class="st">&quot;y&quot;</span><span class="op">].</span>size<span class="op">()/</span><span class="fl">1.0</span><span class="op">;</span></span>
+<span id="cb14-11"><a href="factor-blocks.html#cb14-11" tabindex="-1"></a>    <span class="cf">return</span> hess<span class="op">;</span></span>
+<span id="cb14-12"><a href="factor-blocks.html#cb14-12" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb14-13"><a href="factor-blocks.html#cb14-13" tabindex="-1"></a>  <span class="cf">else</span></span>
+<span id="cb14-14"><a href="factor-blocks.html#cb14-14" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb14-15"><a href="factor-blocks.html#cb14-15" tabindex="-1"></a>    Rcpp<span class="op">::</span>stop<span class="op">(</span><span class="st">&quot;Unknown variable in likelihood hessian.&quot;</span><span class="op">);</span></span>
+<span id="cb14-16"><a href="factor-blocks.html#cb14-16" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb14-17"><a href="factor-blocks.html#cb14-17" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb15-1"><a href="factor-blocks.html#cb15-1" tabindex="-1"></a><span class="co">/***evaluate_second_gradient_log_likelihood,if (variable1==&quot;θ&quot; &amp;&amp; variable2==&quot;θ&quot;) {-length(data$y)/1.0} else {stop(&quot;Unknown variable in likelihood hessian.&quot;)}***/</span></span></code></pre></div>
+</div>
+</div>
+<div id="simulation-based-likelihood" class="section level3 hasAnchor" number="3.1.3">
+<h3><span class="header-section-number">3.1.3</span> Simulation-based likelihood<a href="factor-blocks.html#simulation-based-likelihood" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The functions in this section allow the specification of a likelihood through a function that simulates a data generating process, for example through approximate Bayesian computation. There are three function types that are required to be specified for all simulation-based likelihoods:</p>
+<ul>
+<li><p><code>simulate_data_model</code>, which simulates the data generating process.</p></li>
+<li><p><code>data_variable</code>, which specifies the variable or variables in the simulation that we wish to treat as observed for the purposes of constructing a likelihood based on the simulation.</p></li>
+<li><p><code>sbi_likelihood</code>, which uses an ilike function to define the desired simulation-based likelihood.</p></li>
+</ul>
+<p>It is also possible to reduce the observed data to summary statistcs (though the use of the <code>summary_statistics</code> function type) for use in the simulation-based likelihood.</p>
+<div id="simulate_data_model" class="section level4 hasAnchor" number="3.1.3.1">
+<h4><span class="header-section-number">3.1.3.1</span> simulate_data_model<a href="factor-blocks.html#simulate_data_model" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The <code>simulate_data_model</code> function type simulates the data generating process.</p>
+<p>Input: (C++ only) The random number generator to be used in the simulation.</p>
+<p>– of type <code>RandomNumberGenerator &amp;</code> in a C++ function</p>
+<p>Input: The parameters at which to simulate the data.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>parameters</code> in an R function</p>
+<p>Output: The simulated data.</p>
+<p>– of class <code>Data</code> in a C++ function</p>
+<p>– an R list in R, where at present the interface restricts the user to a single vector/matrix of data, which is indexed by a string provided by the user to the left of an <code>=</code> sign in the function header.</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb16-1"><a href="factor-blocks.html#cb16-1" tabindex="-1"></a><span class="co">/***simulate_data_model***/</span></span>
+<span id="cb16-2"><a href="factor-blocks.html#cb16-2" tabindex="-1"></a>Data simulate_data_model<span class="op">(</span>RandomNumberGenerator <span class="op">&amp;</span>rng<span class="op">,</span></span>
+<span id="cb16-3"><a href="factor-blocks.html#cb16-3" tabindex="-1"></a>                         <span class="at">const</span> Parameters <span class="op">&amp;</span>parameters<span class="op">)</span></span>
+<span id="cb16-4"><a href="factor-blocks.html#cb16-4" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb16-5"><a href="factor-blocks.html#cb16-5" tabindex="-1"></a>  arma<span class="op">::</span>colvec y <span class="op">=</span> rnorm<span class="op">(</span>rng<span class="op">,</span><span class="dv">100</span><span class="op">,</span>parameters<span class="op">[</span><span class="st">&quot;θ&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">],</span><span class="fl">1.0</span><span class="op">);</span></span>
+<span id="cb16-6"><a href="factor-blocks.html#cb16-6" tabindex="-1"></a>  <span class="cf">return</span> Data<span class="op">(</span><span class="st">&quot;y&quot;</span><span class="op">,</span> y<span class="op">);</span></span>
+<span id="cb16-7"><a href="factor-blocks.html#cb16-7" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb17-1"><a href="factor-blocks.html#cb17-1" tabindex="-1"></a><span class="co">/***simulate_data_model,y=rnorm(100,parameters$θ,1)***/</span></span></code></pre></div>
+</div>
+<div id="data_variable" class="section level4 hasAnchor" number="3.1.3.2">
+<h4><span class="header-section-number">3.1.3.2</span> data_variable<a href="factor-blocks.html#data_variable" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The <code>data_variable</code> function type specifies the variable or variables in the simulation that we wish to treat as observed for the purposes of constructing a likelihood based on the simulation. There are no input arguments.</p>
+<p>Output: The variable or variables in the simulation that we wish to treat as observed for the purposes of constructing a likelihood based on the simulation. To specify multiple output variables they must be separated by a semi-colon (with no spaces).</p>
+<p>– of type <code>const std::string &amp;</code> in a C++ function</p>
+<p>– a string in R.</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="factor-blocks.html#cb18-1" tabindex="-1"></a><span class="co">/***data_variable***/</span></span>
+<span id="cb18-2"><a href="factor-blocks.html#cb18-2" tabindex="-1"></a><span class="bu">std::</span>string a_variable<span class="op">()</span></span>
+<span id="cb18-3"><a href="factor-blocks.html#cb18-3" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb18-4"><a href="factor-blocks.html#cb18-4" tabindex="-1"></a>  <span class="cf">return</span> <span class="st">&quot;y&quot;</span><span class="op">;</span> <span class="co">// could be &quot;y;z&quot; for variables y and z</span></span>
+<span id="cb18-5"><a href="factor-blocks.html#cb18-5" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb19-1"><a href="factor-blocks.html#cb19-1" tabindex="-1"></a><span class="co">/***data_variable,&quot;y&quot;***/</span></span></code></pre></div>
+</div>
+<div id="sbi_likelihood" class="section level4 hasAnchor" number="3.1.3.3">
+<h4><span class="header-section-number">3.1.3.3</span> sbi_likelihood<a href="factor-blocks.html#sbi_likelihood" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The <code>sbi_likelihood</code> function type uses an ilike function to define the desired simulation-based likelihood. For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.</p>
+<p>Example of the use of one of these functions (<code>ilike::sl</code>) follows.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb20-1"><a href="factor-blocks.html#cb20-1" tabindex="-1"></a><span class="co">/***sbi_likelihood,ilike::sl(50)***/</span></span></code></pre></div>
+<p>The following ilike functions are available:</p>
+<ul>
+<li><p><code>ilike::sl</code>: Synthetic likelihood, as described in <span class="citation">Wood (<a href="#ref-wood2010statistical">2010</a>)</span> and <span class="citation">Price et al. (<a href="#ref-price2018bayesian">2018</a>)</span>. Inputs:</p>
+<ol style="list-style-type: decimal">
+<li>integer: the number simulations to use in the synthetic likelihood</li>
+</ol>
+<p>– (optional) boolean: whether to use the unbiased version of synthetic likelihood described in <span class="citation">Price et al. (<a href="#ref-price2018bayesian">2018</a>)</span> (default is <code>false</code>)</p>
+<p>– (optional) boolean: whether to store the output of the model simulations (default is <code>false</code>)</p>
+<p>– (optional) boolean: whether to run the simulations in parallel (default is <code>false</code>)</p>
+<p>– (optional) integer: the grain size for parallelisation (default is <code>1</code>)</p></li>
+</ul>
+<p>size_t number_of_points;
+bool unbiased;
+bool store_output;
+bool parallel;
+size_t grain_size;</p>
+<pre><code>          number_of_points = info[0];
+          unbiased = info[1];
+          store_output = info[2];
+          parallel = info[3];
+          grain_size = info[4];</code></pre>
+</div>
+</div>
+</div>
+<h3>References<a href="references.html#references" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="ref-price2018bayesian" class="csl-entry">
+Price, Leah F, Christopher C Drovandi, Anthony Lee, and David J Nott. 2018. <span>“Bayesian Synthetic Likelihood.”</span> <em>Journal of Computational and Graphical Statistics</em> 27 (1): 1–11.
+</div>
+<div id="ref-wood2010statistical" class="csl-entry">
+Wood, Simon N. 2010. <span>“Statistical Inference for Noisy Nonlinear Ecological Dynamic Systems.”</span> <em>Nature</em> 466 (7310): 1102–4.
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="blocks.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="data-block.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/richardgeveritt/ilike_documentation/edit/master/02-blocks.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["ilike docs.pdf", "ilike docs.epub"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>

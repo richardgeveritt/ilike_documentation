@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>2.6 julia functions | ilike documentation</title>
+  <title>2.6 Julia functions | ilike documentation</title>
   <meta name="description" content="Documentation for the ilike R package." />
   <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="2.6 julia functions | ilike documentation" />
+  <meta property="og:title" content="2.6 Julia functions | ilike documentation" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="Documentation for the ilike R package." />
   <meta name="github-repo" content="richardgeveritt/ilike_documentation" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="2.6 julia functions | ilike documentation" />
+  <meta name="twitter:title" content="2.6 Julia functions | ilike documentation" />
   
   <meta name="twitter:description" content="Documentation for the ilike R package." />
   
@@ -23,7 +23,7 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2024-09-25" />
+<meta name="date" content="2024-10-02" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -56,7 +56,7 @@
 
 <style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -66,7 +66,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -128,6 +128,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
+  margin-bottom: 0em;
 }
 .hanging div.csl-entry {
   margin-left:2em;
@@ -185,21 +186,32 @@ div.csl-indent {
 <li class="chapter" data-level="2.3.2" data-path="C.html"><a href="C.html#ilike-cpp-classes"><i class="fa fa-check"></i><b>2.3.2</b> ilike C++ classes</a></li>
 <li class="chapter" data-level="2.3.3" data-path="C.html"><a href="C.html#ilike-cpp-functions"><i class="fa fa-check"></i><b>2.3.3</b> ilike C++ functions</a></li>
 </ul></li>
-<li class="chapter" data-level="2.4" data-path="R.html"><a href="R.html"><i class="fa fa-check"></i><b>2.4</b> R functions</a></li>
-<li class="chapter" data-level="2.5" data-path="python.html"><a href="python.html"><i class="fa fa-check"></i><b>2.5</b> python functions</a></li>
-<li class="chapter" data-level="2.6" data-path="julia.html"><a href="julia.html"><i class="fa fa-check"></i><b>2.6</b> julia functions</a></li>
+<li class="chapter" data-level="2.4" data-path="R.html"><a href="R.html"><i class="fa fa-check"></i><b>2.4</b> R functions</a>
+<ul>
+<li class="chapter" data-level="2.4.1" data-path="R.html"><a href="R.html#function-arguments-for-r-functions"><i class="fa fa-check"></i><b>2.4.1</b> Function arguments for R functions</a></li>
+<li class="chapter" data-level="2.4.2" data-path="R.html"><a href="R.html#function-headers-for-r-functions"><i class="fa fa-check"></i><b>2.4.2</b> Function headers for R functions</a></li>
+</ul></li>
+<li class="chapter" data-level="2.5" data-path="python.html"><a href="python.html"><i class="fa fa-check"></i><b>2.5</b> Python functions</a>
+<ul>
+<li class="chapter" data-level="2.5.1" data-path="python.html"><a href="python.html#using-jax-to-calculate-gradients"><i class="fa fa-check"></i><b>2.5.1</b> Using jax to calculate gradients</a></li>
+</ul></li>
+<li class="chapter" data-level="2.6" data-path="julia.html"><a href="julia.html"><i class="fa fa-check"></i><b>2.6</b> Julia functions</a></li>
 <li class="chapter" data-level="2.7" data-path="ilike-functions.html"><a href="ilike-functions.html"><i class="fa fa-check"></i><b>2.7</b> ilike functions</a></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="blocks.html"><a href="blocks.html"><i class="fa fa-check"></i><b>3</b> ilike blocks</a>
 <ul>
-<li class="chapter" data-level="3.1" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>3.1</b> Data</a></li>
-<li class="chapter" data-level="3.2" data-path="priors.html"><a href="priors.html"><i class="fa fa-check"></i><b>3.2</b> Priors</a></li>
-<li class="chapter" data-level="3.3" data-path="likelihoods.html"><a href="likelihoods.html"><i class="fa fa-check"></i><b>3.3</b> Likelihoods</a></li>
-<li class="chapter" data-level="3.4" data-path="importance-sampling-proposals.html"><a href="importance-sampling-proposals.html"><i class="fa fa-check"></i><b>3.4</b> Importance sampling proposals</a></li>
-<li class="chapter" data-level="3.5" data-path="mcmc-proposals.html"><a href="mcmc-proposals.html"><i class="fa fa-check"></i><b>3.5</b> MCMC proposals</a></li>
-<li class="chapter" data-level="3.6" data-path="transition-model.html"><a href="transition-model.html"><i class="fa fa-check"></i><b>3.6</b> Transition model</a></li>
-<li class="chapter" data-level="3.7" data-path="filter.html"><a href="filter.html"><i class="fa fa-check"></i><b>3.7</b> Filter</a></li>
-<li class="chapter" data-level="3.8" data-path="gradient.html"><a href="gradient.html"><i class="fa fa-check"></i><b>3.8</b> Gradient</a></li>
+<li class="chapter" data-level="3.1" data-path="factor-blocks.html"><a href="factor-blocks.html"><i class="fa fa-check"></i><b>3.1</b> Factor blocks</a>
+<ul>
+<li class="chapter" data-level="3.1.1" data-path="factor-blocks.html"><a href="factor-blocks.html#prior"><i class="fa fa-check"></i><b>3.1.1</b> Prior</a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>3.2</b> Data</a></li>
+<li class="chapter" data-level="3.3" data-path="priors.html"><a href="priors.html"><i class="fa fa-check"></i><b>3.3</b> Priors</a></li>
+<li class="chapter" data-level="3.4" data-path="likelihoods.html"><a href="likelihoods.html"><i class="fa fa-check"></i><b>3.4</b> Likelihoods</a></li>
+<li class="chapter" data-level="3.5" data-path="importance-sampling-proposals.html"><a href="importance-sampling-proposals.html"><i class="fa fa-check"></i><b>3.5</b> Importance sampling proposals</a></li>
+<li class="chapter" data-level="3.6" data-path="mcmc-proposals.html"><a href="mcmc-proposals.html"><i class="fa fa-check"></i><b>3.6</b> MCMC proposals</a></li>
+<li class="chapter" data-level="3.7" data-path="transition-model.html"><a href="transition-model.html"><i class="fa fa-check"></i><b>3.7</b> Transition model</a></li>
+<li class="chapter" data-level="3.8" data-path="filter.html"><a href="filter.html"><i class="fa fa-check"></i><b>3.8</b> Filter</a></li>
+<li class="chapter" data-level="3.9" data-path="gradient.html"><a href="gradient.html"><i class="fa fa-check"></i><b>3.9</b> Gradient</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="inference.html"><a href="inference.html"><i class="fa fa-check"></i><b>4</b> Inference algorithms</a>
 <ul>
@@ -268,7 +280,33 @@ div.csl-indent {
 
             <section class="normal" id="section-">
 <div id="julia" class="section level2 hasAnchor" number="2.6">
-<h2><span class="header-section-number">2.6</span> julia functions<a href="julia.html#julia" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<h2><span class="header-section-number">2.6</span> Julia functions<a href="julia.html#julia" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>The use of Julia functions in ilike is similar to that of R and Python functions. The function header must be specified in the same way as for R and Python functions, with the function type followed by a call to the Julia function. The Julia function itself is specified in a file with the same name as the ilike file, but with the <code>.jl</code> extension. Behind the scenes, the <code>JuliaCall</code> R package is used to make the Julia function callable from R, and hence from ilike.</p>
+<p>The use of Julia functions is similar to the use of Python functions. They may be called directly from the function header just as R functions are, and again, code in the function header should be treated as R code, even if the function being called is a Julia function (so, for example, use <code>parameters$x</code> in this line to access variable <code>x</code> in the <code>parameters</code> object). Julia functions cannot be used with parallel inference algorithms.</p>
+<p>For example, in this case, for variety, we will use a lognormal pdf function in the ilike file:</p>
+<div class="sourceCode" id="cb86"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb86-1"><a href="julia.html#cb86-1" tabindex="-1"></a><span class="co">/***evaluate_log_prior,my_dlnorm(parameters.tau,1,1,TRUE)***/</span></span></code></pre></div>
+<p><code>my_dlnorm</code> is a Julia function, specified in the Julia file using</p>
+<div class="sourceCode" id="cb87"><pre class="sourceCode julia"><code class="sourceCode julia"><span id="cb87-1"><a href="julia.html#cb87-1" tabindex="-1"></a><span class="kw">function</span> <span class="fu">my_dlnorm</span>(tau,m,s,l)</span>
+<span id="cb87-2"><a href="julia.html#cb87-2" tabindex="-1"></a>  <span class="fu">μ_for_mean</span>(m1, σ) <span class="op">=</span> <span class="fu">log</span>(m1) <span class="op">-</span> σ<span class="op">^</span><span class="fl">2</span><span class="op">/</span><span class="fl">2</span></span>
+<span id="cb87-3"><a href="julia.html#cb87-3" tabindex="-1"></a>  d <span class="op">=</span> <span class="fu">LogNormal</span>(<span class="fu">μ_for_mean</span>(m, s), s)</span>
+<span id="cb87-4"><a href="julia.html#cb87-4" tabindex="-1"></a>  <span class="cf">if</span> (l<span class="op">==</span><span class="cn">true</span>)</span>
+<span id="cb87-5"><a href="julia.html#cb87-5" tabindex="-1"></a>    <span class="fu">logpdf</span>(d,tau)</span>
+<span id="cb87-6"><a href="julia.html#cb87-6" tabindex="-1"></a>  <span class="cf">else</span></span>
+<span id="cb87-7"><a href="julia.html#cb87-7" tabindex="-1"></a>    <span class="fu">pdf</span>(d,tau)</span>
+<span id="cb87-8"><a href="julia.html#cb87-8" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb87-9"><a href="julia.html#cb87-9" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+<p>Just as when calling a Python function, when passing an integer argument to a Julia function, the argument must be cast to an integer in the function header. For example, suppose the Julia function <code>my_rnorm</code> (used in the data function in this case) takes an integer argument <code>n</code>, then the function header would be:</p>
+<div class="sourceCode" id="cb88"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb88-1"><a href="julia.html#cb88-1" tabindex="-1"></a><span class="co">/***data,y=my_rnorm(100L)***/</span></span></code></pre></div>
+<p>(note the key point: using <code>100L</code> instead of <code>100</code>) with the Julia file containing:</p>
+<div class="sourceCode" id="cb89"><pre class="sourceCode julia"><code class="sourceCode julia"><span id="cb89-1"><a href="julia.html#cb89-1" tabindex="-1"></a><span class="kw">function</span> <span class="fu">my_rnorm</span>(n)</span>
+<span id="cb89-2"><a href="julia.html#cb89-2" tabindex="-1"></a>  d <span class="op">=</span> <span class="fu">Normal</span>()</span>
+<span id="cb89-3"><a href="julia.html#cb89-3" tabindex="-1"></a>  <span class="fu">rand</span>(d, n)</span>
+<span id="cb89-4"><a href="julia.html#cb89-4" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+<p>Also in common with the Python interface, there is an overhead to calling Julia functions from ilike. This overhead is even more computationally costly than calling Python functions. Therefore, it is recommended to use Julia functions only when necessary.</p>
+<p>When using Julia functions, the directory containing the Julia bin file must be specified when <code>complile</code> is called. Further, when using Julia functions that rely on external packages the package should be listed in the <code>julia_required_libraries</code> argument when calling the <code>compile</code> function. For example:</p>
+<div class="sourceCode" id="cb90"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb90-1"><a href="julia.html#cb90-1" tabindex="-1"></a>model <span class="ot">=</span> <span class="fu">compile</span>(<span class="st">&quot;myfile.ilike&quot;</span>,</span>
+<span id="cb90-2"><a href="julia.html#cb90-2" tabindex="-1"></a>                <span class="at">julia_bin_dir =</span> <span class="st">&quot;/path/to/julia/bin&quot;</span>,</span>
+<span id="cb90-3"><a href="julia.html#cb90-3" tabindex="-1"></a>                <span class="at">julia_required_libraries =</span> <span class="fu">c</span>(<span class="st">&quot;Distributions&quot;</span>))</span></code></pre></div>
 </div>
             </section>
 

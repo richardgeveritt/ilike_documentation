@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>2.5 python functions | ilike documentation</title>
+  <title>2.5 Python functions | ilike documentation</title>
   <meta name="description" content="Documentation for the ilike R package." />
   <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="2.5 python functions | ilike documentation" />
+  <meta property="og:title" content="2.5 Python functions | ilike documentation" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="Documentation for the ilike R package." />
   <meta name="github-repo" content="richardgeveritt/ilike_documentation" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="2.5 python functions | ilike documentation" />
+  <meta name="twitter:title" content="2.5 Python functions | ilike documentation" />
   
   <meta name="twitter:description" content="Documentation for the ilike R package." />
   
@@ -23,7 +23,7 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2024-09-25" />
+<meta name="date" content="2024-10-02" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -56,7 +56,7 @@
 
 <style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -66,7 +66,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -128,6 +128,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
+  margin-bottom: 0em;
 }
 .hanging div.csl-entry {
   margin-left:2em;
@@ -185,21 +186,32 @@ div.csl-indent {
 <li class="chapter" data-level="2.3.2" data-path="C.html"><a href="C.html#ilike-cpp-classes"><i class="fa fa-check"></i><b>2.3.2</b> ilike C++ classes</a></li>
 <li class="chapter" data-level="2.3.3" data-path="C.html"><a href="C.html#ilike-cpp-functions"><i class="fa fa-check"></i><b>2.3.3</b> ilike C++ functions</a></li>
 </ul></li>
-<li class="chapter" data-level="2.4" data-path="R.html"><a href="R.html"><i class="fa fa-check"></i><b>2.4</b> R functions</a></li>
-<li class="chapter" data-level="2.5" data-path="python.html"><a href="python.html"><i class="fa fa-check"></i><b>2.5</b> python functions</a></li>
-<li class="chapter" data-level="2.6" data-path="julia.html"><a href="julia.html"><i class="fa fa-check"></i><b>2.6</b> julia functions</a></li>
+<li class="chapter" data-level="2.4" data-path="R.html"><a href="R.html"><i class="fa fa-check"></i><b>2.4</b> R functions</a>
+<ul>
+<li class="chapter" data-level="2.4.1" data-path="R.html"><a href="R.html#function-arguments-for-r-functions"><i class="fa fa-check"></i><b>2.4.1</b> Function arguments for R functions</a></li>
+<li class="chapter" data-level="2.4.2" data-path="R.html"><a href="R.html#function-headers-for-r-functions"><i class="fa fa-check"></i><b>2.4.2</b> Function headers for R functions</a></li>
+</ul></li>
+<li class="chapter" data-level="2.5" data-path="python.html"><a href="python.html"><i class="fa fa-check"></i><b>2.5</b> Python functions</a>
+<ul>
+<li class="chapter" data-level="2.5.1" data-path="python.html"><a href="python.html#using-jax-to-calculate-gradients"><i class="fa fa-check"></i><b>2.5.1</b> Using jax to calculate gradients</a></li>
+</ul></li>
+<li class="chapter" data-level="2.6" data-path="julia.html"><a href="julia.html"><i class="fa fa-check"></i><b>2.6</b> Julia functions</a></li>
 <li class="chapter" data-level="2.7" data-path="ilike-functions.html"><a href="ilike-functions.html"><i class="fa fa-check"></i><b>2.7</b> ilike functions</a></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="blocks.html"><a href="blocks.html"><i class="fa fa-check"></i><b>3</b> ilike blocks</a>
 <ul>
-<li class="chapter" data-level="3.1" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>3.1</b> Data</a></li>
-<li class="chapter" data-level="3.2" data-path="priors.html"><a href="priors.html"><i class="fa fa-check"></i><b>3.2</b> Priors</a></li>
-<li class="chapter" data-level="3.3" data-path="likelihoods.html"><a href="likelihoods.html"><i class="fa fa-check"></i><b>3.3</b> Likelihoods</a></li>
-<li class="chapter" data-level="3.4" data-path="importance-sampling-proposals.html"><a href="importance-sampling-proposals.html"><i class="fa fa-check"></i><b>3.4</b> Importance sampling proposals</a></li>
-<li class="chapter" data-level="3.5" data-path="mcmc-proposals.html"><a href="mcmc-proposals.html"><i class="fa fa-check"></i><b>3.5</b> MCMC proposals</a></li>
-<li class="chapter" data-level="3.6" data-path="transition-model.html"><a href="transition-model.html"><i class="fa fa-check"></i><b>3.6</b> Transition model</a></li>
-<li class="chapter" data-level="3.7" data-path="filter.html"><a href="filter.html"><i class="fa fa-check"></i><b>3.7</b> Filter</a></li>
-<li class="chapter" data-level="3.8" data-path="gradient.html"><a href="gradient.html"><i class="fa fa-check"></i><b>3.8</b> Gradient</a></li>
+<li class="chapter" data-level="3.1" data-path="factor-blocks.html"><a href="factor-blocks.html"><i class="fa fa-check"></i><b>3.1</b> Factor blocks</a>
+<ul>
+<li class="chapter" data-level="3.1.1" data-path="factor-blocks.html"><a href="factor-blocks.html#prior"><i class="fa fa-check"></i><b>3.1.1</b> Prior</a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>3.2</b> Data</a></li>
+<li class="chapter" data-level="3.3" data-path="priors.html"><a href="priors.html"><i class="fa fa-check"></i><b>3.3</b> Priors</a></li>
+<li class="chapter" data-level="3.4" data-path="likelihoods.html"><a href="likelihoods.html"><i class="fa fa-check"></i><b>3.4</b> Likelihoods</a></li>
+<li class="chapter" data-level="3.5" data-path="importance-sampling-proposals.html"><a href="importance-sampling-proposals.html"><i class="fa fa-check"></i><b>3.5</b> Importance sampling proposals</a></li>
+<li class="chapter" data-level="3.6" data-path="mcmc-proposals.html"><a href="mcmc-proposals.html"><i class="fa fa-check"></i><b>3.6</b> MCMC proposals</a></li>
+<li class="chapter" data-level="3.7" data-path="transition-model.html"><a href="transition-model.html"><i class="fa fa-check"></i><b>3.7</b> Transition model</a></li>
+<li class="chapter" data-level="3.8" data-path="filter.html"><a href="filter.html"><i class="fa fa-check"></i><b>3.8</b> Filter</a></li>
+<li class="chapter" data-level="3.9" data-path="gradient.html"><a href="gradient.html"><i class="fa fa-check"></i><b>3.9</b> Gradient</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="inference.html"><a href="inference.html"><i class="fa fa-check"></i><b>4</b> Inference algorithms</a>
 <ul>
@@ -268,7 +280,55 @@ div.csl-indent {
 
             <section class="normal" id="section-">
 <div id="python" class="section level2 hasAnchor" number="2.5">
-<h2><span class="header-section-number">2.5</span> python functions<a href="python.html#python" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<h2><span class="header-section-number">2.5</span> Python functions<a href="python.html#python" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>In this section, we will detail how to use Python functions in ilike. The process is similar to that of using R functions. The function header must be specified in the same way as for R functions, with the function type followed by a call to the Python function. The Python function itself is specified in a file with the same name as the ilike file, but with the <code>.py</code> extension. Behind the scenes, the <code>reticulate</code> R package is used to make the python function callable from R, and hence from ilike.</p>
+<p>The use of R as an intermediary between the Python code and the ilike inference engine results in an overhead in using Python functions, since each time a Python function is called the Python data structures must be converted to Rcpp data structures (and/or vice versa, depending on the function type). Depending on the algorithm/model combination you are using, this overhead may be significant. For example, an MCMC that uses an exact likelihood may be significantly slower when using a Python function, since the conversion overhead may be significant when compared to the cost of the likelihood evaluation. However, an ABC-MCMC algorithm that involves a costly simulation step may not be significantly affected by the overhead of using a Python function.</p>
+<p>Python functions may be called directly from the function header just as R functions are. The code in the function header should be treated as R code, even if the function being called is a Python function - so R syntax should be used when accessing arguments in the header line (e.g. use <code>parameters$x</code> in this line to access variable <code>x</code> in the <code>parameters</code> object). In the Python function itself, <code>Parameters</code> and <code>Data</code> objects will take the form of a Python dictionary (so <code>parameters["x"]</code> would be used to access variable <code>x</code>). Python functions cannot be used with parallel inference algorithms.</p>
+<p>The following example demonstrates how to use a Python function in ilike, in this case an additive Gaussian noise model, specified with the function type <code>evaluate_log_likelihood</code>:</p>
+<div class="sourceCode" id="cb80"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb80-1"><a href="python.html#cb80-1" tabindex="-1"></a><span class="co">/***evaluate_log_likelihood,my_log_llhd(parameters,data)***/</span></span></code></pre></div>
+<p><code>my_log_llhd</code> is specified in a file with the same name as the ilike file, but with the <code>.py</code> extension. The function <code>my_log_llhd</code> is defined as follows:</p>
+<div class="sourceCode" id="cb81"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb81-1"><a href="python.html#cb81-1" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb81-2"><a href="python.html#cb81-2" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> norm</span>
+<span id="cb81-3"><a href="python.html#cb81-3" tabindex="-1"></a></span>
+<span id="cb81-4"><a href="python.html#cb81-4" tabindex="-1"></a><span class="kw">def</span> my_log_llhd(parameters,data):</span>
+<span id="cb81-5"><a href="python.html#cb81-5" tabindex="-1"></a>  Sigma <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb81-6"><a href="python.html#cb81-6" tabindex="-1"></a>  <span class="cf">return</span> <span class="bu">sum</span>(norm.logpdf(data[<span class="st">&quot;y&quot;</span>],parameters[<span class="st">&quot;mu&quot;</span>],Sigma))</span></code></pre></div>
+<p>There is one part of the specification in the function header that might need to differ compared to when using an R function. When passing an integer argument to a Python function, the argument must be cast to an integer in the function header. For example, suppose the Python function <code>my_rnorm</code> (used in the data function in this case) takes an integer argument <code>n</code>, then the function header would be:</p>
+<div class="sourceCode" id="cb82"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb82-1"><a href="python.html#cb82-1" tabindex="-1"></a><span class="co">/***data,y=my_rnorm(100L,0,1)***/</span></span></code></pre></div>
+<p>(note the key point: using <code>100L</code> instead of <code>100</code>) with the Python file containing:</p>
+<div class="sourceCode" id="cb83"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb83-1"><a href="python.html#cb83-1" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb83-2"><a href="python.html#cb83-2" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> norm</span>
+<span id="cb83-3"><a href="python.html#cb83-3" tabindex="-1"></a></span>
+<span id="cb83-4"><a href="python.html#cb83-4" tabindex="-1"></a><span class="kw">def</span> my_rnorm(n):</span>
+<span id="cb83-5"><a href="python.html#cb83-5" tabindex="-1"></a>  <span class="cf">return</span> norm.rvs(size<span class="op">=</span>n)</span></code></pre></div>
+<div id="using-jax-to-calculate-gradients" class="section level3 hasAnchor" number="2.5.1">
+<h3><span class="header-section-number">2.5.1</span> Using jax to calculate gradients<a href="python.html#using-jax-to-calculate-gradients" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The <code>jax</code> library can be used to calculate gradients of Python functions. The following example demonstrates how to use <code>jax</code> to calculate the gradient of the log likelihood function in the additive Gaussian noise model. In the ilike file:</p>
+<div class="sourceCode" id="cb84"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb84-1"><a href="python.html#cb84-1" tabindex="-1"></a><span class="co">/***evaluate_log_likelihood,my_log_llhd(parameters,data)***/</span></span>
+<span id="cb84-2"><a href="python.html#cb84-2" tabindex="-1"></a></span>
+<span id="cb84-3"><a href="python.html#cb84-3" tabindex="-1"></a><span class="co">/***evaluate_gradient_log_likelihood,my_grad_log_llhd(variable,parameters,data)***/</span></span></code></pre></div>
+<p>and in the .py file:</p>
+<div class="sourceCode" id="cb85"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb85-1"><a href="python.html#cb85-1" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
+<span id="cb85-2"><a href="python.html#cb85-2" tabindex="-1"></a><span class="im">from</span> jax.scipy.stats <span class="im">import</span> norm</span>
+<span id="cb85-3"><a href="python.html#cb85-3" tabindex="-1"></a><span class="im">from</span> jax <span class="im">import</span> grad, jit</span>
+<span id="cb85-4"><a href="python.html#cb85-4" tabindex="-1"></a><span class="im">from</span> functools <span class="im">import</span> <span class="bu">reduce</span></span>
+<span id="cb85-5"><a href="python.html#cb85-5" tabindex="-1"></a><span class="im">from</span> jax <span class="im">import</span> vmap</span>
+<span id="cb85-6"><a href="python.html#cb85-6" tabindex="-1"></a></span>
+<span id="cb85-7"><a href="python.html#cb85-7" tabindex="-1"></a><span class="kw">def</span> logpdf_func(mu,datum):</span>
+<span id="cb85-8"><a href="python.html#cb85-8" tabindex="-1"></a>  Sigma <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb85-9"><a href="python.html#cb85-9" tabindex="-1"></a>  mu <span class="op">=</span> jnp.array(mu)</span>
+<span id="cb85-10"><a href="python.html#cb85-10" tabindex="-1"></a>  <span class="cf">return</span> jit(norm.logpdf)(datum, mu, Sigma)</span>
+<span id="cb85-11"><a href="python.html#cb85-11" tabindex="-1"></a></span>
+<span id="cb85-12"><a href="python.html#cb85-12" tabindex="-1"></a><span class="kw">def</span> log_llhd_core(mu,y):</span>
+<span id="cb85-13"><a href="python.html#cb85-13" tabindex="-1"></a>  logp <span class="op">=</span> jit(vmap(logpdf_func,(<span class="va">None</span>,<span class="dv">0</span>), <span class="dv">0</span>))(mu,y)</span>
+<span id="cb85-14"><a href="python.html#cb85-14" tabindex="-1"></a>  <span class="cf">return</span> <span class="bu">sum</span>(logp)</span>
+<span id="cb85-15"><a href="python.html#cb85-15" tabindex="-1"></a></span>
+<span id="cb85-16"><a href="python.html#cb85-16" tabindex="-1"></a><span class="kw">def</span> my_log_llhd(parameters,data):</span>
+<span id="cb85-17"><a href="python.html#cb85-17" tabindex="-1"></a>  <span class="cf">return</span> log_llhd_core(parameters[<span class="st">&quot;mu&quot;</span>],data[<span class="st">&quot;y&quot;</span>])</span>
+<span id="cb85-18"><a href="python.html#cb85-18" tabindex="-1"></a></span>
+<span id="cb85-19"><a href="python.html#cb85-19" tabindex="-1"></a><span class="kw">def</span> my_grad_log_llhd(variable,parameters,data):</span>
+<span id="cb85-20"><a href="python.html#cb85-20" tabindex="-1"></a>  <span class="cf">return</span> numpy.array(jit(grad(log_llhd_core, argnums<span class="op">=</span><span class="dv">0</span>))(parameters[<span class="st">&quot;mu&quot;</span>],data[<span class="st">&quot;y&quot;</span>]))</span></code></pre></div>
+</div>
 </div>
             </section>
 

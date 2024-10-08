@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>2.7 ilike functions | ilike documentation</title>
+  <title>3.2 Exact likelihood | ilike documentation</title>
   <meta name="description" content="Documentation for the ilike R package." />
   <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="2.7 ilike functions | ilike documentation" />
+  <meta property="og:title" content="3.2 Exact likelihood | ilike documentation" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="Documentation for the ilike R package." />
   <meta name="github-repo" content="richardgeveritt/ilike_documentation" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="2.7 ilike functions | ilike documentation" />
+  <meta name="twitter:title" content="3.2 Exact likelihood | ilike documentation" />
   
   <meta name="twitter:description" content="Documentation for the ilike R package." />
   
@@ -23,15 +23,15 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2024-10-02" />
+<meta name="date" content="2024-10-03" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="julia.html"/>
-<link rel="next" href="blocks.html"/>
+<link rel="prev" href="factor-blocks.html"/>
+<link rel="next" href="data-block.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -123,29 +123,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   
   div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 </style>
-<style type="text/css">
-/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-  margin-bottom: 0em;
-}
-.hanging div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}
-</style>
 
 <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
@@ -204,14 +181,11 @@ div.csl-indent {
 <ul>
 <li class="chapter" data-level="3.1.1" data-path="factor-blocks.html"><a href="factor-blocks.html#prior"><i class="fa fa-check"></i><b>3.1.1</b> Prior</a></li>
 </ul></li>
-<li class="chapter" data-level="3.2" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>3.2</b> Data</a></li>
-<li class="chapter" data-level="3.3" data-path="priors.html"><a href="priors.html"><i class="fa fa-check"></i><b>3.3</b> Priors</a></li>
-<li class="chapter" data-level="3.4" data-path="likelihoods.html"><a href="likelihoods.html"><i class="fa fa-check"></i><b>3.4</b> Likelihoods</a></li>
-<li class="chapter" data-level="3.5" data-path="importance-sampling-proposals.html"><a href="importance-sampling-proposals.html"><i class="fa fa-check"></i><b>3.5</b> Importance sampling proposals</a></li>
-<li class="chapter" data-level="3.6" data-path="mcmc-proposals.html"><a href="mcmc-proposals.html"><i class="fa fa-check"></i><b>3.6</b> MCMC proposals</a></li>
-<li class="chapter" data-level="3.7" data-path="transition-model.html"><a href="transition-model.html"><i class="fa fa-check"></i><b>3.7</b> Transition model</a></li>
-<li class="chapter" data-level="3.8" data-path="filter.html"><a href="filter.html"><i class="fa fa-check"></i><b>3.8</b> Filter</a></li>
-<li class="chapter" data-level="3.9" data-path="gradient.html"><a href="gradient.html"><i class="fa fa-check"></i><b>3.9</b> Gradient</a></li>
+<li class="chapter" data-level="3.2" data-path="exact-likelihood.html"><a href="exact-likelihood.html"><i class="fa fa-check"></i><b>3.2</b> Exact likelihood</a></li>
+<li class="chapter" data-level="3.3" data-path="data-block.html"><a href="data-block.html"><i class="fa fa-check"></i><b>3.3</b> Data block</a>
+<ul>
+<li class="chapter" data-level="3.3.1" data-path="data-block.html"><a href="data-block.html#data"><i class="fa fa-check"></i><b>3.3.1</b> Data</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="inference.html"><a href="inference.html"><i class="fa fa-check"></i><b>4</b> Inference algorithms</a>
 <ul>
@@ -279,35 +253,16 @@ div.csl-indent {
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="ilike-functions" class="section level2 hasAnchor" number="2.7">
-<h2><span class="header-section-number">2.7</span> ilike functions<a href="ilike-functions.html#ilike-functions" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>ilike contains a number of in-built functions that, under the hood, call C++ code contained in the ilike package. These functions are the only way of specifying some options in the ilike inference engine, and may also be used to specify parts of the model and/or algorithm. The functions are called in the ilike file in the same way as R, Python, and Julia functions, with the function type followed by a call to the function. For example, to specify the number of iterations in the MCMC algorithm, the <code>ilike::iterations</code> function is used:</p>
-<div class="sourceCode" id="cb91"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb91-1"><a href="ilike-functions.html#cb91-1" tabindex="-1"></a><span class="co">/***mcmc_termination,ilike::iterations(100000)***/</span></span></code></pre></div>
-<p>Other uses for ilike functions include specifying the proposal in an MCMC algorithm, or the prior distribution for a parameter. ilike functions also allow access to some key algoritms in ilike, for example approximate Bayesian computation (ABC). Documentation of all available ilike functions can be found in section <a href="blocks.html#blocks">3</a>.</p>
-<p>All ilike functions must include the prefix <code>ilike::</code> to distinguish them from a call to an R, Python or Julia function.</p>
-<!-- Figures and tables with captions will be placed in `figure` and `table` environments, respectively. -->
-<!-- ```{r nice-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'} -->
-<!-- par(mar = c(4, 4, .1, .1)) -->
-<!-- plot(pressure, type = 'b', pch = 19) -->
-<!-- ``` -->
-<!-- Reference a figure by its code chunk label with the `fig:` prefix, e.g., see Figure \@ref(fig:nice-fig). Similarly, you can reference tables generated from `knitr::kable()`, e.g., see Table \@ref(tab:nice-tab). -->
-<!-- ```{r nice-tab, tidy=FALSE} -->
-<!-- knitr::kable( -->
-<!--   head(iris, 20), caption = 'Here is a nice table!', -->
-<!--   booktabs = TRUE -->
-<!-- ) -->
-<!-- ``` -->
-<!-- You can write citations, too. For example, we are using the **bookdown** package [@R-bookdown] in this sample book, which was built on top of R Markdown and **knitr** [@xie2015]. -->
-
+<div id="exact-likelihood" class="section level2 hasAnchor" number="3.2">
+<h2><span class="header-section-number">3.2</span> Exact likelihood<a href="exact-likelihood.html#exact-likelihood" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 </div>
-<!-- </div> -->
             </section>
 
           </div>
         </div>
       </div>
-<a href="julia.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="blocks.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="factor-blocks.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="data-block.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
@@ -338,7 +293,7 @@ gitbook.start({
 "size": 2
 },
 "edit": {
-"link": "https://github.com/richardgeveritt/ilike_documentation/edit/master/01-ilike-files.Rmd",
+"link": "https://github.com/richardgeveritt/ilike_documentation/edit/master/02-blocks.Rmd",
 "text": "Edit"
 },
 "history": {
@@ -361,20 +316,6 @@ gitbook.start({
 });
 </script>
 
-<!-- dynamically load mathjax for compatibility with self-contained -->
-<script>
-  (function () {
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    var src = "true";
-    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
-    if (location.protocol !== "file:")
-      if (/^https?:/.test(src))
-        src = src.replace(/^https?:/, '');
-    script.src = src;
-    document.getElementsByTagName("head")[0].appendChild(script);
-  })();
-</script>
 </body>
 
 </html>

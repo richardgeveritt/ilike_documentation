@@ -23,7 +23,7 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2024-09-25" />
+<meta name="date" content="2024-10-02" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -56,7 +56,7 @@
 
 <style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -66,7 +66,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -128,6 +128,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
+  margin-bottom: 0em;
 }
 .hanging div.csl-entry {
   margin-left:2em;
@@ -185,21 +186,32 @@ div.csl-indent {
 <li class="chapter" data-level="2.3.2" data-path="C.html"><a href="C.html#ilike-cpp-classes"><i class="fa fa-check"></i><b>2.3.2</b> ilike C++ classes</a></li>
 <li class="chapter" data-level="2.3.3" data-path="C.html"><a href="C.html#ilike-cpp-functions"><i class="fa fa-check"></i><b>2.3.3</b> ilike C++ functions</a></li>
 </ul></li>
-<li class="chapter" data-level="2.4" data-path="R.html"><a href="R.html"><i class="fa fa-check"></i><b>2.4</b> R functions</a></li>
-<li class="chapter" data-level="2.5" data-path="python.html"><a href="python.html"><i class="fa fa-check"></i><b>2.5</b> python functions</a></li>
-<li class="chapter" data-level="2.6" data-path="julia.html"><a href="julia.html"><i class="fa fa-check"></i><b>2.6</b> julia functions</a></li>
+<li class="chapter" data-level="2.4" data-path="R.html"><a href="R.html"><i class="fa fa-check"></i><b>2.4</b> R functions</a>
+<ul>
+<li class="chapter" data-level="2.4.1" data-path="R.html"><a href="R.html#function-arguments-for-r-functions"><i class="fa fa-check"></i><b>2.4.1</b> Function arguments for R functions</a></li>
+<li class="chapter" data-level="2.4.2" data-path="R.html"><a href="R.html#function-headers-for-r-functions"><i class="fa fa-check"></i><b>2.4.2</b> Function headers for R functions</a></li>
+</ul></li>
+<li class="chapter" data-level="2.5" data-path="python.html"><a href="python.html"><i class="fa fa-check"></i><b>2.5</b> Python functions</a>
+<ul>
+<li class="chapter" data-level="2.5.1" data-path="python.html"><a href="python.html#using-jax-to-calculate-gradients"><i class="fa fa-check"></i><b>2.5.1</b> Using jax to calculate gradients</a></li>
+</ul></li>
+<li class="chapter" data-level="2.6" data-path="julia.html"><a href="julia.html"><i class="fa fa-check"></i><b>2.6</b> Julia functions</a></li>
 <li class="chapter" data-level="2.7" data-path="ilike-functions.html"><a href="ilike-functions.html"><i class="fa fa-check"></i><b>2.7</b> ilike functions</a></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="blocks.html"><a href="blocks.html"><i class="fa fa-check"></i><b>3</b> ilike blocks</a>
 <ul>
-<li class="chapter" data-level="3.1" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>3.1</b> Data</a></li>
-<li class="chapter" data-level="3.2" data-path="priors.html"><a href="priors.html"><i class="fa fa-check"></i><b>3.2</b> Priors</a></li>
-<li class="chapter" data-level="3.3" data-path="likelihoods.html"><a href="likelihoods.html"><i class="fa fa-check"></i><b>3.3</b> Likelihoods</a></li>
-<li class="chapter" data-level="3.4" data-path="importance-sampling-proposals.html"><a href="importance-sampling-proposals.html"><i class="fa fa-check"></i><b>3.4</b> Importance sampling proposals</a></li>
-<li class="chapter" data-level="3.5" data-path="mcmc-proposals.html"><a href="mcmc-proposals.html"><i class="fa fa-check"></i><b>3.5</b> MCMC proposals</a></li>
-<li class="chapter" data-level="3.6" data-path="transition-model.html"><a href="transition-model.html"><i class="fa fa-check"></i><b>3.6</b> Transition model</a></li>
-<li class="chapter" data-level="3.7" data-path="filter.html"><a href="filter.html"><i class="fa fa-check"></i><b>3.7</b> Filter</a></li>
-<li class="chapter" data-level="3.8" data-path="gradient.html"><a href="gradient.html"><i class="fa fa-check"></i><b>3.8</b> Gradient</a></li>
+<li class="chapter" data-level="3.1" data-path="factor-blocks.html"><a href="factor-blocks.html"><i class="fa fa-check"></i><b>3.1</b> Factor blocks</a>
+<ul>
+<li class="chapter" data-level="3.1.1" data-path="factor-blocks.html"><a href="factor-blocks.html#prior"><i class="fa fa-check"></i><b>3.1.1</b> Prior</a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>3.2</b> Data</a></li>
+<li class="chapter" data-level="3.3" data-path="priors.html"><a href="priors.html"><i class="fa fa-check"></i><b>3.3</b> Priors</a></li>
+<li class="chapter" data-level="3.4" data-path="likelihoods.html"><a href="likelihoods.html"><i class="fa fa-check"></i><b>3.4</b> Likelihoods</a></li>
+<li class="chapter" data-level="3.5" data-path="importance-sampling-proposals.html"><a href="importance-sampling-proposals.html"><i class="fa fa-check"></i><b>3.5</b> Importance sampling proposals</a></li>
+<li class="chapter" data-level="3.6" data-path="mcmc-proposals.html"><a href="mcmc-proposals.html"><i class="fa fa-check"></i><b>3.6</b> MCMC proposals</a></li>
+<li class="chapter" data-level="3.7" data-path="transition-model.html"><a href="transition-model.html"><i class="fa fa-check"></i><b>3.7</b> Transition model</a></li>
+<li class="chapter" data-level="3.8" data-path="filter.html"><a href="filter.html"><i class="fa fa-check"></i><b>3.8</b> Filter</a></li>
+<li class="chapter" data-level="3.9" data-path="gradient.html"><a href="gradient.html"><i class="fa fa-check"></i><b>3.9</b> Gradient</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="inference.html"><a href="inference.html"><i class="fa fa-check"></i><b>4</b> Inference algorithms</a>
 <ul>
@@ -276,7 +288,7 @@ div.csl-indent {
 <li>Functions that are required to run the inference algorithm. For example, the proposal to use in a Metropolis-Hastings algorithm.</li>
 </ul>
 <p>An ilike file consists of “blocks” of content, each of which specifies a component of the model (or in some cases the the inference algorithm). In an example of a simple model, the prior may be specified in one block, the likelihood in another, and the data in another. A block may consist of more than one function.</p>
-<p>Each function in an ilike file must have a <em>function type</em> specified in a header in the line above the function. A header is enclosed in the characters <code>\***</code> at the beginning and <code>***\</code> at the end, with the function type written directly after the beginning characters <code>\***</code>. See, for example, in section , the function that specifies how to evaluate the log of a prior density that has the header <code>/***evaluate_log_prior***/</code>, which defines the function type to be <code>evaluate_log_prior</code>.</p>
+<p>Each function in an ilike file must have a <em>function type</em> specified in a header in the line above the function. A header is enclosed in the characters <code>\***</code> at the beginning and <code>***\</code> at the end, with the function type written directly after the beginning characters <code>\***</code>. See, for example, in section <a href="toy-example.html#toy-example">1.1</a>, the function that specifies how to evaluate the log of a prior density that has the header <code>/***evaluate_log_prior***/</code>, which defines the function type to be <code>evaluate_log_prior</code>.</p>
 <p>For example, a block containing a prior may include two functions: <code>evaluate_log_prior</code> and <code>simulate_prior</code>. The functions included in a block depend on which algorithm we would like to run.</p>
 <p>Blocks may be specified <em>explicitly</em> or determined <em>automatically</em>:</p>
 <ul>
@@ -284,10 +296,11 @@ div.csl-indent {
 <li>The <code>compile</code> function will attempt to automatically determine the blocks that are present in a file.</li>
 </ul>
 <p>Specifying blocks explicitly using <code>//#</code> has the benefit of avoiding ambiguity. If you decide to use the explicit approach, you need not read the next subsection, which explains how to write a file where the blocks are determined automatically.</p>
+<p>Whether specified explicitly or automatically, the block type (and subtype if this exists) is determined by the function types in the block. The function types that are used to determine the block type are described in section <a href="blocks.html#blocks">3</a>. For example, if a block contains <code>evaluate_log_prior</code> and <code>simulate_prior</code>, the block type is “factor” and the subtype is “prior”.</p>
 <div id="blocks-automatically" class="section level3 hasAnchor" number="2.1.1">
 <h3><span class="header-section-number">2.1.1</span> Specifying blocks automatically<a href="file-structure.html#blocks-automatically" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>All of the example files used in this documentation use the automatic approach to specifying a model. For simple models, we anticipate that the user will not need to think very much about the precise structure of the model file. Nevertheless, this section details precisely how the compiler determines the blocks present in the file. If you are interested in</p>
-<p>The compiler reads the model file from top to bottom and determines when a block is “opened” and when it is “closed”. There are multiple different types of block (some of which have subtypes), each of which is defined by containing different function types (this is fully described in section (blocks)). One of each block type can be “open” as the compiler processes the file. The first time a block of each type is encountered in the file by the compiler, a block of that type will be opened. A block is closed when either:</p>
+<p>The compiler reads the model file from top to bottom and determines when a block is “opened” and when it is “closed”. There are multiple different types of block (some of which have subtypes), each of which is defined by containing different function types (this is fully described in section <a href="blocks.html#blocks">3</a>). One of each block type can be “open” as the compiler processes the file. The first time a block of each type is encountered in the file by the compiler, a block of that type will be opened. A block is closed when either:</p>
 <ol style="list-style-type: decimal">
 <li>A new block of the same type is opened. This happens when the next function type in the file is either:</li>
 </ol>
