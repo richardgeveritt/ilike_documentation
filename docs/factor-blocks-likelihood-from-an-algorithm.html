@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>3.4 Factor blocks: | ilike documentation</title>
+  <title>3.6 Factor blocks: likelihood from an algorithm | ilike documentation</title>
   <meta name="description" content="Documentation for the ilike R package." />
   <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="3.4 Factor blocks: | ilike documentation" />
+  <meta property="og:title" content="3.6 Factor blocks: likelihood from an algorithm | ilike documentation" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="Documentation for the ilike R package." />
   <meta name="github-repo" content="richardgeveritt/ilike_documentation" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="3.4 Factor blocks: | ilike documentation" />
+  <meta name="twitter:title" content="3.6 Factor blocks: likelihood from an algorithm | ilike documentation" />
   
   <meta name="twitter:description" content="Documentation for the ilike R package." />
   
@@ -23,15 +23,15 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2024-10-22" />
+<meta name="date" content="2024-10-28" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="factor-blocks-simulation-based-likelihood.html"/>
-<link rel="next" href="data-block.html"/>
+<link rel="prev" href="factor-blocks-nonlinear-gaussian-data-model.html"/>
+<link rel="next" href="transition-model-blocks-linear-gaussian-transition-model.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -208,11 +208,11 @@ div.csl-indent {
 <li class="chapter" data-level="3.1.4" data-path="factor-blocks-prior.html"><a href="factor-blocks-prior.html#evaluate_second_gradient_log_prior"><i class="fa fa-check"></i><b>3.1.4</b> evaluate_second_gradient_log_prior</a></li>
 <li class="chapter" data-level="3.1.5" data-path="factor-blocks-prior.html"><a href="factor-blocks-prior.html#prior-ilike-functions"><i class="fa fa-check"></i><b>3.1.5</b> prior (ilike functions)</a></li>
 </ul></li>
-<li class="chapter" data-level="3.2" data-path="factor-blocks-exact-likelihood.html"><a href="factor-blocks-exact-likelihood.html"><i class="fa fa-check"></i><b>3.2</b> Factor blocks: exact likelihood</a>
+<li class="chapter" data-level="3.2" data-path="factor-blocks-custom-likelihood.html"><a href="factor-blocks-custom-likelihood.html"><i class="fa fa-check"></i><b>3.2</b> Factor blocks: custom likelihood</a>
 <ul>
-<li class="chapter" data-level="3.2.1" data-path="factor-blocks-exact-likelihood.html"><a href="factor-blocks-exact-likelihood.html#evaluate_log_likelihood"><i class="fa fa-check"></i><b>3.2.1</b> evaluate_log_likelihood</a></li>
-<li class="chapter" data-level="3.2.2" data-path="factor-blocks-exact-likelihood.html"><a href="factor-blocks-exact-likelihood.html#evaluate_gradient_log_likelihood"><i class="fa fa-check"></i><b>3.2.2</b> evaluate_gradient_log_likelihood</a></li>
-<li class="chapter" data-level="3.2.3" data-path="factor-blocks-exact-likelihood.html"><a href="factor-blocks-exact-likelihood.html#evaluate_second_gradient_log_likelihood"><i class="fa fa-check"></i><b>3.2.3</b> evaluate_second_gradient_log_likelihood</a></li>
+<li class="chapter" data-level="3.2.1" data-path="factor-blocks-custom-likelihood.html"><a href="factor-blocks-custom-likelihood.html#evaluate_log_likelihood"><i class="fa fa-check"></i><b>3.2.1</b> evaluate_log_likelihood</a></li>
+<li class="chapter" data-level="3.2.2" data-path="factor-blocks-custom-likelihood.html"><a href="factor-blocks-custom-likelihood.html#evaluate_gradient_log_likelihood"><i class="fa fa-check"></i><b>3.2.2</b> evaluate_gradient_log_likelihood</a></li>
+<li class="chapter" data-level="3.2.3" data-path="factor-blocks-custom-likelihood.html"><a href="factor-blocks-custom-likelihood.html#evaluate_second_gradient_log_likelihood"><i class="fa fa-check"></i><b>3.2.3</b> evaluate_second_gradient_log_likelihood</a></li>
 </ul></li>
 <li class="chapter" data-level="3.3" data-path="factor-blocks-simulation-based-likelihood.html"><a href="factor-blocks-simulation-based-likelihood.html"><i class="fa fa-check"></i><b>3.3</b> Factor blocks: simulation-based likelihood</a>
 <ul>
@@ -221,10 +221,44 @@ div.csl-indent {
 <li class="chapter" data-level="3.3.3" data-path="factor-blocks-simulation-based-likelihood.html"><a href="factor-blocks-simulation-based-likelihood.html#summary_statistics"><i class="fa fa-check"></i><b>3.3.3</b> summary_statistics</a></li>
 <li class="chapter" data-level="3.3.4" data-path="factor-blocks-simulation-based-likelihood.html"><a href="factor-blocks-simulation-based-likelihood.html#sbi_likelihood-ilike-functions"><i class="fa fa-check"></i><b>3.3.4</b> sbi_likelihood (ilike functions)</a></li>
 </ul></li>
-<li class="chapter" data-level="3.4" data-path="factor-blocks.html"><a href="factor-blocks.html"><i class="fa fa-check"></i><b>3.4</b> Factor blocks:</a></li>
-<li class="chapter" data-level="3.5" data-path="data-block.html"><a href="data-block.html"><i class="fa fa-check"></i><b>3.5</b> Data block</a>
+<li class="chapter" data-level="3.4" data-path="factor-blocks-linear-gaussian-data-model.html"><a href="factor-blocks-linear-gaussian-data-model.html"><i class="fa fa-check"></i><b>3.4</b> Factor blocks: linear-Gaussian data model</a>
 <ul>
-<li class="chapter" data-level="3.5.1" data-path="data-block.html"><a href="data-block.html#data"><i class="fa fa-check"></i><b>3.5.1</b> data</a></li>
+<li class="chapter" data-level="3.4.1" data-path="factor-blocks-linear-gaussian-data-model.html"><a href="factor-blocks-linear-gaussian-data-model.html#linear_gaussian_data_variable"><i class="fa fa-check"></i><b>3.4.1</b> linear_gaussian_data_variable</a></li>
+<li class="chapter" data-level="3.4.2" data-path="factor-blocks-linear-gaussian-data-model.html"><a href="factor-blocks-linear-gaussian-data-model.html#linear_gaussian_data_state_variable"><i class="fa fa-check"></i><b>3.4.2</b> linear_gaussian_data_state_variable</a></li>
+<li class="chapter" data-level="3.4.3" data-path="factor-blocks-linear-gaussian-data-model.html"><a href="factor-blocks-linear-gaussian-data-model.html#linear_gaussian_data_matrix"><i class="fa fa-check"></i><b>3.4.3</b> linear_gaussian_data_matrix</a></li>
+<li class="chapter" data-level="3.4.4" data-path="factor-blocks-linear-gaussian-data-model.html"><a href="factor-blocks-linear-gaussian-data-model.html#linear_gaussian_data_covariance"><i class="fa fa-check"></i><b>3.4.4</b> linear_gaussian_data_covariance</a></li>
+<li class="chapter" data-level="3.4.5" data-path="factor-blocks-linear-gaussian-data-model.html"><a href="factor-blocks-linear-gaussian-data-model.html#linear_gaussian_data_model-ilike-function"><i class="fa fa-check"></i><b>3.4.5</b> linear_gaussian_data_model (ilike function)</a></li>
+</ul></li>
+<li class="chapter" data-level="3.5" data-path="factor-blocks-nonlinear-gaussian-data-model.html"><a href="factor-blocks-nonlinear-gaussian-data-model.html"><i class="fa fa-check"></i><b>3.5</b> Factor blocks: nonlinear-Gaussian data model</a>
+<ul>
+<li class="chapter" data-level="3.5.1" data-path="factor-blocks-nonlinear-gaussian-data-model.html"><a href="factor-blocks-nonlinear-gaussian-data-model.html#nonlinear_gaussian_data_variable"><i class="fa fa-check"></i><b>3.5.1</b> nonlinear_gaussian_data_variable</a></li>
+<li class="chapter" data-level="3.5.2" data-path="factor-blocks-nonlinear-gaussian-data-model.html"><a href="factor-blocks-nonlinear-gaussian-data-model.html#nonlinear_gaussian_data_function"><i class="fa fa-check"></i><b>3.5.2</b> nonlinear_gaussian_data_function</a></li>
+<li class="chapter" data-level="3.5.3" data-path="factor-blocks-nonlinear-gaussian-data-model.html"><a href="factor-blocks-nonlinear-gaussian-data-model.html#nonlinear_gaussian_data_covariance"><i class="fa fa-check"></i><b>3.5.3</b> nonlinear_gaussian_data_covariance</a></li>
+</ul></li>
+<li class="chapter" data-level="3.6" data-path="factor-blocks-likelihood-from-an-algorithm.html"><a href="factor-blocks-likelihood-from-an-algorithm.html"><i class="fa fa-check"></i><b>3.6</b> Factor blocks: likelihood from an algorithm</a>
+<ul>
+<li class="chapter" data-level="3.6.1" data-path="factor-blocks-likelihood-from-an-algorithm.html"><a href="factor-blocks-likelihood-from-an-algorithm.html#likelihood-ilike-functions"><i class="fa fa-check"></i><b>3.6.1</b> likelihood (ilike functions)</a></li>
+</ul></li>
+<li class="chapter" data-level="3.7" data-path="transition-model-blocks-linear-gaussian-transition-model.html"><a href="transition-model-blocks-linear-gaussian-transition-model.html"><i class="fa fa-check"></i><b>3.7</b> Transition model blocks: linear-Gaussian transition model</a>
+<ul>
+<li class="chapter" data-level="3.7.1" data-path="transition-model-blocks-linear-gaussian-transition-model.html"><a href="transition-model-blocks-linear-gaussian-transition-model.html#linear_gaussian_transition_variable"><i class="fa fa-check"></i><b>3.7.1</b> linear_gaussian_transition_variable</a></li>
+<li class="chapter" data-level="3.7.2" data-path="transition-model-blocks-linear-gaussian-transition-model.html"><a href="transition-model-blocks-linear-gaussian-transition-model.html#linear_gaussian_transition_matrix"><i class="fa fa-check"></i><b>3.7.2</b> linear_gaussian_transition_matrix</a></li>
+<li class="chapter" data-level="3.7.3" data-path="transition-model-blocks-linear-gaussian-transition-model.html"><a href="transition-model-blocks-linear-gaussian-transition-model.html#linear_gaussian_transition_covariance"><i class="fa fa-check"></i><b>3.7.3</b> linear_gaussian_transition_covariance</a></li>
+<li class="chapter" data-level="3.7.4" data-path="transition-model-blocks-linear-gaussian-transition-model.html"><a href="transition-model-blocks-linear-gaussian-transition-model.html#linear_gaussian_transition_model-ilike-function"><i class="fa fa-check"></i><b>3.7.4</b> linear_gaussian_transition_model (ilike function)</a></li>
+</ul></li>
+<li class="chapter" data-level="3.8" data-path="transition-model-blocks-nonlinear-gaussian-transition-model.html"><a href="transition-model-blocks-nonlinear-gaussian-transition-model.html"><i class="fa fa-check"></i><b>3.8</b> Transition model blocks: nonlinear-Gaussian transition model</a>
+<ul>
+<li class="chapter" data-level="3.8.1" data-path="transition-model-blocks-nonlinear-gaussian-transition-model.html"><a href="transition-model-blocks-nonlinear-gaussian-transition-model.html#nonlinear_gaussian_transition_variable"><i class="fa fa-check"></i><b>3.8.1</b> nonlinear_gaussian_transition_variable</a></li>
+<li class="chapter" data-level="3.8.2" data-path="transition-model-blocks-nonlinear-gaussian-transition-model.html"><a href="transition-model-blocks-nonlinear-gaussian-transition-model.html#nonlinear_gaussian_transition_function"><i class="fa fa-check"></i><b>3.8.2</b> nonlinear_gaussian_transition_function</a></li>
+<li class="chapter" data-level="3.8.3" data-path="transition-model-blocks-nonlinear-gaussian-transition-model.html"><a href="transition-model-blocks-nonlinear-gaussian-transition-model.html#nonlinear_gaussian_transition_covariance"><i class="fa fa-check"></i><b>3.8.3</b> nonlinear_gaussian_transition_covariance</a></li>
+</ul></li>
+<li class="chapter" data-level="3.9" data-path="transition-model-blocks-custom-transition-model.html"><a href="transition-model-blocks-custom-transition-model.html"><i class="fa fa-check"></i><b>3.9</b> Transition model blocks: custom transition model</a>
+<ul>
+<li class="chapter" data-level="3.9.1" data-path="transition-model-blocks-custom-transition-model.html"><a href="transition-model-blocks-custom-transition-model.html#simulate_transition-model"><i class="fa fa-check"></i><b>3.9.1</b> simulate_transition model</a></li>
+</ul></li>
+<li class="chapter" data-level="3.10" data-path="method-block.html"><a href="method-block.html"><i class="fa fa-check"></i><b>3.10</b> Method block</a>
+<ul>
+<li class="chapter" data-level="3.10.1" data-path="method-block.html"><a href="method-block.html#filter"><i class="fa fa-check"></i><b>3.10.1</b> filter</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="inference.html"><a href="inference.html"><i class="fa fa-check"></i><b>4</b> Inference algorithms</a>
@@ -247,13 +281,17 @@ div.csl-indent {
 <ul>
 <li class="chapter" data-level="4.6.1" data-path="iterative-ensemble-kalman-inversion.html"><a href="iterative-ensemble-kalman-inversion.html#ilike-file-requirements-3"><i class="fa fa-check"></i><b>4.6.1</b> .ilike file requirements</a></li>
 </ul></li>
-<li class="chapter" data-level="4.7" data-path="particle-filters.html"><a href="particle-filters.html"><i class="fa fa-check"></i><b>4.7</b> Particle filters</a>
+<li class="chapter" data-level="4.7" data-path="kf.html"><a href="kf.html"><i class="fa fa-check"></i><b>4.7</b> Kalman filters</a>
 <ul>
-<li class="chapter" data-level="4.7.1" data-path="particle-filters.html"><a href="particle-filters.html#ilike-file-requirements-4"><i class="fa fa-check"></i><b>4.7.1</b> .ilike file requirements</a></li>
+<li class="chapter" data-level="4.7.1" data-path="kf.html"><a href="kf.html#ilike-file-requirements-4"><i class="fa fa-check"></i><b>4.7.1</b> .ilike file requirements</a></li>
 </ul></li>
-<li class="chapter" data-level="4.8" data-path="ensemble-kalman-filters.html"><a href="ensemble-kalman-filters.html"><i class="fa fa-check"></i><b>4.8</b> Ensemble Kalman filters</a>
+<li class="chapter" data-level="4.8" data-path="pf.html"><a href="pf.html"><i class="fa fa-check"></i><b>4.8</b> Particle filters</a>
 <ul>
-<li class="chapter" data-level="4.8.1" data-path="ensemble-kalman-filters.html"><a href="ensemble-kalman-filters.html#ilike-file-requirements-5"><i class="fa fa-check"></i><b>4.8.1</b> .ilike file requirements</a></li>
+<li class="chapter" data-level="4.8.1" data-path="pf.html"><a href="pf.html#ilike-file-requirements-5"><i class="fa fa-check"></i><b>4.8.1</b> .ilike file requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="4.9" data-path="enkf.html"><a href="enkf.html"><i class="fa fa-check"></i><b>4.9</b> Ensemble Kalman filters</a>
+<ul>
+<li class="chapter" data-level="4.9.1" data-path="enkf.html"><a href="enkf.html#ilike-file-requirements-6"><i class="fa fa-check"></i><b>4.9.1</b> .ilike file requirements</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="5" data-path="output.html"><a href="output.html"><i class="fa fa-check"></i><b>5</b> Loading and visualising output</a>
@@ -293,16 +331,63 @@ div.csl-indent {
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="factor-blocks" class="section level2 hasAnchor" number="3.4">
-<h2><span class="header-section-number">3.4</span> Factor blocks:<a href="factor-blocks.html#factor-blocks" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="factor-blocks-likelihood-from-an-algorithm" class="section level2 hasAnchor" number="3.6">
+<h2><span class="header-section-number">3.6</span> Factor blocks: likelihood from an algorithm<a href="factor-blocks-likelihood-from-an-algorithm.html#factor-blocks-likelihood-from-an-algorithm" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>For some models, the likelihood can be computed or estimated by running an algorithm. For example, the marginal likelihood of a state-space model may be estimated using a particle filter. To specify such a likelihood, the user must provide a function type <code>likelihood</code>, then use an ilike function to specify the type of likelihood.</p>
+<div id="likelihood-ilike-functions" class="section level3 hasAnchor" number="3.6.1">
+<h3><span class="header-section-number">3.6.1</span> likelihood (ilike functions)<a href="factor-blocks-likelihood-from-an-algorithm.html#likelihood-ilike-functions" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The likelihood function type allows the user to specify the likelihood through an ilike function. For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.</p>
+<p>The available ilike functions are detailed in the following sections.</p>
+<div id="kalman-filter-ilikekf" class="section level4 hasAnchor" number="3.6.1.1">
+<h4><span class="header-section-number">3.6.1.1</span> Kalman filter <code>ilike::kf</code><a href="factor-blocks-likelihood-from-an-algorithm.html#kalman-filter-ilikekf" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The Kalman filter (KF) is a recursive algorithm that estimates the state of a linear Gaussian state-space model and, in this context, can be used to calculate the marginal likelihood of parameters of the model. The arguments required for this ilike function follow as closely as possible those required for running a KF from the ilike R package as described in section <a href="kf.html#kf">4.7</a>.</p>
+<p>Inputs:</p>
+<ol style="list-style-type: decimal">
+<li><p>string: The name of an ilike file (with extension) that contains the specification of a linear-Gaussian state-space model and the required ilike function for setting up a filter, as described in section <a href="method-block.html#filter">3.10.1</a>. A full description of what is required in the file is given in section <a href="kf.html#kf">4.7</a>.</p></li>
+<li><p>(optional) integer: THe number of iterations output of the KF to store, counting from the final iteration backwards (default is <code>0</code>)</p></li>
+</ol>
+</div>
+<div id="particle-filter-ilikepf" class="section level4 hasAnchor" number="3.6.1.2">
+<h4><span class="header-section-number">3.6.1.2</span> Particle filter <code>ilike::pf</code><a href="factor-blocks-likelihood-from-an-algorithm.html#particle-filter-ilikepf" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The particle filter is a recursive algorithm that estimates the state of a general state-space model and, in this context, can be used to estimate the marginal likelihood of parameters of the model. The arguments required for this ilike function follow as closely as possible those required for running a PF from the ilike R package as described in section <a href="pf.html#pf">4.8</a>.</p>
+<p>Inputs:</p>
+<ol style="list-style-type: decimal">
+<li><p>string: The name of an ilike file (with extension) that contains the specification of a general state-space model and the required ilike function for setting up a filter, as described in section <a href="method-block.html#filter">3.10.1</a>. A full description of what is required in the file is given in section <a href="pf.html#pf">4.8</a>.</p></li>
+<li><p>integer: The number of particles to use in the particle filter.</p></li>
+<li><p>(optional) integer: The number of iterations output of the PF to store, counting from the final iteration backwards (default is <code>0</code>).</p></li>
+<li><p>(optional) boolean: Whether to run the particle filter in parallel (default is <code>false</code>).</p></li>
+<li><p>(optional) integer: the grain size for parallelisation (default is <code>100000</code>; see <a href="https://oneapi-src.github.io/oneTBB/main/tbb_userguide/Controlling_Chunking_os.html">guidance here</a>)</p></li>
+</ol>
+</div>
+<div id="ensemble-kalman-filter-ilikeenkf" class="section level4 hasAnchor" number="3.6.1.3">
+<h4><span class="header-section-number">3.6.1.3</span> Ensemble Kalman filter <code>ilike::enkf</code><a href="factor-blocks-likelihood-from-an-algorithm.html#ensemble-kalman-filter-ilikeenkf" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The ensemble Kalman filter (EnKF) is a recursive algorithm that estimates the state of a general state-space model and, in this context, can be used to estimate the marginal likelihood of parameters of the model. The arguments required for this ilike function follow as closely as possible those required for running an EnKF from the ilike R package as described in section <a href="enkf.html#enkf">4.9</a>.</p>
+<p>Inputs:</p>
+<ol style="list-style-type: decimal">
+<li><p>string: The name of an ilike file (with extension) that contains the specification of a general state-space model and the required ilike function for setting up a filter, as described in section <a href="method-block.html#filter">3.10.1</a>. A full description of what is required in the file is given in section <a href="enkf.html#enkf">4.9</a>.</p></li>
+<li><p>integer: The number of ensemble members to use in the EnKF.</p></li>
+<li><p>string: The name of the shifter to use in the EnKF (the method for moving the ensemble at each iteration). The options are:</p></li>
+</ol>
+<ul>
+<li><p><code>stochastic</code>: the stochastic shifter</p></li>
+<li><p><code>sqrt</code>: the square root shifter</p></li>
+<li><p><code>adjustment</code>: the adjustment shifter</p></li>
+</ul>
+<ol start="4" style="list-style-type: decimal">
+<li><p>(optional) integer: The number of iterations output of the EnKF to store, counting from the final iteration backwards (default is <code>0</code>).</p></li>
+<li><p>(optional) boolean: Whether to run the EnKF in parallel (default is <code>false</code>).</p></li>
+<li><p>(optional) integer: the grain size for parallelisation (default is <code>100000</code>; see <a href="https://oneapi-src.github.io/oneTBB/main/tbb_userguide/Controlling_Chunking_os.html">guidance here</a>)</p></li>
+</ol>
+</div>
+</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="factor-blocks-simulation-based-likelihood.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="data-block.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="factor-blocks-nonlinear-gaussian-data-model.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="transition-model-blocks-linear-gaussian-transition-model.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

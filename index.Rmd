@@ -27,6 +27,8 @@ This book provides documentation for the R package `ilike`, which can be [access
 devtools::install_github("richardgeveritt/ilike")
 ```
 
+This installation will take some time, so go and make a cup of tea at this point.
+
 The ilike package contains functions that implement Bayesian computation techniques, focussed on cases when the likelihood is intractable. The functions in the package use statistical models specified in a file with the extension .ilike (hereby referred to as an ilike file). This file allows a user to specify priors, likelihoods, data, and the parameters of the inference algorithm (in either C++, R, python, julia or native ilike functions). Inference algorithms included in the package are:
 
 * importance sampling (IS);

@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>3.10 Data block | ilike documentation</title>
+  <title>3.8 Factor blocks: nonlinear-Gaussian transition model | ilike documentation</title>
   <meta name="description" content="Documentation for the ilike R package." />
   <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="3.10 Data block | ilike documentation" />
+  <meta property="og:title" content="3.8 Factor blocks: nonlinear-Gaussian transition model | ilike documentation" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="Documentation for the ilike R package." />
   <meta name="github-repo" content="richardgeveritt/ilike_documentation" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="3.10 Data block | ilike documentation" />
+  <meta name="twitter:title" content="3.8 Factor blocks: nonlinear-Gaussian transition model | ilike documentation" />
   
   <meta name="twitter:description" content="Documentation for the ilike R package." />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="transition-model-blocks-custom-transition-model.html"/>
-<link rel="next" href="method-block.html"/>
+<link rel="prev" href="transition-model-blocks-linear-gaussian-transition-model.html"/>
+<link rel="next" href="transition-model-blocks-custom-transition-model.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -332,25 +332,85 @@ div.csl-indent {
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="data-block" class="section level2 hasAnchor" number="3.10">
-<h2><span class="header-section-number">3.10</span> Data block<a href="data-block.html#data-block" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<div id="data" class="section level3 hasAnchor" number="3.10.1">
-<h3><span class="header-section-number">3.10.1</span> data<a href="data-block.html#data" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<p>The <code>data</code> function type returns observed data. There are no input arguments.</p>
-<p>Output: The observed data.</p>
-<p>– of class <code>Data</code> in a C++ function</p>
-<p>– an R list in R, where at present the interface restricts the user to a single vector/matrix of data, which is indexed by a string provided by the user to the left of an <code>=</code> sign in the function header.</p>
+<div id="factor-blocks-nonlinear-gaussian-transition-model" class="section level2 hasAnchor" number="3.8">
+<h2><span class="header-section-number">3.8</span> Factor blocks: nonlinear-Gaussian transition model<a href="factor-blocks-nonlinear-gaussian-transition-model.html#factor-blocks-nonlinear-gaussian-transition-model" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>The nonlinear-Gaussian transition model subtype may be used to specify a model where the state <span class="math inline">\(x_t\)</span> has a Gaussian distribution where the mean depends nonlinearly on <span class="math inline">\(x_{t-1}\)</span>, plus some Gaussian noise, i.e.</p>
+<p><span class="math display" id="eq:nlgtm">\[
+x_t \sim \mathcal{N}(g(x_{t-1}), Q)
+\tag{3.6}
+\]</span>
+where <span class="math inline">\(g\)</span> is a function and <span class="math inline">\(Q\)</span> is a covariance matrix. To specify the model we need to provide the variable name (<span class="math inline">\(x\)</span>), the function <span class="math inline">\(g\)</span> and the matrix <span class="math inline">\(Q\)</span>. To do this the user must provide three function types, respectively: <code>nonlinear_gaussian_transition_variable</code>, <code>nonlinear_gaussian_transition_function</code> and <code>nonlinear_gaussian_transition_covariance</code>.</p>
+<div id="nonlinear_gaussian_transition_variable" class="section level3 hasAnchor" number="3.8.1">
+<h3><span class="header-section-number">3.8.1</span> nonlinear_gaussian_transition_variable<a href="factor-blocks-nonlinear-gaussian-transition-model.html#nonlinear_gaussian_transition_variable" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Specifies the name of the observed transition variable. There are no input arguments.</p>
+<p>Output: The name of the observed transition variable.</p>
+<p>– of type <code>const std::string &amp;</code> in a C++ function</p>
+<p>– a string in R.</p>
 <p>C++ example:</p>
-<div class="sourceCode" id="cb61"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb61-1"><a href="data-block.html#cb61-1" tabindex="-1"></a><span class="co">/***data***/</span></span>
-<span id="cb61-2"><a href="data-block.html#cb61-2" tabindex="-1"></a>Data set_data<span class="op">()</span></span>
-<span id="cb61-3"><a href="data-block.html#cb61-3" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb61-4"><a href="data-block.html#cb61-4" tabindex="-1"></a>  arma<span class="op">::</span>colvec y<span class="op">(</span><span class="dv">2</span><span class="op">,</span><span class="dv">1</span><span class="op">);</span></span>
-<span id="cb61-5"><a href="data-block.html#cb61-5" tabindex="-1"></a>  y<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> <span class="fl">1.0</span><span class="op">;</span></span>
-<span id="cb61-6"><a href="data-block.html#cb61-6" tabindex="-1"></a>  y<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> <span class="fl">2.0</span><span class="op">;</span></span>
-<span id="cb61-7"><a href="data-block.html#cb61-7" tabindex="-1"></a>  <span class="cf">return</span> Data<span class="op">(</span><span class="st">&quot;y&quot;</span><span class="op">,</span> y<span class="op">);</span></span>
-<span id="cb61-8"><a href="data-block.html#cb61-8" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb53-1"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb53-1" tabindex="-1"></a><span class="co">/***nonlinear_gaussian_transition_variable***/</span></span>
+<span id="cb53-2"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb53-2" tabindex="-1"></a><span class="bu">std::</span>string set_variable<span class="op">()</span></span>
+<span id="cb53-3"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb53-3" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb53-4"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb53-4" tabindex="-1"></a>  <span class="cf">return</span> <span class="st">&quot;x&quot;</span><span class="op">;</span></span>
+<span id="cb53-5"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb53-5" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>R example:</p>
-<div class="sourceCode" id="cb62"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb62-1"><a href="data-block.html#cb62-1" tabindex="-1"></a><span class="co">/***evaluate_log_prior,y=c(1,2)***/</span></span></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb54-1"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb54-1" tabindex="-1"></a><span class="co">/***nonlinear_gaussian_transition_variable,&quot;x&quot;***/</span></span></code></pre></div>
+</div>
+<div id="nonlinear_gaussian_transition_function" class="section level3 hasAnchor" number="3.8.2">
+<h3><span class="header-section-number">3.8.2</span> nonlinear_gaussian_transition_function<a href="factor-blocks-nonlinear-gaussian-transition-model.html#nonlinear_gaussian_transition_function" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Specifies the function <span class="math inline">\(g\)</span> in the nonlinear-Gaussian transition model.</p>
+<p>Input: The state <span class="math inline">\(x\)</span> and any parameters that the function relies on (the latter may be included to allow the specification of a parameter-dependent function)</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>parameters</code> in an R function</p>
+<p>Output: The output of the function <span class="math inline">\(g\)</span> in equation <a href="factor-blocks-nonlinear-gaussian-transition-model.html#eq:nlgtm">(3.6)</a>.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– a list in R.</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb55"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb55-1"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb55-1" tabindex="-1"></a><span class="co">/***nonlinear_gaussian_transition_function***/</span></span>
+<span id="cb55-2"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb55-2" tabindex="-1"></a>Parameters transform_state<span class="op">(</span><span class="at">const</span> Parameters <span class="op">&amp;</span>xtminus1_and_theta<span class="op">)</span></span>
+<span id="cb55-3"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb55-3" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb55-4"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb55-4" tabindex="-1"></a>  arma<span class="op">::</span>colvec noiseless_xt<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb55-5"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb55-5" tabindex="-1"></a>  noiseless_xt<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> exp<span class="op">(</span>xtminus1_and_theta<span class="op">[</span><span class="st">&quot;x&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">)</span> <span class="op">+</span> xtminus1_and_theta<span class="op">[</span><span class="st">&quot;theta&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">];</span></span>
+<span id="cb55-6"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb55-6" tabindex="-1"></a>  <span class="cf">return</span> Parameters<span class="op">(</span><span class="st">&quot;x&quot;</span><span class="op">,</span> noiseless_xt<span class="op">);</span></span>
+<span id="cb55-7"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb55-7" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb56"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb56-1"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb56-1" tabindex="-1"></a><span class="co">/***nonlinear_gaussian_transition_function,x=exp(parameters$x)+parameters$theta***/</span></span></code></pre></div>
+</div>
+<div id="nonlinear_gaussian_transition_covariance" class="section level3 hasAnchor" number="3.8.3">
+<h3><span class="header-section-number">3.8.3</span> nonlinear_gaussian_transition_covariance<a href="factor-blocks-nonlinear-gaussian-transition-model.html#nonlinear_gaussian_transition_covariance" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Specifies the covariance matrix <span class="math inline">\(Q\)</span> in the nonlinear-Gaussian transition model.</p>
+<p>Input (optional): Parameters that the matrix relies on, to allow the specification of a parameter-dependent matrix.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>parameters</code> in an R function</p>
+<p>Output: The covariance matrix <span class="math inline">\(Q\)</span> in equation <a href="factor-blocks-nonlinear-gaussian-transition-model.html#eq:nlgtm">(3.6)</a>.</p>
+<p>– of type <code>arma::mat</code> in a C++ function</p>
+<p>– a matrix in R.</p>
+<p>C++ examples:</p>
+<div class="sourceCode" id="cb57"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb57-1"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb57-1" tabindex="-1"></a><span class="co">/***nonlinear_gaussian_transition_covariance***/</span></span>
+<span id="cb57-2"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb57-2" tabindex="-1"></a>arma<span class="op">::</span>mat set_covariance<span class="op">()</span></span>
+<span id="cb57-3"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb57-3" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb57-4"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb57-4" tabindex="-1"></a>  arma<span class="op">::</span>mat Q<span class="op">(</span><span class="dv">2</span><span class="op">,</span><span class="dv">2</span><span class="op">);</span></span>
+<span id="cb57-5"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb57-5" tabindex="-1"></a>  Q<span class="op">(</span><span class="dv">0</span><span class="op">,</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> <span class="fl">1.0</span><span class="op">;</span></span>
+<span id="cb57-6"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb57-6" tabindex="-1"></a>  Q<span class="op">(</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">)</span> <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span></span>
+<span id="cb57-7"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb57-7" tabindex="-1"></a>  Q<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span></span>
+<span id="cb57-8"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb57-8" tabindex="-1"></a>  Q<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">)</span> <span class="op">=</span> <span class="fl">1.0</span><span class="op">;</span></span>
+<span id="cb57-9"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb57-9" tabindex="-1"></a>  <span class="cf">return</span> Q<span class="op">;</span></span>
+<span id="cb57-10"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb57-10" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>or</p>
+<div class="sourceCode" id="cb58"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb58-1"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb58-1" tabindex="-1"></a><span class="co">/***nonlinear_gaussian_transition_covariance***/</span></span>
+<span id="cb58-2"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb58-2" tabindex="-1"></a>arma<span class="op">::</span>mat set_covariance<span class="op">(</span><span class="at">const</span> Parameters <span class="op">&amp;</span>parameters<span class="op">)</span></span>
+<span id="cb58-3"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb58-3" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb58-4"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb58-4" tabindex="-1"></a>  <span class="dt">double</span> scale <span class="op">=</span> parameters<span class="op">[</span><span class="st">&quot;scale&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">];</span></span>
+<span id="cb58-5"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb58-5" tabindex="-1"></a>  arma<span class="op">::</span>mat Q<span class="op">(</span><span class="dv">2</span><span class="op">,</span><span class="dv">2</span><span class="op">);</span></span>
+<span id="cb58-6"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb58-6" tabindex="-1"></a>  Q<span class="op">,</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> scale<span class="op">;</span></span>
+<span id="cb58-7"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb58-7" tabindex="-1"></a>  Q<span class="op">(</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">)</span> <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span></span>
+<span id="cb58-8"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb58-8" tabindex="-1"></a>  Q<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span></span>
+<span id="cb58-9"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb58-9" tabindex="-1"></a>  Q<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">)</span> <span class="op">=</span> scale<span class="op">;</span></span>
+<span id="cb58-10"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb58-10" tabindex="-1"></a>  <span class="cf">return</span> Q<span class="op">;</span></span>
+<span id="cb58-11"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb58-11" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R examples:</p>
+<div class="sourceCode" id="cb59"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb59-1"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb59-1" tabindex="-1"></a><span class="co">/***nonlinear_gaussian_transition_covariance,diag(2)***/</span></span></code></pre></div>
+<p>or</p>
+<div class="sourceCode" id="cb60"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb60-1"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#cb60-1" tabindex="-1"></a><span class="co">/***nonlinear_gaussian_transition_covariance,parameters$scale*diag(2)***/</span></span></code></pre></div>
 </div>
 </div>
             </section>
@@ -358,8 +418,8 @@ div.csl-indent {
           </div>
         </div>
       </div>
-<a href="transition-model-blocks-custom-transition-model.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="method-block.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="transition-model-blocks-linear-gaussian-transition-model.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="transition-model-blocks-custom-transition-model.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

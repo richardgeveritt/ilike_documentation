@@ -20,11 +20,15 @@
 
 ### .ilike file requirements
 
-## Particle filters
+## Kalman filters {#kf}
 
 ### .ilike file requirements
 
-## Ensemble Kalman filters
+## Particle filters {#pf}
+
+### .ilike file requirements
+
+## Ensemble Kalman filters {#enkf}
 
 ### .ilike file requirements
 

@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>3.10 Data block | ilike documentation</title>
+  <title>3.2 Factor blocks: exact likelihood | ilike documentation</title>
   <meta name="description" content="Documentation for the ilike R package." />
   <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="3.10 Data block | ilike documentation" />
+  <meta property="og:title" content="3.2 Factor blocks: exact likelihood | ilike documentation" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="Documentation for the ilike R package." />
   <meta name="github-repo" content="richardgeveritt/ilike_documentation" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="3.10 Data block | ilike documentation" />
+  <meta name="twitter:title" content="3.2 Factor blocks: exact likelihood | ilike documentation" />
   
   <meta name="twitter:description" content="Documentation for the ilike R package." />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="transition-model-blocks-custom-transition-model.html"/>
-<link rel="next" href="method-block.html"/>
+<link rel="prev" href="factor-blocks-prior.html"/>
+<link rel="next" href="factor-blocks-simulation-based-likelihood.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -332,25 +332,104 @@ div.csl-indent {
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="data-block" class="section level2 hasAnchor" number="3.10">
-<h2><span class="header-section-number">3.10</span> Data block<a href="data-block.html#data-block" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<div id="data" class="section level3 hasAnchor" number="3.10.1">
-<h3><span class="header-section-number">3.10.1</span> data<a href="data-block.html#data" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<p>The <code>data</code> function type returns observed data. There are no input arguments.</p>
-<p>Output: The observed data.</p>
-<p>– of class <code>Data</code> in a C++ function</p>
-<p>– an R list in R, where at present the interface restricts the user to a single vector/matrix of data, which is indexed by a string provided by the user to the left of an <code>=</code> sign in the function header.</p>
+<div id="factor-blocks-exact-likelihood" class="section level2 hasAnchor" number="3.2">
+<h2><span class="header-section-number">3.2</span> Factor blocks: exact likelihood<a href="factor-blocks-exact-likelihood.html#factor-blocks-exact-likelihood" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>The functions in this section allow the specification of a user-defined likelihood. Only the functions required by the chosen inference algorithm need be specified.</p>
+<p>Usually we recommend specifying, rather than a likelihood, the data model. This will ensure that, when running importance sampling for example, the normalising constant estimate returned by that algorithm will be an estimate of the marginal likelihood. However, where the goal is simulating from or approximating the posterior distribution, specifying the model up to proportionality is sufficient.</p>
+<div id="evaluate_log_likelihood" class="section level3 hasAnchor" number="3.2.1">
+<h3><span class="header-section-number">3.2.1</span> evaluate_log_likelihood<a href="factor-blocks-exact-likelihood.html#evaluate_log_likelihood" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The <code>evaluate_log_likelihood</code> function type calculates the log likelihood of the parameters.</p>
+<p>Input: The point at which the log likelihood is to be evaluated.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>parameters</code> in an R function</p>
+<p>Input: The observed data for which the log likelihood is to be evaluated.</p>
+<p>– of type <code>const Data &amp;</code> in a C++ function</p>
+<p>– available as R list <code>data</code> in an R function</p>
+<p>Output: The log likelihood of the parameters using the observed data.</p>
+<p>– of type <code>double</code> in a C++ function</p>
+<p>– of type <code>numeric</code> in R.</p>
 <p>C++ example:</p>
-<div class="sourceCode" id="cb61"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb61-1"><a href="data-block.html#cb61-1" tabindex="-1"></a><span class="co">/***data***/</span></span>
-<span id="cb61-2"><a href="data-block.html#cb61-2" tabindex="-1"></a>Data set_data<span class="op">()</span></span>
-<span id="cb61-3"><a href="data-block.html#cb61-3" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb61-4"><a href="data-block.html#cb61-4" tabindex="-1"></a>  arma<span class="op">::</span>colvec y<span class="op">(</span><span class="dv">2</span><span class="op">,</span><span class="dv">1</span><span class="op">);</span></span>
-<span id="cb61-5"><a href="data-block.html#cb61-5" tabindex="-1"></a>  y<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> <span class="fl">1.0</span><span class="op">;</span></span>
-<span id="cb61-6"><a href="data-block.html#cb61-6" tabindex="-1"></a>  y<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> <span class="fl">2.0</span><span class="op">;</span></span>
-<span id="cb61-7"><a href="data-block.html#cb61-7" tabindex="-1"></a>  <span class="cf">return</span> Data<span class="op">(</span><span class="st">&quot;y&quot;</span><span class="op">,</span> y<span class="op">);</span></span>
-<span id="cb61-8"><a href="data-block.html#cb61-8" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="factor-blocks-exact-likelihood.html#cb10-1" tabindex="-1"></a><span class="co">/***evaluate_log_likelihood***/</span></span>
+<span id="cb10-2"><a href="factor-blocks-exact-likelihood.html#cb10-2" tabindex="-1"></a><span class="dt">double</span> likelihood_eval<span class="op">(</span><span class="at">const</span> Parameters <span class="op">&amp;</span>parameters<span class="op">,</span></span>
+<span id="cb10-3"><a href="factor-blocks-exact-likelihood.html#cb10-3" tabindex="-1"></a>                       <span class="at">const</span> Data <span class="op">&amp;</span>data<span class="op">)</span></span>
+<span id="cb10-4"><a href="factor-blocks-exact-likelihood.html#cb10-4" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb10-5"><a href="factor-blocks-exact-likelihood.html#cb10-5" tabindex="-1"></a>  <span class="dt">double</span> y <span class="op">=</span> data<span class="op">[</span><span class="st">&quot;y&quot;</span><span class="op">];</span></span>
+<span id="cb10-6"><a href="factor-blocks-exact-likelihood.html#cb10-6" tabindex="-1"></a>  <span class="cf">return</span> sum<span class="op">(</span>dnorm<span class="op">(</span>y<span class="op">,</span>parameters<span class="op">[</span><span class="st">&quot;θ&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">],</span><span class="fl">1.0</span><span class="op">));</span></span>
+<span id="cb10-7"><a href="factor-blocks-exact-likelihood.html#cb10-7" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>R example:</p>
-<div class="sourceCode" id="cb62"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb62-1"><a href="data-block.html#cb62-1" tabindex="-1"></a><span class="co">/***evaluate_log_prior,y=c(1,2)***/</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="factor-blocks-exact-likelihood.html#cb11-1" tabindex="-1"></a><span class="co">/***evaluate_log_likelihood,sum(dnorm(data$y,parameters$θ,1.0))***/</span></span></code></pre></div>
+</div>
+<div id="evaluate_gradient_log_likelihood" class="section level3 hasAnchor" number="3.2.2">
+<h3><span class="header-section-number">3.2.2</span> evaluate_gradient_log_likelihood<a href="factor-blocks-exact-likelihood.html#evaluate_gradient_log_likelihood" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The <code>evaluate_gradient_log_likelihood</code> function type calculates the gradient of the log likelihood of the parameters.</p>
+<p>Input: The variable with respect to which we wish to find the gradient.</p>
+<p>– of type <code>const std::string &amp;</code> in a C++ function</p>
+<p>– available an R string <code>variable</code> in an R function</p>
+<p>Input: The point at which the gradient of the log likelihood is to be evaluated.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>parameters</code> in an R function</p>
+<p>Input: The observed data for which the gradient of the log likelihood is to be evaluated.</p>
+<p>– of type <code>const Data &amp;</code> in a C++ function</p>
+<p>– available as R list <code>data</code> in an R function</p>
+<p>Output: The gradient of the log likelihood of the parameters.</p>
+<p>– of type <code>arma::mat</code> in a C++ function</p>
+<p>– of type <code>matrix</code> in R.</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="factor-blocks-exact-likelihood.html#cb12-1" tabindex="-1"></a><span class="co">/***evaluate_gradient_log_likelihood***/</span></span>
+<span id="cb12-2"><a href="factor-blocks-exact-likelihood.html#cb12-2" tabindex="-1"></a>arma<span class="op">::</span>mat likelihood_gradient_eval<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string <span class="op">&amp;</span>variable<span class="op">,</span></span>
+<span id="cb12-3"><a href="factor-blocks-exact-likelihood.html#cb12-3" tabindex="-1"></a>                                   <span class="at">const</span> Parameters <span class="op">&amp;</span>parameters<span class="op">,</span></span>
+<span id="cb12-4"><a href="factor-blocks-exact-likelihood.html#cb12-4" tabindex="-1"></a>                                   <span class="at">const</span> Data <span class="op">&amp;</span>data<span class="op">)</span></span>
+<span id="cb12-5"><a href="factor-blocks-exact-likelihood.html#cb12-5" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb12-6"><a href="factor-blocks-exact-likelihood.html#cb12-6" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>variable<span class="op">==</span><span class="st">&quot;θ&quot;</span><span class="op">)</span></span>
+<span id="cb12-7"><a href="factor-blocks-exact-likelihood.html#cb12-7" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb12-8"><a href="factor-blocks-exact-likelihood.html#cb12-8" tabindex="-1"></a>    arma<span class="op">::</span>colvec y <span class="op">=</span> data<span class="op">[</span><span class="st">&quot;y&quot;</span><span class="op">];</span></span>
+<span id="cb12-9"><a href="factor-blocks-exact-likelihood.html#cb12-9" tabindex="-1"></a>    arma<span class="op">::</span>mat grad<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb12-10"><a href="factor-blocks-exact-likelihood.html#cb12-10" tabindex="-1"></a>    grad<span class="op">(</span><span class="dv">0</span><span class="op">,</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> arma<span class="op">::</span>sum<span class="op">((</span>y<span class="op">-</span>parameters<span class="op">[</span><span class="st">&quot;θ&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">])/</span><span class="fl">1.0</span><span class="op">);</span></span>
+<span id="cb12-11"><a href="factor-blocks-exact-likelihood.html#cb12-11" tabindex="-1"></a>    <span class="cf">return</span> grad<span class="op">;</span></span>
+<span id="cb12-12"><a href="factor-blocks-exact-likelihood.html#cb12-12" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb12-13"><a href="factor-blocks-exact-likelihood.html#cb12-13" tabindex="-1"></a>  <span class="cf">else</span></span>
+<span id="cb12-14"><a href="factor-blocks-exact-likelihood.html#cb12-14" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb12-15"><a href="factor-blocks-exact-likelihood.html#cb12-15" tabindex="-1"></a>    Rcpp<span class="op">::</span>stop<span class="op">(</span><span class="st">&quot;Unknown variable in likelihood gradient.&quot;</span><span class="op">);</span></span>
+<span id="cb12-16"><a href="factor-blocks-exact-likelihood.html#cb12-16" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb12-17"><a href="factor-blocks-exact-likelihood.html#cb12-17" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="factor-blocks-exact-likelihood.html#cb13-1" tabindex="-1"></a><span class="co">/***evaluate_gradient_log_likelihood,if (variable==&quot;θ&quot;) {sum((data$y-parameters$θ)/1.0)} else {stop(&quot;Unknown variable in likelihood gradient.&quot;)}***/</span></span></code></pre></div>
+</div>
+<div id="evaluate_second_gradient_log_likelihood" class="section level3 hasAnchor" number="3.2.3">
+<h3><span class="header-section-number">3.2.3</span> evaluate_second_gradient_log_likelihood<a href="factor-blocks-exact-likelihood.html#evaluate_second_gradient_log_likelihood" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The <code>evaluate_gradient_log_prior</code> function type gives the second differential of the log likelihood of the parameters.</p>
+<p>Input: The first variable with respect to which we wish to find the gradient.</p>
+<p>– of type <code>const std::string &amp;</code> in a C++ function</p>
+<p>– available an R string <code>variable1</code> in an R function</p>
+<p>Input: The second variable with respect to which we wish to find the gradient.</p>
+<p>– of type <code>const std::string &amp;</code> in a C++ function</p>
+<p>– available an R string <code>variable2</code> in an R function</p>
+<p>Input: The point at which the gradient of the log prior is to be evaluated.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>parameters</code> in an R function</p>
+<p>Output: The Hessian of the log likelihood, evaluated at the given point.</p>
+<p>– of type <code>arma::mat</code> in a C++ function</p>
+<p>– of type <code>matrix</code> in R.</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="factor-blocks-exact-likelihood.html#cb14-1" tabindex="-1"></a><span class="co">/***evaluate_second_gradient_log_likelihood***/</span></span>
+<span id="cb14-2"><a href="factor-blocks-exact-likelihood.html#cb14-2" tabindex="-1"></a>arma<span class="op">::</span>mat likelihood_hessian_eval<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string <span class="op">&amp;</span>variable1<span class="op">,</span></span>
+<span id="cb14-3"><a href="factor-blocks-exact-likelihood.html#cb14-3" tabindex="-1"></a>                                  <span class="at">const</span> <span class="bu">std::</span>string <span class="op">&amp;</span>variable2<span class="op">,</span></span>
+<span id="cb14-4"><a href="factor-blocks-exact-likelihood.html#cb14-4" tabindex="-1"></a>                                  <span class="at">const</span> Parameters <span class="op">&amp;</span>parameters<span class="op">,</span></span>
+<span id="cb14-5"><a href="factor-blocks-exact-likelihood.html#cb14-5" tabindex="-1"></a>                                  <span class="at">const</span> Data <span class="op">&amp;</span>data<span class="op">)</span></span>
+<span id="cb14-6"><a href="factor-blocks-exact-likelihood.html#cb14-6" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb14-7"><a href="factor-blocks-exact-likelihood.html#cb14-7" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>variable1<span class="op">==</span><span class="st">&quot;θ&quot;</span> <span class="op">&amp;&amp;</span> variable2<span class="op">==</span><span class="st">&quot;θ&quot;</span><span class="op">)</span></span>
+<span id="cb14-8"><a href="factor-blocks-exact-likelihood.html#cb14-8" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb14-9"><a href="factor-blocks-exact-likelihood.html#cb14-9" tabindex="-1"></a>    arma<span class="op">::</span>mat hess<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb14-10"><a href="factor-blocks-exact-likelihood.html#cb14-10" tabindex="-1"></a>    hess<span class="op">(</span><span class="dv">0</span><span class="op">,</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> <span class="op">-</span>data<span class="op">[</span><span class="st">&quot;y&quot;</span><span class="op">].</span>size<span class="op">()/</span><span class="fl">1.0</span><span class="op">;</span></span>
+<span id="cb14-11"><a href="factor-blocks-exact-likelihood.html#cb14-11" tabindex="-1"></a>    <span class="cf">return</span> hess<span class="op">;</span></span>
+<span id="cb14-12"><a href="factor-blocks-exact-likelihood.html#cb14-12" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb14-13"><a href="factor-blocks-exact-likelihood.html#cb14-13" tabindex="-1"></a>  <span class="cf">else</span></span>
+<span id="cb14-14"><a href="factor-blocks-exact-likelihood.html#cb14-14" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb14-15"><a href="factor-blocks-exact-likelihood.html#cb14-15" tabindex="-1"></a>    Rcpp<span class="op">::</span>stop<span class="op">(</span><span class="st">&quot;Unknown variable in likelihood hessian.&quot;</span><span class="op">);</span></span>
+<span id="cb14-16"><a href="factor-blocks-exact-likelihood.html#cb14-16" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb14-17"><a href="factor-blocks-exact-likelihood.html#cb14-17" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb15-1"><a href="factor-blocks-exact-likelihood.html#cb15-1" tabindex="-1"></a><span class="co">/***evaluate_second_gradient_log_likelihood,if (variable1==&quot;θ&quot; &amp;&amp; variable2==&quot;θ&quot;) {-length(data$y)/1.0} else {stop(&quot;Unknown variable in likelihood hessian.&quot;)}***/</span></span></code></pre></div>
 </div>
 </div>
             </section>
@@ -358,8 +437,8 @@ div.csl-indent {
           </div>
         </div>
       </div>
-<a href="transition-model-blocks-custom-transition-model.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="method-block.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="factor-blocks-prior.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="factor-blocks-simulation-based-likelihood.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>3.10 Data block | ilike documentation</title>
+  <title>3.1 Factor blocks: prior | ilike documentation</title>
   <meta name="description" content="Documentation for the ilike R package." />
   <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="3.10 Data block | ilike documentation" />
+  <meta property="og:title" content="3.1 Factor blocks: prior | ilike documentation" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="Documentation for the ilike R package." />
   <meta name="github-repo" content="richardgeveritt/ilike_documentation" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="3.10 Data block | ilike documentation" />
+  <meta name="twitter:title" content="3.1 Factor blocks: prior | ilike documentation" />
   
   <meta name="twitter:description" content="Documentation for the ilike R package." />
   
@@ -23,15 +23,15 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2024-10-25" />
+<meta name="date" content="2024-10-28" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="transition-model-blocks-custom-transition-model.html"/>
-<link rel="next" href="method-block.html"/>
+<link rel="prev" href="blocks.html"/>
+<link rel="next" href="factor-blocks-custom-likelihood.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -208,11 +208,11 @@ div.csl-indent {
 <li class="chapter" data-level="3.1.4" data-path="factor-blocks-prior.html"><a href="factor-blocks-prior.html#evaluate_second_gradient_log_prior"><i class="fa fa-check"></i><b>3.1.4</b> evaluate_second_gradient_log_prior</a></li>
 <li class="chapter" data-level="3.1.5" data-path="factor-blocks-prior.html"><a href="factor-blocks-prior.html#prior-ilike-functions"><i class="fa fa-check"></i><b>3.1.5</b> prior (ilike functions)</a></li>
 </ul></li>
-<li class="chapter" data-level="3.2" data-path="factor-blocks-exact-likelihood.html"><a href="factor-blocks-exact-likelihood.html"><i class="fa fa-check"></i><b>3.2</b> Factor blocks: exact likelihood</a>
+<li class="chapter" data-level="3.2" data-path="factor-blocks-custom-likelihood.html"><a href="factor-blocks-custom-likelihood.html"><i class="fa fa-check"></i><b>3.2</b> Factor blocks: custom likelihood</a>
 <ul>
-<li class="chapter" data-level="3.2.1" data-path="factor-blocks-exact-likelihood.html"><a href="factor-blocks-exact-likelihood.html#evaluate_log_likelihood"><i class="fa fa-check"></i><b>3.2.1</b> evaluate_log_likelihood</a></li>
-<li class="chapter" data-level="3.2.2" data-path="factor-blocks-exact-likelihood.html"><a href="factor-blocks-exact-likelihood.html#evaluate_gradient_log_likelihood"><i class="fa fa-check"></i><b>3.2.2</b> evaluate_gradient_log_likelihood</a></li>
-<li class="chapter" data-level="3.2.3" data-path="factor-blocks-exact-likelihood.html"><a href="factor-blocks-exact-likelihood.html#evaluate_second_gradient_log_likelihood"><i class="fa fa-check"></i><b>3.2.3</b> evaluate_second_gradient_log_likelihood</a></li>
+<li class="chapter" data-level="3.2.1" data-path="factor-blocks-custom-likelihood.html"><a href="factor-blocks-custom-likelihood.html#evaluate_log_likelihood"><i class="fa fa-check"></i><b>3.2.1</b> evaluate_log_likelihood</a></li>
+<li class="chapter" data-level="3.2.2" data-path="factor-blocks-custom-likelihood.html"><a href="factor-blocks-custom-likelihood.html#evaluate_gradient_log_likelihood"><i class="fa fa-check"></i><b>3.2.2</b> evaluate_gradient_log_likelihood</a></li>
+<li class="chapter" data-level="3.2.3" data-path="factor-blocks-custom-likelihood.html"><a href="factor-blocks-custom-likelihood.html#evaluate_second_gradient_log_likelihood"><i class="fa fa-check"></i><b>3.2.3</b> evaluate_second_gradient_log_likelihood</a></li>
 </ul></li>
 <li class="chapter" data-level="3.3" data-path="factor-blocks-simulation-based-likelihood.html"><a href="factor-blocks-simulation-based-likelihood.html"><i class="fa fa-check"></i><b>3.3</b> Factor blocks: simulation-based likelihood</a>
 <ul>
@@ -246,20 +246,19 @@ div.csl-indent {
 <li class="chapter" data-level="3.7.3" data-path="transition-model-blocks-linear-gaussian-transition-model.html"><a href="transition-model-blocks-linear-gaussian-transition-model.html#linear_gaussian_transition_covariance"><i class="fa fa-check"></i><b>3.7.3</b> linear_gaussian_transition_covariance</a></li>
 <li class="chapter" data-level="3.7.4" data-path="transition-model-blocks-linear-gaussian-transition-model.html"><a href="transition-model-blocks-linear-gaussian-transition-model.html#linear_gaussian_transition_model-ilike-function"><i class="fa fa-check"></i><b>3.7.4</b> linear_gaussian_transition_model (ilike function)</a></li>
 </ul></li>
-<li class="chapter" data-level="3.8" data-path="factor-blocks-nonlinear-gaussian-transition-model.html"><a href="factor-blocks-nonlinear-gaussian-transition-model.html"><i class="fa fa-check"></i><b>3.8</b> Factor blocks: nonlinear-Gaussian transition model</a>
+<li class="chapter" data-level="3.8" data-path="transition-model-blocks-nonlinear-gaussian-transition-model.html"><a href="transition-model-blocks-nonlinear-gaussian-transition-model.html"><i class="fa fa-check"></i><b>3.8</b> Transition model blocks: nonlinear-Gaussian transition model</a>
 <ul>
-<li class="chapter" data-level="3.8.1" data-path="factor-blocks-nonlinear-gaussian-transition-model.html"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#nonlinear_gaussian_transition_variable"><i class="fa fa-check"></i><b>3.8.1</b> nonlinear_gaussian_transition_variable</a></li>
-<li class="chapter" data-level="3.8.2" data-path="factor-blocks-nonlinear-gaussian-transition-model.html"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#nonlinear_gaussian_transition_function"><i class="fa fa-check"></i><b>3.8.2</b> nonlinear_gaussian_transition_function</a></li>
-<li class="chapter" data-level="3.8.3" data-path="factor-blocks-nonlinear-gaussian-transition-model.html"><a href="factor-blocks-nonlinear-gaussian-transition-model.html#nonlinear_gaussian_transition_covariance"><i class="fa fa-check"></i><b>3.8.3</b> nonlinear_gaussian_transition_covariance</a></li>
+<li class="chapter" data-level="3.8.1" data-path="transition-model-blocks-nonlinear-gaussian-transition-model.html"><a href="transition-model-blocks-nonlinear-gaussian-transition-model.html#nonlinear_gaussian_transition_variable"><i class="fa fa-check"></i><b>3.8.1</b> nonlinear_gaussian_transition_variable</a></li>
+<li class="chapter" data-level="3.8.2" data-path="transition-model-blocks-nonlinear-gaussian-transition-model.html"><a href="transition-model-blocks-nonlinear-gaussian-transition-model.html#nonlinear_gaussian_transition_function"><i class="fa fa-check"></i><b>3.8.2</b> nonlinear_gaussian_transition_function</a></li>
+<li class="chapter" data-level="3.8.3" data-path="transition-model-blocks-nonlinear-gaussian-transition-model.html"><a href="transition-model-blocks-nonlinear-gaussian-transition-model.html#nonlinear_gaussian_transition_covariance"><i class="fa fa-check"></i><b>3.8.3</b> nonlinear_gaussian_transition_covariance</a></li>
 </ul></li>
-<li class="chapter" data-level="3.9" data-path="transition-model-blocks-custom-transition-model.html"><a href="transition-model-blocks-custom-transition-model.html"><i class="fa fa-check"></i><b>3.9</b> Transition model blocks: custom transition model</a></li>
-<li class="chapter" data-level="3.10" data-path="data-block.html"><a href="data-block.html"><i class="fa fa-check"></i><b>3.10</b> Data block</a>
+<li class="chapter" data-level="3.9" data-path="transition-model-blocks-custom-transition-model.html"><a href="transition-model-blocks-custom-transition-model.html"><i class="fa fa-check"></i><b>3.9</b> Transition model blocks: custom transition model</a>
 <ul>
-<li class="chapter" data-level="3.10.1" data-path="data-block.html"><a href="data-block.html#data"><i class="fa fa-check"></i><b>3.10.1</b> data</a></li>
+<li class="chapter" data-level="3.9.1" data-path="transition-model-blocks-custom-transition-model.html"><a href="transition-model-blocks-custom-transition-model.html#simulate_transition-model"><i class="fa fa-check"></i><b>3.9.1</b> simulate_transition model</a></li>
 </ul></li>
-<li class="chapter" data-level="3.11" data-path="method-block.html"><a href="method-block.html"><i class="fa fa-check"></i><b>3.11</b> Method block</a>
+<li class="chapter" data-level="3.10" data-path="method-block.html"><a href="method-block.html"><i class="fa fa-check"></i><b>3.10</b> Method block</a>
 <ul>
-<li class="chapter" data-level="3.11.1" data-path="method-block.html"><a href="method-block.html#filter"><i class="fa fa-check"></i><b>3.11.1</b> filter</a></li>
+<li class="chapter" data-level="3.10.1" data-path="method-block.html"><a href="method-block.html#filter"><i class="fa fa-check"></i><b>3.10.1</b> filter</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="inference.html"><a href="inference.html"><i class="fa fa-check"></i><b>4</b> Inference algorithms</a>
@@ -332,25 +331,176 @@ div.csl-indent {
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="data-block" class="section level2 hasAnchor" number="3.10">
-<h2><span class="header-section-number">3.10</span> Data block<a href="data-block.html#data-block" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<div id="data" class="section level3 hasAnchor" number="3.10.1">
-<h3><span class="header-section-number">3.10.1</span> data<a href="data-block.html#data" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<p>The <code>data</code> function type returns observed data. There are no input arguments.</p>
-<p>Output: The observed data.</p>
-<p>– of class <code>Data</code> in a C++ function</p>
+<div id="factor-blocks-prior" class="section level2 hasAnchor" number="3.1">
+<h2><span class="header-section-number">3.1</span> Factor blocks: prior<a href="factor-blocks-prior.html#factor-blocks-prior" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>There are two ways of specifying priors:</p>
+<ol style="list-style-type: decimal">
+<li>Through some combination of function types (e.g. <code>evaluate_log_prior</code>, <code>simulate_prior</code>) defined below. The user only needs to specify the function types required by the algorithm they wish to use. For example:</li>
+</ol>
+<p>– <code>evaluate_log_prior</code> for Metropolis-Hastings where the prior needs to be evaluated in the acceptance ratio;</p>
+<p>– <code>simulate_prior</code> for importance sampling where the prior is used as the proposal, and the prior cancels and does not need to be evaluated in the weight update;</p>
+<p>– <code>evaluate_gradient_log_prior</code> for an unadjusted Langevin MCMC which requires the gradient of the prior to make moves.</p>
+<ol start="2" style="list-style-type: decimal">
+<li>Through the function type <code>prior</code>, which allows the user to specify the prior through an ilike function (e.g. <code>ilike::norm</code>), which results in the specification of all of the other prior function types (i.e. <code>evaluate_log_prior</code>, <code>simulate_prior</code>, <code>evaluate_gradient_log_prior</code> and <code>evaluate_second_gradient_log_prior</code> are all specified by using <code>ilike::norm</code>).</li>
+</ol>
+<p>We now detail the function types available for specifying a prior.</p>
+<div id="evaluate_log_prior" class="section level3 hasAnchor" number="3.1.1">
+<h3><span class="header-section-number">3.1.1</span> evaluate_log_prior<a href="factor-blocks-prior.html#evaluate_log_prior" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The <code>evaluate_log_prior</code> function type calculates the log prior density of the parameters.</p>
+<p>Input: The point at which the log of the prior is to be evaluated.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>parameters</code> in an R function</p>
+<p>Output: The log prior density of the parameters.</p>
+<p>– of type <code>double</code> in a C++ function</p>
+<p>– of type <code>numeric</code> in R.</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="factor-blocks-prior.html#cb1-1" tabindex="-1"></a><span class="co">/***evaluate_log_prior***/</span></span>
+<span id="cb1-2"><a href="factor-blocks-prior.html#cb1-2" tabindex="-1"></a><span class="dt">double</span> prior_eval<span class="op">(</span><span class="at">const</span> Parameters <span class="op">&amp;</span>parameters<span class="op">)</span></span>
+<span id="cb1-3"><a href="factor-blocks-prior.html#cb1-3" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb1-4"><a href="factor-blocks-prior.html#cb1-4" tabindex="-1"></a>  <span class="cf">return</span> dnorm<span class="op">(</span>parameters<span class="op">[</span><span class="st">&quot;θ&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">]);</span></span>
+<span id="cb1-5"><a href="factor-blocks-prior.html#cb1-5" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="factor-blocks-prior.html#cb2-1" tabindex="-1"></a><span class="co">/***evaluate_log_prior,dnorm(parameters$θ)***/</span></span></code></pre></div>
+</div>
+<div id="simulate_prior" class="section level3 hasAnchor" number="3.1.2">
+<h3><span class="header-section-number">3.1.2</span> simulate_prior<a href="factor-blocks-prior.html#simulate_prior" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The <code>simulate_prior</code> function type samples from the prior distribution.</p>
+<p>Input: (C++ only) The random number generator.</p>
+<p>– of type <code>RandomNumberGenerator &amp;</code> in a C++ function</p>
+<p>Output: The simulated value.</p>
+<p>– of class <code>Parameters</code> in a C++ function</p>
 <p>– an R list in R, where at present the interface restricts the user to a single vector/matrix of data, which is indexed by a string provided by the user to the left of an <code>=</code> sign in the function header.</p>
 <p>C++ example:</p>
-<div class="sourceCode" id="cb61"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb61-1"><a href="data-block.html#cb61-1" tabindex="-1"></a><span class="co">/***data***/</span></span>
-<span id="cb61-2"><a href="data-block.html#cb61-2" tabindex="-1"></a>Data set_data<span class="op">()</span></span>
-<span id="cb61-3"><a href="data-block.html#cb61-3" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb61-4"><a href="data-block.html#cb61-4" tabindex="-1"></a>  arma<span class="op">::</span>colvec y<span class="op">(</span><span class="dv">2</span><span class="op">,</span><span class="dv">1</span><span class="op">);</span></span>
-<span id="cb61-5"><a href="data-block.html#cb61-5" tabindex="-1"></a>  y<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> <span class="fl">1.0</span><span class="op">;</span></span>
-<span id="cb61-6"><a href="data-block.html#cb61-6" tabindex="-1"></a>  y<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> <span class="fl">2.0</span><span class="op">;</span></span>
-<span id="cb61-7"><a href="data-block.html#cb61-7" tabindex="-1"></a>  <span class="cf">return</span> Data<span class="op">(</span><span class="st">&quot;y&quot;</span><span class="op">,</span> y<span class="op">);</span></span>
-<span id="cb61-8"><a href="data-block.html#cb61-8" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="factor-blocks-prior.html#cb3-1" tabindex="-1"></a><span class="co">/***simulate_prior***/</span></span>
+<span id="cb3-2"><a href="factor-blocks-prior.html#cb3-2" tabindex="-1"></a>Parameters prior_sim<span class="op">(</span>RandomNumberGenerator <span class="op">&amp;</span>rng<span class="op">)</span></span>
+<span id="cb3-3"><a href="factor-blocks-prior.html#cb3-3" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb3-4"><a href="factor-blocks-prior.html#cb3-4" tabindex="-1"></a>  <span class="cf">return</span> Parameters<span class="op">(</span><span class="st">&quot;θ&quot;</span><span class="op">,</span>rnorm<span class="op">(</span>rng<span class="op">));</span></span>
+<span id="cb3-5"><a href="factor-blocks-prior.html#cb3-5" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>R example:</p>
-<div class="sourceCode" id="cb62"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb62-1"><a href="data-block.html#cb62-1" tabindex="-1"></a><span class="co">/***evaluate_log_prior,y=c(1,2)***/</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="factor-blocks-prior.html#cb4-1" tabindex="-1"></a><span class="co">/***simulate_prior,θ=rnorm(1)***/</span></span></code></pre></div>
+</div>
+<div id="evaluate_gradient_log_prior" class="section level3 hasAnchor" number="3.1.3">
+<h3><span class="header-section-number">3.1.3</span> evaluate_gradient_log_prior<a href="factor-blocks-prior.html#evaluate_gradient_log_prior" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The <code>evaluate_gradient_log_prior</code> function type gives the differential of the log prior density of the parameters.</p>
+<p>Input: The variable with respect to which we wish to find the gradient.</p>
+<p>– of type <code>const std::string &amp;</code> in a C++ function</p>
+<p>– available an R string <code>variable</code> in an R function</p>
+<p>Input: The point at which the gradient of the log prior is to be evaluated.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>parameters</code> in an R function</p>
+<p>Output: The gradient of the log prior density of the parameters.</p>
+<p>– of type <code>arma::mat</code> in a C++ function</p>
+<p>– of type <code>matrix</code> in R.</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="factor-blocks-prior.html#cb5-1" tabindex="-1"></a><span class="co">/***evaluate_gradient_log_prior***/</span></span>
+<span id="cb5-2"><a href="factor-blocks-prior.html#cb5-2" tabindex="-1"></a>arma<span class="op">::</span>mat prior_gradient_eval<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string <span class="op">&amp;</span>variable<span class="op">,</span></span>
+<span id="cb5-3"><a href="factor-blocks-prior.html#cb5-3" tabindex="-1"></a>                              <span class="at">const</span> Parameters <span class="op">&amp;</span>parameters<span class="op">)</span></span>
+<span id="cb5-4"><a href="factor-blocks-prior.html#cb5-4" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb5-5"><a href="factor-blocks-prior.html#cb5-5" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>variable<span class="op">==</span><span class="st">&quot;θ&quot;</span><span class="op">)</span></span>
+<span id="cb5-6"><a href="factor-blocks-prior.html#cb5-6" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb5-7"><a href="factor-blocks-prior.html#cb5-7" tabindex="-1"></a>    arma<span class="op">::</span>mat grad<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb5-8"><a href="factor-blocks-prior.html#cb5-8" tabindex="-1"></a>    grad<span class="op">(</span><span class="dv">0</span><span class="op">,</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> <span class="op">-</span>parameters<span class="op">[</span><span class="st">&quot;θ&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">];</span></span>
+<span id="cb5-9"><a href="factor-blocks-prior.html#cb5-9" tabindex="-1"></a>    <span class="cf">return</span> grad<span class="op">;</span></span>
+<span id="cb5-10"><a href="factor-blocks-prior.html#cb5-10" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb5-11"><a href="factor-blocks-prior.html#cb5-11" tabindex="-1"></a>  <span class="cf">else</span></span>
+<span id="cb5-12"><a href="factor-blocks-prior.html#cb5-12" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb5-13"><a href="factor-blocks-prior.html#cb5-13" tabindex="-1"></a>    Rcpp<span class="op">::</span>stop<span class="op">(</span><span class="st">&quot;Unknown variable in prior gradient.&quot;</span><span class="op">);</span></span>
+<span id="cb5-14"><a href="factor-blocks-prior.html#cb5-14" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb5-15"><a href="factor-blocks-prior.html#cb5-15" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="factor-blocks-prior.html#cb6-1" tabindex="-1"></a><span class="co">/***evaluate_gradient_log_prior,if (variable==&quot;θ&quot;) {-parameters$θ} else {stop(&quot;Unknown variable in prior gradient.&quot;)}***/</span></span></code></pre></div>
+</div>
+<div id="evaluate_second_gradient_log_prior" class="section level3 hasAnchor" number="3.1.4">
+<h3><span class="header-section-number">3.1.4</span> evaluate_second_gradient_log_prior<a href="factor-blocks-prior.html#evaluate_second_gradient_log_prior" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The <code>evaluate_gradient_log_prior</code> function type gives the second differential of the log prior density of the parameters.</p>
+<p>Input: The first variable with respect to which we wish to find the gradient.</p>
+<p>– of type <code>const std::string &amp;</code> in a C++ function</p>
+<p>– available an R string <code>variable1</code> in an R function</p>
+<p>Input: The second variable with respect to which we wish to find the gradient.</p>
+<p>– of type <code>const std::string &amp;</code> in a C++ function</p>
+<p>– available an R string <code>variable2</code> in an R function</p>
+<p>Input: The point at which the gradient of the log prior is to be evaluated.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>parameters</code> in an R function</p>
+<p>Output: The Hessian of the log prior density, evaluated at the given point.</p>
+<p>– of type <code>arma::mat</code> in a C++ function</p>
+<p>– of type <code>matrix</code> in R</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="factor-blocks-prior.html#cb7-1" tabindex="-1"></a><span class="co">/***evaluate_second_gradient_log_prior***/</span></span>
+<span id="cb7-2"><a href="factor-blocks-prior.html#cb7-2" tabindex="-1"></a>arma<span class="op">::</span>mat prior_gradient_eval<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string <span class="op">&amp;</span>variable1<span class="op">,</span></span>
+<span id="cb7-3"><a href="factor-blocks-prior.html#cb7-3" tabindex="-1"></a>                              <span class="at">const</span> <span class="bu">std::</span>string <span class="op">&amp;</span>variable2<span class="op">,</span></span>
+<span id="cb7-4"><a href="factor-blocks-prior.html#cb7-4" tabindex="-1"></a>                              <span class="at">const</span> Parameters <span class="op">&amp;</span>parameters<span class="op">)</span></span>
+<span id="cb7-5"><a href="factor-blocks-prior.html#cb7-5" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb7-6"><a href="factor-blocks-prior.html#cb7-6" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">((</span>variable1<span class="op">==</span><span class="st">&quot;θ&quot;</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="op">(</span>variable2<span class="op">==</span><span class="st">&quot;θ&quot;</span><span class="op">))</span></span>
+<span id="cb7-7"><a href="factor-blocks-prior.html#cb7-7" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb7-8"><a href="factor-blocks-prior.html#cb7-8" tabindex="-1"></a>    arma<span class="op">::</span>mat grad<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb7-9"><a href="factor-blocks-prior.html#cb7-9" tabindex="-1"></a>    grad<span class="op">(</span><span class="dv">0</span><span class="op">,</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> <span class="op">-</span><span class="fl">1.0</span><span class="op">;</span></span>
+<span id="cb7-10"><a href="factor-blocks-prior.html#cb7-10" tabindex="-1"></a>    <span class="cf">return</span> grad<span class="op">;</span></span>
+<span id="cb7-11"><a href="factor-blocks-prior.html#cb7-11" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-12"><a href="factor-blocks-prior.html#cb7-12" tabindex="-1"></a>  <span class="cf">else</span></span>
+<span id="cb7-13"><a href="factor-blocks-prior.html#cb7-13" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb7-14"><a href="factor-blocks-prior.html#cb7-14" tabindex="-1"></a>    Rcpp<span class="op">::</span>stop<span class="op">(</span><span class="st">&quot;Unknown variable in prior second gradient.&quot;</span><span class="op">);</span></span>
+<span id="cb7-15"><a href="factor-blocks-prior.html#cb7-15" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-16"><a href="factor-blocks-prior.html#cb7-16" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="factor-blocks-prior.html#cb8-1" tabindex="-1"></a><span class="co">/***evaluate_second_gradient_log_prior,if ((variable1==&quot;θ&quot;) &amp;&amp; (variable2==&quot;θ&quot;)) {-1} else {stop(&quot;Unknown variable in prior second gradient.&quot;)}***/</span></span></code></pre></div>
+</div>
+<div id="prior-ilike-functions" class="section level3 hasAnchor" number="3.1.5">
+<h3><span class="header-section-number">3.1.5</span> prior (ilike functions)<a href="factor-blocks-prior.html#prior-ilike-functions" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The <code>prior</code> function type allows the user to specify the prior through an ilike function (e.g. <code>ilike::norm</code>), which results in the specification of all of the other prior function types. For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.</p>
+<p>Example of the use of one of these functions (<code>ilike::norm</code>) follows.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="factor-blocks-prior.html#cb9-1" tabindex="-1"></a><span class="co">/***prior,ilike::norm(θ,0,1)***/</span></span></code></pre></div>
+<p>The following sections detail the available ilike functions.</p>
+<div id="normal-prior-ilikenorm" class="section level4 hasAnchor" number="3.1.5.1">
+<h4><span class="header-section-number">3.1.5.1</span> Normal prior <code>ilike::norm</code><a href="factor-blocks-prior.html#normal-prior-ilikenorm" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Specifies a normal prior over the given variable, with the given parameters.</p>
+<p>Inputs:</p>
+<ol style="list-style-type: decimal">
+<li><p>string: the variable for which the prior is specified</p></li>
+<li><p>numeric: the mean of the normal distribution</p></li>
+<li><p>numeric: the standard deviation of the normal distribution</p></li>
+</ol>
+</div>
+<div id="multivariate-normal-prior-ilikemvnorm" class="section level4 hasAnchor" number="3.1.5.2">
+<h4><span class="header-section-number">3.1.5.2</span> Multivariate normal prior <code>ilike::mvnorm</code><a href="factor-blocks-prior.html#multivariate-normal-prior-ilikemvnorm" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Specifies a multivariate normal prior over the given variable, with the given parameters.</p>
+<p>Inputs:</p>
+<ol style="list-style-type: decimal">
+<li><p>string: the variable for which the prior is specified</p></li>
+<li><p>numeric vector/matrix: the mean of the multivariate normal distribution</p></li>
+<li><p>matrix: the covariance of the multivariate normal distribution</p></li>
+</ol>
+</div>
+<div id="lognormal-prior-ilikelnorm" class="section level4 hasAnchor" number="3.1.5.3">
+<h4><span class="header-section-number">3.1.5.3</span> Lognormal prior <code>ilike::lnorm</code><a href="factor-blocks-prior.html#lognormal-prior-ilikelnorm" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Specifies a lognormal prior over the given variable, with the given parameters.</p>
+<p>Inputs:</p>
+<ol style="list-style-type: decimal">
+<li><p>string: the variable for which the prior is specified</p></li>
+<li><p>numeric: the mean of the log of the variable</p></li>
+<li><p>numeric: the standard deviation of the log of the variable</p></li>
+</ol>
+</div>
+<div id="multivariate-lognormal-prior-ilikemvlnorm" class="section level4 hasAnchor" number="3.1.5.4">
+<h4><span class="header-section-number">3.1.5.4</span> Multivariate lognormal prior <code>ilike::mvlnorm</code><a href="factor-blocks-prior.html#multivariate-lognormal-prior-ilikemvlnorm" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Specifies a multivariate loggnormal prior over the given variable, with the given parameters.</p>
+<p>Inputs:</p>
+<ol style="list-style-type: decimal">
+<li><p>string: the variable for which the prior is specified</p></li>
+<li><p>numeric vector/matrix: the mean of the log of the variable</p></li>
+<li><p>matrix: the covariance of the log of the variable</p></li>
+</ol>
+</div>
+<div id="gamma-prior-ilikegamma" class="section level4 hasAnchor" number="3.1.5.5">
+<h4><span class="header-section-number">3.1.5.5</span> Gamma prior <code>ilike::gamma</code><a href="factor-blocks-prior.html#gamma-prior-ilikegamma" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Specifies a gamma prior over the given variable, with the given parameters.</p>
+<p>Inputs:</p>
+<ol style="list-style-type: decimal">
+<li><p>string: the variable for which the prior is specified</p></li>
+<li><p>numeric: the shape of the gamma distribution</p></li>
+<li><p>numeric: the rate of the gamma distribution</p></li>
+</ol>
+</div>
 </div>
 </div>
             </section>
@@ -358,8 +508,8 @@ div.csl-indent {
           </div>
         </div>
       </div>
-<a href="transition-model-blocks-custom-transition-model.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="method-block.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="blocks.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="factor-blocks-custom-likelihood.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

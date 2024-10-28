@@ -23,7 +23,7 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2024-09-12" />
+<meta name="date" content="2024-10-21" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -56,7 +56,7 @@
 
 <style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -66,7 +66,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -145,42 +145,53 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="1.1" data-path="toy-example.html"><a href="toy-example.html"><i class="fa fa-check"></i><b>1.1</b> Example</a>
 <ul>
 <li class="chapter" data-level="1.1.1" data-path="toy-example.html"><a href="toy-example.html#model"><i class="fa fa-check"></i><b>1.1.1</b> Model</a></li>
-<li class="chapter" data-level="1.1.2" data-path="toy-example.html"><a href="toy-example.html#ilike-file"><i class="fa fa-check"></i><b>1.1.2</b> .ilike file</a></li>
+<li class="chapter" data-level="1.1.2" data-path="toy-example.html"><a href="toy-example.html#ilike-file"><i class="fa fa-check"></i><b>1.1.2</b> ilike file</a></li>
 <li class="chapter" data-level="1.1.3" data-path="toy-example.html"><a href="toy-example.html#running-mcmc"><i class="fa fa-check"></i><b>1.1.3</b> Running MCMC</a></li>
 <li class="chapter" data-level="1.1.4" data-path="toy-example.html"><a href="toy-example.html#visualising-the-output"><i class="fa fa-check"></i><b>1.1.4</b> Visualising the output</a></li>
 </ul></li>
 </ul></li>
-<li class="chapter" data-level="2" data-path="ilike-files.html"><a href="ilike-files.html"><i class="fa fa-check"></i><b>2</b> .ilike files</a>
+<li class="chapter" data-level="2" data-path="ilike-files.html"><a href="ilike-files.html"><i class="fa fa-check"></i><b>2</b> ilike files</a>
 <ul>
 <li class="chapter" data-level="2.1" data-path="file-structure.html"><a href="file-structure.html"><i class="fa fa-check"></i><b>2.1</b> File structure</a>
 <ul>
 <li class="chapter" data-level="2.1.1" data-path="file-structure.html"><a href="file-structure.html#blocks-automatically"><i class="fa fa-check"></i><b>2.1.1</b> Specifying blocks automatically</a></li>
 </ul></li>
-<li class="chapter" data-level="2.2" data-path="C.html"><a href="C.html"><i class="fa fa-check"></i><b>2.2</b> C++ functions</a>
+<li class="chapter" data-level="2.2" data-path="compiling.html"><a href="compiling.html"><i class="fa fa-check"></i><b>2.2</b> Compiling an ilike file</a></li>
+<li class="chapter" data-level="2.3" data-path="C.html"><a href="C.html"><i class="fa fa-check"></i><b>2.3</b> C++ functions</a>
 <ul>
-<li class="chapter" data-level="2.2.1" data-path="C.html"><a href="C.html#ilike-c-classes"><i class="fa fa-check"></i><b>2.2.1</b> ilike C++ classes</a></li>
-<li class="chapter" data-level="2.2.2" data-path="C.html"><a href="C.html#ilike-c-functions"><i class="fa fa-check"></i><b>2.2.2</b> ilike C++ functions</a></li>
+<li class="chapter" data-level="2.3.1" data-path="C.html"><a href="C.html#including-additional-code"><i class="fa fa-check"></i><b>2.3.1</b> Including additional code</a></li>
+<li class="chapter" data-level="2.3.2" data-path="C.html"><a href="C.html#ilike-cpp-classes"><i class="fa fa-check"></i><b>2.3.2</b> ilike C++ classes</a></li>
+<li class="chapter" data-level="2.3.3" data-path="C.html"><a href="C.html#ilike-cpp-functions"><i class="fa fa-check"></i><b>2.3.3</b> ilike C++ functions</a></li>
 </ul></li>
-<li class="chapter" data-level="2.3" data-path="R.html"><a href="R.html"><i class="fa fa-check"></i><b>2.3</b> R functions</a></li>
-<li class="chapter" data-level="2.4" data-path="python.html"><a href="python.html"><i class="fa fa-check"></i><b>2.4</b> python functions</a></li>
-<li class="chapter" data-level="2.5" data-path="julia.html"><a href="julia.html"><i class="fa fa-check"></i><b>2.5</b> julia functions</a></li>
-<li class="chapter" data-level="2.6" data-path="ilike-functions.html"><a href="ilike-functions.html"><i class="fa fa-check"></i><b>2.6</b> ilike functions</a></li>
+<li class="chapter" data-level="2.4" data-path="R.html"><a href="R.html"><i class="fa fa-check"></i><b>2.4</b> R functions</a>
+<ul>
+<li class="chapter" data-level="2.4.1" data-path="R.html"><a href="R.html#function-arguments-for-r-functions"><i class="fa fa-check"></i><b>2.4.1</b> Function arguments for R functions</a></li>
+<li class="chapter" data-level="2.4.2" data-path="R.html"><a href="R.html#function-headers-for-r-functions"><i class="fa fa-check"></i><b>2.4.2</b> Function headers for R functions</a></li>
+</ul></li>
+<li class="chapter" data-level="2.5" data-path="python.html"><a href="python.html"><i class="fa fa-check"></i><b>2.5</b> Python functions</a>
+<ul>
+<li class="chapter" data-level="2.5.1" data-path="python.html"><a href="python.html#using-jax-to-calculate-gradients"><i class="fa fa-check"></i><b>2.5.1</b> Using jax to calculate gradients</a></li>
+</ul></li>
+<li class="chapter" data-level="2.6" data-path="julia.html"><a href="julia.html"><i class="fa fa-check"></i><b>2.6</b> Julia functions</a></li>
+<li class="chapter" data-level="2.7" data-path="ilike-functions.html"><a href="ilike-functions.html"><i class="fa fa-check"></i><b>2.7</b> ilike functions</a></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="blocks.html"><a href="blocks.html"><i class="fa fa-check"></i><b>3</b> ilike blocks</a>
 <ul>
-<li class="chapter" data-level="3.1" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>3.1</b> Data</a></li>
-<li class="chapter" data-level="3.2" data-path="priors.html"><a href="priors.html"><i class="fa fa-check"></i><b>3.2</b> Priors</a></li>
-<li class="chapter" data-level="3.3" data-path="likelihoods.html"><a href="likelihoods.html"><i class="fa fa-check"></i><b>3.3</b> Likelihoods</a></li>
-<li class="chapter" data-level="3.4" data-path="importance-sampling-proposals.html"><a href="importance-sampling-proposals.html"><i class="fa fa-check"></i><b>3.4</b> Importance sampling proposals</a></li>
-<li class="chapter" data-level="3.5" data-path="mcmc-proposals.html"><a href="mcmc-proposals.html"><i class="fa fa-check"></i><b>3.5</b> MCMC proposals</a></li>
-<li class="chapter" data-level="3.6" data-path="transition-model.html"><a href="transition-model.html"><i class="fa fa-check"></i><b>3.6</b> Transition model</a></li>
-<li class="chapter" data-level="3.7" data-path="filter.html"><a href="filter.html"><i class="fa fa-check"></i><b>3.7</b> Filter</a></li>
-<li class="chapter" data-level="3.8" data-path="gradient.html"><a href="gradient.html"><i class="fa fa-check"></i><b>3.8</b> Gradient</a></li>
+<li class="chapter" data-level="3.1" data-path="factor-blocks.html"><a href="factor-blocks.html"><i class="fa fa-check"></i><b>3.1</b> Factor blocks</a>
+<ul>
+<li class="chapter" data-level="3.1.1" data-path="factor-blocks.html"><a href="factor-blocks.html#prior"><i class="fa fa-check"></i><b>3.1.1</b> Prior</a></li>
+<li class="chapter" data-level="3.1.2" data-path="factor-blocks.html"><a href="factor-blocks.html#exact-likelihood"><i class="fa fa-check"></i><b>3.1.2</b> Exact likelihood</a></li>
+<li class="chapter" data-level="3.1.3" data-path="factor-blocks.html"><a href="factor-blocks.html#simulation-based-likelihood"><i class="fa fa-check"></i><b>3.1.3</b> Simulation-based likelihood</a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="data-block.html"><a href="data-block.html"><i class="fa fa-check"></i><b>3.2</b> Data block</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="data-block.html"><a href="data-block.html#data"><i class="fa fa-check"></i><b>3.2.1</b> Data</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="inference.html"><a href="inference.html"><i class="fa fa-check"></i><b>4</b> Inference algorithms</a>
 <ul>
 <li class="chapter" data-level="4.1" data-path="random-numbers.html"><a href="random-numbers.html"><i class="fa fa-check"></i><b>4.1</b> Random numbers</a></li>
-<li class="chapter" data-level="4.2" data-path="model-and-algorithm-parameters.html"><a href="model-and-algorithm-parameters.html"><i class="fa fa-check"></i><b>4.2</b> Model and algorithm parameters</a></li>
+<li class="chapter" data-level="4.2" data-path="parameters.html"><a href="parameters.html"><i class="fa fa-check"></i><b>4.2</b> Model and algorithm parameters</a></li>
 <li class="chapter" data-level="4.3" data-path="importance-sampling.html"><a href="importance-sampling.html"><i class="fa fa-check"></i><b>4.3</b> Importance sampling</a>
 <ul>
 <li class="chapter" data-level="4.3.1" data-path="importance-sampling.html"><a href="importance-sampling.html#ilike-file-requirements"><i class="fa fa-check"></i><b>4.3.1</b> .ilike file requirements</a></li>
@@ -246,13 +257,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="header">
 <h1 class="title">ilike documentation</h1>
 <p class="author"><em>Richard G. Everitt</em></p>
-<p class="date"><em>2024-09-12</em></p>
+<p class="date"><em>2024-10-21</em></p>
 </div>
 <div id="preface" class="section level1 hasAnchor" number="1">
 <h1><span class="header-section-number">Chapter 1</span> Preface<a href="index.html#preface" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <p>This book provides documentation for the R package <code>ilike</code>, which can be <a href="https://github.com/richardgeveritt/ilike">accessed here</a>. The package can be installed using the following command in R:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="index.html#cb1-1" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;richardgeveritt/ilike&quot;</span>)</span></code></pre></div>
-<p>The ilike package contains functions that implement Bayesian computation techniques, focussed on cases when the likelihood is intractable. The functions in the package use statistical models specified in a .ilike file. This file allows a user to specify priors, likelihoods, data, and the parameters of the inference algorithm (in either C++, R, python, julia or native ilike functions). Inference algorithms included in the package are:</p>
+<p>This installation will take some time, so go and make a cup of tea at this point.</p>
+<p>The ilike package contains functions that implement Bayesian computation techniques, focussed on cases when the likelihood is intractable. The functions in the package use statistical models specified in a file with the extension .ilike (hereby referred to as an ilike file). This file allows a user to specify priors, likelihoods, data, and the parameters of the inference algorithm (in either C++, R, python, julia or native ilike functions). Inference algorithms included in the package are:</p>
 <ul>
 <li>importance sampling (IS);</li>
 <li>Markov chain Monte Carlo (MCMC);</li>
@@ -261,13 +273,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li>particle filters (PFs);</li>
 <li>ensemble Kalman filters (EnKFs).</li>
 </ul>
-<p>.ilike files include the option to estimate the likelihood using any of the inference algorithms above (with the exception of MCMC), alongside:</p>
+<p>ilike files include the option to estimate the likelihood using any of the inference algorithms above (with the exception of MCMC), alongside:</p>
 <ul>
 <li>an exact likelihood;</li>
 <li>approximate Bayesian computation (ABC);</li>
 <li>synthetic likelihood (SL).</li>
 </ul>
-<p>We begin the documentation in section <a href="toy-example.html#toy-example">1.1</a> by giving an example of how to use the package, from (a) the specification of the .ilike file and its compilation, to (b) calling the function that runs the inference algorithm, then (c) visualising the output of the algorithm. The documentation then follows the same order, providing full details about every step.</p>
+<p>We begin the documentation in section <a href="toy-example.html#toy-example">1.1</a> by giving an example of how to use the package, from (a) the specification of the ilike file and its compilation, to (b) calling the function that runs the inference algorithm, then (c) visualising the output of the algorithm. The documentation then follows the same order, providing full details about every step.</p>
 </div>
             </section>
 

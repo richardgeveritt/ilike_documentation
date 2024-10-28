@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>3.4 Factor blocks: | ilike documentation</title>
+  <title>3.2 Factor: ilike prior | ilike documentation</title>
   <meta name="description" content="Documentation for the ilike R package." />
   <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="3.4 Factor blocks: | ilike documentation" />
+  <meta property="og:title" content="3.2 Factor: ilike prior | ilike documentation" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="Documentation for the ilike R package." />
   <meta name="github-repo" content="richardgeveritt/ilike_documentation" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="3.4 Factor blocks: | ilike documentation" />
+  <meta name="twitter:title" content="3.2 Factor: ilike prior | ilike documentation" />
   
   <meta name="twitter:description" content="Documentation for the ilike R package." />
   
@@ -23,15 +23,15 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2024-10-22" />
+<meta name="date" content="2024-10-28" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="factor-blocks-simulation-based-likelihood.html"/>
-<link rel="next" href="data-block.html"/>
+<link rel="prev" href="factor-custom-prior.html"/>
+<link rel="next" href="factor-custom-likelihood.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -200,31 +200,68 @@ div.csl-indent {
 </ul></li>
 <li class="chapter" data-level="3" data-path="blocks.html"><a href="blocks.html"><i class="fa fa-check"></i><b>3</b> ilike blocks</a>
 <ul>
-<li class="chapter" data-level="3.1" data-path="factor-blocks-prior.html"><a href="factor-blocks-prior.html"><i class="fa fa-check"></i><b>3.1</b> Factor blocks: prior</a>
+<li class="chapter" data-level="3.1" data-path="factor-custom-prior.html"><a href="factor-custom-prior.html"><i class="fa fa-check"></i><b>3.1</b> Factor: custom prior</a>
 <ul>
-<li class="chapter" data-level="3.1.1" data-path="factor-blocks-prior.html"><a href="factor-blocks-prior.html#evaluate_log_prior"><i class="fa fa-check"></i><b>3.1.1</b> evaluate_log_prior</a></li>
-<li class="chapter" data-level="3.1.2" data-path="factor-blocks-prior.html"><a href="factor-blocks-prior.html#simulate_prior"><i class="fa fa-check"></i><b>3.1.2</b> simulate_prior</a></li>
-<li class="chapter" data-level="3.1.3" data-path="factor-blocks-prior.html"><a href="factor-blocks-prior.html#evaluate_gradient_log_prior"><i class="fa fa-check"></i><b>3.1.3</b> evaluate_gradient_log_prior</a></li>
-<li class="chapter" data-level="3.1.4" data-path="factor-blocks-prior.html"><a href="factor-blocks-prior.html#evaluate_second_gradient_log_prior"><i class="fa fa-check"></i><b>3.1.4</b> evaluate_second_gradient_log_prior</a></li>
-<li class="chapter" data-level="3.1.5" data-path="factor-blocks-prior.html"><a href="factor-blocks-prior.html#prior-ilike-functions"><i class="fa fa-check"></i><b>3.1.5</b> prior (ilike functions)</a></li>
+<li class="chapter" data-level="3.1.1" data-path="factor-custom-prior.html"><a href="factor-custom-prior.html#evaluate_log_prior"><i class="fa fa-check"></i><b>3.1.1</b> evaluate_log_prior</a></li>
+<li class="chapter" data-level="3.1.2" data-path="factor-custom-prior.html"><a href="factor-custom-prior.html#simulate_prior"><i class="fa fa-check"></i><b>3.1.2</b> simulate_prior</a></li>
+<li class="chapter" data-level="3.1.3" data-path="factor-custom-prior.html"><a href="factor-custom-prior.html#evaluate_gradient_log_prior"><i class="fa fa-check"></i><b>3.1.3</b> evaluate_gradient_log_prior</a></li>
+<li class="chapter" data-level="3.1.4" data-path="factor-custom-prior.html"><a href="factor-custom-prior.html#evaluate_second_gradient_log_prior"><i class="fa fa-check"></i><b>3.1.4</b> evaluate_second_gradient_log_prior</a></li>
 </ul></li>
-<li class="chapter" data-level="3.2" data-path="factor-blocks-exact-likelihood.html"><a href="factor-blocks-exact-likelihood.html"><i class="fa fa-check"></i><b>3.2</b> Factor blocks: exact likelihood</a>
+<li class="chapter" data-level="3.2" data-path="ilike-prior.html"><a href="ilike-prior.html"><i class="fa fa-check"></i><b>3.2</b> Factor: ilike prior</a>
 <ul>
-<li class="chapter" data-level="3.2.1" data-path="factor-blocks-exact-likelihood.html"><a href="factor-blocks-exact-likelihood.html#evaluate_log_likelihood"><i class="fa fa-check"></i><b>3.2.1</b> evaluate_log_likelihood</a></li>
-<li class="chapter" data-level="3.2.2" data-path="factor-blocks-exact-likelihood.html"><a href="factor-blocks-exact-likelihood.html#evaluate_gradient_log_likelihood"><i class="fa fa-check"></i><b>3.2.2</b> evaluate_gradient_log_likelihood</a></li>
-<li class="chapter" data-level="3.2.3" data-path="factor-blocks-exact-likelihood.html"><a href="factor-blocks-exact-likelihood.html#evaluate_second_gradient_log_likelihood"><i class="fa fa-check"></i><b>3.2.3</b> evaluate_second_gradient_log_likelihood</a></li>
+<li class="chapter" data-level="3.2.1" data-path="ilike-prior.html"><a href="ilike-prior.html#prior-ilike-functions"><i class="fa fa-check"></i><b>3.2.1</b> prior (ilike functions)</a></li>
 </ul></li>
-<li class="chapter" data-level="3.3" data-path="factor-blocks-simulation-based-likelihood.html"><a href="factor-blocks-simulation-based-likelihood.html"><i class="fa fa-check"></i><b>3.3</b> Factor blocks: simulation-based likelihood</a>
+<li class="chapter" data-level="3.3" data-path="factor-custom-likelihood.html"><a href="factor-custom-likelihood.html"><i class="fa fa-check"></i><b>3.3</b> Factor: custom likelihood</a>
 <ul>
-<li class="chapter" data-level="3.3.1" data-path="factor-blocks-simulation-based-likelihood.html"><a href="factor-blocks-simulation-based-likelihood.html#simulate_data_model"><i class="fa fa-check"></i><b>3.3.1</b> simulate_data_model</a></li>
-<li class="chapter" data-level="3.3.2" data-path="factor-blocks-simulation-based-likelihood.html"><a href="factor-blocks-simulation-based-likelihood.html#data_variable"><i class="fa fa-check"></i><b>3.3.2</b> data_variable</a></li>
-<li class="chapter" data-level="3.3.3" data-path="factor-blocks-simulation-based-likelihood.html"><a href="factor-blocks-simulation-based-likelihood.html#summary_statistics"><i class="fa fa-check"></i><b>3.3.3</b> summary_statistics</a></li>
-<li class="chapter" data-level="3.3.4" data-path="factor-blocks-simulation-based-likelihood.html"><a href="factor-blocks-simulation-based-likelihood.html#sbi_likelihood-ilike-functions"><i class="fa fa-check"></i><b>3.3.4</b> sbi_likelihood (ilike functions)</a></li>
+<li class="chapter" data-level="3.3.1" data-path="factor-custom-likelihood.html"><a href="factor-custom-likelihood.html#evaluate_log_likelihood"><i class="fa fa-check"></i><b>3.3.1</b> evaluate_log_likelihood</a></li>
+<li class="chapter" data-level="3.3.2" data-path="factor-custom-likelihood.html"><a href="factor-custom-likelihood.html#evaluate_gradient_log_likelihood"><i class="fa fa-check"></i><b>3.3.2</b> evaluate_gradient_log_likelihood</a></li>
+<li class="chapter" data-level="3.3.3" data-path="factor-custom-likelihood.html"><a href="factor-custom-likelihood.html#evaluate_second_gradient_log_likelihood"><i class="fa fa-check"></i><b>3.3.3</b> evaluate_second_gradient_log_likelihood</a></li>
 </ul></li>
-<li class="chapter" data-level="3.4" data-path="factor-blocks.html"><a href="factor-blocks.html"><i class="fa fa-check"></i><b>3.4</b> Factor blocks:</a></li>
-<li class="chapter" data-level="3.5" data-path="data-block.html"><a href="data-block.html"><i class="fa fa-check"></i><b>3.5</b> Data block</a>
+<li class="chapter" data-level="3.4" data-path="factor-simulation-based-likelihood.html"><a href="factor-simulation-based-likelihood.html"><i class="fa fa-check"></i><b>3.4</b> Factor: simulation-based likelihood</a>
 <ul>
-<li class="chapter" data-level="3.5.1" data-path="data-block.html"><a href="data-block.html#data"><i class="fa fa-check"></i><b>3.5.1</b> data</a></li>
+<li class="chapter" data-level="3.4.1" data-path="factor-simulation-based-likelihood.html"><a href="factor-simulation-based-likelihood.html#simulate_data_model"><i class="fa fa-check"></i><b>3.4.1</b> simulate_data_model</a></li>
+<li class="chapter" data-level="3.4.2" data-path="factor-simulation-based-likelihood.html"><a href="factor-simulation-based-likelihood.html#data_variable"><i class="fa fa-check"></i><b>3.4.2</b> data_variable</a></li>
+<li class="chapter" data-level="3.4.3" data-path="factor-simulation-based-likelihood.html"><a href="factor-simulation-based-likelihood.html#summary_statistics"><i class="fa fa-check"></i><b>3.4.3</b> summary_statistics</a></li>
+<li class="chapter" data-level="3.4.4" data-path="factor-simulation-based-likelihood.html"><a href="factor-simulation-based-likelihood.html#sbi_likelihood-ilike-functions"><i class="fa fa-check"></i><b>3.4.4</b> sbi_likelihood (ilike functions)</a></li>
+</ul></li>
+<li class="chapter" data-level="3.5" data-path="factor-linear-gaussian-model.html"><a href="factor-linear-gaussian-model.html"><i class="fa fa-check"></i><b>3.5</b> Factor: linear-Gaussian model</a>
+<ul>
+<li class="chapter" data-level="3.5.1" data-path="factor-linear-gaussian-model.html"><a href="factor-linear-gaussian-model.html#linear_gaussian_data_variable"><i class="fa fa-check"></i><b>3.5.1</b> linear_gaussian_data_variable</a></li>
+<li class="chapter" data-level="3.5.2" data-path="factor-linear-gaussian-model.html"><a href="factor-linear-gaussian-model.html#linear_gaussian_data_state_variable"><i class="fa fa-check"></i><b>3.5.2</b> linear_gaussian_data_state_variable</a></li>
+<li class="chapter" data-level="3.5.3" data-path="factor-linear-gaussian-model.html"><a href="factor-linear-gaussian-model.html#linear_gaussian_data_matrix"><i class="fa fa-check"></i><b>3.5.3</b> linear_gaussian_data_matrix</a></li>
+<li class="chapter" data-level="3.5.4" data-path="factor-linear-gaussian-model.html"><a href="factor-linear-gaussian-model.html#linear_gaussian_data_covariance"><i class="fa fa-check"></i><b>3.5.4</b> linear_gaussian_data_covariance</a></li>
+<li class="chapter" data-level="3.5.5" data-path="factor-linear-gaussian-model.html"><a href="factor-linear-gaussian-model.html#linear_gaussian_data_model-ilike-function"><i class="fa fa-check"></i><b>3.5.5</b> linear_gaussian_data_model (ilike function)</a></li>
+</ul></li>
+<li class="chapter" data-level="3.6" data-path="factor-nonlinear-gaussian-model.html"><a href="factor-nonlinear-gaussian-model.html"><i class="fa fa-check"></i><b>3.6</b> Factor: nonlinear-Gaussian model</a>
+<ul>
+<li class="chapter" data-level="3.6.1" data-path="factor-nonlinear-gaussian-model.html"><a href="factor-nonlinear-gaussian-model.html#nonlinear_gaussian_data_variable"><i class="fa fa-check"></i><b>3.6.1</b> nonlinear_gaussian_data_variable</a></li>
+<li class="chapter" data-level="3.6.2" data-path="factor-nonlinear-gaussian-model.html"><a href="factor-nonlinear-gaussian-model.html#nonlinear_gaussian_data_function"><i class="fa fa-check"></i><b>3.6.2</b> nonlinear_gaussian_data_function</a></li>
+<li class="chapter" data-level="3.6.3" data-path="factor-nonlinear-gaussian-model.html"><a href="factor-nonlinear-gaussian-model.html#nonlinear_gaussian_data_covariance"><i class="fa fa-check"></i><b>3.6.3</b> nonlinear_gaussian_data_covariance</a></li>
+</ul></li>
+<li class="chapter" data-level="3.7" data-path="factor-algorithmic-likelihood.html"><a href="factor-algorithmic-likelihood.html"><i class="fa fa-check"></i><b>3.7</b> Factor: algorithmic likelihood</a>
+<ul>
+<li class="chapter" data-level="3.7.1" data-path="factor-algorithmic-likelihood.html"><a href="factor-algorithmic-likelihood.html#likelihood-ilike-functions"><i class="fa fa-check"></i><b>3.7.1</b> likelihood (ilike functions)</a></li>
+</ul></li>
+<li class="chapter" data-level="3.8" data-path="transition-model-linear-gaussian.html"><a href="transition-model-linear-gaussian.html"><i class="fa fa-check"></i><b>3.8</b> Transition model: linear-Gaussian</a>
+<ul>
+<li class="chapter" data-level="3.8.1" data-path="transition-model-linear-gaussian.html"><a href="transition-model-linear-gaussian.html#linear_gaussian_transition_variable"><i class="fa fa-check"></i><b>3.8.1</b> linear_gaussian_transition_variable</a></li>
+<li class="chapter" data-level="3.8.2" data-path="transition-model-linear-gaussian.html"><a href="transition-model-linear-gaussian.html#linear_gaussian_transition_matrix"><i class="fa fa-check"></i><b>3.8.2</b> linear_gaussian_transition_matrix</a></li>
+<li class="chapter" data-level="3.8.3" data-path="transition-model-linear-gaussian.html"><a href="transition-model-linear-gaussian.html#linear_gaussian_transition_covariance"><i class="fa fa-check"></i><b>3.8.3</b> linear_gaussian_transition_covariance</a></li>
+<li class="chapter" data-level="3.8.4" data-path="transition-model-linear-gaussian.html"><a href="transition-model-linear-gaussian.html#linear_gaussian_transition_model-ilike-function"><i class="fa fa-check"></i><b>3.8.4</b> linear_gaussian_transition_model (ilike function)</a></li>
+</ul></li>
+<li class="chapter" data-level="3.9" data-path="transition-model-nonlinear-gaussian.html"><a href="transition-model-nonlinear-gaussian.html"><i class="fa fa-check"></i><b>3.9</b> Transition model: nonlinear-Gaussian</a>
+<ul>
+<li class="chapter" data-level="3.9.1" data-path="transition-model-nonlinear-gaussian.html"><a href="transition-model-nonlinear-gaussian.html#nonlinear_gaussian_transition_variable"><i class="fa fa-check"></i><b>3.9.1</b> nonlinear_gaussian_transition_variable</a></li>
+<li class="chapter" data-level="3.9.2" data-path="transition-model-nonlinear-gaussian.html"><a href="transition-model-nonlinear-gaussian.html#nonlinear_gaussian_transition_function"><i class="fa fa-check"></i><b>3.9.2</b> nonlinear_gaussian_transition_function</a></li>
+<li class="chapter" data-level="3.9.3" data-path="transition-model-nonlinear-gaussian.html"><a href="transition-model-nonlinear-gaussian.html#nonlinear_gaussian_transition_covariance"><i class="fa fa-check"></i><b>3.9.3</b> nonlinear_gaussian_transition_covariance</a></li>
+</ul></li>
+<li class="chapter" data-level="3.10" data-path="transition-model-custom.html"><a href="transition-model-custom.html"><i class="fa fa-check"></i><b>3.10</b> Transition model: custom</a>
+<ul>
+<li class="chapter" data-level="3.10.1" data-path="transition-model-custom.html"><a href="transition-model-custom.html#simulate_transition-model"><i class="fa fa-check"></i><b>3.10.1</b> simulate_transition model</a></li>
+</ul></li>
+<li class="chapter" data-level="3.11" data-path="method-block.html"><a href="method-block.html"><i class="fa fa-check"></i><b>3.11</b> Method block</a>
+<ul>
+<li class="chapter" data-level="3.11.1" data-path="method-block.html"><a href="method-block.html#filter"><i class="fa fa-check"></i><b>3.11.1</b> filter</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="inference.html"><a href="inference.html"><i class="fa fa-check"></i><b>4</b> Inference algorithms</a>
@@ -247,13 +284,17 @@ div.csl-indent {
 <ul>
 <li class="chapter" data-level="4.6.1" data-path="iterative-ensemble-kalman-inversion.html"><a href="iterative-ensemble-kalman-inversion.html#ilike-file-requirements-3"><i class="fa fa-check"></i><b>4.6.1</b> .ilike file requirements</a></li>
 </ul></li>
-<li class="chapter" data-level="4.7" data-path="particle-filters.html"><a href="particle-filters.html"><i class="fa fa-check"></i><b>4.7</b> Particle filters</a>
+<li class="chapter" data-level="4.7" data-path="kf.html"><a href="kf.html"><i class="fa fa-check"></i><b>4.7</b> Kalman filters</a>
 <ul>
-<li class="chapter" data-level="4.7.1" data-path="particle-filters.html"><a href="particle-filters.html#ilike-file-requirements-4"><i class="fa fa-check"></i><b>4.7.1</b> .ilike file requirements</a></li>
+<li class="chapter" data-level="4.7.1" data-path="kf.html"><a href="kf.html#ilike-file-requirements-4"><i class="fa fa-check"></i><b>4.7.1</b> .ilike file requirements</a></li>
 </ul></li>
-<li class="chapter" data-level="4.8" data-path="ensemble-kalman-filters.html"><a href="ensemble-kalman-filters.html"><i class="fa fa-check"></i><b>4.8</b> Ensemble Kalman filters</a>
+<li class="chapter" data-level="4.8" data-path="pf.html"><a href="pf.html"><i class="fa fa-check"></i><b>4.8</b> Particle filters</a>
 <ul>
-<li class="chapter" data-level="4.8.1" data-path="ensemble-kalman-filters.html"><a href="ensemble-kalman-filters.html#ilike-file-requirements-5"><i class="fa fa-check"></i><b>4.8.1</b> .ilike file requirements</a></li>
+<li class="chapter" data-level="4.8.1" data-path="pf.html"><a href="pf.html#ilike-file-requirements-5"><i class="fa fa-check"></i><b>4.8.1</b> .ilike file requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="4.9" data-path="enkf.html"><a href="enkf.html"><i class="fa fa-check"></i><b>4.9</b> Ensemble Kalman filters</a>
+<ul>
+<li class="chapter" data-level="4.9.1" data-path="enkf.html"><a href="enkf.html#ilike-file-requirements-6"><i class="fa fa-check"></i><b>4.9.1</b> .ilike file requirements</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="5" data-path="output.html"><a href="output.html"><i class="fa fa-check"></i><b>5</b> Loading and visualising output</a>
@@ -293,16 +334,73 @@ div.csl-indent {
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="factor-blocks" class="section level2 hasAnchor" number="3.4">
-<h2><span class="header-section-number">3.4</span> Factor blocks:<a href="factor-blocks.html#factor-blocks" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="ilike-prior" class="section level2 hasAnchor" number="3.2">
+<h2><span class="header-section-number">3.2</span> Factor: ilike prior<a href="ilike-prior.html#ilike-prior" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="prior-ilike-functions" class="section level3 hasAnchor" number="3.2.1">
+<h3><span class="header-section-number">3.2.1</span> prior (ilike functions)<a href="ilike-prior.html#prior-ilike-functions" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The <code>prior</code> function type allows the user to specify the prior through an ilike function (e.g. <code>ilike::norm</code>). For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.</p>
+<p>Example of the use of one of these functions (<code>ilike::norm</code>) follows.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="ilike-prior.html#cb9-1" tabindex="-1"></a><span class="co">/***prior,ilike::norm(θ,0,1)***/</span></span></code></pre></div>
+<p>The following sections detail the available ilike functions.</p>
+<div id="normal-prior-ilikenorm" class="section level4 hasAnchor" number="3.2.1.1">
+<h4><span class="header-section-number">3.2.1.1</span> Normal prior <code>ilike::norm</code><a href="ilike-prior.html#normal-prior-ilikenorm" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Specifies a normal prior over the given variable, with the given parameters.</p>
+<p>Inputs:</p>
+<ol style="list-style-type: decimal">
+<li><p>string: the variable for which the prior is specified</p></li>
+<li><p>numeric: the mean of the normal distribution</p></li>
+<li><p>numeric: the standard deviation of the normal distribution</p></li>
+</ol>
+</div>
+<div id="multivariate-normal-prior-ilikemvnorm" class="section level4 hasAnchor" number="3.2.1.2">
+<h4><span class="header-section-number">3.2.1.2</span> Multivariate normal prior <code>ilike::mvnorm</code><a href="ilike-prior.html#multivariate-normal-prior-ilikemvnorm" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Specifies a multivariate normal prior over the given variable, with the given parameters.</p>
+<p>Inputs:</p>
+<ol style="list-style-type: decimal">
+<li><p>string: the variable for which the prior is specified</p></li>
+<li><p>numeric vector/matrix: the mean of the multivariate normal distribution</p></li>
+<li><p>matrix: the covariance of the multivariate normal distribution</p></li>
+</ol>
+</div>
+<div id="lognormal-prior-ilikelnorm" class="section level4 hasAnchor" number="3.2.1.3">
+<h4><span class="header-section-number">3.2.1.3</span> Lognormal prior <code>ilike::lnorm</code><a href="ilike-prior.html#lognormal-prior-ilikelnorm" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Specifies a lognormal prior over the given variable, with the given parameters.</p>
+<p>Inputs:</p>
+<ol style="list-style-type: decimal">
+<li><p>string: the variable for which the prior is specified</p></li>
+<li><p>numeric: the mean of the log of the variable</p></li>
+<li><p>numeric: the standard deviation of the log of the variable</p></li>
+</ol>
+</div>
+<div id="multivariate-lognormal-prior-ilikemvlnorm" class="section level4 hasAnchor" number="3.2.1.4">
+<h4><span class="header-section-number">3.2.1.4</span> Multivariate lognormal prior <code>ilike::mvlnorm</code><a href="ilike-prior.html#multivariate-lognormal-prior-ilikemvlnorm" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Specifies a multivariate loggnormal prior over the given variable, with the given parameters.</p>
+<p>Inputs:</p>
+<ol style="list-style-type: decimal">
+<li><p>string: the variable for which the prior is specified</p></li>
+<li><p>numeric vector/matrix: the mean of the log of the variable</p></li>
+<li><p>matrix: the covariance of the log of the variable</p></li>
+</ol>
+</div>
+<div id="gamma-prior-ilikegamma" class="section level4 hasAnchor" number="3.2.1.5">
+<h4><span class="header-section-number">3.2.1.5</span> Gamma prior <code>ilike::gamma</code><a href="ilike-prior.html#gamma-prior-ilikegamma" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Specifies a gamma prior over the given variable, with the given parameters.</p>
+<p>Inputs:</p>
+<ol style="list-style-type: decimal">
+<li><p>string: the variable for which the prior is specified</p></li>
+<li><p>numeric: the shape of the gamma distribution</p></li>
+<li><p>numeric: the rate of the gamma distribution</p></li>
+</ol>
+</div>
+</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="factor-blocks-simulation-based-likelihood.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="data-block.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="factor-custom-prior.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="factor-custom-likelihood.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
