@@ -23,7 +23,7 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2024-10-28" />
+<meta name="date" content="2024-10-30" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -240,7 +240,7 @@ div.csl-indent {
 </ul></li>
 <li class="chapter" data-level="3.7" data-path="factor-algorithmic-likelihood.html"><a href="factor-algorithmic-likelihood.html"><i class="fa fa-check"></i><b>3.7</b> Factor: algorithmic likelihood</a>
 <ul>
-<li class="chapter" data-level="3.7.1" data-path="factor-algorithmic-likelihood.html"><a href="factor-algorithmic-likelihood.html#likelihood-ilike-functions"><i class="fa fa-check"></i><b>3.7.1</b> likelihood (ilike functions)</a></li>
+<li class="chapter" data-level="3.7.1" data-path="factor-algorithmic-likelihood.html"><a href="factor-algorithmic-likelihood.html#algorithmic_likelihood-ilike-functions"><i class="fa fa-check"></i><b>3.7.1</b> algorithmic_likelihood (ilike functions)</a></li>
 </ul></li>
 <li class="chapter" data-level="3.8" data-path="transition-model-linear-gaussian.html"><a href="transition-model-linear-gaussian.html"><i class="fa fa-check"></i><b>3.8</b> Transition model: linear-Gaussian</a>
 <ul>
@@ -258,10 +258,33 @@ div.csl-indent {
 <li class="chapter" data-level="3.10" data-path="transition-model-custom.html"><a href="transition-model-custom.html"><i class="fa fa-check"></i><b>3.10</b> Transition model: custom</a>
 <ul>
 <li class="chapter" data-level="3.10.1" data-path="transition-model-custom.html"><a href="transition-model-custom.html#simulate_transition-model"><i class="fa fa-check"></i><b>3.10.1</b> simulate_transition model</a></li>
+<li class="chapter" data-level="3.10.2" data-path="transition-model-custom.html"><a href="transition-model-custom.html#evaluate_log_transition_model"><i class="fa fa-check"></i><b>3.10.2</b> evaluate_log_transition_model</a></li>
 </ul></li>
-<li class="chapter" data-level="3.11" data-path="method-block.html"><a href="method-block.html"><i class="fa fa-check"></i><b>3.11</b> Method block</a>
+<li class="chapter" data-level="3.11" data-path="data-block.html"><a href="data-block.html"><i class="fa fa-check"></i><b>3.11</b> Data block</a>
 <ul>
-<li class="chapter" data-level="3.11.1" data-path="method-block.html"><a href="method-block.html#filter"><i class="fa fa-check"></i><b>3.11.1</b> filter</a></li>
+<li class="chapter" data-level="3.11.1" data-path="data-block.html"><a href="data-block.html#data"><i class="fa fa-check"></i><b>3.11.1</b> data</a></li>
+</ul></li>
+<li class="chapter" data-level="3.12" data-path="importance-proposal-custom.html"><a href="importance-proposal-custom.html"><i class="fa fa-check"></i><b>3.12</b> Importance proposal: custom</a>
+<ul>
+<li class="chapter" data-level="3.12.1" data-path="importance-proposal-custom.html"><a href="importance-proposal-custom.html#simulate_importance_proposal"><i class="fa fa-check"></i><b>3.12.1</b> simulate_importance_proposal</a></li>
+<li class="chapter" data-level="3.12.2" data-path="importance-proposal-custom.html"><a href="importance-proposal-custom.html#evaluate_log_importance_proposal"><i class="fa fa-check"></i><b>3.12.2</b> evaluate_log_importance_proposal</a></li>
+</ul></li>
+<li class="chapter" data-level="3.13" data-path="importance-proposal-ilike.html"><a href="importance-proposal-ilike.html"><i class="fa fa-check"></i><b>3.13</b> Importance proposal: ilike</a>
+<ul>
+<li class="chapter" data-level="3.13.1" data-path="importance-proposal-ilike.html"><a href="importance-proposal-ilike.html#importance_proposal-ilike-functions"><i class="fa fa-check"></i><b>3.13.1</b> importance_proposal (ilike functions)</a></li>
+</ul></li>
+<li class="chapter" data-level="3.14" data-path="mh-proposal-custom.html"><a href="mh-proposal-custom.html"><i class="fa fa-check"></i><b>3.14</b> MH proposal: custom</a>
+<ul>
+<li class="chapter" data-level="3.14.1" data-path="mh-proposal-custom.html"><a href="mh-proposal-custom.html#simulate_mh_proposal"><i class="fa fa-check"></i><b>3.14.1</b> simulate_mh_proposal</a></li>
+<li class="chapter" data-level="3.14.2" data-path="mh-proposal-custom.html"><a href="mh-proposal-custom.html#evaluate_log_mh_proposal"><i class="fa fa-check"></i><b>3.14.2</b> evaluate_log_mh_proposal</a></li>
+</ul></li>
+<li class="chapter" data-level="3.15" data-path="mh-proposal-ilike.html"><a href="mh-proposal-ilike.html"><i class="fa fa-check"></i><b>3.15</b> mh proposal: ilike</a>
+<ul>
+<li class="chapter" data-level="3.15.1" data-path="mh-proposal-ilike.html"><a href="mh-proposal-ilike.html#mh_proposal-ilike-functions"><i class="fa fa-check"></i><b>3.15.1</b> mh_proposal (ilike functions)</a></li>
+</ul></li>
+<li class="chapter" data-level="3.16" data-path="method-block.html"><a href="method-block.html"><i class="fa fa-check"></i><b>3.16</b> Method block</a>
+<ul>
+<li class="chapter" data-level="3.16.1" data-path="method-block.html"><a href="method-block.html#filter"><i class="fa fa-check"></i><b>3.16.1</b> filter</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="inference.html"><a href="inference.html"><i class="fa fa-check"></i><b>4</b> Inference algorithms</a>
@@ -336,9 +359,9 @@ div.csl-indent {
             <section class="normal" id="section-">
 <div id="factor-algorithmic-likelihood" class="section level2 hasAnchor" number="3.7">
 <h2><span class="header-section-number">3.7</span> Factor: algorithmic likelihood<a href="factor-algorithmic-likelihood.html#factor-algorithmic-likelihood" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>For some models, the likelihood can be computed or estimated by running an algorithm. For example, the marginal likelihood of a state-space model may be estimated using a particle filter. To specify such a likelihood, the user must provide a function type <code>likelihood</code>, then use an ilike function to specify the type of likelihood.</p>
-<div id="likelihood-ilike-functions" class="section level3 hasAnchor" number="3.7.1">
-<h3><span class="header-section-number">3.7.1</span> likelihood (ilike functions)<a href="factor-algorithmic-likelihood.html#likelihood-ilike-functions" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>For some models, the likelihood can be computed or estimated by running an algorithm. For example, the marginal likelihood of a state-space model may be estimated using a particle filter. To specify such a likelihood, the user must provide a function type <code>algorithmic_likelihood</code>, then use an ilike function to specify the type of likelihood.</p>
+<div id="algorithmic_likelihood-ilike-functions" class="section level3 hasAnchor" number="3.7.1">
+<h3><span class="header-section-number">3.7.1</span> algorithmic_likelihood (ilike functions)<a href="factor-algorithmic-likelihood.html#algorithmic_likelihood-ilike-functions" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>The likelihood function type allows the user to specify the likelihood through an ilike function. For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.</p>
 <p>The available ilike functions are detailed in the following sections.</p>
 <div id="kalman-filter-ilikekf" class="section level4 hasAnchor" number="3.7.1.1">
@@ -346,7 +369,7 @@ div.csl-indent {
 <p>The Kalman filter (KF) is a recursive algorithm that estimates the state of a linear Gaussian state-space model and, in this context, can be used to calculate the marginal likelihood of parameters of the model. The arguments required for this ilike function follow as closely as possible those required for running a KF from the ilike R package as described in section <a href="kf.html#kf">4.7</a>.</p>
 <p>Inputs:</p>
 <ol style="list-style-type: decimal">
-<li><p>string: The name of an ilike file (with extension) that contains the specification of a linear-Gaussian state-space model and the required ilike function for setting up a filter, as described in section <a href="method-block.html#filter">3.11.1</a>. A full description of what is required in the file is given in section <a href="kf.html#kf">4.7</a>.</p></li>
+<li><p>string: The name of an ilike file (with extension) that contains the specification of a linear-Gaussian state-space model and the required ilike function for setting up a filter, as described in section <a href="method-block.html#filter">3.16.1</a>. A full description of what is required in the file is given in section <a href="kf.html#kf">4.7</a>.</p></li>
 <li><p>(optional) integer: THe number of iterations output of the KF to store, counting from the final iteration backwards (default is <code>0</code>)</p></li>
 </ol>
 </div>
@@ -355,7 +378,7 @@ div.csl-indent {
 <p>The particle filter is a recursive algorithm that estimates the state of a general state-space model and, in this context, can be used to estimate the marginal likelihood of parameters of the model. The arguments required for this ilike function follow as closely as possible those required for running a PF from the ilike R package as described in section <a href="pf.html#pf">4.8</a>.</p>
 <p>Inputs:</p>
 <ol style="list-style-type: decimal">
-<li><p>string: The name of an ilike file (with extension) that contains the specification of a general state-space model and the required ilike function for setting up a filter, as described in section <a href="method-block.html#filter">3.11.1</a>. A full description of what is required in the file is given in section <a href="pf.html#pf">4.8</a>.</p></li>
+<li><p>string: The name of an ilike file (with extension) that contains the specification of a general state-space model and the required ilike function for setting up a filter, as described in section <a href="method-block.html#filter">3.16.1</a>. A full description of what is required in the file is given in section <a href="pf.html#pf">4.8</a>.</p></li>
 <li><p>integer: The number of particles to use in the particle filter.</p></li>
 <li><p>(optional) integer: The number of iterations output of the PF to store, counting from the final iteration backwards (default is <code>0</code>).</p></li>
 <li><p>(optional) boolean: Whether to run the particle filter in parallel (default is <code>false</code>).</p></li>
@@ -367,7 +390,7 @@ div.csl-indent {
 <p>The ensemble Kalman filter (EnKF) is a recursive algorithm that estimates the state of a general state-space model and, in this context, can be used to estimate the marginal likelihood of parameters of the model. The arguments required for this ilike function follow as closely as possible those required for running an EnKF from the ilike R package as described in section <a href="enkf.html#enkf">4.9</a>.</p>
 <p>Inputs:</p>
 <ol style="list-style-type: decimal">
-<li><p>string: The name of an ilike file (with extension) that contains the specification of a general state-space model and the required ilike function for setting up a filter, as described in section <a href="method-block.html#filter">3.11.1</a>. A full description of what is required in the file is given in section <a href="enkf.html#enkf">4.9</a>.</p></li>
+<li><p>string: The name of an ilike file (with extension) that contains the specification of a general state-space model and the required ilike function for setting up a filter, as described in section <a href="method-block.html#filter">3.16.1</a>. A full description of what is required in the file is given in section <a href="enkf.html#enkf">4.9</a>.</p></li>
 <li><p>integer: The number of ensemble members to use in the EnKF.</p></li>
 <li><p>string: The name of the shifter to use in the EnKF (the method for moving the ensemble at each iteration). The options are:</p></li>
 </ol>

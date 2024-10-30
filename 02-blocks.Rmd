@@ -101,7 +101,7 @@ double prior_eval(const Parameters &parameters)
 R example:
 
 ```{Rcpp,eval=FALSE}
-/***evaluate_log_prior,dnorm(parameters$θ)***/
+/***evaluate_log_prior,dnorm(parameters$θ,log=TRUE)***/
 ```
 
 ### simulate_prior
@@ -354,7 +354,7 @@ double likelihood_eval(const Parameters &parameters,
 R example:
 
 ```{Rcpp,eval=FALSE}
-/***evaluate_log_likelihood,sum(dnorm(data$y,parameters$θ,1.0))***/
+/***evaluate_log_likelihood,sum(dnorm(data$y,parameters$θ,1.0,log=TRUE))***/
 ```
 
 ### evaluate_gradient_log_likelihood
@@ -1117,9 +1117,9 @@ or
 
 ## Factor: algorithmic likelihood
 
-For some models, the likelihood can be computed or estimated by running an algorithm. For example, the marginal likelihood of a state-space model may be estimated using a particle filter. To specify such a likelihood, the user must provide a function type `likelihood`, then use an ilike function to specify the type of likelihood.
+For some models, the likelihood can be computed or estimated by running an algorithm. For example, the marginal likelihood of a state-space model may be estimated using a particle filter. To specify such a likelihood, the user must provide a function type `algorithmic_likelihood`, then use an ilike function to specify the type of likelihood.
 
-### likelihood (ilike functions)
+### algorithmic_likelihood (ilike functions)
 
 The likelihood function type allows the user to specify the likelihood through an ilike function. For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.
 
@@ -1487,7 +1487,7 @@ or
 
 ## Transition model: custom
 
-The functions in this section allow the specification of a user-defined transition model. Only the functions required by the chosen inference algorithm need be specified.
+The functions in this section allow the specification of a user-defined transition model. The two possible function types are `simulate_transition_model` and `evaluate_log_transition_model`. Only the functions required by the chosen inference algorithm need be specified: for example, bootstrap particle filter does not need to evaluate the density of the transition model, so this function type does not need to be provided.
 
 ### simulate_transition model
 
@@ -1507,7 +1507,7 @@ Output: The latent state at time $t$.
 
   -- of type `const Parameters &` in a C++ function
   
-  -- a list in R.
+  -- of type `list` in R
   
 C++ example:
 
@@ -1517,11 +1517,60 @@ Parameters simulate_state(RandomNumberGenerator &rng,
                           const Parameters &xtminus1_and_theta)
 {
   arma::colvec xt(1,1);
-  noiseless_xt[0] = exp(xtminus1_and_theta["x"][0) + xtminus1_and_theta["theta"][0] + rng.normal(0.0, 1.0);
+  noiseless_xt[0] = rnorm(rng,1,exp(xtminus1_and_theta["x"][0) + xtminus1_and_theta["theta"][0],1.0);
   return Parameters("x", noiseless_xt);
 }
+```
+
+R example:
+
+```{Rcpp,eval=FALSE}
+/***simulate_transition_model,x=rnorm(1,exp(parameters$x)+parameters$theta,1)***/
+```
 
 ### evaluate_log_transition_model
+
+The `evaluate_log_transition_model` function type evaluates the log transition density of the latent state at time $t$ given the latent state at time $t-1$ and any parameters that the model relies on.
+
+Input: The proposed latent state at time $t$ and any parameters that the model relies on.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `proposed_parameters` in an R function
+  
+Input: The latent state at time $t-1$ and any parameters that the model relies on.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `parameters` in an R function
+  
+Output: The log transition density of the latent state at time $t$ given the latent state at time $t-1$. 
+
+  -- of type `double` in a C++ function
+  
+  -- of type `numeric` in R
+  
+C++ example:
+
+```{Rcpp,eval=FALSE}
+/***evaluate_log_transition_model***/
+double log_transition_density(const Parameters &proposed_parameters,
+                              const Parameters &parameters)
+{
+  double x = proposed_parameters["x"][0];
+  double xminus1 = parameters["x"][0];
+  double theta = parameters["theta"][0];
+  return dnorm(x, exp(xminus1) + theta, 1.0);
+}
+```
+
+R example:
+
+```{Rcpp,eval=FALSE}
+/***evaluate_log_transition_model,dnorm(parameters$x,exp(parameters$x)+parameters$theta,1,log=TRUE)***/
+```
+
+
 
 ## Data block
 
@@ -1551,8 +1600,403 @@ Data set_data()
 R example:
 
 ```{Rcpp,eval=FALSE}
-/***evaluate_log_prior,y=c(1,2)***/
+/***data,y=c(1,2)***/
 ```
+
+## Importance proposal: custom
+
+The functions in this section allow the specification of a user-defined importance proposal. A custom importance sampling proposal requires the specification of two function types: `simulate_importance_proposal` and `evaluate_log_importance_proposal`.
+
+### simulate_importance_proposal
+
+The `simulate_importance_proposal` function type simulates an importance sampling proposal distribution. There are two optional arguments for this function type, allowing the proposal to depend on some parameters, or the observed data. If both arguments are provided, the `proposal_parameters` argument must appear directly before the `data` argument.
+
+Input: (C++ only) The random number generator.
+
+  -- of type `RandomNumberGenerator &` in a C++ function
+  
+Input: (optional) Any parameters the proposal relies on.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `proposal_parameters` in an R function
+  
+Input: (optional) Any data the proposal relies on.
+
+  -- of type `const Data &` in a C++ function
+  
+  -- available as R list `data` in an R function
+  
+Output: The proposed parameters.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- of type `list` in R
+  
+C++ example:
+
+```{Rcpp,eval=FALSE}
+/***simulate_importance_proposal***/
+Parameters simulate_proposal(RandomNumberGenerator &rng,
+                              const Parameters &proposal_parameters)
+{
+  arma::colvec x(1,1);
+  x[0] = rnorm(rng, 0.0, proposal_parameters["theta"][0]]);
+  return Parameters("x", x);
+}
+```
+
+R example:
+
+```{Rcpp,eval=FALSE}
+/***simulate_importance_proposal,x=rnorm(1,0,proposal_parameters$theta)***/
+```
+
+### evaluate_log_importance_proposal
+
+The `evaluate_log_importance_proposal` function type evaluates the log density of the importance sampling proposal distribution. As for `simulate_importance_proposal`, there are two optional arguments for this function type, allowing the proposal to depend on some parameters, or the observed data. The arguments that are chosen must be specified in the order of the inputs listed below.
+
+Input: The proposed parameters.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `proposed_parameters` in an R function
+  
+Input: (optional) Any parameters the proposal relies on.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `proposal_parameters` in an R function
+  
+Input: (optional) Any data the proposal relies on.
+
+  -- of type `const Data &` in a C++ function
+  
+  -- available as R list `data` in an R function
+  
+Output: The log density of the proposed parameters under the proposal distribution.
+
+  -- of type `double` in a C++ function
+  
+  -- of type `numeric` in R
+  
+C++ example:
+
+```{Rcpp,eval=FALSE}
+/***evaluate_log_importance_proposal***/
+double log_importance_density(const Parameters &proposed_parameters,
+                              const Parameters &proposal_parameters)
+{
+  double x = proposed_parameters["x"][0];
+  double theta = proposal_parameters["theta"][0];
+  return dnorm(x, 0.0, theta);
+}
+```
+
+R example:
+
+```{Rcpp,eval=FALSE}
+/***evaluate_log_importance_proposal,dnorm(proposed_parameters$x,0,proposal_parameters$theta,log=TRUE)***/
+```
+
+## Importance proposal: ilike
+
+### importance_proposal (ilike functions)
+
+The `importance_proposal` function type allows the user to specify the prior through an ilike function (e.g. `ilike::norm`). For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.
+
+Example of the use of one of these functions (`ilike::norm`) follows.
+
+```{Rcpp,eval=FALSE}
+/***importance_proposal,ilike::norm(θ,0,1)***/
+```
+
+The following sections detail the available ilike functions.
+
+#### Normal proposal `ilike::norm`
+
+Specifies a normal proposal over the given variable, with the given parameters.
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+      
+  2. numeric: the mean of the normal distribution
+    
+  3. numeric: the standard deviation of the normal distribution
+  
+#### Multivariate normal proposal `ilike::mvnorm`
+
+Specifies a multivariate normal proposal over the given variable, with the given parameters.
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+      
+  2. numeric vector/matrix: the mean of the multivariate normal distribution
+    
+  3. matrix: the covariance of the multivariate normal distribution
+   
+#### Lognormal proposal `ilike::lnorm`
+    
+Specifies a lognormal proposal over the given variable, with the given parameters.
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+      
+  2. numeric: the mean of the log of the variable
+    
+  3. numeric: the standard deviation of the log of the variable
+    
+#### Multivariate lognormal proposal `ilike::mvlnorm`
+
+Specifies a multivariate loggnormal proposal over the given variable, with the given parameters.
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+      
+  2. numeric vector/matrix: the mean of the log of the variable
+    
+  3. matrix: the covariance of the log of the variable
+
+#### Gamma proposal `ilike::gamma`
+    
+Specifies a gamma proposal over the given variable, with the given parameters.
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+      
+  2. numeric: the shape of the gamma distribution
+    
+  3. numeric: the rate of the gamma distribution
+
+## MH proposal: custom
+
+The functions in this section allow the specification of a user-defined Metropolis-Hastings (MH) proposal. A custom MH proposal requires the specification of two function types: `simulate_mh_proposal` and `evaluate_log_mh_proposal`.
+
+### simulate_mh_proposal
+
+The `simulate_mh_proposal` function type simulates an MH proposal distribution. There are two optional arguments for this function type, allowing the proposal to depend on some parameters, or the observed data. The arguments that are chosen must be specified in the order of the inputs listed below.
+
+Input: (C++ only) The random number generator.
+
+  -- of type `RandomNumberGenerator &` in a C++ function
+  
+Input: The current state of the MCMC chain.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `parameters` in an R function
+  
+Input: (optional) Any parameters the proposal relies on.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `proposal_parameters` in an R function
+  
+Input: (optional) Any data the proposal relies on.
+
+  -- of type `const Data &` in a C++ function
+  
+  -- available as R list `data` in an R function
+  
+Output: The proposed parameters.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- of type `list` in R
+  
+C++ example:
+
+```{Rcpp,eval=FALSE}
+/***simulate_mh_proposal***/
+Parameters simulate_proposal(RandomNumberGenerator &rng,
+                             const Parameters &parameters,
+                             const Parameters &proposal_parameters)
+{
+  arma::colvec x(1,1);
+  x[0] = rnorm(rng, parameters["x"][0], proposal_parameters["theta"][0]]);
+  return Parameters("x", x);
+}
+```
+
+R example:
+
+```{Rcpp,eval=FALSE}
+/***simulate_mh_proposal,x=rnorm(1,parameters$x,proposal_parameters$theta)***/
+```
+
+### evaluate_log_mh_proposal
+
+The `evaluate_log_mh_proposal` function type evaluates the log density of the MH proposal distribution. As for `simulate_mh_proposal`, there are two optional arguments for this function type, allowing the proposal to depend on some parameters, or the observed data. The arguments that are chosen must be specified in the order of the inputs listed below.
+
+Input: The proposed parameters.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `proposed_parameters` in an R function
+  
+Input: The current state of the MCMC chain.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `parameters` in an R function
+  
+Input: (optional) Any parameters the proposal relies on.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `proposal_parameters` in an R function
+  
+Input: (optional) Any data the proposal relies on.
+
+  -- of type `const Data &` in a C++ function
+  
+  -- available as R list `data` in an R function
+  
+Output: The log density of the proposed parameters under the proposal distribution.
+
+  -- of type `double` in a C++ function
+  
+  -- of type `numeric` in R
+  
+C++ example:
+
+```{Rcpp,eval=FALSE}
+/***evaluate_log_mh_proposal***/
+double log_mh_density(const Parameters &proposed_parameters,
+                      const Parameters &parameters,
+                      const Parameters &proposal_parameters)
+{
+  double proposed_x = proposed_parameters["x"][0];
+  double current_x = parameters["x"][0];
+  double theta = proposal_parameters["theta"][0];
+  return dnorm(proposed_x, current_x, theta);
+}
+```
+
+R example:
+
+```{Rcpp,eval=FALSE}
+/***evaluate_log_mh_proposal,dnorm(proposed_parameters$x,parameters$x,proposal_parameters$theta,log=TRUE)***/
+```
+
+## mh proposal: ilike
+
+### mh_proposal (ilike functions)
+
+The `mh_proposal` function type allows the user to specify the prior through an ilike function. For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.
+
+The following sections detail the available ilike functions.
+
+#### Normal random walk proposal `ilike::norm_rw`
+
+Specifies a normal random walk proposal over the given variable, where the proposed state $\theta^*$ is simulated using
+
+$$
+\theta^* \sim \mathcal{N}(\theta}, \sigma)
+$$
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+    
+  2. numeric: the standard deviation $\sigma$ of the normal distribution
+  
+#### Multivariate normal random walk proposal `ilike::mvnorm_rw`
+
+Specifies a multivariate random walk normal proposal over the given variable, where the proposed state $\theta^*$ is simulated using
+
+$$
+\theta^* \sim \mathcal{MVN}(\theta, s^2 \Sigma)
+$$
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+    
+  2. matrix: the covariance $\Sigma$ of the multivariate normal distribution
+  
+  3. numeric: the scaling factor $s^2$ of the covariance matrix (default is 1)
+   
+#### Uniform random walk proposal `ilike::unif_rw`
+
+Specifies a uniform random walk proposal over the given variable, where the proposed state $\theta^*$ is simulated using
+
+$$
+\theta^* \sim \mathcal{U}(\theta - \sigma, \theta} + \sigma)
+$$
+
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+    
+  2. numeric: the half-width of the uniform distribution
+  
+#### Multivariate uniform random walk proposal `ilike::mvunif_rw`
+
+Specifies a multivariate random walk normal proposal over the given variable, where proposed state $\theta^*$ is simulated using
+
+$$
+\theta^* \sim \mathcal{MVU}(\theta - \Sigma, \theta + \Sigma)
+$$
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+    
+  2. vector/matrix: a matrix of half-widths of the uniform distribution, which must have the same dimensionality as $\theta$
+
+#### Langevin proposal `ilike::langevin`
+    
+Specifies a Langevin proposal over the given variable, where the proposed state $\theta^*$ is simulated using
+
+$$
+\theta^* \sim \mathcal{MVN}(\theta + \frac{s^2}{2} \Sigma \grad \log \pi(\theta), s^2 \Sigma)
+$$
+The presence of $\grad \log \pi(\theta)$ in the proposal requires that the gradient of the log of each factor must be available. $s^2$ is scaling factor for the preconditioning matrix $\Sigma$.
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+      
+  2. matrix: the covariance $\Sigma$ of the multivariate normal distribution used in the proposal
+    
+  3. numeric: the scaling factor $s^2$ of the covariance matrix (default is 1)
+
+#### Barker proposal `ilike::barker`
+
+Specifies a Barker proposal over the given variable, as described in @livingstone2022barker, where the proposed state $\theta^*$ is simulated using the following procedure. For the following, let: $d$ be the dimension of $\theta$, $\mathbf{0}_d$ be the zero vector in $\mathbb{R}$; $\mathbf{1}_d$ be the vector of ones in $\mathbb{R}$; $\odot$ be the Hadamard (element-wise) product; and $.<$ denote an element-wise less than operator on two vectors in $\mathbb{R}^d$, which outputs $+1$ in position $i$ when the corresponding elements satisfy $<$ and $-1$ otherwise. 
+
+$$
+z \sim \mathcal{MNV}(\mathbf{0}_d, s^2 \Sigma)
+$$
+$$
+u \sim \mathcal{U}(\mathbf{0}_d,\mathbf{1}_d)
+$$
+$$
+b = \left( u .< 1/(1 + \exp(-z \odot \grad \log \pi(\theta))) \right)
+$$
+
+$$
+\theta^* = \theta + b \odot z
+$$
+The presence of $\grad \log \pi(\theta)$ in the proposal requires that the gradient of the log of each factor must be available. $s^2$ is scaling factor for the preconditioning matrix $\Sigma$.
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+    
+  2. matrix: the covariance $\Sigma$ of the multivariate normal distribution used in the proposal
+  
+  3. numeric: the scaling factor $s^2$ of the covariance matrix (default is 1)
+  
+#### Mirror proposal `ilike::mirror`
+
 
 
 ## Method block

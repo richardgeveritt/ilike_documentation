@@ -23,7 +23,7 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2024-10-28" />
+<meta name="date" content="2024-10-30" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -31,7 +31,7 @@
   
   
 <link rel="prev" href="transition-model-nonlinear-gaussian.html"/>
-<link rel="next" href="method-block.html"/>
+<link rel="next" href="data-block.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -240,7 +240,7 @@ div.csl-indent {
 </ul></li>
 <li class="chapter" data-level="3.7" data-path="factor-algorithmic-likelihood.html"><a href="factor-algorithmic-likelihood.html"><i class="fa fa-check"></i><b>3.7</b> Factor: algorithmic likelihood</a>
 <ul>
-<li class="chapter" data-level="3.7.1" data-path="factor-algorithmic-likelihood.html"><a href="factor-algorithmic-likelihood.html#likelihood-ilike-functions"><i class="fa fa-check"></i><b>3.7.1</b> likelihood (ilike functions)</a></li>
+<li class="chapter" data-level="3.7.1" data-path="factor-algorithmic-likelihood.html"><a href="factor-algorithmic-likelihood.html#algorithmic_likelihood-ilike-functions"><i class="fa fa-check"></i><b>3.7.1</b> algorithmic_likelihood (ilike functions)</a></li>
 </ul></li>
 <li class="chapter" data-level="3.8" data-path="transition-model-linear-gaussian.html"><a href="transition-model-linear-gaussian.html"><i class="fa fa-check"></i><b>3.8</b> Transition model: linear-Gaussian</a>
 <ul>
@@ -258,10 +258,33 @@ div.csl-indent {
 <li class="chapter" data-level="3.10" data-path="transition-model-custom.html"><a href="transition-model-custom.html"><i class="fa fa-check"></i><b>3.10</b> Transition model: custom</a>
 <ul>
 <li class="chapter" data-level="3.10.1" data-path="transition-model-custom.html"><a href="transition-model-custom.html#simulate_transition-model"><i class="fa fa-check"></i><b>3.10.1</b> simulate_transition model</a></li>
+<li class="chapter" data-level="3.10.2" data-path="transition-model-custom.html"><a href="transition-model-custom.html#evaluate_log_transition_model"><i class="fa fa-check"></i><b>3.10.2</b> evaluate_log_transition_model</a></li>
 </ul></li>
-<li class="chapter" data-level="3.11" data-path="method-block.html"><a href="method-block.html"><i class="fa fa-check"></i><b>3.11</b> Method block</a>
+<li class="chapter" data-level="3.11" data-path="data-block.html"><a href="data-block.html"><i class="fa fa-check"></i><b>3.11</b> Data block</a>
 <ul>
-<li class="chapter" data-level="3.11.1" data-path="method-block.html"><a href="method-block.html#filter"><i class="fa fa-check"></i><b>3.11.1</b> filter</a></li>
+<li class="chapter" data-level="3.11.1" data-path="data-block.html"><a href="data-block.html#data"><i class="fa fa-check"></i><b>3.11.1</b> data</a></li>
+</ul></li>
+<li class="chapter" data-level="3.12" data-path="importance-proposal-custom.html"><a href="importance-proposal-custom.html"><i class="fa fa-check"></i><b>3.12</b> Importance proposal: custom</a>
+<ul>
+<li class="chapter" data-level="3.12.1" data-path="importance-proposal-custom.html"><a href="importance-proposal-custom.html#simulate_importance_proposal"><i class="fa fa-check"></i><b>3.12.1</b> simulate_importance_proposal</a></li>
+<li class="chapter" data-level="3.12.2" data-path="importance-proposal-custom.html"><a href="importance-proposal-custom.html#evaluate_log_importance_proposal"><i class="fa fa-check"></i><b>3.12.2</b> evaluate_log_importance_proposal</a></li>
+</ul></li>
+<li class="chapter" data-level="3.13" data-path="importance-proposal-ilike.html"><a href="importance-proposal-ilike.html"><i class="fa fa-check"></i><b>3.13</b> Importance proposal: ilike</a>
+<ul>
+<li class="chapter" data-level="3.13.1" data-path="importance-proposal-ilike.html"><a href="importance-proposal-ilike.html#importance_proposal-ilike-functions"><i class="fa fa-check"></i><b>3.13.1</b> importance_proposal (ilike functions)</a></li>
+</ul></li>
+<li class="chapter" data-level="3.14" data-path="mh-proposal-custom.html"><a href="mh-proposal-custom.html"><i class="fa fa-check"></i><b>3.14</b> MH proposal: custom</a>
+<ul>
+<li class="chapter" data-level="3.14.1" data-path="mh-proposal-custom.html"><a href="mh-proposal-custom.html#simulate_mh_proposal"><i class="fa fa-check"></i><b>3.14.1</b> simulate_mh_proposal</a></li>
+<li class="chapter" data-level="3.14.2" data-path="mh-proposal-custom.html"><a href="mh-proposal-custom.html#evaluate_log_mh_proposal"><i class="fa fa-check"></i><b>3.14.2</b> evaluate_log_mh_proposal</a></li>
+</ul></li>
+<li class="chapter" data-level="3.15" data-path="mh-proposal-ilike.html"><a href="mh-proposal-ilike.html"><i class="fa fa-check"></i><b>3.15</b> mh proposal: ilike</a>
+<ul>
+<li class="chapter" data-level="3.15.1" data-path="mh-proposal-ilike.html"><a href="mh-proposal-ilike.html#mh_proposal-ilike-functions"><i class="fa fa-check"></i><b>3.15.1</b> mh_proposal (ilike functions)</a></li>
+</ul></li>
+<li class="chapter" data-level="3.16" data-path="method-block.html"><a href="method-block.html"><i class="fa fa-check"></i><b>3.16</b> Method block</a>
+<ul>
+<li class="chapter" data-level="3.16.1" data-path="method-block.html"><a href="method-block.html#filter"><i class="fa fa-check"></i><b>3.16.1</b> filter</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="inference.html"><a href="inference.html"><i class="fa fa-check"></i><b>4</b> Inference algorithms</a>
@@ -336,7 +359,7 @@ div.csl-indent {
             <section class="normal" id="section-">
 <div id="transition-model-custom" class="section level2 hasAnchor" number="3.10">
 <h2><span class="header-section-number">3.10</span> Transition model: custom<a href="transition-model-custom.html#transition-model-custom" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>The functions in this section allow the specification of a user-defined transition model. Only the functions required by the chosen inference algorithm need be specified.</p>
+<p>The functions in this section allow the specification of a user-defined transition model. The two possible function types are <code>simulate_transition_model</code> and <code>evaluate_log_transition_model</code>. Only the functions required by the chosen inference algorithm need be specified: for example, bootstrap particle filter does not need to evaluate the density of the transition model, so this function type does not need to be provided.</p>
 <div id="simulate_transition-model" class="section level3 hasAnchor" number="3.10.1">
 <h3><span class="header-section-number">3.10.1</span> simulate_transition model<a href="transition-model-custom.html#simulate_transition-model" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>The <code>simulate_transition_model</code> function type simulates the latent state at time <span class="math inline">\(t\)</span> given the latent state at time <span class="math inline">\(t-1\)</span> and any parameters that the model relies on.</p>
@@ -347,42 +370,43 @@ div.csl-indent {
 <p>– available as R list <code>parameters</code> in an R function</p>
 <p>Output: The latent state at time <span class="math inline">\(t\)</span>.</p>
 <p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
-<p>– a list in R.</p>
+<p>– of type <code>list</code> in R</p>
 <p>C++ example:</p>
 <div class="sourceCode" id="cb61"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb61-1"><a href="transition-model-custom.html#cb61-1" tabindex="-1"></a><span class="co">/***simulate_transition_model***/</span></span>
 <span id="cb61-2"><a href="transition-model-custom.html#cb61-2" tabindex="-1"></a>Parameters simulate_state<span class="op">(</span>RandomNumberGenerator <span class="op">&amp;</span>rng<span class="op">,</span></span>
 <span id="cb61-3"><a href="transition-model-custom.html#cb61-3" tabindex="-1"></a>                          <span class="at">const</span> Parameters <span class="op">&amp;</span>xtminus1_and_theta<span class="op">)</span></span>
 <span id="cb61-4"><a href="transition-model-custom.html#cb61-4" tabindex="-1"></a><span class="op">{</span></span>
 <span id="cb61-5"><a href="transition-model-custom.html#cb61-5" tabindex="-1"></a>  arma<span class="op">::</span>colvec xt<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">);</span></span>
-<span id="cb61-6"><a href="transition-model-custom.html#cb61-6" tabindex="-1"></a>  noiseless_xt<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> exp<span class="op">(</span>xtminus1_and_theta<span class="op">[</span><span class="st">&quot;x&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">)</span> <span class="op">+</span> xtminus1_and_theta<span class="op">[</span><span class="st">&quot;theta&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">]</span> <span class="op">+</span> rng<span class="op">.</span>normal<span class="op">(</span><span class="fl">0.0</span><span class="op">,</span> <span class="fl">1.0</span><span class="op">);</span></span>
+<span id="cb61-6"><a href="transition-model-custom.html#cb61-6" tabindex="-1"></a>  noiseless_xt<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> rnorm<span class="op">(</span>rng<span class="op">,</span><span class="dv">1</span><span class="op">,</span>exp<span class="op">(</span>xtminus1_and_theta<span class="op">[</span><span class="st">&quot;x&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">)</span> <span class="op">+</span> xtminus1_and_theta<span class="op">[</span><span class="st">&quot;theta&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">],</span><span class="fl">1.0</span><span class="op">);</span></span>
 <span id="cb61-7"><a href="transition-model-custom.html#cb61-7" tabindex="-1"></a>  <span class="cf">return</span> Parameters<span class="op">(</span><span class="st">&quot;x&quot;</span><span class="op">,</span> noiseless_xt<span class="op">);</span></span>
-<span id="cb61-8"><a href="transition-model-custom.html#cb61-8" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb61-9"><a href="transition-model-custom.html#cb61-9" tabindex="-1"></a></span>
-<span id="cb61-10"><a href="transition-model-custom.html#cb61-10" tabindex="-1"></a><span class="pp">#</span><span class="er">## evaluate_log_transition_model</span></span>
-<span id="cb61-11"><a href="transition-model-custom.html#cb61-11" tabindex="-1"></a></span>
-<span id="cb61-12"><a href="transition-model-custom.html#cb61-12" tabindex="-1"></a><span class="pp">#</span><span class="er"># Data block</span></span>
-<span id="cb61-13"><a href="transition-model-custom.html#cb61-13" tabindex="-1"></a></span>
-<span id="cb61-14"><a href="transition-model-custom.html#cb61-14" tabindex="-1"></a><span class="pp">#</span><span class="er">## data</span></span>
-<span id="cb61-15"><a href="transition-model-custom.html#cb61-15" tabindex="-1"></a></span>
-<span id="cb61-16"><a href="transition-model-custom.html#cb61-16" tabindex="-1"></a>The <span class="er">`</span>data<span class="er">`</span> function type returns observed data<span class="op">.</span> There are no input arguments<span class="op">.</span></span>
-<span id="cb61-17"><a href="transition-model-custom.html#cb61-17" tabindex="-1"></a></span>
-<span id="cb61-18"><a href="transition-model-custom.html#cb61-18" tabindex="-1"></a>Output<span class="op">:</span> The observed data<span class="op">.</span></span>
-<span id="cb61-19"><a href="transition-model-custom.html#cb61-19" tabindex="-1"></a></span>
-<span id="cb61-20"><a href="transition-model-custom.html#cb61-20" tabindex="-1"></a>  <span class="op">--</span> of <span class="kw">class</span> <span class="er">`</span>Data<span class="er">`</span> in a C<span class="op">++</span> function</span>
-<span id="cb61-21"><a href="transition-model-custom.html#cb61-21" tabindex="-1"></a>  </span>
-<span id="cb61-22"><a href="transition-model-custom.html#cb61-22" tabindex="-1"></a>  <span class="op">--</span> an R list in R<span class="op">,</span> where at present the interface restricts the user to a single vector<span class="op">/</span>matrix of data<span class="op">,</span> which is indexed by a string provided by the user to the left of an <span class="er">`</span><span class="op">=</span><span class="er">`</span> sign in the function header<span class="op">.</span></span>
-<span id="cb61-23"><a href="transition-model-custom.html#cb61-23" tabindex="-1"></a>  </span>
-<span id="cb61-24"><a href="transition-model-custom.html#cb61-24" tabindex="-1"></a>C<span class="op">++</span> example<span class="op">:</span></span></code></pre></div>
-<div class="sourceCode" id="cb62"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb62-1"><a href="transition-model-custom.html#cb62-1" tabindex="-1"></a><span class="co">/***data***/</span></span>
-<span id="cb62-2"><a href="transition-model-custom.html#cb62-2" tabindex="-1"></a>Data set_data<span class="op">()</span></span>
-<span id="cb62-3"><a href="transition-model-custom.html#cb62-3" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb62-4"><a href="transition-model-custom.html#cb62-4" tabindex="-1"></a>  arma<span class="op">::</span>colvec y<span class="op">(</span><span class="dv">2</span><span class="op">,</span><span class="dv">1</span><span class="op">);</span></span>
-<span id="cb62-5"><a href="transition-model-custom.html#cb62-5" tabindex="-1"></a>  y<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> <span class="fl">1.0</span><span class="op">;</span></span>
-<span id="cb62-6"><a href="transition-model-custom.html#cb62-6" tabindex="-1"></a>  y<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> <span class="fl">2.0</span><span class="op">;</span></span>
-<span id="cb62-7"><a href="transition-model-custom.html#cb62-7" tabindex="-1"></a>  <span class="cf">return</span> Data<span class="op">(</span><span class="st">&quot;y&quot;</span><span class="op">,</span> y<span class="op">);</span></span>
-<span id="cb62-8"><a href="transition-model-custom.html#cb62-8" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<span id="cb61-8"><a href="transition-model-custom.html#cb61-8" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>R example:</p>
-<div class="sourceCode" id="cb63"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb63-1"><a href="transition-model-custom.html#cb63-1" tabindex="-1"></a><span class="co">/***evaluate_log_prior,y=c(1,2)***/</span></span></code></pre></div>
+<div class="sourceCode" id="cb62"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb62-1"><a href="transition-model-custom.html#cb62-1" tabindex="-1"></a><span class="co">/***simulate_transition_model,x=rnorm(1,exp(parameters$x)+parameters$theta,1)***/</span></span></code></pre></div>
+</div>
+<div id="evaluate_log_transition_model" class="section level3 hasAnchor" number="3.10.2">
+<h3><span class="header-section-number">3.10.2</span> evaluate_log_transition_model<a href="transition-model-custom.html#evaluate_log_transition_model" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The <code>evaluate_log_transition_model</code> function type evaluates the log transition density of the latent state at time <span class="math inline">\(t\)</span> given the latent state at time <span class="math inline">\(t-1\)</span> and any parameters that the model relies on.</p>
+<p>Input: The proposed latent state at time <span class="math inline">\(t\)</span> and any parameters that the model relies on.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>proposed_parameters</code> in an R function</p>
+<p>Input: The latent state at time <span class="math inline">\(t-1\)</span> and any parameters that the model relies on.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>parameters</code> in an R function</p>
+<p>Output: The log transition density of the latent state at time <span class="math inline">\(t\)</span> given the latent state at time <span class="math inline">\(t-1\)</span>.</p>
+<p>– of type <code>double</code> in a C++ function</p>
+<p>– of type <code>numeric</code> in R</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb63"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb63-1"><a href="transition-model-custom.html#cb63-1" tabindex="-1"></a><span class="co">/***evaluate_log_transition_model***/</span></span>
+<span id="cb63-2"><a href="transition-model-custom.html#cb63-2" tabindex="-1"></a><span class="dt">double</span> log_transition_density<span class="op">(</span><span class="at">const</span> Parameters <span class="op">&amp;</span>proposed_parameters<span class="op">,</span></span>
+<span id="cb63-3"><a href="transition-model-custom.html#cb63-3" tabindex="-1"></a>                              <span class="at">const</span> Parameters <span class="op">&amp;</span>parameters<span class="op">)</span></span>
+<span id="cb63-4"><a href="transition-model-custom.html#cb63-4" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb63-5"><a href="transition-model-custom.html#cb63-5" tabindex="-1"></a>  <span class="dt">double</span> x <span class="op">=</span> proposed_parameters<span class="op">[</span><span class="st">&quot;x&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">];</span></span>
+<span id="cb63-6"><a href="transition-model-custom.html#cb63-6" tabindex="-1"></a>  <span class="dt">double</span> xminus1 <span class="op">=</span> parameters<span class="op">[</span><span class="st">&quot;x&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">];</span></span>
+<span id="cb63-7"><a href="transition-model-custom.html#cb63-7" tabindex="-1"></a>  <span class="dt">double</span> theta <span class="op">=</span> parameters<span class="op">[</span><span class="st">&quot;theta&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">];</span></span>
+<span id="cb63-8"><a href="transition-model-custom.html#cb63-8" tabindex="-1"></a>  <span class="cf">return</span> dnorm<span class="op">(</span>x<span class="op">,</span> exp<span class="op">(</span>xminus1<span class="op">)</span> <span class="op">+</span> theta<span class="op">,</span> <span class="fl">1.0</span><span class="op">);</span></span>
+<span id="cb63-9"><a href="transition-model-custom.html#cb63-9" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb64"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb64-1"><a href="transition-model-custom.html#cb64-1" tabindex="-1"></a><span class="co">/***evaluate_log_transition_model,dnorm(parameters$x,exp(parameters$x)+parameters$theta,1,log=TRUE)***/</span></span></code></pre></div>
 </div>
 </div>
             </section>
@@ -391,7 +415,7 @@ div.csl-indent {
         </div>
       </div>
 <a href="transition-model-nonlinear-gaussian.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="method-block.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="data-block.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
