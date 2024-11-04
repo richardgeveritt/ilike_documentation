@@ -31,6 +31,9 @@ Whether specified explicitly or automatically, the block type (and subtype if th
 
 ### Specifying blocks automatically {#blocks-automatically}
 
+*****Change to making sure things are always in the same order for each block****
+Order doesn't matter, except where stated.
+
 All of the example files used in this documentation use the automatic approach to specifying a model. For simple models, we anticipate that the user will not need to think very much about the precise structure of the model file. Nevertheless, this section details precisely how the compiler determines the blocks present in the file.
 
 The compiler reads the model file from top to bottom and determines when a block is "opened" and when it is "closed". There are multiple different types of block (some of which have subtypes), each of which is defined by containing different function types (this is fully described in section \@ref(blocks)). One of each block type can be "open" as the compiler processes the file. The first time a block of each type is encountered in the file by the compiler, a block of that type will be opened. A block is closed when either:
@@ -1100,7 +1103,7 @@ end
 
 Also in common with the Python interface, there is an overhead to calling Julia functions from ilike. This overhead is even more computationally costly than calling Python functions. Therefore, it is recommended to use Julia functions only when necessary.
 
-When using Julia functions, the directory containing the Julia bin file must be specified when `complile` is called. Further, when using Julia functions that rely on external packages the package should be listed in the `julia_required_libraries` argument when calling the `compile` function. For example:
+When using Julia functions, the directory containing the Julia bin file must be specified when `compile` is called. Further, when using Julia functions that rely on external packages the package should be listed in the `julia_required_libraries` argument when calling the `compile` function. For example:
 
 ```{r,eval=FALSE}
 model = compile("myfile.ilike",
@@ -1110,7 +1113,7 @@ model = compile("myfile.ilike",
 
 ## ilike functions {#ilike-functions}
 
-ilike contains a number of in-built functions that, under the hood, call C++ code contained in the ilike package. These functions are the only way of specifying some options in the ilike inference engine, and may also be used to specify parts of the model and/or algorithm. The functions are called in the ilike file in the same way as R, Python, and Julia functions, with the function type followed by a call to the function. For example, to specify the number of iterations in the MCMC algorithm, the `ilike::iterations` function is used:
+ilike contains a number of built-in functions that, under the hood, call C++ code contained in the ilike package. These functions are the only way of specifying some options in the ilike inference engine, and may also be used to specify parts of the model and/or algorithm. The functions are called in the ilike file in the same way as R, Python, and Julia functions, with the function type followed by a call to the function. For example, to specify the number of iterations in the MCMC algorithm, the `ilike::iterations` function is used:
 
 ```{Rcpp,eval=FALSE}
 /***mcmc_termination,ilike::iterations(100000)***/

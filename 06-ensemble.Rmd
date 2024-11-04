@@ -1,0 +1,10 @@
+# ilike blocks {#blocks}
+
+## Method block
+
+
+```{r}
+  enk_transform_types = c("enk_transform","enk_inverse_transform")
+  #reinforce_gradient = c("reinforce_gradient")
+  method_function_types = c("smc_termination","smc_sequence","enk_likelihood_index","enk_shifter")
+```

@@ -1,6 +1,6 @@
 book_filename: "ilike docs"
 output_dir: docs
-rmd_files: ["index.Rmd", "01-ilike-files.Rmd", "02-blocks.Rmd", "03-inference.Rmd", "04-output.Rmd", "05-examples.Rmd", "06-bugs.Rmd", "references.Rmd"]
+rmd_files: ["index.Rmd", "01-ilike-files.Rmd", "02-models.Rmd", "03-mcmc.Rmd", "04-smc.Rmd", "05-ssm.Rmd", "06-ensemble.Rmd", "07-inference.Rmd", "08-output.Rmd", "09-examples.Rmd", "10-bugs.Rmd", "references.Rmd"]
 language:
   ui:
     chapter_name: "Chapter "

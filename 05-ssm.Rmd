@@ -1,0 +1,419 @@
+# State-space models {#ssm}
+
+Prior
+
+Data model
+
+Filter
+
+## Transition model: linear-Gaussian
+
+The linear-Gaussian transition model subtype may be used to specify a transition model in a state-space model that consists of a linear function of the state, plus some Gaussian noise, i.e.
+
+$$
+x_t \sim \mathcal{N}(A x_{t-1}, Q)
+(\#eq:lgtm)
+$$
+where $A$ is a matrix and $Q$ is a covariance matrix. To specify the model we need to provide the state name ($x$), the matrix $A$ and the matrix $Q$.
+
+There are two ways of specifying a linear-Gaussian data model:
+
+1. Through the function types `linear_gaussian_transition_variable` (specifying the name of the $x$ variable), `linear_gaussian_transition_matrix` (specifying the $A$ matrix), and `linear_gaussian_transition_covariance` (specifying the name of the $Q$ matrix), The user needs to provide **all** of these functions in order to fully specify the model.
+
+2. Through the function type `linear_gaussian_transition_model`, which allows the user to specify the complete model through an ilike function.
+
+We now detail the function types.
+
+### linear_gaussian_transition_variable
+
+Specifies the name of the observed transition variable in the linear-Gaussian transition model. There are no input arguments.
+
+Output: The name of the variable used as $x$ in equation \@ref(eq:lgtm).
+
+  -- of type `const std::string &` in a C++ function
+  
+  -- a string in R.
+
+C++ example:
+
+```{Rcpp,eval=FALSE}
+/***linear_gaussian_transition_variable***/
+std::string set_transition_variable()
+{
+  return "x";
+}
+```
+
+R example:
+
+```{Rcpp,eval=FALSE}
+/***linear_gaussian_transition_variable,"x"***/
+```
+
+### linear_gaussian_transition_matrix
+
+Specifies the matrix $A$ in the linear-Gaussian transition model.
+
+Input (optional): Parameters that the matrix relies on, to allow the specification of a parameter-dependent matrix.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `parameters` in an R function
+
+Output: The matrix $A$ in equation \@ref(eq:lgtm).
+
+  -- of type `arma::mat` in a C++ function
+  
+  -- a matrix in R.
+  
+C++ examples:
+
+```{Rcpp,eval=FALSE}
+/***linear_gaussian_transition_matrix***/
+arma::mat set_matrix()
+{
+  arma::mat A(2,2);
+  A(0,0) = 1.0;
+  A(0,1) = 0.0;
+  A(1,0) = 0.0;
+  A(1,1) = 1.0;
+  return A;
+}
+```
+
+or
+
+```{Rcpp,eval=FALSE}
+/***linear_gaussian_transition_matrix***/
+arma::mat set_matrix(const Parameters &parameters)
+{
+  double scale = parameters["scale"][0];
+  arma::mat A(2,2);
+  A(0,0) = scale;
+  A(0,1) = 0.0;
+  A(1,0) = 0.0;
+  A(1,1) = scale;
+  return A;
+}
+```
+
+R example:
+
+```{Rcpp,eval=FALSE}
+/***linear_gaussian_transition_matrix,diag(2)***/
+```
+
+or
+
+```{Rcpp,eval=FALSE}
+/***linear_gaussian_transition_matrix,parameters$scale*diag(2)***/
+```
+
+### linear_gaussian_transition_covariance
+
+Specifies the covariance matrix $Q$ in the linear-Gaussian transition model.
+
+Input (optional): Parameters that the matrix relies on, to allow the specification of a parameter-dependent matrix.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `parameters` in an R function
+  
+Output: The covariance matrix $Q$ in equation \@ref(eq:lgtm).
+
+  -- of type `arma::mat` in a C++ function
+  
+  -- a matrix in R
+ 
+C++ examples:
+
+```{Rcpp,eval=FALSE}
+/***linear_gaussian_transition_covariance***/
+arma::mat set_covariance()
+{
+  arma::mat Q(2,2);
+  Q(0,0) = 1.0;
+  Q(0,1) = 0.0;
+  Q(1,0) = 0.0;
+  Q(1,1) = 1.0;
+  return Q;
+}
+```
+
+or
+
+```{Rcpp,eval=FALSE}
+/***linear_gaussian_transition_covariance***/
+arma::mat set_covariance(const Parameters &parameters)
+{
+  double scale = parameters["scale"][0];
+  arma::mat Q(2,2);
+  Q(0,0) = scale;
+  Q(0,1) = 0.0;
+  Q(1,0) = 0.0;
+  Q(1,1) = scale;
+  return Q;
+}
+```
+ 
+R examples:
+
+```{Rcpp,eval=FALSE}
+/***linear_gaussian_transition_covariance,diag(2)***/
+```
+
+or
+
+```{Rcpp,eval=FALSE}
+/***linear_gaussian_transition_covariance,parameters$scale*diag(2)***/
+```
+
+### linear_gaussian_transition_model (ilike function)
+
+We may use an ilike function to specify the complete linear-Gaussian transition model.
+
+#### Linear-Gaussian transition model `ilike::linear_gaussian_transition_model`
+
+Specifies the linear-Gaussian transition model.
+
+Inputs:
+
+  1. string: The name of the observed transition variable
+  
+  2. string: The name of the latent state variable
+  
+  3. matrix: The matrix $A$
+  
+  4. matrix: The covariance matrix $Q$
+  
+## Transition model: nonlinear-Gaussian
+
+The nonlinear-Gaussian transition model subtype may be used to specify a model where the state $x_t$ has a Gaussian distribution where the mean depends nonlinearly on $x_{t-1}$, plus some Gaussian noise, i.e.
+
+$$
+x_t \sim \mathcal{N}(g(x_{t-1}), Q)
+(\#eq:nlgtm)
+$$
+where $g$ is a function and $Q$ is a covariance matrix. To specify the model we need to provide the variable name ($x$), the function $g$ and the matrix $Q$. To do this the user must provide three function types, respectively: `nonlinear_gaussian_transition_variable`, `nonlinear_gaussian_transition_function` and `nonlinear_gaussian_transition_covariance`.
+
+### nonlinear_gaussian_transition_variable
+
+Specifies the name of the observed transition variable. There are no input arguments.
+
+Output: The name of the observed transition variable.
+
+  -- of type `const std::string &` in a C++ function
+  
+  -- a string in R.
+
+C++ example:
+
+```{Rcpp,eval=FALSE}
+/***nonlinear_gaussian_transition_variable***/
+std::string set_variable()
+{
+  return "x";
+}
+```
+
+R example:
+
+```{Rcpp,eval=FALSE}
+/***nonlinear_gaussian_transition_variable,"x"***/
+```
+
+### nonlinear_gaussian_transition_function
+
+Specifies the function $g$ in the nonlinear-Gaussian transition model.
+
+Input: The state $x$ and any parameters that the function relies on (the latter may be included to allow the specification of a parameter-dependent function)
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `parameters` in an R function
+  
+Output: The output of the function $g$ in equation \@ref(eq:nlgtm).
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- a list in R.
+
+C++ example:
+
+```{Rcpp,eval=FALSE}
+/***nonlinear_gaussian_transition_function***/
+Parameters transform_state(const Parameters &xtminus1_and_theta)
+{
+  arma::colvec noiseless_xt(1,1);
+  noiseless_xt[0] = exp(xtminus1_and_theta["x"][0) + xtminus1_and_theta["theta"][0];
+  return Parameters("x", noiseless_xt);
+}
+```
+
+R example:
+
+```{Rcpp,eval=FALSE}
+/***nonlinear_gaussian_transition_function,x=exp(parameters$x)+parameters$theta***/
+```
+
+### nonlinear_gaussian_transition_covariance
+
+Specifies the covariance matrix $Q$ in the nonlinear-Gaussian transition model.
+
+Input (optional): Parameters that the matrix relies on, to allow the specification of a parameter-dependent matrix.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `parameters` in an R function
+  
+Output: The covariance matrix $Q$ in equation \@ref(eq:nlgtm).
+
+  -- of type `arma::mat` in a C++ function
+  
+  -- a matrix in R.
+  
+C++ examples:
+
+```{Rcpp,eval=FALSE}
+/***nonlinear_gaussian_transition_covariance***/
+arma::mat set_covariance()
+{
+  arma::mat Q(2,2);
+  Q(0,0) = 1.0;
+  Q(0,1) = 0.0;
+  Q(1,0) = 0.0;
+  Q(1,1) = 1.0;
+  return Q;
+}
+```
+
+or
+
+```{Rcpp,eval=FALSE}
+/***nonlinear_gaussian_transition_covariance***/
+arma::mat set_covariance(const Parameters &parameters)
+{
+  double scale = parameters["scale"][0];
+  arma::mat Q(2,2);
+  Q,0) = scale;
+  Q(0,1) = 0.0;
+  Q(1,0) = 0.0;
+  Q(1,1) = scale;
+  return Q;
+}
+```
+ 
+R examples:
+
+```{Rcpp,eval=FALSE}
+/***nonlinear_gaussian_transition_covariance,diag(2)***/
+```
+
+or
+
+```{Rcpp,eval=FALSE}
+/***nonlinear_gaussian_transition_covariance,parameters$scale*diag(2)***/
+```
+
+## Transition model: custom
+
+The functions in this section allow the specification of a user-defined transition model. The two possible function types are `simulate_transition_model` and `evaluate_log_transition_model`. Only the functions required by the chosen inference algorithm need be specified: for example, bootstrap particle filter does not need to evaluate the density of the transition model, so this function type does not need to be provided.
+
+### simulate_transition model
+
+The `simulate_transition_model` function type simulates the latent state at time $t$ given the latent state at time $t-1$ and any parameters that the model relies on.
+
+Input: (C++ only) The random number generator.
+
+  -- of type `RandomNumberGenerator &` in a C++ function
+
+Input: The latent state at time $t-1$ and any parameters that the model relies on.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `parameters` in an R function
+  
+Output: The latent state at time $t$.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- of type `list` in R
+  
+C++ example:
+
+```{Rcpp,eval=FALSE}
+/***simulate_transition_model***/
+Parameters simulate_state(RandomNumberGenerator &rng,
+                          const Parameters &xtminus1_and_theta)
+{
+  arma::colvec xt(1,1);
+  noiseless_xt[0] = rnorm(rng,1,exp(xtminus1_and_theta["x"][0) + xtminus1_and_theta["theta"][0],1.0);
+  return Parameters("x", noiseless_xt);
+}
+```
+
+R example:
+
+```{Rcpp,eval=FALSE}
+/***simulate_transition_model,x=rnorm(1,exp(parameters$x)+parameters$theta,1)***/
+```
+
+### evaluate_log_transition_model
+
+The `evaluate_log_transition_model` function type evaluates the log transition density of the latent state at time $t$ given the latent state at time $t-1$ and any parameters that the model relies on.
+
+Input: The proposed latent state at time $t$ and any parameters that the model relies on.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `proposed_parameters` in an R function
+  
+Input: The latent state at time $t-1$ and any parameters that the model relies on.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `parameters` in an R function
+  
+Output: The log transition density of the latent state at time $t$ given the latent state at time $t-1$. 
+
+  -- of type `double` in a C++ function
+  
+  -- of type `numeric` in R
+  
+C++ example:
+
+```{Rcpp,eval=FALSE}
+/***evaluate_log_transition_model***/
+double log_transition_density(const Parameters &proposed_parameters,
+                              const Parameters &parameters)
+{
+  double x = proposed_parameters["x"][0];
+  double xminus1 = parameters["x"][0];
+  double theta = parameters["theta"][0];
+  return dnorm(x, exp(xminus1) + theta, 1.0);
+}
+```
+
+R example:
+
+```{Rcpp,eval=FALSE}
+/***evaluate_log_transition_model,dnorm(parameters$x,exp(parameters$x)+parameters$theta,1,log=TRUE)***/
+```
+
+
+## Method block
+
+### filter {#filter}
+
+#### Filtering instructions `ilike::filter`
+
+// Arguments are:
+// name of index variable
+// first index
+// final index
+// name of time variable
+// initial time
+// time step variable
+// time step size
+// predictions per update
+/***filter,ilike::filter(i,0,15,t,0,dt,2,1)***/

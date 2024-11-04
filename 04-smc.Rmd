@@ -1,0 +1,184 @@
+# Importance sampling and sequential Monte Carlo {#smc}
+
+about mcmc
+
+pf elsewhere - IS at start
+
+## Importance proposal: custom
+
+The functions in this section allow the specification of a user-defined importance proposal. If a proposal is provided, and an importance sampling, particle filtering or sequential Monte Carlo inference algorithm is used, the proposal will be used to draw points in the first iteration of the algorithm. A custom importance sampling proposal requires the specification of two function types: `simulate_importance_proposal` and `evaluate_log_importance_proposal`.
+
+### simulate_importance_proposal
+
+The `simulate_importance_proposal` function type simulates an importance sampling proposal distribution. There are two optional arguments for this function type, allowing the proposal to depend on some parameters, or the observed data. If both arguments are provided, the `proposal_parameters` argument must appear directly before the `data` argument.
+
+Input: (C++ only) The random number generator.
+
+  -- of type `RandomNumberGenerator &` in a C++ function
+  
+Input: (optional) Any parameters the proposal relies on.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `proposal_parameters` in an R function
+  
+Input: (optional) Any data the proposal relies on.
+
+  -- of type `const Data &` in a C++ function
+  
+  -- available as R list `data` in an R function
+  
+Output: The proposed parameters.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- of type `list` in R
+  
+C++ example:
+
+```{Rcpp,eval=FALSE}
+/***simulate_importance_proposal***/
+Parameters simulate_proposal(RandomNumberGenerator &rng,
+                              const Parameters &proposal_parameters)
+{
+  arma::colvec x(1,1);
+  x[0] = rnorm(rng, 0.0, proposal_parameters["theta"][0]]);
+  return Parameters("x", x);
+}
+```
+
+R example:
+
+```{Rcpp,eval=FALSE}
+/***simulate_importance_proposal,x=rnorm(1,0,proposal_parameters$theta)***/
+```
+
+### evaluate_log_importance_proposal
+
+The `evaluate_log_importance_proposal` function type evaluates the log density of the importance sampling proposal distribution. As for `simulate_importance_proposal`, there are two optional arguments for this function type, allowing the proposal to depend on some parameters, or the observed data. The arguments that are chosen must be specified in the order of the inputs listed below.
+
+Input: The proposed parameters.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `proposed_parameters` in an R function
+  
+Input: (optional) Any parameters the proposal relies on.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `proposal_parameters` in an R function
+  
+Input: (optional) Any data the proposal relies on.
+
+  -- of type `const Data &` in a C++ function
+  
+  -- available as R list `data` in an R function
+  
+Output: The log density of the proposed parameters under the proposal distribution.
+
+  -- of type `double` in a C++ function
+  
+  -- of type `numeric` in R
+  
+C++ example:
+
+```{Rcpp,eval=FALSE}
+/***evaluate_log_importance_proposal***/
+double log_importance_density(const Parameters &proposed_parameters,
+                              const Parameters &proposal_parameters)
+{
+  double x = proposed_parameters["x"][0];
+  double theta = proposal_parameters["theta"][0];
+  return dnorm(x, 0.0, theta);
+}
+```
+
+R example:
+
+```{Rcpp,eval=FALSE}
+/***evaluate_log_importance_proposal,dnorm(proposed_parameters$x,0,proposal_parameters$theta,log=TRUE)***/
+```
+
+## Importance proposal: ilike
+
+### importance_proposal (ilike functions)
+
+The `importance_proposal` function type allows the user to specify an importance proposal through an ilike function (e.g. `ilike::norm`). If a proposal is provided, and an importance sampling, particle filtering or sequential Monte Carlo inference algorithm is used, the proposal will be used to draw points in the first iteration of the algorithm.
+
+For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.
+
+Example of the use of one of these functions (`ilike::norm`) follows.
+
+```{Rcpp,eval=FALSE}
+/***importance_proposal,ilike::norm(θ,0,1)***/
+```
+
+The following sections detail the available ilike functions.
+
+#### Normal proposal `ilike::norm`
+
+Specifies a normal proposal over the given variable, with the given parameters.
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+      
+  2. numeric: the mean of the normal distribution
+    
+  3. numeric: the standard deviation of the normal distribution
+  
+#### Multivariate normal proposal `ilike::mvnorm`
+
+Specifies a multivariate normal proposal over the given variable, with the given parameters.
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+      
+  2. numeric vector/matrix: the mean of the multivariate normal distribution
+    
+  3. matrix: the covariance of the multivariate normal distribution
+   
+#### Lognormal proposal `ilike::lnorm`
+    
+Specifies a lognormal proposal over the given variable, with the given parameters.
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+      
+  2. numeric: the mean of the log of the variable
+    
+  3. numeric: the standard deviation of the log of the variable
+    
+#### Multivariate lognormal proposal `ilike::mvlnorm`
+
+Specifies a multivariate loggnormal proposal over the given variable, with the given parameters.
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+      
+  2. numeric vector/matrix: the mean of the log of the variable
+    
+  3. matrix: the covariance of the log of the variable
+
+#### Gamma proposal `ilike::gamma`
+    
+Specifies a gamma proposal over the given variable, with the given parameters.
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+      
+  2. numeric: the shape of the gamma distribution
+    
+  3. numeric: the rate of the gamma distribution
+
+
+
+```{r}
+
+  method_function_types = c("adaptive_resampling","adaptive_target","smc_termination","smc_sequence")
+```
