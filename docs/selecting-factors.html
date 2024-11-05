@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Chapter 4 Markov chain Monte Carlo | ilike documentation</title>
+  <title>4.3 Selecting factors | ilike documentation</title>
   <meta name="description" content="Documentation for the ilike R package." />
   <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Chapter 4 Markov chain Monte Carlo | ilike documentation" />
+  <meta property="og:title" content="4.3 Selecting factors | ilike documentation" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="Documentation for the ilike R package." />
   <meta name="github-repo" content="richardgeveritt/ilike_documentation" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 4 Markov chain Monte Carlo | ilike documentation" />
+  <meta name="twitter:title" content="4.3 Selecting factors | ilike documentation" />
   
   <meta name="twitter:description" content="Documentation for the ilike R package." />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="algorithmic-likelihood.html"/>
-<link rel="next" href="mcmc-termination.html"/>
+<link rel="prev" href="mcmc-sweeps.html"/>
+<link rel="next" href="user-defined-metropolis-proposals.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -409,30 +409,71 @@ div.csl-indent {
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="mcmc" class="section level1 hasAnchor" number="4">
-<h1><span class="header-section-number">Chapter 4</span> Markov chain Monte Carlo<a href="mcmc.html#mcmc" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<p>When a Markov chain Monte Carlo (MCMC) is used for inference, most of the configuration of the algorithm must be done through the ilike file. ilike currently supports four different types of MCMC updates:</p>
-<ol style="list-style-type: decimal">
-<li><p>Metropolis updates, which require the use of symmetric proposal distribution;</p></li>
-<li><p>Independent Metropolis-Hastings updates, which require a proposal distribution that is independent of the current state of the Markov chain;</p></li>
-<li><p>Metropolis-Hastings updates, which require a proposal distribution (which need not be symmetric and can be dependent on the current state of the Markov chain);</p></li>
-<li><p>Unadjusted updates, which use only the specified proposal distribution to generate new states, i.e. there is no Metropolis-Hastings correction.</p></li>
-</ol>
-<p>Each of these types of updates require the specification of a proposal, and each type of update is specified by using different function types for the proposal: e.g. using the function type <code>mh_proposal</code> will result in using this proposal in a Metropolis-Hastings algorithm. If MCMC updates are provided (through specifying proposals), and a MCMC or sequential Monte Carlo with MCMC moves is used for inference, the MCMC moves will be composed using these updates.</p>
-<p>Before describing the different types of proposals, we describe how to provide the compiler with the following details:</p>
-<ol style="list-style-type: decimal">
-<li><p>The means by which the MCMC will be terminated (e.g. the number of iterations);</p></li>
-<li><p>How to compose the MCMC updates, via deterministic or stochastic sweeps;</p></li>
-<li><p>How to determine which factors are involved in the Metropolis-Hastings acceptance ratio.</p></li>
-</ol>
+<div id="selecting-factors" class="section level2 hasAnchor" number="4.3">
+<h2><span class="header-section-number">4.3</span> Selecting factors<a href="selecting-factors.html#selecting-factors" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>ilike uses no representation of the conditional independence structure of the joint distribution, therefore it is unable to automatically recognise when some factors in the joint distribution need not be evaluated in a Metropolis or Metropolis-Hastings update. To avoid evaluating every factor, the user can provide an “factor index” function type following the proposal function type, referring to the factors that should be included in the Metropolis-Hastings acceptance ratio, starting from “1”.</p>
+<p>Note:</p>
+<ul>
+<li><p>When no factor index vector is provided, all factors will be evaluated in the acceptance ratio.</p></li>
+<li><p>If used, the factor index vector must be given <em>after</em> the associated proposal.</p></li>
+</ul>
+<p>Each type of MCMC update that has an acceptance probability uses a different factor index function type: they all work in the same way as each other.</p>
+<div id="m_factor_index" class="section level3 hasAnchor" number="4.3.1">
+<h3><span class="header-section-number">4.3.1</span> m_factor_index<a href="selecting-factors.html#m_factor_index" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><code>m_factor_index</code> allows the user to specify which factors are involved in the acceptance ratio for a Metropolis algorithm. The vector of indices must correspond to the order in which the factors are provided in the ilike file. There are no inputs.</p>
+<p>Output: The indices of the factors involved in the acceptance ratio.</p>
+<p>– of type <code>NumericVector</code> in a C++ function (this is a vector format from <code>Rcpp</code>)</p>
+<p>– a vector in R.</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="selecting-factors.html#cb3-1" tabindex="-1"></a><span class="co">/***m_factor_index***/</span></span>
+<span id="cb3-2"><a href="selecting-factors.html#cb3-2" tabindex="-1"></a>NumericVector <span class="va">m_factor_index</span><span class="op">()</span></span>
+<span id="cb3-3"><a href="selecting-factors.html#cb3-3" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb3-4"><a href="selecting-factors.html#cb3-4" tabindex="-1"></a>  NumericVector factor_index <span class="op">=</span> NumericVector<span class="op">::</span>create<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">3</span><span class="op">);</span> <span class="co">// example where factors 1 and 3 are used</span></span>
+<span id="cb3-5"><a href="selecting-factors.html#cb3-5" tabindex="-1"></a>  <span class="cf">return</span> factor_index<span class="op">;</span></span>
+<span id="cb3-6"><a href="selecting-factors.html#cb3-6" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="selecting-factors.html#cb4-1" tabindex="-1"></a><span class="co">/***m_factor_index,c(1,3)***/</span></span></code></pre></div>
+</div>
+<div id="imh_factor_index" class="section level3 hasAnchor" number="4.3.2">
+<h3><span class="header-section-number">4.3.2</span> imh_factor_index<a href="selecting-factors.html#imh_factor_index" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><code>imh_factor_index</code> allows the user to specify which factors are involved in the acceptance ratio for a Metropolis-Hastings algorithm with a proposal that is independent of the current state of the chain. The vector of indices must correspond to the order in which the factors are provided in the ilike file. There are no inputs.</p>
+<p>Output: The indices of the factors involved in the acceptance ratio.</p>
+<p>– of type <code>NumericVector</code> in a C++ function (this is a vector format from <code>Rcpp</code>)</p>
+<p>– a vector in R.</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="selecting-factors.html#cb5-1" tabindex="-1"></a><span class="co">/***imh_factor_index***/</span></span>
+<span id="cb5-2"><a href="selecting-factors.html#cb5-2" tabindex="-1"></a>NumericVector imh_factor_index<span class="op">()</span></span>
+<span id="cb5-3"><a href="selecting-factors.html#cb5-3" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb5-4"><a href="selecting-factors.html#cb5-4" tabindex="-1"></a>  NumericVector factor_index <span class="op">=</span> NumericVector<span class="op">::</span>create<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">3</span><span class="op">);</span> <span class="co">// example where factors 1 and 3 are used</span></span>
+<span id="cb5-5"><a href="selecting-factors.html#cb5-5" tabindex="-1"></a>  <span class="cf">return</span> factor_index<span class="op">;</span></span>
+<span id="cb5-6"><a href="selecting-factors.html#cb5-6" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="selecting-factors.html#cb6-1" tabindex="-1"></a><span class="co">/***imh_factor_index,c(1,3)***/</span></span></code></pre></div>
+</div>
+<div id="mh_factor_index" class="section level3 hasAnchor" number="4.3.3">
+<h3><span class="header-section-number">4.3.3</span> mh_factor_index<a href="selecting-factors.html#mh_factor_index" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><code>mh_factor_index</code> allows the user to specify which factors are involved in the acceptance ratio for a Metropolis-Hastings algorithm. The vector of indices must correspond to the order in which the factors are provided in the ilike file. There are no inputs.</p>
+<p>Output: The indices of the factors involved in the acceptance ratio.</p>
+<p>– of type <code>NumericVector</code> in a C++ function (this is a vector format from <code>Rcpp</code>)</p>
+<p>– a vector in R.</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="selecting-factors.html#cb7-1" tabindex="-1"></a><span class="co">/***mh_factor_index***/</span></span>
+<span id="cb7-2"><a href="selecting-factors.html#cb7-2" tabindex="-1"></a>NumericVector mh_factor_index<span class="op">()</span></span>
+<span id="cb7-3"><a href="selecting-factors.html#cb7-3" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb7-4"><a href="selecting-factors.html#cb7-4" tabindex="-1"></a>  NumericVector factor_index <span class="op">=</span> NumericVector<span class="op">::</span>create<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">3</span><span class="op">);</span> <span class="co">// example where factors 1 and 3 are used</span></span>
+<span id="cb7-5"><a href="selecting-factors.html#cb7-5" tabindex="-1"></a>  <span class="cf">return</span> factor_index<span class="op">;</span></span>
+<span id="cb7-6"><a href="selecting-factors.html#cb7-6" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="selecting-factors.html#cb8-1" tabindex="-1"></a><span class="co">/***imh_factor_index,c(1,3)***/</span></span></code></pre></div>
+</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="algorithmic-likelihood.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="mcmc-termination.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="mcmc-sweeps.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="user-defined-metropolis-proposals.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

@@ -1,6 +1,8 @@
 # Markov chain Monte Carlo {#mcmc}
 
-When a Markov chain Monte Carlo (MCMC) is used for inference, most of the configuration of the algorithm must be done through the ilike file. ilike currently supports four different types of MCMC updates:
+When a Markov chain Monte Carlo (MCMC) is used for inference, or an MCMC move is used in a sequential Monte Carlo (SMC) algorithm, most of the configuration of the algorithm must be done through an ilike file. This section describes how to specify the parts of the ilike file that must be provided to use MCMC - running the MCMC (or SMC) algorithm itself is described in section \@ref(inference-mcmc) (or \@ref(inference-smc) for SMC).
+
+ilike currently supports four different types of MCMC updates:
 
 1. Metropolis updates, which require the use of symmetric proposal distribution;
 
@@ -10,7 +12,7 @@ When a Markov chain Monte Carlo (MCMC) is used for inference, most of the config
 
 4. Unadjusted updates, which use only the specified proposal distribution to generate new states, i.e. there is no Metropolis-Hastings correction.
 
-Each of these types of updates require the specification of a proposal, and each type of update is specified by using different function types for the proposal: e.g. using the function type `mh_proposal` will result in using this proposal in a Metropolis-Hastings algorithm.
+Each of these types of updates require the specification of a proposal, and each type of update is specified by using different function types for the proposal: e.g. using the function type `mh_proposal` will result in using this proposal in a Metropolis-Hastings algorithm. If MCMC updates are provided (through specifying proposals), and a MCMC or SMC with MCMC moves is used for inference, the MCMC moves will be composed using these updates.
 
 Before describing the different types of proposals, we describe how to provide the compiler with the following details:
 
@@ -160,15 +162,323 @@ R example:
 /***imh_factor_index,c(1,3)***/
 ```
 
+## User-defined Metropolis proposals
 
+The functions in this section allow the specification of a user-defined Metropolis proposal. For use in a Metropolis algorithm, the proposal must be symmetric. However, ilike does not currently use any tests to verify this condition: the responsibility lies with the user.  A custom Metropolis proposal requires the specification of one function type: `simulate_m_proposal`
+
+### simulate_m_proposal
+
+The `simulate_m_proposal` function type simulates a Metropolis proposal distribution. When providing a proposal that only moves some of the variables, there is no obligation on the user to set the values of the variables that are not being moved.
+
+There are two optional arguments for this function type, allowing the proposal to depend on some parameters, or the observed data. The arguments that are chosen must be specified in the order of the inputs listed below.
+
+Input: (C++ only) The random number generator.
+
+  -- of type `RandomNumberGenerator &` in a C++ function
+  
+Input: The current state of the MCMC chain.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `parameters` in an R function
+  
+Input: (optional) Any parameters the proposal relies on.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `parameters` in an R function
+  
+Input: (optional) The observed data.
+
+  -- of type `const Data &` in a C++ function
+  
+  -- available as R list `data` in an R function
+  
+Output: The proposed state of the MCMC chain.
+
+  -- of type `Parameters` in a C++ function
+  
+  -- a list in R.
+  
+C++ example:
+
+```{Rcpp,eval=FALSE}
+/***simulate_m_proposal***/
+Parameters simulate_m_proposal(RandomNumberGenerator &rng, const Parameters &parameters)
+{
+  arma::colvec x(1,1);
+  x[0] = rnorm(rng, parameters["x"][0], proposal_parameters["theta"][0]);
+  return Parameters("x", x);
+}
+```
+
+R example:
+
+```{Rcpp,eval=FALSE}
+/***simulate_mh_proposal,x=rnorm(1,parameters$x,proposal_parameters$theta)***/
+```
+
+## Metropolis proposals: ilike
+
+### m_proposal (ilike functions)
+
+The `m_proposal` function type allows the user to specify a Metropolis proposal through an ilike function.
+
+For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.
+
+The following sections detail the available ilike functions.
+
+#### Normal random walk proposal `ilike::norm_rw`
+
+Specifies a normal random walk proposal over the given variable, where the proposed state $\theta^*$ is simulated using
+
+$$
+\theta^* \sim \mathcal{N}(\theta}, \sigma)
+$$
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+    
+  2. numeric: the standard deviation $\sigma$ of the normal distribution
+  
+#### Multivariate normal random walk proposal `ilike::mvnorm_rw`
+
+Specifies a multivariate random walk normal proposal over the given variable, where the proposed state $\theta^*$ is simulated using
+
+$$
+\theta^* \sim \mathcal{MVN}(\theta, s^2 \Sigma)
+$$
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+    
+  2. matrix: the covariance $\Sigma$ of the multivariate normal distribution
+  
+  3. numeric: the scaling factor $s^2$ of the covariance matrix (default is 1)
+   
+#### Uniform random walk proposal `ilike::unif_rw`
+
+Specifies a uniform random walk proposal over the given variable, where the proposed state $\theta^*$ is simulated using
+
+$$
+\theta^* \sim \mathcal{U}(\theta - \sigma, \theta} + \sigma)
+$$
+
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+    
+  2. numeric: the half-width of the uniform distribution
+  
+#### Multivariate uniform random walk proposal `ilike::mvunif_rw`
+
+Specifies a multivariate random walk normal proposal over the given variable, where proposed state $\theta^*$ is simulated using
+
+$$
+\theta^* \sim \mathcal{MVU}(\theta - \Sigma, \theta + \Sigma)
+$$
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+    
+  2. vector/matrix: a matrix of half-widths of the uniform distribution, which must have the same dimensionality as $\theta$
+
+#### Mirror proposal `ilike::mirror`
+
+Specifies a mirror proposal over the given variable, as described in @thawornwattana2018designing, where the proposed state $\theta^*$ is simulated using
+
+$$
+\theta^* \sim \mathcal{MVN} (2 \mu - \theta, s^2 \Sigma),
+$$
+where $\mu$ is a centre (typically an estimate of the expectation of the target distribution) and $s^2$ is scaling factor for the covariance matrix $\Sigma$.
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+    
+  2. numeric: the centre $\mu$ of the mirror proposal
+  
+  3. matrix: the covariance $\Sigma$ of the multivariate normal distribution used in the proposal
+  
+  4. numeric: the scaling factor $s^2$ of the covariance matrix (default is 1)
+  
+## User-defined independent MH proposals
+
+The functions in this section allow the specification of a user-defined independent Metropolis-Hastings (MH) proposal: a proposal which does not depend on the current state of the chain. A custom independent MH proposal requires the specification of two function types: `simulate_imh_proposal` and `evaluate_log_imh_proposal`.
+
+### simulate_imh_proposal
+
+The `simulate_imh_proposal` function type simulates an independent MH proposal distribution. When providing a proposal that only moves some of the variables, there is no obligation on the user to set the values of the variables that are not being moved.
+
+There are two optional arguments for this function type, allowing the proposal to depend on some parameters, or the observed data. The arguments that are chosen must be specified in the order of the inputs listed below.
+
+Input: (C++ only) The random number generator.
+
+  -- of type `RandomNumberGenerator &` in a C++ function
+  
+Input: (optional) Any parameters the proposal relies on.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `parameters` in an R function
+  
+Input: (optional) The observed data.
+
+  -- of type `const Data &` in a C++ function
+  
+  -- available as R list `data` in an R function
+  
+Output: The proposed state of the MCMC chain.
+
+  -- of type `Parameters` in a C++ function
+  
+  -- a list in R.
+  
+C++ example:
+
+```{Rcpp,eval=FALSE}
+/***simulate_imh_proposal***/
+Parameters simulate_imh_proposal(RandomNumberGenerator &rng, const Parameters &parameters)
+{
+  arma::colvec x(1,1);
+  x[0] = rnorm(rng, 0, proposal_parameters["theta"][0]);
+  return Parameters("x", x);
+}
+```
+
+R example:
+
+```{Rcpp,eval=FALSE}
+/***simulate_imh_proposal,x=rnorm(1,0,proposal_parameters$theta)***/
+```
+
+### evaluate_log_imh_proposal
+
+The `evaluate_log_imh_proposal` function type evaluates the log density of the MH proposal distribution. As for `simulate_imh_proposal`, there are two optional arguments for this function type, allowing the proposal to depend on some parameters, or the observed data. The arguments that are chosen must be specified in the order of the inputs listed below.
+
+Input: The proposed state of the MCMC chain.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `proposed_parameters` in an R function
+  
+Input: (optional) Any parameters the proposal relies on.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `proposal_parameters` in an R function
+  
+Input: (optional) The observed data.
+
+  -- of type `const Data &` in a C++ function
+  
+  -- available as R list `data` in an R function
+  
+Output: The log density of the proposal distribution.
+
+  -- of type `double` in a C++ function
+  
+  -- a numeric in R.
+  
+C++ example:
+
+```{Rcpp,eval=FALSE}
+/***evaluate_log_imh_proposal***/
+double evaluate_log_imh_proposal(const Parameters &proposed_parameters, const Parameters &proposal_parameters)
+{
+  return dnorm(proposed_parameters["x"][0], 0, proposal_parameters["theta"][0]);
+}
+```
+
+R example:
+
+```{Rcpp,eval=FALSE}
+/***evaluate_log_imh_proposal,dnorm(proposed_parameters$x,0,proposal_parameters$theta)***/
+```
+
+## Independent MH proposals: ilike
+
+### imh_proposal (ilike functions)
+
+The `imh_proposal` function type allows the user to specify an independent Metropolis-Hastings proposal through an ilike function.
+
+For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.
+
+The following sections detail the available ilike functions.
+
+#### Normal proposal `ilike::norm`
+
+Specifies a normal proposal over the given variable, with the given parameters.
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+      
+  2. numeric: the mean of the normal distribution
+    
+  3. numeric: the standard deviation of the normal distribution
+  
+#### Multivariate normal proposal `ilike::mvnorm`
+
+Specifies a multivariate normal proposal over the given variable, with the given parameters.
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+      
+  2. numeric vector/matrix: the mean of the multivariate normal distribution
+    
+  3. matrix: the covariance of the multivariate normal distribution
+   
+#### Lognormal proposal `ilike::lnorm`
+    
+Specifies a lognormal proposal over the given variable, with the given parameters.
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+      
+  2. numeric: the mean of the log of the variable
+    
+  3. numeric: the standard deviation of the log of the variable
+    
+#### Multivariate lognormal proposal `ilike::mvlnorm`
+
+Specifies a multivariate loggnormal proposal over the given variable, with the given parameters.
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+      
+  2. numeric vector/matrix: the mean of the log of the variable
+    
+  3. matrix: the covariance of the log of the variable
+
+#### Gamma proposal `ilike::gamma`
+    
+Specifies a gamma proposal over the given variable, with the given parameters.
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+      
+  2. numeric: the shape of the gamma distribution
+    
+  3. numeric: the rate of the gamma distribution
 
 ## User-defined MH proposals
 
-The functions in this section allow the specification of a user-defined Metropolis-Hastings (MH) proposal. If a proposal is provided, and a Markov chain Monte Carlo (MCMC) or sequential Monte Carlo inference algorithm is used, a Metropolis-Hastings algorithm will be used for the MCMC moves in the algorithm. A custom MH proposal requires the specification of two function types: `simulate_mh_proposal` and `evaluate_log_mh_proposal`.
+The functions in this section allow the specification of a user-defined Metropolis-Hastings (MH) proposal. A custom MH proposal requires the specification of two function types: `simulate_mh_proposal` and `evaluate_log_mh_proposal`.
 
 ### simulate_mh_proposal
 
-The `simulate_mh_proposal` function type simulates an MH proposal distribution. There are two optional arguments for this function type, allowing the proposal to depend on some parameters, or the observed data. The arguments that are chosen must be specified in the order of the inputs listed below.
+The `simulate_mh_proposal` function type simulates an MH proposal distribution. When providing a proposal that only moves some of the variables, there is no obligation on the user to set the values of the variables that are not being moved.
+
+There are two optional arguments for this function type, allowing the proposal to depend on some parameters, or the observed data. The arguments that are chosen must be specified in the order of the inputs listed below.
 
 Input: (C++ only) The random number generator.
 
@@ -186,7 +496,7 @@ Input: (optional) Any parameters the proposal relies on.
   
   -- available as R list `proposal_parameters` in an R function
   
-Input: (optional) Any data the proposal relies on.
+Input: (optional) The observed data.
 
   -- of type `const Data &` in a C++ function
   
@@ -207,7 +517,7 @@ Parameters simulate_proposal(RandomNumberGenerator &rng,
                              const Parameters &proposal_parameters)
 {
   arma::colvec x(1,1);
-  x[0] = rnorm(rng, parameters["x"][0], proposal_parameters["theta"][0]]);
+  x[0] = rnorm(rng, parameters["x"][0], proposal_parameters["theta"][0]);
   return Parameters("x", x);
 }
 ```
@@ -273,11 +583,11 @@ R example:
 /***evaluate_log_mh_proposal,dnorm(proposed_parameters$x,parameters$x,proposal_parameters$theta,log=TRUE)***/
 ```
 
-## MH proposal: ilike
+## MH proposals: ilike
 
 ### mh_proposal (ilike functions)
 
-The `mh_proposal` function type allows the user to specify a Metropolis-Hastings proposal through an ilike function. If a proposal is provided, and a Markov chain Monte Carlo (MCMC) or sequential Monte Carlo inference algorithm is used, a Metropolis-Hastings algorithm will be used for the MCMC moves in the algorithm.
+The `mh_proposal` function type allows the user to specify a Metropolis-Hastings proposal through an ilike function.
 
 For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.
 
@@ -364,7 +674,7 @@ Inputs:
 Specifies a Barker proposal over the given variable, as described in @livingstone2022barker, where the proposed state $\theta^*$ is simulated using the following procedure. For the following, let: $d$ be the dimension of $\theta$, $\mathbf{0}_d$ be the zero vector in $\mathbb{R}$; $\mathbf{I}_d$ be the identity covariance matrix in $\mathbb{R}^{d\times d}$; and let $\odot$ be the Hadamard (element-wise) product. Let $C = \mbox{chol}(s^2 \Sigma)$, then
 
 $$
-z \sim \mathcal{MNV}(\mathbf{0}_d, \mathbf{I}_d)
+z \sim \mathcal{MVN}(\mathbf{0}_d, \mathbf{I}_d)
 $$
 
 followed by, for $i=1:d$
@@ -414,32 +724,202 @@ Inputs:
   4. numeric: the scaling factor $s^2$ of the covariance matrix (default is 1)
 
 
+## User-defined unadjusted proposals
 
-```{r}
-  prior_function_types = c("prior","evaluate_log_prior","simulate_prior","evaluate_gradient_log_prior","evaluate_second_gradient_log_prior")
-  custom_likelihood_function_types = c("evaluate_log_likelihood","evaluate_gradient_log_likelihood","evaluate_second_gradient_log_likelihood")
-  #file_likelihood_types = c("importance_sample","smc_mcmc_move")
-  sbi_likelihood_function_types = c("simulate_data_model","sbi_likelihood","summary_statistics","data_variable")
-  linear_gaussian_data_model_types = c("linear_gaussian_data_model","linear_gaussian_data_matrix","linear_gaussian_data_covariance","linear_gaussian_data_variable","linear_gaussian_data_state_variable")
-  nonlinear_gaussian_data_model_types = c("nonlinear_gaussian_data_model","nonlinear_gaussian_data_function","nonlinear_gaussian_data_covariance","nonlinear_gaussian_data_variable")
-  other_likelihood_function_types = c("likelihood")
-  factor_function_types = c(prior_function_types,custom_likelihood_function_types,sbi_likelihood_function_types,linear_gaussian_data_model_types,nonlinear_gaussian_data_model_types,other_likelihood_function_types)
-  ilike_transition_model_types = c("transition_model")
-  linear_gaussian_transition_model_types = c("linear_gaussian_transition_model","linear_gaussian_transition_matrix","linear_gaussian_transition_covariance","linear_gaussian_transition_variable")
-  nonlinear_gaussian_transition_model_types = c("nonlinear_gaussian_transition_model","nonlinear_gaussian_transition_function","nonlinear_gaussian_transition_covariance","nonlinear_gaussian_transition_variable")
-  custom_transition_model_types = c("simulate_transition_model","evaluate_log_transition_model")
-  transition_model_types = c(ilike_transition_model_types,linear_gaussian_transition_model_types,nonlinear_gaussian_transition_model_types,custom_transition_model_types)
-  custom_potential_function_types = c("evaluate_log_potential_function")
-  ilike_potential_function_types = c("potential_function")
-  potential_function_types = c(custom_potential_function_types,ilike_potential_function_types)
-  data_function_types = c("data")
-  importance_proposal_types = c("simulate_importance_proposal","evaluate_log_importance_proposal","importance_proposal")
-  mh_proposal_types = c("simulate_mh_proposal","evaluate_log_mh_proposal","mh_proposal","mh_transform","mh_inverse_transform","mh_transform_jacobian_matrix","mh_factor_index")
-  unadjusted_proposal_types = c("simulate_unadjusted_proposal","unadjusted_proposal","unadjusted_transform","unadjusted_inverse_transform","unadjusted_transform_jacobian_matrix","unadjusted_factor_index")
-  imh_proposal_types = c("simulate_imh_proposal","evaluate_log_imh_proposal","imh_proposal","imh_transform","imh_inverse_transform","imh_transform_jacobian_matrix","imh_factor_index")
-  m_proposal_types = c("simulate_m_proposal","m_proposal","m_transform","m_inverse_transform","m_transform_jacobian_matrix","m_factor_index")
-  transition_proposal_types = c("simulate_transition_proposal","evaluate_log_transition_proposal")
-  enk_transform_types = c("enk_transform","enk_inverse_transform")
-  #reinforce_gradient = c("reinforce_gradient")
-  method_function_types = c("mcmc_weights","mcmc_termination","adaptive_resampling","adaptive_target","smc_termination","smc_sequence","reinforce_gradient","enk_likelihood_index","enk_shifter","filter")
+The functions in this section allow the specification of a user-defined proposal which will be used directly as an MCMC update. It is the user's responsibility to ensure that the proposal provided has the desired target distribution as its invariant distribution. A custom unadjusted proposal requires the specification of a single function type: `simulate_unadjusted_proposal`.
+
+### simulate_unadjusted_proposal
+
+The `simulate_unadjusted_proposal` function type simulates a proposal distribution which will be used directly as an MCMC update. When providing a proposal that only moves some of the variables, there is no obligation on the user to set the values of the variables that are not being moved.
+
+There are two optional arguments for this function type, allowing the proposal to depend on some parameters, or the observed data. The arguments that are chosen must be specified in the order of the inputs listed below.
+
+Input: (C++ only) The random number generator.
+
+  -- of type `RandomNumberGenerator &` in a C++ function
+  
+Input: The current state of the MCMC chain.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `parameters` in an R function
+  
+Input: (optional) Any parameters the proposal relies on.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- available as R list `proposal_parameters` in an R function
+  
+Input: (optional) The observed data.
+
+  -- of type `const Data &` in a C++ function
+  
+  -- available as R list `data` in an R function
+  
+Output: The proposed parameters.
+
+  -- of type `const Parameters &` in a C++ function
+  
+  -- of type `list` in R
+  
+C++ example:
+
+```{Rcpp,eval=FALSE}
+/***simulate_unadjusted_proposal***/
+Parameters simulate_langevin_proposal(RandomNumberGenerator &rng,
+                                      const Parameters &parameters,
+                                      const Parameters &proposal_parameters)
+{
+  double epsilon2 = proposal_parameters["epsilon2"][0];
+  arma::colvec x(1,1);
+  x[0] = rnorm(rng, parameters["x"][0] - (epsilon2/2.0)*parameters["x"][0], sqrt(epsilon2));
+  return Parameters("x", x);
+}
 ```
+
+R example:
+
+```{Rcpp,eval=FALSE}
+/***simulate_unadjusted_proposal,x=rnorm(parameters$x - (proposal_parameters$epsilon2/2.0)*parameters$x, sqrt(proposal_parameters$epsilon2))***/
+```
+
+## Unadjusted proposals: ilike
+
+### unadjusted_proposal (ilike functions)
+
+The `unadjusted_proposal` function type allows the user to specify a proposal that will be used directly as an MCMC update through using an ilike function. It is the user's responsibility to ensure that the proposal provided has the desired target distribution as its invariant distribution. Note that a number of the proposals provided will simulate a chain that does not have a limiting distribution. 
+
+For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.
+
+The following sections detail the available ilike functions.
+
+#### Normal random walk proposal `ilike::norm_rw`
+
+Specifies a normal random walk proposal over the given variable, where the proposed state $\theta^*$ is simulated using
+
+$$
+\theta^* \sim \mathcal{N}(\theta}, \sigma)
+$$
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+    
+  2. numeric: the standard deviation $\sigma$ of the normal distribution
+  
+#### Multivariate normal random walk proposal `ilike::mvnorm_rw`
+
+Specifies a multivariate random walk normal proposal over the given variable, where the proposed state $\theta^*$ is simulated using
+
+$$
+\theta^* \sim \mathcal{MVN}(\theta, s^2 \Sigma)
+$$
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+    
+  2. matrix: the covariance $\Sigma$ of the multivariate normal distribution
+  
+  3. numeric: the scaling factor $s^2$ of the covariance matrix (default is 1)
+   
+#### Uniform random walk proposal `ilike::unif_rw`
+
+Specifies a uniform random walk proposal over the given variable, where the proposed state $\theta^*$ is simulated using
+
+$$
+\theta^* \sim \mathcal{U}(\theta - \sigma, \theta} + \sigma)
+$$
+
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+    
+  2. numeric: the half-width of the uniform distribution
+  
+#### Multivariate uniform random walk proposal `ilike::mvunif_rw`
+
+Specifies a multivariate random walk normal proposal over the given variable, where proposed state $\theta^*$ is simulated using
+
+$$
+\theta^* \sim \mathcal{MVU}(\theta - \Sigma, \theta + \Sigma)
+$$
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+    
+  2. vector/matrix: a matrix of half-widths of the uniform distribution, which must have the same dimensionality as $\theta$
+
+#### Langevin proposal `ilike::langevin`
+    
+Specifies a Langevin proposal over the given variable, where the proposed state $\theta^*$ is simulated using
+
+$$
+\theta^* \sim \mathcal{MVN}(\theta + \frac{s^2}{2} \Sigma \nabla \log \pi(\theta), s^2 \Sigma)
+$$
+The presence of $\nabla \log \pi(\theta)$ in the proposal requires that the gradient of the log of each factor must be available. $s^2$ is scaling factor for the preconditioning matrix $\Sigma$.
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+      
+  2. matrix: the covariance $\Sigma$ of the multivariate normal distribution used in the proposal
+    
+  3. numeric: the scaling factor $s^2$ of the preconditioning matrix (default is 1)
+
+#### Barker proposal `ilike::barker`
+
+Specifies a Barker proposal over the given variable, as described in @livingstone2022barker, where the proposed state $\theta^*$ is simulated using the following procedure. For the following, let: $d$ be the dimension of $\theta$, $\mathbf{0}_d$ be the zero vector in $\mathbb{R}$; $\mathbf{I}_d$ be the identity covariance matrix in $\mathbb{R}^{d\times d}$; and let $\odot$ be the Hadamard (element-wise) product. Let $C = \mbox{chol}(s^2 \Sigma)$, then
+
+$$
+z \sim \mathcal{MVN}(\mathbf{0}_d, \mathbf{I}_d)
+$$
+
+followed by, for $i=1:d$
+
+$$
+u_i\sim \mathcal{U}(0,1)
+$$
+
+$$
+c_i(\theta) = \nabla \log \pi(\theta) C^T
+$$
+
+$$
+b_i = -1 + 2 \times I \left( u_i < 1/(1 + \exp(-z_i c_i(\theta) )) \right)
+$$
+
+$$
+\theta^* = \theta + b \odot z
+$$
+The presence of $\nabla \log \pi(\theta)$ in the proposal requires that the gradient of the log of each factor must be available. $s^2$ is scaling factor for the preconditioning matrix $\Sigma$.
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+    
+  2. matrix: the covariance $\Sigma$ of the multivariate normal distribution used in the proposal
+  
+  3. numeric: the scaling factor $s^2$ of the preconditioning matrix (default is 1)
+  
+#### Mirror proposal `ilike::mirror`
+
+Specifies a mirror proposal over the given variable, as described in @thawornwattana2018designing, where the proposed state $\theta^*$ is simulated using
+
+$$
+\theta^* \sim \mathcal{MVN} (2 \mu - \theta, s^2 \Sigma),
+$$
+where $\mu$ is a centre (typically an estimate of the expectation of the target distribution) and $s^2$ is scaling factor for the covariance matrix $\Sigma$.
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+    
+  2. numeric: the centre $\mu$ of the mirror proposal
+  
+  3. matrix: the covariance $\Sigma$ of the multivariate normal distribution used in the proposal
+  
+  4. numeric: the scaling factor $s^2$ of the covariance matrix (default is 1)
+  

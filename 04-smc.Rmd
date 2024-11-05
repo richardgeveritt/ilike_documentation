@@ -1,5 +1,18 @@
 # Importance sampling and sequential Monte Carlo {#smc}
 
+Importance sampling (IS) and sequential Monte Carlo (SMC) algorithms are mainly configured through the ilike file. Currently ilike includes: IS; SMC with MCMC moves; and particle filters (PFs). We now give an overview of what is required to configure these algorithms.
+
+- IS (section \@ref(inference-is)). Only the specification of a model (as in section \@ref(models)) and a proposal distribution (described below). is required in order to use this approach
+
+- SMC sampler with MCMC moves (section \@ref(inference-is)). In addition to a model, and a proposal (used to simulate points in the initial step of the algorithm) this requires the specification of a Markov chain Monte Carlo (MCMC) algorithm: for details on how to configure this, see section \@ref{mcmc}. SMC also requires the specification of a sequence of distributions, and parameters related to resampling and adaptive methods, which we detail later in this section.
+
+- PF (section \@ref{inference-pf)). Again, a proposal is required to simulate points in the initial step of the algorithm. However, using a particle filter requires the specification of a state-space model, which requires additional function types to be defined in the ilike file, on top of those from \@ref(models). These are defined in section \@ref(ssm).
+
+IS is the easiest to configure. . The other approaches also require this p, however they also have additional requirements. T fun ("adaptive_resampling","adaptive_target","smc_termination","smc_sequence")
+
+PF
+
+
 about mcmc
 
 pf elsewhere - IS at start

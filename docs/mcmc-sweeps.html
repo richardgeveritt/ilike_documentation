@@ -23,7 +23,7 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2024-11-01" />
+<meta name="date" content="2024-11-04" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -31,7 +31,7 @@
   
   
 <link rel="prev" href="mcmc-termination.html"/>
-<link rel="next" href="user-defined-mh-proposals.html"/>
+<link rel="next" href="selecting-factors.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -251,20 +251,51 @@ div.csl-indent {
 <ul>
 <li class="chapter" data-level="4.1" data-path="mcmc-termination.html"><a href="mcmc-termination.html"><i class="fa fa-check"></i><b>4.1</b> MCMC termination</a>
 <ul>
-<li class="chapter" data-level="4.1.1" data-path="mcmc-termination.html"><a href="mcmc-termination.html#mcmc_termination"><i class="fa fa-check"></i><b>4.1.1</b> mcmc_termination</a></li>
+<li class="chapter" data-level="4.1.1" data-path="mcmc-termination.html"><a href="mcmc-termination.html#mcmc_termination-ilike-functions"><i class="fa fa-check"></i><b>4.1.1</b> mcmc_termination (ilike functions)</a></li>
 </ul></li>
 <li class="chapter" data-level="4.2" data-path="mcmc-sweeps.html"><a href="mcmc-sweeps.html"><i class="fa fa-check"></i><b>4.2</b> MCMC sweeps</a>
 <ul>
 <li class="chapter" data-level="4.2.1" data-path="mcmc-sweeps.html"><a href="mcmc-sweeps.html#mcmc_weights"><i class="fa fa-check"></i><b>4.2.1</b> mcmc_weights</a></li>
 </ul></li>
-<li class="chapter" data-level="4.3" data-path="user-defined-mh-proposals.html"><a href="user-defined-mh-proposals.html"><i class="fa fa-check"></i><b>4.3</b> User-defined MH proposals</a>
+<li class="chapter" data-level="4.3" data-path="selecting-factors.html"><a href="selecting-factors.html"><i class="fa fa-check"></i><b>4.3</b> Selecting factors</a>
 <ul>
-<li class="chapter" data-level="4.3.1" data-path="user-defined-mh-proposals.html"><a href="user-defined-mh-proposals.html#simulate_mh_proposal"><i class="fa fa-check"></i><b>4.3.1</b> simulate_mh_proposal</a></li>
-<li class="chapter" data-level="4.3.2" data-path="user-defined-mh-proposals.html"><a href="user-defined-mh-proposals.html#evaluate_log_mh_proposal"><i class="fa fa-check"></i><b>4.3.2</b> evaluate_log_mh_proposal</a></li>
+<li class="chapter" data-level="4.3.1" data-path="selecting-factors.html"><a href="selecting-factors.html#m_factor_index"><i class="fa fa-check"></i><b>4.3.1</b> m_factor_index</a></li>
+<li class="chapter" data-level="4.3.2" data-path="selecting-factors.html"><a href="selecting-factors.html#imh_factor_index"><i class="fa fa-check"></i><b>4.3.2</b> imh_factor_index</a></li>
+<li class="chapter" data-level="4.3.3" data-path="selecting-factors.html"><a href="selecting-factors.html#mh_factor_index"><i class="fa fa-check"></i><b>4.3.3</b> mh_factor_index</a></li>
 </ul></li>
-<li class="chapter" data-level="4.4" data-path="mh-proposal-ilike.html"><a href="mh-proposal-ilike.html"><i class="fa fa-check"></i><b>4.4</b> MH proposal: ilike</a>
+<li class="chapter" data-level="4.4" data-path="user-defined-metropolis-proposals.html"><a href="user-defined-metropolis-proposals.html"><i class="fa fa-check"></i><b>4.4</b> User-defined Metropolis proposals</a>
 <ul>
-<li class="chapter" data-level="4.4.1" data-path="mh-proposal-ilike.html"><a href="mh-proposal-ilike.html#mh_proposal-ilike-functions"><i class="fa fa-check"></i><b>4.4.1</b> mh_proposal (ilike functions)</a></li>
+<li class="chapter" data-level="4.4.1" data-path="user-defined-metropolis-proposals.html"><a href="user-defined-metropolis-proposals.html#simulate_m_proposal"><i class="fa fa-check"></i><b>4.4.1</b> simulate_m_proposal</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="metropolis-proposals-ilike.html"><a href="metropolis-proposals-ilike.html"><i class="fa fa-check"></i><b>4.5</b> Metropolis proposals: ilike</a>
+<ul>
+<li class="chapter" data-level="4.5.1" data-path="metropolis-proposals-ilike.html"><a href="metropolis-proposals-ilike.html#m_proposal-ilike-functions"><i class="fa fa-check"></i><b>4.5.1</b> m_proposal (ilike functions)</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="user-defined-independent-mh-proposals.html"><a href="user-defined-independent-mh-proposals.html"><i class="fa fa-check"></i><b>4.6</b> User-defined independent MH proposals</a>
+<ul>
+<li class="chapter" data-level="4.6.1" data-path="user-defined-independent-mh-proposals.html"><a href="user-defined-independent-mh-proposals.html#simulate_imh_proposal"><i class="fa fa-check"></i><b>4.6.1</b> simulate_imh_proposal</a></li>
+<li class="chapter" data-level="4.6.2" data-path="user-defined-independent-mh-proposals.html"><a href="user-defined-independent-mh-proposals.html#evaluate_log_imh_proposal"><i class="fa fa-check"></i><b>4.6.2</b> evaluate_log_imh_proposal</a></li>
+</ul></li>
+<li class="chapter" data-level="4.7" data-path="independent-mh-proposals-ilike.html"><a href="independent-mh-proposals-ilike.html"><i class="fa fa-check"></i><b>4.7</b> Independent MH proposals: ilike</a>
+<ul>
+<li class="chapter" data-level="4.7.1" data-path="independent-mh-proposals-ilike.html"><a href="independent-mh-proposals-ilike.html#imh_proposal-ilike-functions"><i class="fa fa-check"></i><b>4.7.1</b> imh_proposal (ilike functions)</a></li>
+</ul></li>
+<li class="chapter" data-level="4.8" data-path="user-defined-mh-proposals.html"><a href="user-defined-mh-proposals.html"><i class="fa fa-check"></i><b>4.8</b> User-defined MH proposals</a>
+<ul>
+<li class="chapter" data-level="4.8.1" data-path="user-defined-mh-proposals.html"><a href="user-defined-mh-proposals.html#simulate_mh_proposal"><i class="fa fa-check"></i><b>4.8.1</b> simulate_mh_proposal</a></li>
+<li class="chapter" data-level="4.8.2" data-path="user-defined-mh-proposals.html"><a href="user-defined-mh-proposals.html#evaluate_log_mh_proposal"><i class="fa fa-check"></i><b>4.8.2</b> evaluate_log_mh_proposal</a></li>
+</ul></li>
+<li class="chapter" data-level="4.9" data-path="mh-proposals-ilike.html"><a href="mh-proposals-ilike.html"><i class="fa fa-check"></i><b>4.9</b> MH proposals: ilike</a>
+<ul>
+<li class="chapter" data-level="4.9.1" data-path="mh-proposals-ilike.html"><a href="mh-proposals-ilike.html#mh_proposal-ilike-functions"><i class="fa fa-check"></i><b>4.9.1</b> mh_proposal (ilike functions)</a></li>
+</ul></li>
+<li class="chapter" data-level="4.10" data-path="user-defined-unadjusted-proposals.html"><a href="user-defined-unadjusted-proposals.html"><i class="fa fa-check"></i><b>4.10</b> User-defined unadjusted proposals</a>
+<ul>
+<li class="chapter" data-level="4.10.1" data-path="user-defined-unadjusted-proposals.html"><a href="user-defined-unadjusted-proposals.html#simulate_unadjusted_proposal"><i class="fa fa-check"></i><b>4.10.1</b> simulate_unadjusted_proposal</a></li>
+</ul></li>
+<li class="chapter" data-level="4.11" data-path="unadjusted-proposals-ilike.html"><a href="unadjusted-proposals-ilike.html"><i class="fa fa-check"></i><b>4.11</b> Unadjusted proposals: ilike</a>
+<ul>
+<li class="chapter" data-level="4.11.1" data-path="unadjusted-proposals-ilike.html"><a href="unadjusted-proposals-ilike.html#unadjusted_proposal-ilike-functions"><i class="fa fa-check"></i><b>4.11.1</b> unadjusted_proposal (ilike functions)</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="5" data-path="smc.html"><a href="smc.html"><i class="fa fa-check"></i><b>5</b> Importance sampling and sequential Monte Carlo</a>
@@ -383,11 +414,19 @@ div.csl-indent {
 <p>ilike can compose the available MCMC updates into either a deterministic or a stochastic sweep. A deterministic sweep will use each type of update in turn, in the order in which the updates are provided in the ilike file. The updates will instead be chosen at random if the user provides the function type <code>mcmc_weights</code><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>.</p>
 <div id="mcmc_weights" class="section level3 hasAnchor" number="4.2.1">
 <h3><span class="header-section-number">4.2.1</span> mcmc_weights<a href="mcmc-sweeps.html#mcmc_weights" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<p>This function type allows the user to specify the probability of each type of update being used in the MCMC algorithm. The vector of probabilities need not be normalised, and the order of the vector must correspond to the order in which the proposals are provided in the ilike file. There are no inputs.</p>
+<p><code>mcmc_weights</code> allows the user to specify the probability of each type of update being used in the MCMC algorithm. The vector of probabilities need not be normalised, and the order of the vector must correspond to the order in which the proposals are provided in the ilike file. There are no inputs.</p>
 <p>Output: The probability of choosing each type of update.</p>
-<p>– of type <code>std::vector&lt;double&gt;</code> in a C++ function</p>
-<p>– available as R numeric vector in an R function</p>
-<p>ilike uses no representation of the conditional independence structure of the joint distribution, therefore it is unable to automatically recognise when some factors in the joint distribution need not be evaluated in a Metropolis or Metropolis-Hastings update. To avoid evaluating every factor, the user can provide an <code>mh_factor_index</code> (or, depending on the type of proposal, <code>m_factor_index</code>, etc) function type following the proposal function type, referring to the factors that should be included in the Metropolis-Hastings acceptance ratio. When this function type is not provided, all factors will be evaluated in the acceptance ratio.</p>
+<p>– of type <code>NumericVector</code> in a C++ function (this is a vector format from <code>Rcpp</code>)</p>
+<p>– a vector in R.</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="mcmc-sweeps.html#cb1-1" tabindex="-1"></a><span class="co">/***mcmc_weights***/</span></span>
+<span id="cb1-2"><a href="mcmc-sweeps.html#cb1-2" tabindex="-1"></a>NumericVector mcmc_weights<span class="op">()</span></span>
+<span id="cb1-3"><a href="mcmc-sweeps.html#cb1-3" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb1-4"><a href="mcmc-sweeps.html#cb1-4" tabindex="-1"></a>  NumericVector weights <span class="op">=</span> NumericVector<span class="op">::</span>create<span class="op">(</span><span class="fl">0.1</span><span class="op">,</span><span class="fl">0.9</span><span class="op">);</span> <span class="co">// example where two updates are provided</span></span>
+<span id="cb1-5"><a href="mcmc-sweeps.html#cb1-5" tabindex="-1"></a>  <span class="cf">return</span> weights<span class="op">;</span></span>
+<span id="cb1-6"><a href="mcmc-sweeps.html#cb1-6" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="mcmc-sweeps.html#cb2-1" tabindex="-1"></a><span class="co">/***mcmc_weights,c(0.1,0.9)***/</span></span></code></pre></div>
 </div>
 </div>
 <div class="footnotes">
@@ -402,7 +441,7 @@ div.csl-indent {
         </div>
       </div>
 <a href="mcmc-termination.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="user-defined-mh-proposals.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="selecting-factors.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

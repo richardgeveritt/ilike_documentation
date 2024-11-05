@@ -4,15 +4,15 @@
 
 ## Model and algorithm parameters {#parameters}
 
-## Importance sampling
+## Importance sampling {#inference-is}
 
 ### .ilike file requirements
 
-## Markov chain Monte Carlo
+## MCMC {#inference-mcmc}
 
 ### .ilike file requirements
 
-## Sequential Monte Carlo
+## SMC with MCMC moves {#inference-smc}
 
 ### .ilike file requirements
 
@@ -24,7 +24,7 @@
 
 ### .ilike file requirements
 
-## Particle filters {#pf}
+## Particle filters {#pf} {#inference-pf}
 
 ### .ilike file requirements
 

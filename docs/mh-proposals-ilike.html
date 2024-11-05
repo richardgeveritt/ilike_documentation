@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Chapter 4 Markov chain Monte Carlo | ilike documentation</title>
+  <title>4.9 MH proposals: ilike | ilike documentation</title>
   <meta name="description" content="Documentation for the ilike R package." />
   <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Chapter 4 Markov chain Monte Carlo | ilike documentation" />
+  <meta property="og:title" content="4.9 MH proposals: ilike | ilike documentation" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="Documentation for the ilike R package." />
   <meta name="github-repo" content="richardgeveritt/ilike_documentation" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 4 Markov chain Monte Carlo | ilike documentation" />
+  <meta name="twitter:title" content="4.9 MH proposals: ilike | ilike documentation" />
   
   <meta name="twitter:description" content="Documentation for the ilike R package." />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="algorithmic-likelihood.html"/>
-<link rel="next" href="mcmc-termination.html"/>
+<link rel="prev" href="user-defined-mh-proposals.html"/>
+<link rel="next" href="user-defined-unadjusted-proposals.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -409,30 +409,136 @@ div.csl-indent {
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="mcmc" class="section level1 hasAnchor" number="4">
-<h1><span class="header-section-number">Chapter 4</span> Markov chain Monte Carlo<a href="mcmc.html#mcmc" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<p>When a Markov chain Monte Carlo (MCMC) is used for inference, most of the configuration of the algorithm must be done through the ilike file. ilike currently supports four different types of MCMC updates:</p>
+<div id="mh-proposals-ilike" class="section level2 hasAnchor" number="4.9">
+<h2><span class="header-section-number">4.9</span> MH proposals: ilike<a href="mh-proposals-ilike.html#mh-proposals-ilike" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="mh_proposal-ilike-functions" class="section level3 hasAnchor" number="4.9.1">
+<h3><span class="header-section-number">4.9.1</span> mh_proposal (ilike functions)<a href="mh-proposals-ilike.html#mh_proposal-ilike-functions" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The <code>mh_proposal</code> function type allows the user to specify a Metropolis-Hastings proposal through an ilike function. If a proposal is provided, and a Markov chain Monte Carlo (MCMC) or sequential Monte Carlo inference algorithm is used, a Metropolis-Hastings algorithm will be used for the MCMC moves in the algorithm.</p>
+<p>For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.</p>
+<p>The following sections detail the available ilike functions.</p>
+<div id="normal-random-walk-proposal-ilikenorm_rw-1" class="section level4 hasAnchor" number="4.9.1.1">
+<h4><span class="header-section-number">4.9.1.1</span> Normal random walk proposal <code>ilike::norm_rw</code><a href="mh-proposals-ilike.html#normal-random-walk-proposal-ilikenorm_rw-1" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Specifies a normal random walk proposal over the given variable, where the proposed state <span class="math inline">\(\theta^*\)</span> is simulated using</p>
+<p><span class="math display">\[
+\theta^* \sim \mathcal{N}(\theta}, \sigma)
+\]</span></p>
+<p>Inputs:</p>
 <ol style="list-style-type: decimal">
-<li><p>Metropolis updates, which require the use of symmetric proposal distribution;</p></li>
-<li><p>Independent Metropolis-Hastings updates, which require a proposal distribution that is independent of the current state of the Markov chain;</p></li>
-<li><p>Metropolis-Hastings updates, which require a proposal distribution (which need not be symmetric and can be dependent on the current state of the Markov chain);</p></li>
-<li><p>Unadjusted updates, which use only the specified proposal distribution to generate new states, i.e. there is no Metropolis-Hastings correction.</p></li>
+<li><p>string: the variable for which the proposal is specified</p></li>
+<li><p>numeric: the standard deviation <span class="math inline">\(\sigma\)</span> of the normal distribution</p></li>
 </ol>
-<p>Each of these types of updates require the specification of a proposal, and each type of update is specified by using different function types for the proposal: e.g. using the function type <code>mh_proposal</code> will result in using this proposal in a Metropolis-Hastings algorithm. If MCMC updates are provided (through specifying proposals), and a MCMC or sequential Monte Carlo with MCMC moves is used for inference, the MCMC moves will be composed using these updates.</p>
-<p>Before describing the different types of proposals, we describe how to provide the compiler with the following details:</p>
+</div>
+<div id="multivariate-normal-random-walk-proposal-ilikemvnorm_rw-1" class="section level4 hasAnchor" number="4.9.1.2">
+<h4><span class="header-section-number">4.9.1.2</span> Multivariate normal random walk proposal <code>ilike::mvnorm_rw</code><a href="mh-proposals-ilike.html#multivariate-normal-random-walk-proposal-ilikemvnorm_rw-1" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Specifies a multivariate random walk normal proposal over the given variable, where the proposed state <span class="math inline">\(\theta^*\)</span> is simulated using</p>
+<p><span class="math display">\[
+\theta^* \sim \mathcal{MVN}(\theta, s^2 \Sigma)
+\]</span></p>
+<p>Inputs:</p>
 <ol style="list-style-type: decimal">
-<li><p>The means by which the MCMC will be terminated (e.g. the number of iterations);</p></li>
-<li><p>How to compose the MCMC updates, via deterministic or stochastic sweeps;</p></li>
-<li><p>How to determine which factors are involved in the Metropolis-Hastings acceptance ratio.</p></li>
+<li><p>string: the variable for which the proposal is specified</p></li>
+<li><p>matrix: the covariance <span class="math inline">\(\Sigma\)</span> of the multivariate normal distribution</p></li>
+<li><p>numeric: the scaling factor <span class="math inline">\(s^2\)</span> of the covariance matrix (default is 1)</p></li>
 </ol>
+</div>
+<div id="uniform-random-walk-proposal-ilikeunif_rw-1" class="section level4 hasAnchor" number="4.9.1.3">
+<h4><span class="header-section-number">4.9.1.3</span> Uniform random walk proposal <code>ilike::unif_rw</code><a href="mh-proposals-ilike.html#uniform-random-walk-proposal-ilikeunif_rw-1" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Specifies a uniform random walk proposal over the given variable, where the proposed state <span class="math inline">\(\theta^*\)</span> is simulated using</p>
+<p><span class="math display">\[
+\theta^* \sim \mathcal{U}(\theta - \sigma, \theta} + \sigma)
+\]</span></p>
+<p>Inputs:</p>
+<ol style="list-style-type: decimal">
+<li><p>string: the variable for which the proposal is specified</p></li>
+<li><p>numeric: the half-width of the uniform distribution</p></li>
+</ol>
+</div>
+<div id="multivariate-uniform-random-walk-proposal-ilikemvunif_rw-1" class="section level4 hasAnchor" number="4.9.1.4">
+<h4><span class="header-section-number">4.9.1.4</span> Multivariate uniform random walk proposal <code>ilike::mvunif_rw</code><a href="mh-proposals-ilike.html#multivariate-uniform-random-walk-proposal-ilikemvunif_rw-1" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Specifies a multivariate random walk normal proposal over the given variable, where proposed state <span class="math inline">\(\theta^*\)</span> is simulated using</p>
+<p><span class="math display">\[
+\theta^* \sim \mathcal{MVU}(\theta - \Sigma, \theta + \Sigma)
+\]</span></p>
+<p>Inputs:</p>
+<ol style="list-style-type: decimal">
+<li><p>string: the variable for which the proposal is specified</p></li>
+<li><p>vector/matrix: a matrix of half-widths of the uniform distribution, which must have the same dimensionality as <span class="math inline">\(\theta\)</span></p></li>
+</ol>
+</div>
+<div id="langevin-proposal-ilikelangevin" class="section level4 hasAnchor" number="4.9.1.5">
+<h4><span class="header-section-number">4.9.1.5</span> Langevin proposal <code>ilike::langevin</code><a href="mh-proposals-ilike.html#langevin-proposal-ilikelangevin" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Specifies a Langevin proposal over the given variable, where the proposed state <span class="math inline">\(\theta^*\)</span> is simulated using</p>
+<p><span class="math display">\[
+\theta^* \sim \mathcal{MVN}(\theta + \frac{s^2}{2} \Sigma \nabla \log \pi(\theta), s^2 \Sigma)
+\]</span>
+The presence of <span class="math inline">\(\nabla \log \pi(\theta)\)</span> in the proposal requires that the gradient of the log of each factor must be available. <span class="math inline">\(s^2\)</span> is scaling factor for the preconditioning matrix <span class="math inline">\(\Sigma\)</span>.</p>
+<p>Inputs:</p>
+<ol style="list-style-type: decimal">
+<li><p>string: the variable for which the proposal is specified</p></li>
+<li><p>matrix: the covariance <span class="math inline">\(\Sigma\)</span> of the multivariate normal distribution used in the proposal</p></li>
+<li><p>numeric: the scaling factor <span class="math inline">\(s^2\)</span> of the preconditioning matrix (default is 1)</p></li>
+</ol>
+</div>
+<div id="barker-proposal-ilikebarker" class="section level4 hasAnchor" number="4.9.1.6">
+<h4><span class="header-section-number">4.9.1.6</span> Barker proposal <code>ilike::barker</code><a href="mh-proposals-ilike.html#barker-proposal-ilikebarker" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Specifies a Barker proposal over the given variable, as described in <span class="citation">Livingstone and Zanella (<a href="#ref-livingstone2022barker">2022</a>)</span>, where the proposed state <span class="math inline">\(\theta^*\)</span> is simulated using the following procedure. For the following, let: <span class="math inline">\(d\)</span> be the dimension of <span class="math inline">\(\theta\)</span>, <span class="math inline">\(\mathbf{0}_d\)</span> be the zero vector in <span class="math inline">\(\mathbb{R}\)</span>; <span class="math inline">\(\mathbf{I}_d\)</span> be the identity covariance matrix in <span class="math inline">\(\mathbb{R}^{d\times d}\)</span>; and let <span class="math inline">\(\odot\)</span> be the Hadamard (element-wise) product. Let <span class="math inline">\(C = \mbox{chol}(s^2 \Sigma)\)</span>, then</p>
+<p><span class="math display">\[
+z \sim \mathcal{MVN}(\mathbf{0}_d, \mathbf{I}_d)
+\]</span></p>
+<p>followed by, for <span class="math inline">\(i=1:d\)</span></p>
+<p><span class="math display">\[
+u_i\sim \mathcal{U}(0,1)
+\]</span></p>
+<p><span class="math display">\[
+c_i(\theta) = \nabla \log \pi(\theta) C^T
+\]</span></p>
+<p><span class="math display">\[
+b_i = -1 + 2 \times I \left( u_i &lt; 1/(1 + \exp(-z_i c_i(\theta) )) \right)
+\]</span></p>
+<p><span class="math display">\[
+\theta^* = \theta + b \odot z
+\]</span>
+The presence of <span class="math inline">\(\nabla \log \pi(\theta)\)</span> in the proposal requires that the gradient of the log of each factor must be available. <span class="math inline">\(s^2\)</span> is scaling factor for the preconditioning matrix <span class="math inline">\(\Sigma\)</span>.</p>
+<p>Inputs:</p>
+<ol style="list-style-type: decimal">
+<li><p>string: the variable for which the proposal is specified</p></li>
+<li><p>matrix: the covariance <span class="math inline">\(\Sigma\)</span> of the multivariate normal distribution used in the proposal</p></li>
+<li><p>numeric: the scaling factor <span class="math inline">\(s^2\)</span> of the preconditioning matrix (default is 1)</p></li>
+</ol>
+</div>
+<div id="mirror-proposal-ilikemirror-1" class="section level4 hasAnchor" number="4.9.1.7">
+<h4><span class="header-section-number">4.9.1.7</span> Mirror proposal <code>ilike::mirror</code><a href="mh-proposals-ilike.html#mirror-proposal-ilikemirror-1" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Specifies a mirror proposal over the given variable, as described in <span class="citation">Thawornwattana, Dalquen, and Yang (<a href="#ref-thawornwattana2018designing">2018</a>)</span>, where the proposed state <span class="math inline">\(\theta^*\)</span> is simulated using</p>
+<p><span class="math display">\[
+\theta^* \sim \mathcal{MVN} (2 \mu - \theta, s^2 \Sigma),
+\]</span>
+where <span class="math inline">\(\mu\)</span> is a centre (typically an estimate of the expectation of the target distribution) and <span class="math inline">\(s^2\)</span> is scaling factor for the covariance matrix <span class="math inline">\(\Sigma\)</span>.</p>
+<p>Inputs:</p>
+<ol style="list-style-type: decimal">
+<li><p>string: the variable for which the proposal is specified</p></li>
+<li><p>numeric: the centre <span class="math inline">\(\mu\)</span> of the mirror proposal</p></li>
+<li><p>matrix: the covariance <span class="math inline">\(\Sigma\)</span> of the multivariate normal distribution used in the proposal</p></li>
+<li><p>numeric: the scaling factor <span class="math inline">\(s^2\)</span> of the covariance matrix (default is 1)</p></li>
+</ol>
+</div>
+</div>
+</div>
+<h3>References<a href="references.html#references" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="ref-livingstone2022barker" class="csl-entry">
+Livingstone, Samuel, and Giacomo Zanella. 2022. <span>“The Barker Proposal: Combining Robustness and Efficiency in Gradient-Based MCMC.”</span> <em>Journal of the Royal Statistical Society Series B: Statistical Methodology</em> 84 (2): 496–523.
+</div>
+<div id="ref-thawornwattana2018designing" class="csl-entry">
+Thawornwattana, Yuttapong, Daniel Dalquen, and Ziheng Yang. 2018. <span>“Designing Simple and Efficient Markov Chain Monte Carlo Proposal Kernels.”</span>
+</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="algorithmic-likelihood.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="mcmc-termination.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="user-defined-mh-proposals.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="user-defined-unadjusted-proposals.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

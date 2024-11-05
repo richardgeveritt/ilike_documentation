@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Chapter 4 Markov chain Monte Carlo | ilike documentation</title>
+  <title>4.4 User-defined Metropolis proposals | ilike documentation</title>
   <meta name="description" content="Documentation for the ilike R package." />
   <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Chapter 4 Markov chain Monte Carlo | ilike documentation" />
+  <meta property="og:title" content="4.4 User-defined Metropolis proposals | ilike documentation" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="Documentation for the ilike R package." />
   <meta name="github-repo" content="richardgeveritt/ilike_documentation" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 4 Markov chain Monte Carlo | ilike documentation" />
+  <meta name="twitter:title" content="4.4 User-defined Metropolis proposals | ilike documentation" />
   
   <meta name="twitter:description" content="Documentation for the ilike R package." />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="algorithmic-likelihood.html"/>
-<link rel="next" href="mcmc-termination.html"/>
+<link rel="prev" href="selecting-factors.html"/>
+<link rel="next" href="metropolis-proposals-ilike.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -409,30 +409,46 @@ div.csl-indent {
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="mcmc" class="section level1 hasAnchor" number="4">
-<h1><span class="header-section-number">Chapter 4</span> Markov chain Monte Carlo<a href="mcmc.html#mcmc" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<p>When a Markov chain Monte Carlo (MCMC) is used for inference, most of the configuration of the algorithm must be done through the ilike file. ilike currently supports four different types of MCMC updates:</p>
-<ol style="list-style-type: decimal">
-<li><p>Metropolis updates, which require the use of symmetric proposal distribution;</p></li>
-<li><p>Independent Metropolis-Hastings updates, which require a proposal distribution that is independent of the current state of the Markov chain;</p></li>
-<li><p>Metropolis-Hastings updates, which require a proposal distribution (which need not be symmetric and can be dependent on the current state of the Markov chain);</p></li>
-<li><p>Unadjusted updates, which use only the specified proposal distribution to generate new states, i.e. there is no Metropolis-Hastings correction.</p></li>
-</ol>
-<p>Each of these types of updates require the specification of a proposal, and each type of update is specified by using different function types for the proposal: e.g. using the function type <code>mh_proposal</code> will result in using this proposal in a Metropolis-Hastings algorithm. If MCMC updates are provided (through specifying proposals), and a MCMC or sequential Monte Carlo with MCMC moves is used for inference, the MCMC moves will be composed using these updates.</p>
-<p>Before describing the different types of proposals, we describe how to provide the compiler with the following details:</p>
-<ol style="list-style-type: decimal">
-<li><p>The means by which the MCMC will be terminated (e.g. the number of iterations);</p></li>
-<li><p>How to compose the MCMC updates, via deterministic or stochastic sweeps;</p></li>
-<li><p>How to determine which factors are involved in the Metropolis-Hastings acceptance ratio.</p></li>
-</ol>
+<div id="user-defined-metropolis-proposals" class="section level2 hasAnchor" number="4.4">
+<h2><span class="header-section-number">4.4</span> User-defined Metropolis proposals<a href="user-defined-metropolis-proposals.html#user-defined-metropolis-proposals" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>The functions in this section allow the specification of a user-defined Metropolis proposal. For use in a Metropolis algorithm, the proposal must be symmetric. However, ilike does not currently use any tests to verify this condition: the responsibility lies with the user. A custom Metropolis proposal requires the specification of one function type: <code>simulate_m_proposal</code></p>
+<div id="simulate_m_proposal" class="section level3 hasAnchor" number="4.4.1">
+<h3><span class="header-section-number">4.4.1</span> simulate_m_proposal<a href="user-defined-metropolis-proposals.html#simulate_m_proposal" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The <code>simulate_m_proposal</code> function type simulates a Metropolis proposal distribution. When providing a proposal that only moves some of the variables, there is no obligation on the user to set the values of the variables that are not being moved.</p>
+<p>There are two optional arguments for this function type, allowing the proposal to depend on some parameters, or the observed data. The arguments that are chosen must be specified in the order of the inputs listed below.</p>
+<p>Input: (C++ only) The random number generator.</p>
+<p>– of type <code>RandomNumberGenerator &amp;</code> in a C++ function</p>
+<p>Input: The current state of the MCMC chain.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>parameters</code> in an R function</p>
+<p>Input: (optional) Any parameters the proposal relies on.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>parameters</code> in an R function</p>
+<p>Input: (optional) The observed data.</p>
+<p>– of type <code>const Data &amp;</code> in a C++ function</p>
+<p>– available as R list <code>data</code> in an R function</p>
+<p>Output: The proposed state of the MCMC chain.</p>
+<p>– of type <code>Parameters</code> in a C++ function</p>
+<p>– a list in R.</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="user-defined-metropolis-proposals.html#cb9-1" tabindex="-1"></a><span class="co">/***simulate_m_proposal***/</span></span>
+<span id="cb9-2"><a href="user-defined-metropolis-proposals.html#cb9-2" tabindex="-1"></a>Parameters simulate_m_proposal<span class="op">(</span>RandomNumberGenerator <span class="op">&amp;</span>rng<span class="op">,</span> <span class="at">const</span> Parameters <span class="op">&amp;</span>parameters<span class="op">)</span></span>
+<span id="cb9-3"><a href="user-defined-metropolis-proposals.html#cb9-3" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb9-4"><a href="user-defined-metropolis-proposals.html#cb9-4" tabindex="-1"></a>  arma<span class="op">::</span>colvec x<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb9-5"><a href="user-defined-metropolis-proposals.html#cb9-5" tabindex="-1"></a>  x<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> rnorm<span class="op">(</span>rng<span class="op">,</span> parameters<span class="op">[</span><span class="st">&quot;x&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">],</span> proposal_parameters<span class="op">[</span><span class="st">&quot;theta&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">]);</span></span>
+<span id="cb9-6"><a href="user-defined-metropolis-proposals.html#cb9-6" tabindex="-1"></a>  <span class="cf">return</span> Parameters<span class="op">(</span><span class="st">&quot;x&quot;</span><span class="op">,</span> x<span class="op">);</span></span>
+<span id="cb9-7"><a href="user-defined-metropolis-proposals.html#cb9-7" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="user-defined-metropolis-proposals.html#cb10-1" tabindex="-1"></a><span class="co">/***simulate_mh_proposal,x=rnorm(1,parameters$x,proposal_parameters$theta)***/</span></span></code></pre></div>
+</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="algorithmic-likelihood.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="mcmc-termination.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="selecting-factors.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="metropolis-proposals-ilike.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
