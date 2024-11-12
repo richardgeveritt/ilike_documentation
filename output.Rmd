@@ -1,12 +1,247 @@
 # Loading and visualising output {#output}
 
+Running an ilike inference algorithm writes algorithm output to a directory specified by the user. The output directory contains a number of files containing output from the inference algorithm. ilike contains functions that allow the user to easily load the algorithm output into R data frames, ready for analysis. The packages [`ggsmc`](https://cran.r-project.org/package=ggsmc) [@ggsmc] and `ilike.output` are designed to process output in this format, respectively used for plotting and calculating statistics. MCMC output can also easily be plotted using [`ggmcmc`](https://cran.r-project.org/package=ggmcmc) [@ggmcmc].
+
+The following sections will describe how to load and process output from the different inference algorithms in ilike. Then, at the end of the chapter, in section \@ref(nested) we describe how to load the output from the inner layers of a nested algorithm (such as particle MCMC or ABC), section \@ref(pivot-wider) describes how to `pivot_wider` ilike data (transform it from tidy format to a matrix format), and in section \@ref(output-detail) we describe the file and directory structure of ilike output (for users who may wish to examine this output directly).
+
 ## MCMC output
 
-## IS and SMC output
+To illustrate how to load and process MCMC output, we return to the example in section \@ref(toy-example). The following code compiles the model (which has a two-dimensional parameter $\theta = (\theta_1,\theta_2)$) and runs an MCMC algorithm, storing the output in a new folder named `toy_model_rwm` in the current working directory.
+
+```{r,eval=FALSE}
+library(ilike)
+model = compile("toy_model_rwm.ilike")
+mcmc(model,
+     results_name = "toy_model_rwm",
+     initial_values = list(list(θ=c(0,0))),
+     model_parameter_list = list(300.0*diag(2)))
+```
+
+### Loading MCMC output (ilike format)
+
+To load MCMC output into an R data frame, the function `load_mcmc_output` is used. The first, and only required, argument is the name of the directory in which the ilike output is stored (`toy_model_rwm` in this case). The two other arguments are optional: `ggmcmc` and `ilike.output` both take values `TRUE` or `FALSE`, and determine whether the data frame is suitable for use in, respectively, the `ggmcmc` or `ilike.output` packages (the default is `ggmcmc = FALSE` and `ilike.output = TRUE`).
+
+We begin by loading the output from the MCMC algorithm using the `load_mcmc_output` function.
+
+```{r,echo=FALSE,message=FALSE}
+library(ilike)
+data(toy_model_rwm_ilike)
+```
+
+```{r,eval=FALSE}
+toy_model_rwm_ilike = load_mcmc_output("toy_model_rwm")
+```
+
+Here `ilike.output` is set (by default) to `TRUE`, so this data frame is in the standard form for ilike output (for use in `ggsmc` and `ilike.output`).
+
+```{r}
+head(toy_model_rwm_ilike,n=16L)
+```
+
+The data frame contains the following columns:
+
+- `ExternalIndex` is only used when the output is from a nested algorithm such as particle MCMC, so can be ignored for now;
+
+- `Time` gives the time taken by the MCMC algorithm;
+
+- `Iteration` is the iteration of the MCMC algorithm, starting from 1;
+
+- `Chain` is the index for the MCMC chain (useful when running multiple chains);
+
+- `ParameterName` is the name of the parameter;
+
+- `Dimension` is the dimension of the parameter (here 1 for $\theta_1$ and 2 for $\theta_2$);
+
+- `Value` is the value of the given dimension of the parameter at the given iteration.
+
+This data frame uses the [tidy](https://r4ds.had.co.nz/tidy-data.html) format that is popular in R since it is easy to summarise and plot. It is more standard for Monte Carlo output to be in a matrix format, where each row corresponds to a single iteration and each column corresponds to a parameter. To convert ilike data to this format, see the function `ilike_pivot_wider` in section \@ref(pivot-wider).
+
+### Plotting using `ggsmc`
+
+We may use the `ggsmc` package to plot data in this format. The `plot_histogram`, `plot_density`, `plot_scatter` and `plot_time_series` functions are all compatible with plotting MCMC output from ilike, as long as the argument `mcmc=TRUE` is set (if this is not set, you will likely receive an error, since `ggsmc` by default expects output from an SMC or ensemble algorithm). Here are examples of each.
+
+- `plot_histogram` can be used for plotting histograms of marginal posterior distributions of the parameters.
+
+```{r}
+library(ggsmc)
+plot_histogram(toy_model_rwm_ilike,
+               parameter = "θ",
+               dimension = 1,
+               mcmc = TRUE)
+```
+
+- `plot_density` can be used for plotting kernel density estimates of the marginal posterior distributions of the parameters.
+
+```{r}
+plot_density(toy_model_rwm_ilike,
+             parameter = "θ",
+             dimension = 1,
+             mcmc = TRUE)
+```
+
+- `plot_scatter` can be used for plotting scatter plots of joint distributions of pairs of parameters.
+
+```{r}
+library(ggsmc)
+plot_scatter(toy_model_rwm_ilike,
+             x_parameter = "θ",
+             x_dimension = 1,
+             y_parameter = "θ",
+             y_dimension = 2,
+             mcmc = TRUE)
+```
+
+- `plot_time_series` can be used for plotting time series of the parameters. Here it is assumed that the `Dimension` column in the MCMC output refers to a time index. As an example, we show output from our two-dimensional model using this function, but this figure is meaningless since the `Dimension` column cannot be interpreted as a time series for the model we are studying.
+
+```{r}
+library(ggsmc)
+plot_time_series(toy_model_rwm_ilike,
+                 parameter = "θ",
+                 mcmc = TRUE,
+                 alpha = 0.01)
+```
+
+### Loading MCMC output (ggmcmc format)
+
+We now show how to load the MCMC output in a format suitable for use with the `ggmcmc` package. This is done by setting the `ggmcmc` argument to `TRUE` in the `load_mcmc_output` function.
+
+```{r,echo=FALSE,message=FALSE}
+library(ilike)
+data(toy_model_rwm_ggmcmc)
+```
+
+```{r,eval=FALSE}
+toy_model_rwm_ggmcmc = load_mcmc_output("toy_model_rwm",
+                                        ggmcmc = TRUE)
+```
+
+The format expected by `ggmcmc` is a little different to that expected by `ggsmc` and `ilike.output`.
+
+```{r}
+head(toy_model_rwm_ggmcmc,n=16L)
+```
+
+The data frame contains the following columns:
+
+- `ExternalIndex` is only used when the output is from a nested algorithm such as particle MCMC, so can be ignored for now;
+
+- `Time` gives the time taken by the MCMC algorithm;
+
+- `Iteration` is the iteration of the MCMC algorithm, starting from 1;
+
+- `Chain` is the index for the MCMC chain (useful when running multiple chains);
+
+- `value` is the value of the given dimension of the parameter at the given iteration;
+
+- `Parameter` is the name of the parameter, which combines the variable name assigned in the model, and the dimension. In this output we see that the parameter names are `θ_1` and `θ_2`.
+
+### Plotting using `ggmcmc`
+
+This data frame is in the format expected by `ggmcmc`, so we can use the `ggmcmc` package to plot histograms, densities, trace plots, running means, autocorrelation plots and other diagnostics. Here we show only how to plot trace plots using `ggmcmc`.
+
+```{r, message=FALSE}
+library(ggmcmc)
+ggs_traceplot(toy_model_rwm_ggmcmc)
+```
+
+### Burn-in / warm-up
+
+In MCMC algorithms, it is common to discard the first few iterations of the chain as a burn-in or warm-up period. This is because the chain may not have converged to the stationary distribution in the early iterations. ilike does not automatically discard any iterations as burn-in, so it is up to the user to decide how many iterations to discard (maybe after studying trace plots, such as that above, or using other diagnostics). This can be done by subsetting the data frame. For example, to discard the first 100 iterations of the MCMC output, we can use the following code, using the `dplyr` package.
+
+```{r}
+library(dplyr)
+toy_model_rwm_ggmcmc_burned_in <- toy_model_rwm_ggmcmc %>%
+  filter(Iteration > 100)
+```
+
+## IS and SMC output {#smc-output}
+
+For loading the output of IS and SMC algorithms we use the function `load_smc_output`. We use the particle filter output from section \€ref(filtering_cv) as example output for this section.
+
+To load the output from this algorithm we call
+
+```{r,echo=FALSE,message=FALSE}
+data(sir_cwna_model)
+```
+
+```{r,eval=FALSE}
+sir_cwna_model = load_smc_output("sir_cwna_model")
+```
+
+The format is not dissimilar to that for MCMC algorithms.
+
+```{r}
+head(sir_cwna_model)
+```
+
+- `ExternalIndex` is only used when the output is from a nested algorithm such as particle MCMC, so can be ignored for now;
+
+- `Target` is the index of the target distribution in the SMC algorithm. This will be equal to `1` when an IS algorithm is used;
+
+- `Time` gives the time taken by the SMC algorithm up to the given target distribution;
+
+- `NormalisingConstant` is the estimated normalising constant of the given target distribution;
+
+- `ISESS` is the estimated effective sample size of the particles at the given target distribution;
+
+- `TargetParameters` is a string giving the parameters of the target distribution;
+
+- `Iteration` is the iteration of the of an MCMC algorithm used within the SMC algorithm. When no MCMC iterations are used, this will be equal to `1`;
+
+- `Particle` is the index of the particle;
+
+- `AncestorIndex` is the index of the ancestor of the particle. This is used to trace the ancestry of the particles, which is useful for analysing the effect of resampling;
+
+- `LogWeight` is the log weight of the particle;
+
+- `ParameterName` is the name of the parameter;
+
+- `Dimension` is the dimension of the parameter;
+
+- `Value` is the value of the given dimension of the parameter at the given MCMC iteration for the given SMC target.
+
+### Visualising output using `ggsmc`
+
+This output can be visualised using the `ggsmc` package, which contains functions for plotting and animating histograms, densities, scatter plots and the genealogy of the particle population. Examples of these plots for this model can be found in [the vigentte for the `ggsmc` package](https://cran.r-project.org/web/packages/ggsmc/vignettes/Visualising.html). Here we include ony an example of the evolution of the particle population over time.
+
+```{r}
+data(cwna_data)
+plot_genealogy(sir_cwna_model,
+               parameter = "x",
+               dimension = 1,
+               use_initial_points = FALSE,
+               vertical = FALSE,
+               alpha_lines = 0,
+               alpha_points = 0.05,
+               arrows = FALSE,
+               default_title = TRUE) +
+ggplot2::geom_line(data=cwna_data,ggplot2::aes(x=Index,y=Position),colour="red",inherit.aes = FALSE) +
+ggplot2::theme_minimal() +
+ggplot2::theme(legend.position="none")
+```
 
 ## Ensemble Kalman output
 
-## Further detail about output files
+Loading and plotting output from ensemble methods is very similar to that for SMC methods. We use the ensemble Kalman filter output from section \€ref(filtering_cv) as example output for this section.
+
+To load the output from this algorithm we call
+
+```{r,eval=FALSE}
+enk_cwna_model = load_enk_output("enk_cwna_model")
+```
+
+The format is the same as that from the function `load_smc_output` in section \€ref(smc-output), except that the following two columns are not present in the output:
+
+- `AncestorIndex`, since the set of particles (usually called an *ensemble* in this context), is not resampled;
+
+- `LogWeight`, since each particle (member of the ensemble) has equal weight.
+
+## Loading nested output {#nested}
+
+## `pivot_wider` for ilike data {#pivot-wider}
+
+## Further detail about output files {#output-detail}
+
 
 
 <!-- You can label chapter and section titles using `{#label}` after them, e.g., we can reference Chapter \@ref(intro). If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \@ref(methods). -->

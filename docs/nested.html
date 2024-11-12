@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>8.3 Ensemble Kalman output | ilike documentation</title>
+  <title>8.4 Loading nested output | ilike documentation</title>
   <meta name="description" content="Documentation for the ilike R package." />
   <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="8.3 Ensemble Kalman output | ilike documentation" />
+  <meta property="og:title" content="8.4 Loading nested output | ilike documentation" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="Documentation for the ilike R package." />
   <meta name="github-repo" content="richardgeveritt/ilike_documentation" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="8.3 Ensemble Kalman output | ilike documentation" />
+  <meta name="twitter:title" content="8.4 Loading nested output | ilike documentation" />
   
   <meta name="twitter:description" content="Documentation for the ilike R package." />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="smc-output.html"/>
-<link rel="next" href="nested.html"/>
+<link rel="prev" href="ensemble-kalman-output.html"/>
+<link rel="next" href="pivot-wider.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -456,24 +456,16 @@ div.csl-indent {
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="ensemble-kalman-output" class="section level2 hasAnchor" number="8.3">
-<h2><span class="header-section-number">8.3</span> Ensemble Kalman output<a href="ensemble-kalman-output.html#ensemble-kalman-output" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>Loading and plotting output from ensemble methods is very similar to that for SMC methods. We use the ensemble Kalman filter output from section €ref(filtering_cv) as example output for this section.</p>
-<p>To load the output from this algorithm we call</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="ensemble-kalman-output.html#cb18-1" tabindex="-1"></a>enk_cwna_model <span class="ot">=</span> <span class="fu">load_enk_output</span>(<span class="st">&quot;enk_cwna_model&quot;</span>)</span></code></pre></div>
-<p>The format is the same as that from the function <code>load_smc_output</code> in section €ref(smc-output), except that the following two columns are not present in the output:</p>
-<ul>
-<li><p><code>AncestorIndex</code>, since the set of particles (usually called an <em>ensemble</em> in this context), is not resampled;</p></li>
-<li><p><code>LogWeight</code>, since each particle (member of the ensemble) has equal weight.</p></li>
-</ul>
+<div id="nested" class="section level2 hasAnchor" number="8.4">
+<h2><span class="header-section-number">8.4</span> Loading nested output<a href="nested.html#nested" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="smc-output.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="nested.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="ensemble-kalman-output.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="pivot-wider.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

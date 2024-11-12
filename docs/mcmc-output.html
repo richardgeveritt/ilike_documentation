@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>9.3 MCMC output | ilike documentation</title>
+  <title>8.1 MCMC output | ilike documentation</title>
   <meta name="description" content="Documentation for the ilike R package." />
   <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="9.3 MCMC output | ilike documentation" />
+  <meta property="og:title" content="8.1 MCMC output | ilike documentation" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="Documentation for the ilike R package." />
   <meta name="github-repo" content="richardgeveritt/ilike_documentation" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="9.3 MCMC output | ilike documentation" />
+  <meta name="twitter:title" content="8.1 MCMC output | ilike documentation" />
   
   <meta name="twitter:description" content="Documentation for the ilike R package." />
   
@@ -23,15 +23,15 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2024-11-05" />
+<meta name="date" content="2024-11-12" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="ensemble-kalman-output.html"/>
-<link rel="next" href="further-detail-about-output-files.html"/>
+<link rel="prev" href="output.html"/>
+<link rel="next" href="smc-output.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -123,6 +123,29 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   
   div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 </style>
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
 
 <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
@@ -166,21 +189,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="2.5.1" data-path="inference-smc.html"><a href="inference-smc.html#ilike-file-requirements-2"><i class="fa fa-check"></i><b>2.5.1</b> .ilike file requirements</a></li>
 </ul></li>
-<li class="chapter" data-level="2.6" data-path="iterative-ensemble-kalman-inversion.html"><a href="iterative-ensemble-kalman-inversion.html"><i class="fa fa-check"></i><b>2.6</b> Iterative ensemble Kalman inversion</a>
+<li class="chapter" data-level="2.6" data-path="inference-kf.html"><a href="inference-kf.html"><i class="fa fa-check"></i><b>2.6</b> Kalman filters</a>
 <ul>
-<li class="chapter" data-level="2.6.1" data-path="iterative-ensemble-kalman-inversion.html"><a href="iterative-ensemble-kalman-inversion.html#ilike-file-requirements-3"><i class="fa fa-check"></i><b>2.6.1</b> .ilike file requirements</a></li>
+<li class="chapter" data-level="2.6.1" data-path="inference-kf.html"><a href="inference-kf.html#ilike-file-requirements-3"><i class="fa fa-check"></i><b>2.6.1</b> .ilike file requirements</a></li>
 </ul></li>
-<li class="chapter" data-level="2.7" data-path="kf.html"><a href="kf.html"><i class="fa fa-check"></i><b>2.7</b> Kalman filters</a>
+<li class="chapter" data-level="2.7" data-path="inference-pf.html"><a href="inference-pf.html"><i class="fa fa-check"></i><b>2.7</b> Particle filters</a>
 <ul>
-<li class="chapter" data-level="2.7.1" data-path="kf.html"><a href="kf.html#ilike-file-requirements-4"><i class="fa fa-check"></i><b>2.7.1</b> .ilike file requirements</a></li>
+<li class="chapter" data-level="2.7.1" data-path="inference-pf.html"><a href="inference-pf.html#ilike-file-requirements-4"><i class="fa fa-check"></i><b>2.7.1</b> .ilike file requirements</a></li>
 </ul></li>
-<li class="chapter" data-level="2.8" data-path="inference-pf.html"><a href="inference-pf.html"><i class="fa fa-check"></i><b>2.8</b> Particle filters {#pf}</a>
+<li class="chapter" data-level="2.8" data-path="inference-enkf.html"><a href="inference-enkf.html"><i class="fa fa-check"></i><b>2.8</b> Ensemble Kalman filters</a>
 <ul>
-<li class="chapter" data-level="2.8.1" data-path="inference-pf.html"><a href="inference-pf.html#ilike-file-requirements-5"><i class="fa fa-check"></i><b>2.8.1</b> .ilike file requirements</a></li>
-</ul></li>
-<li class="chapter" data-level="2.9" data-path="enkf.html"><a href="enkf.html"><i class="fa fa-check"></i><b>2.9</b> Ensemble Kalman filters</a>
-<ul>
-<li class="chapter" data-level="2.9.1" data-path="enkf.html"><a href="enkf.html#ilike-file-requirements-6"><i class="fa fa-check"></i><b>2.9.1</b> .ilike file requirements</a></li>
+<li class="chapter" data-level="2.8.1" data-path="inference-enkf.html"><a href="inference-enkf.html#ilike-file-requirements-5"><i class="fa fa-check"></i><b>2.8.1</b> .ilike file requirements</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="ilike-files.html"><a href="ilike-files.html"><i class="fa fa-check"></i><b>3</b> ilike files</a>
@@ -189,7 +208,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="3.1.1" data-path="file-structure.html"><a href="file-structure.html#blocks-automatically"><i class="fa fa-check"></i><b>3.1.1</b> Specifying blocks automatically</a></li>
 </ul></li>
-<li class="chapter" data-level="3.2" data-path="compiling.html"><a href="compiling.html"><i class="fa fa-check"></i><b>3.2</b> Compiling an ilike file</a></li>
+<li class="chapter" data-level="3.2" data-path="compiling.html"><a href="compiling.html"><i class="fa fa-check"></i><b>3.2</b> Compiling an ilike file</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="compiling.html"><a href="compiling.html#compiler-output"><i class="fa fa-check"></i><b>3.2.1</b> Compiler output</a></li>
+</ul></li>
 <li class="chapter" data-level="3.3" data-path="C.html"><a href="C.html"><i class="fa fa-check"></i><b>3.3</b> C++ functions</a>
 <ul>
 <li class="chapter" data-level="3.3.1" data-path="C.html"><a href="C.html#including-additional-code"><i class="fa fa-check"></i><b>3.3.1</b> Including additional code</a></li>
@@ -223,7 +245,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="4.3" data-path="ilike-prior.html"><a href="ilike-prior.html"><i class="fa fa-check"></i><b>4.3</b> Built-in prior</a>
 <ul>
-<li class="chapter" data-level="4.3.1" data-path="ilike-prior.html"><a href="ilike-prior.html#prior-ilike-functions"><i class="fa fa-check"></i><b>4.3.1</b> prior (ilike functions)</a></li>
+<li class="chapter" data-level="4.3.1" data-path="ilike-prior.html"><a href="ilike-prior.html#prior"><i class="fa fa-check"></i><b>4.3.1</b> prior</a></li>
 </ul></li>
 <li class="chapter" data-level="4.4" data-path="user-defined-likelihood.html"><a href="user-defined-likelihood.html"><i class="fa fa-check"></i><b>4.4</b> User-defined likelihood</a>
 <ul>
@@ -237,7 +259,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4.5.2" data-path="linear-gaussian-model.html"><a href="linear-gaussian-model.html#linear_gaussian_data_state_variable"><i class="fa fa-check"></i><b>4.5.2</b> linear_gaussian_data_state_variable</a></li>
 <li class="chapter" data-level="4.5.3" data-path="linear-gaussian-model.html"><a href="linear-gaussian-model.html#linear_gaussian_data_matrix"><i class="fa fa-check"></i><b>4.5.3</b> linear_gaussian_data_matrix</a></li>
 <li class="chapter" data-level="4.5.4" data-path="linear-gaussian-model.html"><a href="linear-gaussian-model.html#linear_gaussian_data_covariance"><i class="fa fa-check"></i><b>4.5.4</b> linear_gaussian_data_covariance</a></li>
-<li class="chapter" data-level="4.5.5" data-path="linear-gaussian-model.html"><a href="linear-gaussian-model.html#linear_gaussian_data_model-ilike-function"><i class="fa fa-check"></i><b>4.5.5</b> linear_gaussian_data_model (ilike function)</a></li>
+<li class="chapter" data-level="4.5.5" data-path="linear-gaussian-model.html"><a href="linear-gaussian-model.html#linear_gaussian_data_model"><i class="fa fa-check"></i><b>4.5.5</b> linear_gaussian_data_model</a></li>
 </ul></li>
 <li class="chapter" data-level="4.6" data-path="nonlinear-gaussian-model.html"><a href="nonlinear-gaussian-model.html"><i class="fa fa-check"></i><b>4.6</b> Nonlinear-Gaussian model</a>
 <ul>
@@ -250,18 +272,18 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4.7.1" data-path="simulation-based-likelihood.html"><a href="simulation-based-likelihood.html#simulate_data_model"><i class="fa fa-check"></i><b>4.7.1</b> simulate_data_model</a></li>
 <li class="chapter" data-level="4.7.2" data-path="simulation-based-likelihood.html"><a href="simulation-based-likelihood.html#data_variable"><i class="fa fa-check"></i><b>4.7.2</b> data_variable</a></li>
 <li class="chapter" data-level="4.7.3" data-path="simulation-based-likelihood.html"><a href="simulation-based-likelihood.html#summary_statistics"><i class="fa fa-check"></i><b>4.7.3</b> summary_statistics</a></li>
-<li class="chapter" data-level="4.7.4" data-path="simulation-based-likelihood.html"><a href="simulation-based-likelihood.html#sbi_likelihood-ilike-functions"><i class="fa fa-check"></i><b>4.7.4</b> sbi_likelihood (ilike functions)</a></li>
+<li class="chapter" data-level="4.7.4" data-path="simulation-based-likelihood.html"><a href="simulation-based-likelihood.html#sbi_likelihood"><i class="fa fa-check"></i><b>4.7.4</b> sbi_likelihood</a></li>
 </ul></li>
 <li class="chapter" data-level="4.8" data-path="algorithmic-likelihood.html"><a href="algorithmic-likelihood.html"><i class="fa fa-check"></i><b>4.8</b> Algorithmic likelihood</a>
 <ul>
-<li class="chapter" data-level="4.8.1" data-path="algorithmic-likelihood.html"><a href="algorithmic-likelihood.html#algorithmic_likelihood-ilike-functions"><i class="fa fa-check"></i><b>4.8.1</b> algorithmic_likelihood (ilike functions)</a></li>
+<li class="chapter" data-level="4.8.1" data-path="algorithmic-likelihood.html"><a href="algorithmic-likelihood.html#algorithmic_likelihood"><i class="fa fa-check"></i><b>4.8.1</b> algorithmic_likelihood</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="5" data-path="mcmc.html"><a href="mcmc.html"><i class="fa fa-check"></i><b>5</b> Markov chain Monte Carlo</a>
 <ul>
 <li class="chapter" data-level="5.1" data-path="mcmc-termination.html"><a href="mcmc-termination.html"><i class="fa fa-check"></i><b>5.1</b> MCMC termination</a>
 <ul>
-<li class="chapter" data-level="5.1.1" data-path="mcmc-termination.html"><a href="mcmc-termination.html#mcmc_termination-ilike-functions"><i class="fa fa-check"></i><b>5.1.1</b> mcmc_termination (ilike functions)</a></li>
+<li class="chapter" data-level="5.1.1" data-path="mcmc-termination.html"><a href="mcmc-termination.html#mcmc_termination"><i class="fa fa-check"></i><b>5.1.1</b> mcmc_termination</a></li>
 </ul></li>
 <li class="chapter" data-level="5.2" data-path="mcmc-sweeps.html"><a href="mcmc-sweeps.html"><i class="fa fa-check"></i><b>5.2</b> MCMC sweeps</a>
 <ul>
@@ -277,94 +299,141 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="5.4.1" data-path="user-defined-metropolis-proposals.html"><a href="user-defined-metropolis-proposals.html#simulate_m_proposal"><i class="fa fa-check"></i><b>5.4.1</b> simulate_m_proposal</a></li>
 </ul></li>
-<li class="chapter" data-level="5.5" data-path="metropolis-proposals-ilike.html"><a href="metropolis-proposals-ilike.html"><i class="fa fa-check"></i><b>5.5</b> Metropolis proposals: ilike</a>
+<li class="chapter" data-level="5.5" data-path="built-in-metropolis-proposals.html"><a href="built-in-metropolis-proposals.html"><i class="fa fa-check"></i><b>5.5</b> Built-in Metropolis proposals</a>
 <ul>
-<li class="chapter" data-level="5.5.1" data-path="metropolis-proposals-ilike.html"><a href="metropolis-proposals-ilike.html#m_proposal-ilike-functions"><i class="fa fa-check"></i><b>5.5.1</b> m_proposal (ilike functions)</a></li>
+<li class="chapter" data-level="5.5.1" data-path="built-in-metropolis-proposals.html"><a href="built-in-metropolis-proposals.html#m_proposal"><i class="fa fa-check"></i><b>5.5.1</b> m_proposal</a></li>
 </ul></li>
 <li class="chapter" data-level="5.6" data-path="user-defined-independent-mh-proposals.html"><a href="user-defined-independent-mh-proposals.html"><i class="fa fa-check"></i><b>5.6</b> User-defined independent MH proposals</a>
 <ul>
 <li class="chapter" data-level="5.6.1" data-path="user-defined-independent-mh-proposals.html"><a href="user-defined-independent-mh-proposals.html#simulate_imh_proposal"><i class="fa fa-check"></i><b>5.6.1</b> simulate_imh_proposal</a></li>
 <li class="chapter" data-level="5.6.2" data-path="user-defined-independent-mh-proposals.html"><a href="user-defined-independent-mh-proposals.html#evaluate_log_imh_proposal"><i class="fa fa-check"></i><b>5.6.2</b> evaluate_log_imh_proposal</a></li>
 </ul></li>
-<li class="chapter" data-level="5.7" data-path="independent-mh-proposals-ilike.html"><a href="independent-mh-proposals-ilike.html"><i class="fa fa-check"></i><b>5.7</b> Independent MH proposals: ilike</a>
+<li class="chapter" data-level="5.7" data-path="built-in-independent-mh-proposals.html"><a href="built-in-independent-mh-proposals.html"><i class="fa fa-check"></i><b>5.7</b> Built-in independent MH proposals</a>
 <ul>
-<li class="chapter" data-level="5.7.1" data-path="independent-mh-proposals-ilike.html"><a href="independent-mh-proposals-ilike.html#imh_proposal-ilike-functions"><i class="fa fa-check"></i><b>5.7.1</b> imh_proposal (ilike functions)</a></li>
+<li class="chapter" data-level="5.7.1" data-path="built-in-independent-mh-proposals.html"><a href="built-in-independent-mh-proposals.html#imh_proposal"><i class="fa fa-check"></i><b>5.7.1</b> imh_proposal</a></li>
 </ul></li>
 <li class="chapter" data-level="5.8" data-path="user-defined-mh-proposals.html"><a href="user-defined-mh-proposals.html"><i class="fa fa-check"></i><b>5.8</b> User-defined MH proposals</a>
 <ul>
 <li class="chapter" data-level="5.8.1" data-path="user-defined-mh-proposals.html"><a href="user-defined-mh-proposals.html#simulate_mh_proposal"><i class="fa fa-check"></i><b>5.8.1</b> simulate_mh_proposal</a></li>
 <li class="chapter" data-level="5.8.2" data-path="user-defined-mh-proposals.html"><a href="user-defined-mh-proposals.html#evaluate_log_mh_proposal"><i class="fa fa-check"></i><b>5.8.2</b> evaluate_log_mh_proposal</a></li>
 </ul></li>
-<li class="chapter" data-level="5.9" data-path="mh-proposals-ilike.html"><a href="mh-proposals-ilike.html"><i class="fa fa-check"></i><b>5.9</b> MH proposals: ilike</a>
+<li class="chapter" data-level="5.9" data-path="built-in-mh-proposals.html"><a href="built-in-mh-proposals.html"><i class="fa fa-check"></i><b>5.9</b> Built-in MH proposals</a>
 <ul>
-<li class="chapter" data-level="5.9.1" data-path="mh-proposals-ilike.html"><a href="mh-proposals-ilike.html#mh_proposal-ilike-functions"><i class="fa fa-check"></i><b>5.9.1</b> mh_proposal (ilike functions)</a></li>
+<li class="chapter" data-level="5.9.1" data-path="built-in-mh-proposals.html"><a href="built-in-mh-proposals.html#mh_proposal"><i class="fa fa-check"></i><b>5.9.1</b> mh_proposal</a></li>
 </ul></li>
 <li class="chapter" data-level="5.10" data-path="user-defined-unadjusted-proposals.html"><a href="user-defined-unadjusted-proposals.html"><i class="fa fa-check"></i><b>5.10</b> User-defined unadjusted proposals</a>
 <ul>
 <li class="chapter" data-level="5.10.1" data-path="user-defined-unadjusted-proposals.html"><a href="user-defined-unadjusted-proposals.html#simulate_unadjusted_proposal"><i class="fa fa-check"></i><b>5.10.1</b> simulate_unadjusted_proposal</a></li>
 </ul></li>
-<li class="chapter" data-level="5.11" data-path="unadjusted-proposals-ilike.html"><a href="unadjusted-proposals-ilike.html"><i class="fa fa-check"></i><b>5.11</b> Unadjusted proposals: ilike</a>
+<li class="chapter" data-level="5.11" data-path="built-in-unadjusted-proposals.html"><a href="built-in-unadjusted-proposals.html"><i class="fa fa-check"></i><b>5.11</b> Built-in unadjusted proposals</a>
 <ul>
-<li class="chapter" data-level="5.11.1" data-path="unadjusted-proposals-ilike.html"><a href="unadjusted-proposals-ilike.html#unadjusted_proposal-ilike-functions"><i class="fa fa-check"></i><b>5.11.1</b> unadjusted_proposal (ilike functions)</a></li>
+<li class="chapter" data-level="5.11.1" data-path="built-in-unadjusted-proposals.html"><a href="built-in-unadjusted-proposals.html#unadjusted_proposal"><i class="fa fa-check"></i><b>5.11.1</b> unadjusted_proposal</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="6" data-path="smc.html"><a href="smc.html"><i class="fa fa-check"></i><b>6</b> Importance sampling and sequential Monte Carlo</a>
 <ul>
-<li class="chapter" data-level="6.1" data-path="user-proposal.html"><a href="user-proposal.html"><i class="fa fa-check"></i><b>6.1</b> User-defined proposal distribution</a>
+<li class="chapter" data-level="6.1" data-path="user-proposal.html"><a href="user-proposal.html"><i class="fa fa-check"></i><b>6.1</b> User-defined proposals</a>
 <ul>
 <li class="chapter" data-level="6.1.1" data-path="user-proposal.html"><a href="user-proposal.html#simulate_is_proposal"><i class="fa fa-check"></i><b>6.1.1</b> simulate_is_proposal</a></li>
 <li class="chapter" data-level="6.1.2" data-path="user-proposal.html"><a href="user-proposal.html#evaluate_log_is_proposal"><i class="fa fa-check"></i><b>6.1.2</b> evaluate_log_is_proposal</a></li>
 </ul></li>
 <li class="chapter" data-level="6.2" data-path="ilike-proposal.html"><a href="ilike-proposal.html"><i class="fa fa-check"></i><b>6.2</b> Built-in proposals</a>
 <ul>
-<li class="chapter" data-level="6.2.1" data-path="ilike-proposal.html"><a href="ilike-proposal.html#is_proposal-ilike-functions"><i class="fa fa-check"></i><b>6.2.1</b> is_proposal (ilike functions)</a></li>
+<li class="chapter" data-level="6.2.1" data-path="ilike-proposal.html"><a href="ilike-proposal.html#is_proposal"><i class="fa fa-check"></i><b>6.2.1</b> is_proposal</a></li>
 </ul></li>
-<li class="chapter" data-level="6.3" data-path="adaptive-resampling.html"><a href="adaptive-resampling.html"><i class="fa fa-check"></i><b>6.3</b> Adaptive resampling</a></li>
+<li class="chapter" data-level="6.3" data-path="adaptive-resampling.html"><a href="adaptive-resampling.html"><i class="fa fa-check"></i><b>6.3</b> Adaptive resampling</a>
+<ul>
+<li class="chapter" data-level="6.3.1" data-path="adaptive-resampling.html"><a href="adaptive-resampling.html#adaptive_resampling"><i class="fa fa-check"></i><b>6.3.1</b> adaptive_resampling</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="smc-sequence.html"><a href="smc-sequence.html"><i class="fa fa-check"></i><b>6.4</b> SMC sequence</a>
+<ul>
+<li class="chapter" data-level="6.4.1" data-path="smc-sequence.html"><a href="smc-sequence.html#smc_sequence"><i class="fa fa-check"></i><b>6.4.1</b> smc_sequence</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="adaptive-target.html"><a href="adaptive-target.html"><i class="fa fa-check"></i><b>6.5</b> Adaptive target</a>
+<ul>
+<li class="chapter" data-level="6.5.1" data-path="adaptive-target.html"><a href="adaptive-target.html#adaptive_target"><i class="fa fa-check"></i><b>6.5.1</b> adaptive_target</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6" data-path="smc-termination.html"><a href="smc-termination.html"><i class="fa fa-check"></i><b>6.6</b> SMC termination</a>
+<ul>
+<li class="chapter" data-level="6.6.1" data-path="smc-termination.html"><a href="smc-termination.html#smc_termination"><i class="fa fa-check"></i><b>6.6.1</b> smc_termination</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="7" data-path="ssm.html"><a href="ssm.html"><i class="fa fa-check"></i><b>7</b> State-space models</a>
 <ul>
-<li class="chapter" data-level="7.1" data-path="transition-model-linear-gaussian.html"><a href="transition-model-linear-gaussian.html"><i class="fa fa-check"></i><b>7.1</b> Transition model: linear-Gaussian</a>
+<li class="chapter" data-level="7.1" data-path="state-space-supporting-detail.html"><a href="state-space-supporting-detail.html"><i class="fa fa-check"></i><b>7.1</b> State-space supporting detail</a>
 <ul>
-<li class="chapter" data-level="7.1.1" data-path="transition-model-linear-gaussian.html"><a href="transition-model-linear-gaussian.html#linear_gaussian_transition_variable"><i class="fa fa-check"></i><b>7.1.1</b> linear_gaussian_transition_variable</a></li>
-<li class="chapter" data-level="7.1.2" data-path="transition-model-linear-gaussian.html"><a href="transition-model-linear-gaussian.html#linear_gaussian_transition_matrix"><i class="fa fa-check"></i><b>7.1.2</b> linear_gaussian_transition_matrix</a></li>
-<li class="chapter" data-level="7.1.3" data-path="transition-model-linear-gaussian.html"><a href="transition-model-linear-gaussian.html#linear_gaussian_transition_covariance"><i class="fa fa-check"></i><b>7.1.3</b> linear_gaussian_transition_covariance</a></li>
-<li class="chapter" data-level="7.1.4" data-path="transition-model-linear-gaussian.html"><a href="transition-model-linear-gaussian.html#linear_gaussian_transition_model-ilike-function"><i class="fa fa-check"></i><b>7.1.4</b> linear_gaussian_transition_model (ilike function)</a></li>
+<li class="chapter" data-level="7.1.1" data-path="state-space-supporting-detail.html"><a href="state-space-supporting-detail.html#ssm-1"><i class="fa fa-check"></i><b>7.1.1</b> ssm</a></li>
 </ul></li>
-<li class="chapter" data-level="7.2" data-path="transition-model-nonlinear-gaussian.html"><a href="transition-model-nonlinear-gaussian.html"><i class="fa fa-check"></i><b>7.2</b> Transition model: nonlinear-Gaussian</a>
+<li class="chapter" data-level="7.2" data-path="linear-gaussian-transition-model.html"><a href="linear-gaussian-transition-model.html"><i class="fa fa-check"></i><b>7.2</b> Linear-Gaussian transition model</a>
 <ul>
-<li class="chapter" data-level="7.2.1" data-path="transition-model-nonlinear-gaussian.html"><a href="transition-model-nonlinear-gaussian.html#nonlinear_gaussian_transition_variable"><i class="fa fa-check"></i><b>7.2.1</b> nonlinear_gaussian_transition_variable</a></li>
-<li class="chapter" data-level="7.2.2" data-path="transition-model-nonlinear-gaussian.html"><a href="transition-model-nonlinear-gaussian.html#nonlinear_gaussian_transition_function"><i class="fa fa-check"></i><b>7.2.2</b> nonlinear_gaussian_transition_function</a></li>
-<li class="chapter" data-level="7.2.3" data-path="transition-model-nonlinear-gaussian.html"><a href="transition-model-nonlinear-gaussian.html#nonlinear_gaussian_transition_covariance"><i class="fa fa-check"></i><b>7.2.3</b> nonlinear_gaussian_transition_covariance</a></li>
+<li class="chapter" data-level="7.2.1" data-path="linear-gaussian-transition-model.html"><a href="linear-gaussian-transition-model.html#linear_gaussian_transition_variable"><i class="fa fa-check"></i><b>7.2.1</b> linear_gaussian_transition_variable</a></li>
+<li class="chapter" data-level="7.2.2" data-path="linear-gaussian-transition-model.html"><a href="linear-gaussian-transition-model.html#linear_gaussian_transition_matrix"><i class="fa fa-check"></i><b>7.2.2</b> linear_gaussian_transition_matrix</a></li>
+<li class="chapter" data-level="7.2.3" data-path="linear-gaussian-transition-model.html"><a href="linear-gaussian-transition-model.html#linear_gaussian_transition_covariance"><i class="fa fa-check"></i><b>7.2.3</b> linear_gaussian_transition_covariance</a></li>
+<li class="chapter" data-level="7.2.4" data-path="linear-gaussian-transition-model.html"><a href="linear-gaussian-transition-model.html#linear_gaussian_transition_model"><i class="fa fa-check"></i><b>7.2.4</b> linear_gaussian_transition_model</a></li>
 </ul></li>
-<li class="chapter" data-level="7.3" data-path="transition-model-custom.html"><a href="transition-model-custom.html"><i class="fa fa-check"></i><b>7.3</b> Transition model: custom</a>
+<li class="chapter" data-level="7.3" data-path="nonlinear-gaussian-transition-model.html"><a href="nonlinear-gaussian-transition-model.html"><i class="fa fa-check"></i><b>7.3</b> Nonlinear-Gaussian transition model</a>
 <ul>
-<li class="chapter" data-level="7.3.1" data-path="transition-model-custom.html"><a href="transition-model-custom.html#simulate_transition-model"><i class="fa fa-check"></i><b>7.3.1</b> simulate_transition model</a></li>
-<li class="chapter" data-level="7.3.2" data-path="transition-model-custom.html"><a href="transition-model-custom.html#evaluate_log_transition_model"><i class="fa fa-check"></i><b>7.3.2</b> evaluate_log_transition_model</a></li>
+<li class="chapter" data-level="7.3.1" data-path="nonlinear-gaussian-transition-model.html"><a href="nonlinear-gaussian-transition-model.html#nonlinear_gaussian_transition_variable"><i class="fa fa-check"></i><b>7.3.1</b> nonlinear_gaussian_transition_variable</a></li>
+<li class="chapter" data-level="7.3.2" data-path="nonlinear-gaussian-transition-model.html"><a href="nonlinear-gaussian-transition-model.html#nonlinear_gaussian_transition_function"><i class="fa fa-check"></i><b>7.3.2</b> nonlinear_gaussian_transition_function</a></li>
+<li class="chapter" data-level="7.3.3" data-path="nonlinear-gaussian-transition-model.html"><a href="nonlinear-gaussian-transition-model.html#nonlinear_gaussian_transition_covariance"><i class="fa fa-check"></i><b>7.3.3</b> nonlinear_gaussian_transition_covariance</a></li>
 </ul></li>
-<li class="chapter" data-level="7.4" data-path="method-block.html"><a href="method-block.html"><i class="fa fa-check"></i><b>7.4</b> Method block</a>
+<li class="chapter" data-level="7.4" data-path="user-defined-transition-model.html"><a href="user-defined-transition-model.html"><i class="fa fa-check"></i><b>7.4</b> User-defined transition model</a>
 <ul>
-<li class="chapter" data-level="7.4.1" data-path="method-block.html"><a href="method-block.html#filter"><i class="fa fa-check"></i><b>7.4.1</b> filter</a></li>
+<li class="chapter" data-level="7.4.1" data-path="user-defined-transition-model.html"><a href="user-defined-transition-model.html#simulate_transition-model"><i class="fa fa-check"></i><b>7.4.1</b> simulate_transition model</a></li>
+<li class="chapter" data-level="7.4.2" data-path="user-defined-transition-model.html"><a href="user-defined-transition-model.html#evaluate_log_transition_model"><i class="fa fa-check"></i><b>7.4.2</b> evaluate_log_transition_model</a></li>
 </ul></li>
-</ul></li>
-<li class="chapter" data-level="8" data-path="blocks.html"><a href="blocks.html"><i class="fa fa-check"></i><b>8</b> ilike blocks</a>
+<li class="chapter" data-level="7.5" data-path="linear-gaussian-transition-proposal.html"><a href="linear-gaussian-transition-proposal.html"><i class="fa fa-check"></i><b>7.5</b> Linear-Gaussian transition proposal</a>
 <ul>
-<li class="chapter" data-level="8.1" data-path="method-block-1.html"><a href="method-block-1.html"><i class="fa fa-check"></i><b>8.1</b> Method block</a></li>
+<li class="chapter" data-level="7.5.1" data-path="linear-gaussian-transition-proposal.html"><a href="linear-gaussian-transition-proposal.html#linear_gaussian_transition_variable-1"><i class="fa fa-check"></i><b>7.5.1</b> linear_gaussian_transition_variable</a></li>
+<li class="chapter" data-level="7.5.2" data-path="linear-gaussian-transition-proposal.html"><a href="linear-gaussian-transition-proposal.html#linear_gaussian_transition_matrix-1"><i class="fa fa-check"></i><b>7.5.2</b> linear_gaussian_transition_matrix</a></li>
+<li class="chapter" data-level="7.5.3" data-path="linear-gaussian-transition-proposal.html"><a href="linear-gaussian-transition-proposal.html#linear_gaussian_transition_covariance-1"><i class="fa fa-check"></i><b>7.5.3</b> linear_gaussian_transition_covariance</a></li>
+<li class="chapter" data-level="7.5.4" data-path="linear-gaussian-transition-proposal.html"><a href="linear-gaussian-transition-proposal.html#linear_gaussian_transition_proposal"><i class="fa fa-check"></i><b>7.5.4</b> linear_gaussian_transition_proposal</a></li>
 </ul></li>
-<li class="chapter" data-level="9" data-path="output.html"><a href="output.html"><i class="fa fa-check"></i><b>9</b> Loading and visualising output</a>
+<li class="chapter" data-level="7.6" data-path="nonlinear-gaussian-transition-proposal.html"><a href="nonlinear-gaussian-transition-proposal.html"><i class="fa fa-check"></i><b>7.6</b> Nonlinear-Gaussian transition proposal</a>
 <ul>
-<li class="chapter" data-level="9.1" data-path="is-and-smc-output.html"><a href="is-and-smc-output.html"><i class="fa fa-check"></i><b>9.1</b> IS and SMC output</a></li>
-<li class="chapter" data-level="9.2" data-path="ensemble-kalman-output.html"><a href="ensemble-kalman-output.html"><i class="fa fa-check"></i><b>9.2</b> Ensemble Kalman output</a></li>
-<li class="chapter" data-level="9.3" data-path="mcmc-output.html"><a href="mcmc-output.html"><i class="fa fa-check"></i><b>9.3</b> MCMC output</a></li>
-<li class="chapter" data-level="9.4" data-path="further-detail-about-output-files.html"><a href="further-detail-about-output-files.html"><i class="fa fa-check"></i><b>9.4</b> Further detail about output files</a></li>
+<li class="chapter" data-level="7.6.1" data-path="nonlinear-gaussian-transition-proposal.html"><a href="nonlinear-gaussian-transition-proposal.html#nonlinear_gaussian_transition_variable-1"><i class="fa fa-check"></i><b>7.6.1</b> nonlinear_gaussian_transition_variable</a></li>
+<li class="chapter" data-level="7.6.2" data-path="nonlinear-gaussian-transition-proposal.html"><a href="nonlinear-gaussian-transition-proposal.html#nonlinear_gaussian_transition_function-1"><i class="fa fa-check"></i><b>7.6.2</b> nonlinear_gaussian_transition_function</a></li>
+<li class="chapter" data-level="7.6.3" data-path="nonlinear-gaussian-transition-proposal.html"><a href="nonlinear-gaussian-transition-proposal.html#nonlinear_gaussian_transition_covariance-1"><i class="fa fa-check"></i><b>7.6.3</b> nonlinear_gaussian_transition_covariance</a></li>
 </ul></li>
-<li class="chapter" data-level="10" data-path="examples.html"><a href="examples.html"><i class="fa fa-check"></i><b>10</b> Examples</a>
+<li class="chapter" data-level="7.7" data-path="user-defined-transition-proposal.html"><a href="user-defined-transition-proposal.html"><i class="fa fa-check"></i><b>7.7</b> User-defined transition proposal</a>
 <ul>
-<li class="chapter" data-level="10.1" data-path="running-code.html"><a href="running-code.html"><i class="fa fa-check"></i><b>10.1</b> Running code</a></li>
+<li class="chapter" data-level="7.7.1" data-path="user-defined-transition-proposal.html"><a href="user-defined-transition-proposal.html#simulate_transition-proposal"><i class="fa fa-check"></i><b>7.7.1</b> simulate_transition proposal</a></li>
+<li class="chapter" data-level="7.7.2" data-path="user-defined-transition-proposal.html"><a href="user-defined-transition-proposal.html#evaluate_log_transition_proposal"><i class="fa fa-check"></i><b>7.7.2</b> evaluate_log_transition_proposal</a></li>
 </ul></li>
-<li class="chapter" data-level="11" data-path="bugs.html"><a href="bugs.html"><i class="fa fa-check"></i><b>11</b> Known issues and glaring omissions</a>
+</ul></li>
+<li class="chapter" data-level="8" data-path="output.html"><a href="output.html"><i class="fa fa-check"></i><b>8</b> Loading and visualising output</a>
 <ul>
-<li class="chapter" data-level="11.1" data-path="known-issues.html"><a href="known-issues.html"><i class="fa fa-check"></i><b>11.1</b> Known issues</a></li>
-<li class="chapter" data-level="11.2" data-path="glaring-omissions.html"><a href="glaring-omissions.html"><i class="fa fa-check"></i><b>11.2</b> Glaring omissions</a></li>
+<li class="chapter" data-level="8.1" data-path="mcmc-output.html"><a href="mcmc-output.html"><i class="fa fa-check"></i><b>8.1</b> MCMC output</a>
+<ul>
+<li class="chapter" data-level="8.1.1" data-path="mcmc-output.html"><a href="mcmc-output.html#loading-mcmc-output-ilike-format"><i class="fa fa-check"></i><b>8.1.1</b> Loading MCMC output (ilike format)</a></li>
+<li class="chapter" data-level="8.1.2" data-path="mcmc-output.html"><a href="mcmc-output.html#plotting-using-ggsmc"><i class="fa fa-check"></i><b>8.1.2</b> Plotting using <code>ggsmc</code></a></li>
+<li class="chapter" data-level="8.1.3" data-path="mcmc-output.html"><a href="mcmc-output.html#loading-mcmc-output-ggmcmc-format"><i class="fa fa-check"></i><b>8.1.3</b> Loading MCMC output (ggmcmc format)</a></li>
+<li class="chapter" data-level="8.1.4" data-path="mcmc-output.html"><a href="mcmc-output.html#plotting-using-ggmcmc"><i class="fa fa-check"></i><b>8.1.4</b> Plotting using <code>ggmcmc</code></a></li>
+<li class="chapter" data-level="8.1.5" data-path="mcmc-output.html"><a href="mcmc-output.html#burn-in-warm-up"><i class="fa fa-check"></i><b>8.1.5</b> Burn-in / warm-up</a></li>
+</ul></li>
+<li class="chapter" data-level="8.2" data-path="smc-output.html"><a href="smc-output.html"><i class="fa fa-check"></i><b>8.2</b> IS and SMC output</a>
+<ul>
+<li class="chapter" data-level="8.2.1" data-path="smc-output.html"><a href="smc-output.html#visualising-output-using-ggsmc"><i class="fa fa-check"></i><b>8.2.1</b> Visualising output using <code>ggsmc</code></a></li>
+</ul></li>
+<li class="chapter" data-level="8.3" data-path="ensemble-kalman-output.html"><a href="ensemble-kalman-output.html"><i class="fa fa-check"></i><b>8.3</b> Ensemble Kalman output</a></li>
+<li class="chapter" data-level="8.4" data-path="nested.html"><a href="nested.html"><i class="fa fa-check"></i><b>8.4</b> Loading nested output</a></li>
+<li class="chapter" data-level="8.5" data-path="pivot-wider.html"><a href="pivot-wider.html"><i class="fa fa-check"></i><b>8.5</b> <code>pivot_wider</code> for ilike data</a></li>
+<li class="chapter" data-level="8.6" data-path="output-detail.html"><a href="output-detail.html"><i class="fa fa-check"></i><b>8.6</b> Further detail about output files</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="examples.html"><a href="examples.html"><i class="fa fa-check"></i><b>9</b> Examples</a>
+<ul>
+<li class="chapter" data-level="9.1" data-path="running-code.html"><a href="running-code.html"><i class="fa fa-check"></i><b>9.1</b> Running code</a></li>
+<li class="chapter" data-level="9.2" data-path="smc-from-mcmc.html"><a href="smc-from-mcmc.html"><i class="fa fa-check"></i><b>9.2</b> Converting an MCMC into an SMC sampler</a></li>
+<li class="chapter" data-level="9.3" data-path="filtering_cv.html"><a href="filtering_cv.html"><i class="fa fa-check"></i><b>9.3</b> Filtering on a constant velocity model</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="bugs.html"><a href="bugs.html"><i class="fa fa-check"></i><b>10</b> Known issues and glaring omissions</a>
+<ul>
+<li class="chapter" data-level="10.1" data-path="known-issues.html"><a href="known-issues.html"><i class="fa fa-check"></i><b>10.1</b> Known issues</a></li>
+<li class="chapter" data-level="10.2" data-path="glaring-omissions.html"><a href="glaring-omissions.html"><i class="fa fa-check"></i><b>10.2</b> Glaring omissions</a></li>
+</ul></li>
+<li class="chapter" data-level="11" data-path="debugging.html"><a href="debugging.html"><i class="fa fa-check"></i><b>11</b> Debugging ilike</a>
+<ul>
+<li class="chapter" data-level="11.1" data-path="error-in-could-not-find-function.html"><a href="error-in-could-not-find-function.html"><i class="fa fa-check"></i><b>11.1</b> Error in …: could not find function “…”</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 <li class="divider"></li>
@@ -387,16 +456,148 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="mcmc-output" class="section level2 hasAnchor" number="9.3">
-<h2><span class="header-section-number">9.3</span> MCMC output<a href="mcmc-output.html#mcmc-output" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="mcmc-output" class="section level2 hasAnchor" number="8.1">
+<h2><span class="header-section-number">8.1</span> MCMC output<a href="mcmc-output.html#mcmc-output" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>To illustrate how to load and process MCMC output, we return to the example in section <a href="toy-example.html#toy-example">1.1</a>. The following code compiles the model (which has a two-dimensional parameter <span class="math inline">\(\theta = (\theta_1,\theta_2)\)</span>) and runs an MCMC algorithm, storing the output in a new folder named <code>toy_model_rwm</code> in the current working directory.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="mcmc-output.html#cb1-1" tabindex="-1"></a><span class="fu">library</span>(ilike)</span>
+<span id="cb1-2"><a href="mcmc-output.html#cb1-2" tabindex="-1"></a>model <span class="ot">=</span> <span class="fu">compile</span>(<span class="st">&quot;toy_model_rwm.ilike&quot;</span>)</span>
+<span id="cb1-3"><a href="mcmc-output.html#cb1-3" tabindex="-1"></a><span class="fu">mcmc</span>(model,</span>
+<span id="cb1-4"><a href="mcmc-output.html#cb1-4" tabindex="-1"></a>     <span class="at">results_name =</span> <span class="st">&quot;toy_model_rwm&quot;</span>,</span>
+<span id="cb1-5"><a href="mcmc-output.html#cb1-5" tabindex="-1"></a>     <span class="at">initial_values =</span> <span class="fu">list</span>(<span class="fu">list</span>(θ<span class="ot">=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>))),</span>
+<span id="cb1-6"><a href="mcmc-output.html#cb1-6" tabindex="-1"></a>     <span class="at">model_parameter_list =</span> <span class="fu">list</span>(<span class="fl">300.0</span><span class="sc">*</span><span class="fu">diag</span>(<span class="dv">2</span>)))</span></code></pre></div>
+<div id="loading-mcmc-output-ilike-format" class="section level3 hasAnchor" number="8.1.1">
+<h3><span class="header-section-number">8.1.1</span> Loading MCMC output (ilike format)<a href="mcmc-output.html#loading-mcmc-output-ilike-format" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>To load MCMC output into an R data frame, the function <code>load_mcmc_output</code> is used. The first, and only required, argument is the name of the directory in which the ilike output is stored (<code>toy_model_rwm</code> in this case). The two other arguments are optional: <code>ggmcmc</code> and <code>ilike.output</code> both take values <code>TRUE</code> or <code>FALSE</code>, and determine whether the data frame is suitable for use in, respectively, the <code>ggmcmc</code> or <code>ilike.output</code> packages (the default is <code>ggmcmc = FALSE</code> and <code>ilike.output = TRUE</code>).</p>
+<p>We begin by loading the output from the MCMC algorithm using the <code>load_mcmc_output</code> function.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="mcmc-output.html#cb2-1" tabindex="-1"></a>toy_model_rwm_ilike <span class="ot">=</span> <span class="fu">load_mcmc_output</span>(<span class="st">&quot;toy_model_rwm&quot;</span>)</span></code></pre></div>
+<p>Here <code>ilike.output</code> is set (by default) to <code>TRUE</code>, so this data frame is in the standard form for ilike output (for use in <code>ggsmc</code> and <code>ilike.output</code>).</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="mcmc-output.html#cb3-1" tabindex="-1"></a><span class="fu">head</span>(toy_model_rwm_ilike,<span class="at">n=</span><span class="dv">16</span><span class="dt">L</span>)</span></code></pre></div>
+<pre><code>##    ExternalIndex      Time Iteration Chain ParameterName Dimension     Value
+## 1              1 0.5935487         1     1             θ         1   0.00000
+## 2              1 0.5935487         1     1             θ         2   0.00000
+## 3              1 0.5935487         2     1             θ         1   0.00000
+## 4              1 0.5935487         2     1             θ         2   0.00000
+## 5              1 0.5935487         3     1             θ         1   0.00000
+## 6              1 0.5935487         3     1             θ         2   0.00000
+## 7              1 0.5935487         4     1             θ         1   0.00000
+## 8              1 0.5935487         4     1             θ         2   0.00000
+## 9              1 0.5935487         5     1             θ         1   0.00000
+## 10             1 0.5935487         5     1             θ         2   0.00000
+## 11             1 0.5935487         6     1             θ         1   0.00000
+## 12             1 0.5935487         6     1             θ         2   0.00000
+## 13             1 0.5935487         7     1             θ         1 -11.07381
+## 14             1 0.5935487         7     1             θ         2  10.97233
+## 15             1 0.5935487         8     1             θ         1 -11.07381
+## 16             1 0.5935487         8     1             θ         2  10.97233</code></pre>
+<p>The data frame contains the following columns:</p>
+<ul>
+<li><p><code>ExternalIndex</code> is only used when the output is from a nested algorithm such as particle MCMC, so can be ignored for now;</p></li>
+<li><p><code>Time</code> gives the time taken by the MCMC algorithm;</p></li>
+<li><p><code>Iteration</code> is the iteration of the MCMC algorithm, starting from 1;</p></li>
+<li><p><code>Chain</code> is the index for the MCMC chain (useful when running multiple chains);</p></li>
+<li><p><code>ParameterName</code> is the name of the parameter;</p></li>
+<li><p><code>Dimension</code> is the dimension of the parameter (here 1 for <span class="math inline">\(\theta_1\)</span> and 2 for <span class="math inline">\(\theta_2\)</span>);</p></li>
+<li><p><code>Value</code> is the value of the given dimension of the parameter at the given iteration.</p></li>
+</ul>
+<p>This data frame uses the <a href="https://r4ds.had.co.nz/tidy-data.html">tidy</a> format that is popular in R since it is easy to summarise and plot. It is more standard for Monte Carlo output to be in a matrix format, where each row corresponds to a single iteration and each column corresponds to a parameter. To convert ilike data to this format, see the function <code>ilike_pivot_wider</code> in section <a href="pivot-wider.html#pivot-wider">8.5</a>.</p>
+</div>
+<div id="plotting-using-ggsmc" class="section level3 hasAnchor" number="8.1.2">
+<h3><span class="header-section-number">8.1.2</span> Plotting using <code>ggsmc</code><a href="mcmc-output.html#plotting-using-ggsmc" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>We may use the <code>ggsmc</code> package to plot data in this format. The <code>plot_histogram</code>, <code>plot_density</code>, <code>plot_scatter</code> and <code>plot_time_series</code> functions are all compatible with plotting MCMC output from ilike, as long as the argument <code>mcmc=TRUE</code> is set (if this is not set, you will likely receive an error, since <code>ggsmc</code> by default expects output from an SMC or ensemble algorithm). Here are examples of each.</p>
+<ul>
+<li><code>plot_histogram</code> can be used for plotting histograms of marginal posterior distributions of the parameters.</li>
+</ul>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="mcmc-output.html#cb5-1" tabindex="-1"></a><span class="fu">library</span>(ggsmc)</span>
+<span id="cb5-2"><a href="mcmc-output.html#cb5-2" tabindex="-1"></a><span class="fu">plot_histogram</span>(toy_model_rwm_ilike,</span>
+<span id="cb5-3"><a href="mcmc-output.html#cb5-3" tabindex="-1"></a>               <span class="at">parameter =</span> <span class="st">&quot;θ&quot;</span>,</span>
+<span id="cb5-4"><a href="mcmc-output.html#cb5-4" tabindex="-1"></a>               <span class="at">dimension =</span> <span class="dv">1</span>,</span>
+<span id="cb5-5"><a href="mcmc-output.html#cb5-5" tabindex="-1"></a>               <span class="at">mcmc =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p><img src="ilike-docs_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<ul>
+<li><code>plot_density</code> can be used for plotting kernel density estimates of the marginal posterior distributions of the parameters.</li>
+</ul>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="mcmc-output.html#cb6-1" tabindex="-1"></a><span class="fu">plot_density</span>(toy_model_rwm_ilike,</span>
+<span id="cb6-2"><a href="mcmc-output.html#cb6-2" tabindex="-1"></a>             <span class="at">parameter =</span> <span class="st">&quot;θ&quot;</span>,</span>
+<span id="cb6-3"><a href="mcmc-output.html#cb6-3" tabindex="-1"></a>             <span class="at">dimension =</span> <span class="dv">1</span>,</span>
+<span id="cb6-4"><a href="mcmc-output.html#cb6-4" tabindex="-1"></a>             <span class="at">mcmc =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p><img src="ilike-docs_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<ul>
+<li><code>plot_scatter</code> can be used for plotting scatter plots of joint distributions of pairs of parameters.</li>
+</ul>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="mcmc-output.html#cb7-1" tabindex="-1"></a><span class="fu">library</span>(ggsmc)</span>
+<span id="cb7-2"><a href="mcmc-output.html#cb7-2" tabindex="-1"></a><span class="fu">plot_scatter</span>(toy_model_rwm_ilike,</span>
+<span id="cb7-3"><a href="mcmc-output.html#cb7-3" tabindex="-1"></a>             <span class="at">x_parameter =</span> <span class="st">&quot;θ&quot;</span>,</span>
+<span id="cb7-4"><a href="mcmc-output.html#cb7-4" tabindex="-1"></a>             <span class="at">x_dimension =</span> <span class="dv">1</span>,</span>
+<span id="cb7-5"><a href="mcmc-output.html#cb7-5" tabindex="-1"></a>             <span class="at">y_parameter =</span> <span class="st">&quot;θ&quot;</span>,</span>
+<span id="cb7-6"><a href="mcmc-output.html#cb7-6" tabindex="-1"></a>             <span class="at">y_dimension =</span> <span class="dv">2</span>,</span>
+<span id="cb7-7"><a href="mcmc-output.html#cb7-7" tabindex="-1"></a>             <span class="at">mcmc =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p><img src="ilike-docs_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<ul>
+<li><code>plot_time_series</code> can be used for plotting time series of the parameters. Here it is assumed that the <code>Dimension</code> column in the MCMC output refers to a time index. As an example, we show output from our two-dimensional model using this function, but this figure is meaningless since the <code>Dimension</code> column cannot be interpreted as a time series for the model we are studying.</li>
+</ul>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="mcmc-output.html#cb8-1" tabindex="-1"></a><span class="fu">library</span>(ggsmc)</span>
+<span id="cb8-2"><a href="mcmc-output.html#cb8-2" tabindex="-1"></a><span class="fu">plot_time_series</span>(toy_model_rwm_ilike,</span>
+<span id="cb8-3"><a href="mcmc-output.html#cb8-3" tabindex="-1"></a>                 <span class="at">parameter =</span> <span class="st">&quot;θ&quot;</span>,</span>
+<span id="cb8-4"><a href="mcmc-output.html#cb8-4" tabindex="-1"></a>                 <span class="at">mcmc =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb8-5"><a href="mcmc-output.html#cb8-5" tabindex="-1"></a>                 <span class="at">alpha =</span> <span class="fl">0.01</span>)</span></code></pre></div>
+<p><img src="ilike-docs_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+</div>
+<div id="loading-mcmc-output-ggmcmc-format" class="section level3 hasAnchor" number="8.1.3">
+<h3><span class="header-section-number">8.1.3</span> Loading MCMC output (ggmcmc format)<a href="mcmc-output.html#loading-mcmc-output-ggmcmc-format" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>We now show how to load the MCMC output in a format suitable for use with the <code>ggmcmc</code> package. This is done by setting the <code>ggmcmc</code> argument to <code>TRUE</code> in the <code>load_mcmc_output</code> function.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="mcmc-output.html#cb9-1" tabindex="-1"></a>toy_model_rwm_ggmcmc <span class="ot">=</span> <span class="fu">load_mcmc_output</span>(<span class="st">&quot;toy_model_rwm&quot;</span>,</span>
+<span id="cb9-2"><a href="mcmc-output.html#cb9-2" tabindex="-1"></a>                                        <span class="at">ggmcmc =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p>The format expected by <code>ggmcmc</code> is a little different to that expected by <code>ggsmc</code> and <code>ilike.output</code>.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="mcmc-output.html#cb10-1" tabindex="-1"></a><span class="fu">head</span>(toy_model_rwm_ggmcmc,<span class="at">n=</span><span class="dv">16</span><span class="dt">L</span>)</span></code></pre></div>
+<pre><code>##    ExternalIndex      Time Iteration Chain     value Parameter
+## 1              1 0.5935487         1     1   0.00000       θ_1
+## 2              1 0.5935487         1     1   0.00000       θ_2
+## 3              1 0.5935487         2     1   0.00000       θ_1
+## 4              1 0.5935487         2     1   0.00000       θ_2
+## 5              1 0.5935487         3     1   0.00000       θ_1
+## 6              1 0.5935487         3     1   0.00000       θ_2
+## 7              1 0.5935487         4     1   0.00000       θ_1
+## 8              1 0.5935487         4     1   0.00000       θ_2
+## 9              1 0.5935487         5     1   0.00000       θ_1
+## 10             1 0.5935487         5     1   0.00000       θ_2
+## 11             1 0.5935487         6     1   0.00000       θ_1
+## 12             1 0.5935487         6     1   0.00000       θ_2
+## 13             1 0.5935487         7     1 -11.07381       θ_1
+## 14             1 0.5935487         7     1  10.97233       θ_2
+## 15             1 0.5935487         8     1 -11.07381       θ_1
+## 16             1 0.5935487         8     1  10.97233       θ_2</code></pre>
+<p>The data frame contains the following columns:</p>
+<ul>
+<li><p><code>ExternalIndex</code> is only used when the output is from a nested algorithm such as particle MCMC, so can be ignored for now;</p></li>
+<li><p><code>Time</code> gives the time taken by the MCMC algorithm;</p></li>
+<li><p><code>Iteration</code> is the iteration of the MCMC algorithm, starting from 1;</p></li>
+<li><p><code>Chain</code> is the index for the MCMC chain (useful when running multiple chains);</p></li>
+<li><p><code>value</code> is the value of the given dimension of the parameter at the given iteration;</p></li>
+<li><p><code>Parameter</code> is the name of the parameter, which combines the variable name assigned in the model, and the dimension. In this output we see that the parameter names are <code>θ_1</code> and <code>θ_2</code>.</p></li>
+</ul>
+</div>
+<div id="plotting-using-ggmcmc" class="section level3 hasAnchor" number="8.1.4">
+<h3><span class="header-section-number">8.1.4</span> Plotting using <code>ggmcmc</code><a href="mcmc-output.html#plotting-using-ggmcmc" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>This data frame is in the format expected by <code>ggmcmc</code>, so we can use the <code>ggmcmc</code> package to plot histograms, densities, trace plots, running means, autocorrelation plots and other diagnostics. Here we show only how to plot trace plots using <code>ggmcmc</code>.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="mcmc-output.html#cb12-1" tabindex="-1"></a><span class="fu">library</span>(ggmcmc)</span>
+<span id="cb12-2"><a href="mcmc-output.html#cb12-2" tabindex="-1"></a><span class="fu">ggs_traceplot</span>(toy_model_rwm_ggmcmc)</span></code></pre></div>
+<p><img src="ilike-docs_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+</div>
+<div id="burn-in-warm-up" class="section level3 hasAnchor" number="8.1.5">
+<h3><span class="header-section-number">8.1.5</span> Burn-in / warm-up<a href="mcmc-output.html#burn-in-warm-up" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>In MCMC algorithms, it is common to discard the first few iterations of the chain as a burn-in or warm-up period. This is because the chain may not have converged to the stationary distribution in the early iterations. ilike does not automatically discard any iterations as burn-in, so it is up to the user to decide how many iterations to discard (maybe after studying trace plots, such as that above, or using other diagnostics). This can be done by subsetting the data frame. For example, to discard the first 100 iterations of the MCMC output, we can use the following code, using the <code>dplyr</code> package.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="mcmc-output.html#cb13-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb13-2"><a href="mcmc-output.html#cb13-2" tabindex="-1"></a>toy_model_rwm_ggmcmc_burned_in <span class="ot">&lt;-</span> toy_model_rwm_ggmcmc <span class="sc">%&gt;%</span></span>
+<span id="cb13-3"><a href="mcmc-output.html#cb13-3" tabindex="-1"></a>  <span class="fu">filter</span>(Iteration <span class="sc">&gt;</span> <span class="dv">100</span>)</span></code></pre></div>
+</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="ensemble-kalman-output.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="further-detail-about-output-files.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="output.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="smc-output.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
@@ -427,7 +628,7 @@ gitbook.start({
 "size": 2
 },
 "edit": {
-"link": "https://github.com/richardgeveritt/ilike_documentation/edit/master/08-output.Rmd",
+"link": "https://github.com/richardgeveritt/ilike_documentation/edit/master/output.Rmd",
 "text": "Edit"
 },
 "history": {

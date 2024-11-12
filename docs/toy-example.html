@@ -23,7 +23,7 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2024-11-11" />
+<meta name="date" content="2024-11-12" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -166,17 +166,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="2.5.1" data-path="inference-smc.html"><a href="inference-smc.html#ilike-file-requirements-2"><i class="fa fa-check"></i><b>2.5.1</b> .ilike file requirements</a></li>
 </ul></li>
-<li class="chapter" data-level="2.6" data-path="kf.html"><a href="kf.html"><i class="fa fa-check"></i><b>2.6</b> Kalman filters</a>
+<li class="chapter" data-level="2.6" data-path="inference-kf.html"><a href="inference-kf.html"><i class="fa fa-check"></i><b>2.6</b> Kalman filters</a>
 <ul>
-<li class="chapter" data-level="2.6.1" data-path="kf.html"><a href="kf.html#ilike-file-requirements-3"><i class="fa fa-check"></i><b>2.6.1</b> .ilike file requirements</a></li>
+<li class="chapter" data-level="2.6.1" data-path="inference-kf.html"><a href="inference-kf.html#ilike-file-requirements-3"><i class="fa fa-check"></i><b>2.6.1</b> .ilike file requirements</a></li>
 </ul></li>
 <li class="chapter" data-level="2.7" data-path="inference-pf.html"><a href="inference-pf.html"><i class="fa fa-check"></i><b>2.7</b> Particle filters</a>
 <ul>
 <li class="chapter" data-level="2.7.1" data-path="inference-pf.html"><a href="inference-pf.html#ilike-file-requirements-4"><i class="fa fa-check"></i><b>2.7.1</b> .ilike file requirements</a></li>
 </ul></li>
-<li class="chapter" data-level="2.8" data-path="enkf.html"><a href="enkf.html"><i class="fa fa-check"></i><b>2.8</b> Ensemble Kalman filters</a>
+<li class="chapter" data-level="2.8" data-path="inference-enkf.html"><a href="inference-enkf.html"><i class="fa fa-check"></i><b>2.8</b> Ensemble Kalman filters</a>
 <ul>
-<li class="chapter" data-level="2.8.1" data-path="enkf.html"><a href="enkf.html#ilike-file-requirements-5"><i class="fa fa-check"></i><b>2.8.1</b> .ilike file requirements</a></li>
+<li class="chapter" data-level="2.8.1" data-path="inference-enkf.html"><a href="inference-enkf.html#ilike-file-requirements-5"><i class="fa fa-check"></i><b>2.8.1</b> .ilike file requirements</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="ilike-files.html"><a href="ilike-files.html"><i class="fa fa-check"></i><b>3</b> ilike files</a>
@@ -185,7 +185,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="3.1.1" data-path="file-structure.html"><a href="file-structure.html#blocks-automatically"><i class="fa fa-check"></i><b>3.1.1</b> Specifying blocks automatically</a></li>
 </ul></li>
-<li class="chapter" data-level="3.2" data-path="compiling.html"><a href="compiling.html"><i class="fa fa-check"></i><b>3.2</b> Compiling an ilike file</a></li>
+<li class="chapter" data-level="3.2" data-path="compiling.html"><a href="compiling.html"><i class="fa fa-check"></i><b>3.2</b> Compiling an ilike file</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="compiling.html"><a href="compiling.html#compiler-output"><i class="fa fa-check"></i><b>3.2.1</b> Compiler output</a></li>
+</ul></li>
 <li class="chapter" data-level="3.3" data-path="C.html"><a href="C.html"><i class="fa fa-check"></i><b>3.3</b> C++ functions</a>
 <ul>
 <li class="chapter" data-level="3.3.1" data-path="C.html"><a href="C.html#including-additional-code"><i class="fa fa-check"></i><b>3.3.1</b> Including additional code</a></li>
@@ -219,7 +222,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="4.3" data-path="ilike-prior.html"><a href="ilike-prior.html"><i class="fa fa-check"></i><b>4.3</b> Built-in prior</a>
 <ul>
-<li class="chapter" data-level="4.3.1" data-path="ilike-prior.html"><a href="ilike-prior.html#prior-ilike-functions"><i class="fa fa-check"></i><b>4.3.1</b> prior (ilike functions)</a></li>
+<li class="chapter" data-level="4.3.1" data-path="ilike-prior.html"><a href="ilike-prior.html#prior"><i class="fa fa-check"></i><b>4.3.1</b> prior</a></li>
 </ul></li>
 <li class="chapter" data-level="4.4" data-path="user-defined-likelihood.html"><a href="user-defined-likelihood.html"><i class="fa fa-check"></i><b>4.4</b> User-defined likelihood</a>
 <ul>
@@ -233,7 +236,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4.5.2" data-path="linear-gaussian-model.html"><a href="linear-gaussian-model.html#linear_gaussian_data_state_variable"><i class="fa fa-check"></i><b>4.5.2</b> linear_gaussian_data_state_variable</a></li>
 <li class="chapter" data-level="4.5.3" data-path="linear-gaussian-model.html"><a href="linear-gaussian-model.html#linear_gaussian_data_matrix"><i class="fa fa-check"></i><b>4.5.3</b> linear_gaussian_data_matrix</a></li>
 <li class="chapter" data-level="4.5.4" data-path="linear-gaussian-model.html"><a href="linear-gaussian-model.html#linear_gaussian_data_covariance"><i class="fa fa-check"></i><b>4.5.4</b> linear_gaussian_data_covariance</a></li>
-<li class="chapter" data-level="4.5.5" data-path="linear-gaussian-model.html"><a href="linear-gaussian-model.html#linear_gaussian_data_model-ilike-function"><i class="fa fa-check"></i><b>4.5.5</b> linear_gaussian_data_model (ilike function)</a></li>
+<li class="chapter" data-level="4.5.5" data-path="linear-gaussian-model.html"><a href="linear-gaussian-model.html#linear_gaussian_data_model"><i class="fa fa-check"></i><b>4.5.5</b> linear_gaussian_data_model</a></li>
 </ul></li>
 <li class="chapter" data-level="4.6" data-path="nonlinear-gaussian-model.html"><a href="nonlinear-gaussian-model.html"><i class="fa fa-check"></i><b>4.6</b> Nonlinear-Gaussian model</a>
 <ul>
@@ -246,18 +249,18 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4.7.1" data-path="simulation-based-likelihood.html"><a href="simulation-based-likelihood.html#simulate_data_model"><i class="fa fa-check"></i><b>4.7.1</b> simulate_data_model</a></li>
 <li class="chapter" data-level="4.7.2" data-path="simulation-based-likelihood.html"><a href="simulation-based-likelihood.html#data_variable"><i class="fa fa-check"></i><b>4.7.2</b> data_variable</a></li>
 <li class="chapter" data-level="4.7.3" data-path="simulation-based-likelihood.html"><a href="simulation-based-likelihood.html#summary_statistics"><i class="fa fa-check"></i><b>4.7.3</b> summary_statistics</a></li>
-<li class="chapter" data-level="4.7.4" data-path="simulation-based-likelihood.html"><a href="simulation-based-likelihood.html#sbi_likelihood-ilike-functions"><i class="fa fa-check"></i><b>4.7.4</b> sbi_likelihood (ilike functions)</a></li>
+<li class="chapter" data-level="4.7.4" data-path="simulation-based-likelihood.html"><a href="simulation-based-likelihood.html#sbi_likelihood"><i class="fa fa-check"></i><b>4.7.4</b> sbi_likelihood</a></li>
 </ul></li>
 <li class="chapter" data-level="4.8" data-path="algorithmic-likelihood.html"><a href="algorithmic-likelihood.html"><i class="fa fa-check"></i><b>4.8</b> Algorithmic likelihood</a>
 <ul>
-<li class="chapter" data-level="4.8.1" data-path="algorithmic-likelihood.html"><a href="algorithmic-likelihood.html#algorithmic_likelihood-ilike-functions"><i class="fa fa-check"></i><b>4.8.1</b> algorithmic_likelihood (ilike functions)</a></li>
+<li class="chapter" data-level="4.8.1" data-path="algorithmic-likelihood.html"><a href="algorithmic-likelihood.html#algorithmic_likelihood"><i class="fa fa-check"></i><b>4.8.1</b> algorithmic_likelihood</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="5" data-path="mcmc.html"><a href="mcmc.html"><i class="fa fa-check"></i><b>5</b> Markov chain Monte Carlo</a>
 <ul>
 <li class="chapter" data-level="5.1" data-path="mcmc-termination.html"><a href="mcmc-termination.html"><i class="fa fa-check"></i><b>5.1</b> MCMC termination</a>
 <ul>
-<li class="chapter" data-level="5.1.1" data-path="mcmc-termination.html"><a href="mcmc-termination.html#mcmc_termination-ilike-functions"><i class="fa fa-check"></i><b>5.1.1</b> mcmc_termination (ilike functions)</a></li>
+<li class="chapter" data-level="5.1.1" data-path="mcmc-termination.html"><a href="mcmc-termination.html#mcmc_termination"><i class="fa fa-check"></i><b>5.1.1</b> mcmc_termination</a></li>
 </ul></li>
 <li class="chapter" data-level="5.2" data-path="mcmc-sweeps.html"><a href="mcmc-sweeps.html"><i class="fa fa-check"></i><b>5.2</b> MCMC sweeps</a>
 <ul>
@@ -275,7 +278,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="5.5" data-path="built-in-metropolis-proposals.html"><a href="built-in-metropolis-proposals.html"><i class="fa fa-check"></i><b>5.5</b> Built-in Metropolis proposals</a>
 <ul>
-<li class="chapter" data-level="5.5.1" data-path="built-in-metropolis-proposals.html"><a href="built-in-metropolis-proposals.html#m_proposal-ilike-functions"><i class="fa fa-check"></i><b>5.5.1</b> m_proposal (ilike functions)</a></li>
+<li class="chapter" data-level="5.5.1" data-path="built-in-metropolis-proposals.html"><a href="built-in-metropolis-proposals.html#m_proposal"><i class="fa fa-check"></i><b>5.5.1</b> m_proposal</a></li>
 </ul></li>
 <li class="chapter" data-level="5.6" data-path="user-defined-independent-mh-proposals.html"><a href="user-defined-independent-mh-proposals.html"><i class="fa fa-check"></i><b>5.6</b> User-defined independent MH proposals</a>
 <ul>
@@ -284,7 +287,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="5.7" data-path="built-in-independent-mh-proposals.html"><a href="built-in-independent-mh-proposals.html"><i class="fa fa-check"></i><b>5.7</b> Built-in independent MH proposals</a>
 <ul>
-<li class="chapter" data-level="5.7.1" data-path="built-in-independent-mh-proposals.html"><a href="built-in-independent-mh-proposals.html#imh_proposal-ilike-functions"><i class="fa fa-check"></i><b>5.7.1</b> imh_proposal (ilike functions)</a></li>
+<li class="chapter" data-level="5.7.1" data-path="built-in-independent-mh-proposals.html"><a href="built-in-independent-mh-proposals.html#imh_proposal"><i class="fa fa-check"></i><b>5.7.1</b> imh_proposal</a></li>
 </ul></li>
 <li class="chapter" data-level="5.8" data-path="user-defined-mh-proposals.html"><a href="user-defined-mh-proposals.html"><i class="fa fa-check"></i><b>5.8</b> User-defined MH proposals</a>
 <ul>
@@ -293,7 +296,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="5.9" data-path="built-in-mh-proposals.html"><a href="built-in-mh-proposals.html"><i class="fa fa-check"></i><b>5.9</b> Built-in MH proposals</a>
 <ul>
-<li class="chapter" data-level="5.9.1" data-path="built-in-mh-proposals.html"><a href="built-in-mh-proposals.html#mh_proposal-ilike-functions"><i class="fa fa-check"></i><b>5.9.1</b> mh_proposal (ilike functions)</a></li>
+<li class="chapter" data-level="5.9.1" data-path="built-in-mh-proposals.html"><a href="built-in-mh-proposals.html#mh_proposal"><i class="fa fa-check"></i><b>5.9.1</b> mh_proposal</a></li>
 </ul></li>
 <li class="chapter" data-level="5.10" data-path="user-defined-unadjusted-proposals.html"><a href="user-defined-unadjusted-proposals.html"><i class="fa fa-check"></i><b>5.10</b> User-defined unadjusted proposals</a>
 <ul>
@@ -301,7 +304,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="5.11" data-path="built-in-unadjusted-proposals.html"><a href="built-in-unadjusted-proposals.html"><i class="fa fa-check"></i><b>5.11</b> Built-in unadjusted proposals</a>
 <ul>
-<li class="chapter" data-level="5.11.1" data-path="built-in-unadjusted-proposals.html"><a href="built-in-unadjusted-proposals.html#unadjusted_proposal-ilike-functions"><i class="fa fa-check"></i><b>5.11.1</b> unadjusted_proposal (ilike functions)</a></li>
+<li class="chapter" data-level="5.11.1" data-path="built-in-unadjusted-proposals.html"><a href="built-in-unadjusted-proposals.html#unadjusted_proposal"><i class="fa fa-check"></i><b>5.11.1</b> unadjusted_proposal</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="6" data-path="smc.html"><a href="smc.html"><i class="fa fa-check"></i><b>6</b> Importance sampling and sequential Monte Carlo</a>
@@ -313,37 +316,37 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="6.2" data-path="ilike-proposal.html"><a href="ilike-proposal.html"><i class="fa fa-check"></i><b>6.2</b> Built-in proposals</a>
 <ul>
-<li class="chapter" data-level="6.2.1" data-path="ilike-proposal.html"><a href="ilike-proposal.html#is_proposal-ilike-functions"><i class="fa fa-check"></i><b>6.2.1</b> is_proposal (ilike functions)</a></li>
+<li class="chapter" data-level="6.2.1" data-path="ilike-proposal.html"><a href="ilike-proposal.html#is_proposal"><i class="fa fa-check"></i><b>6.2.1</b> is_proposal</a></li>
 </ul></li>
 <li class="chapter" data-level="6.3" data-path="adaptive-resampling.html"><a href="adaptive-resampling.html"><i class="fa fa-check"></i><b>6.3</b> Adaptive resampling</a>
 <ul>
-<li class="chapter" data-level="6.3.1" data-path="adaptive-resampling.html"><a href="adaptive-resampling.html#adaptive_resampling-ilike-functions"><i class="fa fa-check"></i><b>6.3.1</b> adaptive_resampling (ilike functions)</a></li>
+<li class="chapter" data-level="6.3.1" data-path="adaptive-resampling.html"><a href="adaptive-resampling.html#adaptive_resampling"><i class="fa fa-check"></i><b>6.3.1</b> adaptive_resampling</a></li>
 </ul></li>
 <li class="chapter" data-level="6.4" data-path="smc-sequence.html"><a href="smc-sequence.html"><i class="fa fa-check"></i><b>6.4</b> SMC sequence</a>
 <ul>
-<li class="chapter" data-level="6.4.1" data-path="smc-sequence.html"><a href="smc-sequence.html#smc_sequence-ilike-functions"><i class="fa fa-check"></i><b>6.4.1</b> smc_sequence (ilike functions)</a></li>
+<li class="chapter" data-level="6.4.1" data-path="smc-sequence.html"><a href="smc-sequence.html#smc_sequence"><i class="fa fa-check"></i><b>6.4.1</b> smc_sequence</a></li>
 </ul></li>
 <li class="chapter" data-level="6.5" data-path="adaptive-target.html"><a href="adaptive-target.html"><i class="fa fa-check"></i><b>6.5</b> Adaptive target</a>
 <ul>
-<li class="chapter" data-level="6.5.1" data-path="adaptive-target.html"><a href="adaptive-target.html#adaptive_target-ilike-functions"><i class="fa fa-check"></i><b>6.5.1</b> adaptive_target (ilike functions)</a></li>
+<li class="chapter" data-level="6.5.1" data-path="adaptive-target.html"><a href="adaptive-target.html#adaptive_target"><i class="fa fa-check"></i><b>6.5.1</b> adaptive_target</a></li>
 </ul></li>
 <li class="chapter" data-level="6.6" data-path="smc-termination.html"><a href="smc-termination.html"><i class="fa fa-check"></i><b>6.6</b> SMC termination</a>
 <ul>
-<li class="chapter" data-level="6.6.1" data-path="smc-termination.html"><a href="smc-termination.html#smc_termination-ilike-functions"><i class="fa fa-check"></i><b>6.6.1</b> smc_termination (ilike functions)</a></li>
+<li class="chapter" data-level="6.6.1" data-path="smc-termination.html"><a href="smc-termination.html#smc_termination"><i class="fa fa-check"></i><b>6.6.1</b> smc_termination</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="7" data-path="ssm.html"><a href="ssm.html"><i class="fa fa-check"></i><b>7</b> State-space models</a>
 <ul>
 <li class="chapter" data-level="7.1" data-path="state-space-supporting-detail.html"><a href="state-space-supporting-detail.html"><i class="fa fa-check"></i><b>7.1</b> State-space supporting detail</a>
 <ul>
-<li class="chapter" data-level="7.1.1" data-path="state-space-supporting-detail.html"><a href="state-space-supporting-detail.html#ssm-ilike-functions"><i class="fa fa-check"></i><b>7.1.1</b> ssm (ilike functions)</a></li>
+<li class="chapter" data-level="7.1.1" data-path="state-space-supporting-detail.html"><a href="state-space-supporting-detail.html#ssm-1"><i class="fa fa-check"></i><b>7.1.1</b> ssm</a></li>
 </ul></li>
 <li class="chapter" data-level="7.2" data-path="linear-gaussian-transition-model.html"><a href="linear-gaussian-transition-model.html"><i class="fa fa-check"></i><b>7.2</b> Linear-Gaussian transition model</a>
 <ul>
 <li class="chapter" data-level="7.2.1" data-path="linear-gaussian-transition-model.html"><a href="linear-gaussian-transition-model.html#linear_gaussian_transition_variable"><i class="fa fa-check"></i><b>7.2.1</b> linear_gaussian_transition_variable</a></li>
 <li class="chapter" data-level="7.2.2" data-path="linear-gaussian-transition-model.html"><a href="linear-gaussian-transition-model.html#linear_gaussian_transition_matrix"><i class="fa fa-check"></i><b>7.2.2</b> linear_gaussian_transition_matrix</a></li>
 <li class="chapter" data-level="7.2.3" data-path="linear-gaussian-transition-model.html"><a href="linear-gaussian-transition-model.html#linear_gaussian_transition_covariance"><i class="fa fa-check"></i><b>7.2.3</b> linear_gaussian_transition_covariance</a></li>
-<li class="chapter" data-level="7.2.4" data-path="linear-gaussian-transition-model.html"><a href="linear-gaussian-transition-model.html#linear_gaussian_transition_model-ilike-function"><i class="fa fa-check"></i><b>7.2.4</b> linear_gaussian_transition_model (ilike function)</a></li>
+<li class="chapter" data-level="7.2.4" data-path="linear-gaussian-transition-model.html"><a href="linear-gaussian-transition-model.html#linear_gaussian_transition_model"><i class="fa fa-check"></i><b>7.2.4</b> linear_gaussian_transition_model</a></li>
 </ul></li>
 <li class="chapter" data-level="7.3" data-path="nonlinear-gaussian-transition-model.html"><a href="nonlinear-gaussian-transition-model.html"><i class="fa fa-check"></i><b>7.3</b> Nonlinear-Gaussian transition model</a>
 <ul>
@@ -361,7 +364,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="7.5.1" data-path="linear-gaussian-transition-proposal.html"><a href="linear-gaussian-transition-proposal.html#linear_gaussian_transition_variable-1"><i class="fa fa-check"></i><b>7.5.1</b> linear_gaussian_transition_variable</a></li>
 <li class="chapter" data-level="7.5.2" data-path="linear-gaussian-transition-proposal.html"><a href="linear-gaussian-transition-proposal.html#linear_gaussian_transition_matrix-1"><i class="fa fa-check"></i><b>7.5.2</b> linear_gaussian_transition_matrix</a></li>
 <li class="chapter" data-level="7.5.3" data-path="linear-gaussian-transition-proposal.html"><a href="linear-gaussian-transition-proposal.html#linear_gaussian_transition_covariance-1"><i class="fa fa-check"></i><b>7.5.3</b> linear_gaussian_transition_covariance</a></li>
-<li class="chapter" data-level="7.5.4" data-path="linear-gaussian-transition-proposal.html"><a href="linear-gaussian-transition-proposal.html#linear_gaussian_transition_proposal-ilike-function"><i class="fa fa-check"></i><b>7.5.4</b> linear_gaussian_transition_proposal (ilike function)</a></li>
+<li class="chapter" data-level="7.5.4" data-path="linear-gaussian-transition-proposal.html"><a href="linear-gaussian-transition-proposal.html#linear_gaussian_transition_proposal"><i class="fa fa-check"></i><b>7.5.4</b> linear_gaussian_transition_proposal</a></li>
 </ul></li>
 <li class="chapter" data-level="7.6" data-path="nonlinear-gaussian-transition-proposal.html"><a href="nonlinear-gaussian-transition-proposal.html"><i class="fa fa-check"></i><b>7.6</b> Nonlinear-Gaussian transition proposal</a>
 <ul>
@@ -377,19 +380,25 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="8" data-path="output.html"><a href="output.html"><i class="fa fa-check"></i><b>8</b> Loading and visualising output</a>
 <ul>
-<li class="chapter" data-level="8.1" data-path="is-and-smc-output.html"><a href="is-and-smc-output.html"><i class="fa fa-check"></i><b>8.1</b> IS and SMC output</a></li>
-<li class="chapter" data-level="8.2" data-path="ensemble-kalman-output.html"><a href="ensemble-kalman-output.html"><i class="fa fa-check"></i><b>8.2</b> Ensemble Kalman output</a></li>
-<li class="chapter" data-level="8.3" data-path="mcmc-output.html"><a href="mcmc-output.html"><i class="fa fa-check"></i><b>8.3</b> MCMC output</a></li>
-<li class="chapter" data-level="8.4" data-path="further-detail-about-output-files.html"><a href="further-detail-about-output-files.html"><i class="fa fa-check"></i><b>8.4</b> Further detail about output files</a></li>
+<li class="chapter" data-level="8.1" data-path="mcmc-output.html"><a href="mcmc-output.html"><i class="fa fa-check"></i><b>8.1</b> MCMC output</a></li>
+<li class="chapter" data-level="8.2" data-path="is-and-smc-output.html"><a href="is-and-smc-output.html"><i class="fa fa-check"></i><b>8.2</b> IS and SMC output</a></li>
+<li class="chapter" data-level="8.3" data-path="ensemble-kalman-output.html"><a href="ensemble-kalman-output.html"><i class="fa fa-check"></i><b>8.3</b> Ensemble Kalman output</a></li>
+<li class="chapter" data-level="8.4" data-path="nested.html"><a href="nested.html"><i class="fa fa-check"></i><b>8.4</b> Loading nested output</a></li>
+<li class="chapter" data-level="8.5" data-path="output-detail.html"><a href="output-detail.html"><i class="fa fa-check"></i><b>8.5</b> Further detail about output files</a></li>
 </ul></li>
 <li class="chapter" data-level="9" data-path="examples.html"><a href="examples.html"><i class="fa fa-check"></i><b>9</b> Examples</a>
 <ul>
 <li class="chapter" data-level="9.1" data-path="running-code.html"><a href="running-code.html"><i class="fa fa-check"></i><b>9.1</b> Running code</a></li>
+<li class="chapter" data-level="9.2" data-path="smc-from-mcmc.html"><a href="smc-from-mcmc.html"><i class="fa fa-check"></i><b>9.2</b> Converting an MCMC into an SMC sampler</a></li>
 </ul></li>
 <li class="chapter" data-level="10" data-path="bugs.html"><a href="bugs.html"><i class="fa fa-check"></i><b>10</b> Known issues and glaring omissions</a>
 <ul>
 <li class="chapter" data-level="10.1" data-path="known-issues.html"><a href="known-issues.html"><i class="fa fa-check"></i><b>10.1</b> Known issues</a></li>
 <li class="chapter" data-level="10.2" data-path="glaring-omissions.html"><a href="glaring-omissions.html"><i class="fa fa-check"></i><b>10.2</b> Glaring omissions</a></li>
+</ul></li>
+<li class="chapter" data-level="11" data-path="debugging.html"><a href="debugging.html"><i class="fa fa-check"></i><b>11</b> Debugging ilike</a>
+<ul>
+<li class="chapter" data-level="11.1" data-path="error-in-could-not-find-function.html"><a href="error-in-could-not-find-function.html"><i class="fa fa-check"></i><b>11.1</b> Error in …: could not find function “…”</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 <li class="divider"></li>
@@ -483,12 +492,12 @@ where <span class="math inline">\(\mathbf{0}_2\)</span> is the 2-dimensional col
 <div id="visualising-the-output" class="section level3 hasAnchor" number="1.1.4">
 <h3><span class="header-section-number">1.1.4</span> Visualising the output<a href="toy-example.html#visualising-the-output" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>The ilike package contains functions for loading the output from ilike algorithms into R, in a format amenable to summarising or plotting. For this simple example, we can plot the output as a scatter plot using the <a href="https://CRAN.R-project.org/package=ggsmc"><code>ggsmc</code></a> package.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="toy-example.html#cb6-1" tabindex="-1"></a>output <span class="ot">=</span> <span class="fu">load_mcmc_output</span>(<span class="st">&quot;toy_model_rwm&quot;</span>,<span class="at">ilike.output =</span> <span class="cn">TRUE</span>)</span>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="toy-example.html#cb6-1" tabindex="-1"></a>output <span class="ot">=</span> <span class="fu">load_mcmc_output</span>(<span class="st">&quot;toy_model_rwm&quot;</span>)</span>
 <span id="cb6-2"><a href="toy-example.html#cb6-2" tabindex="-1"></a><span class="fu">library</span>(ggsmc)</span>
 <span id="cb6-3"><a href="toy-example.html#cb6-3" tabindex="-1"></a><span class="fu">plot_scatter</span>(output,<span class="at">x_parameter =</span> <span class="st">&quot;θ&quot;</span>,<span class="at">x_dimension=</span><span class="dv">1</span>,<span class="at">y_parameter=</span><span class="st">&quot;θ&quot;</span>,<span class="at">y_dimension=</span><span class="dv">2</span>,<span class="at">use_initial_points =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 <p><img src="toy_scatter.png" /></p>
 <p>We can plot trace plots using, for example, <a href="https://CRAN.R-project.org/package=ggmcmc"><code>ggmcmc</code></a></p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="toy-example.html#cb7-1" tabindex="-1"></a>output <span class="ot">=</span> <span class="fu">load_mcmc_output</span>(<span class="st">&quot;toy_model_rwm&quot;</span>)</span>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="toy-example.html#cb7-1" tabindex="-1"></a>output <span class="ot">=</span> <span class="fu">load_mcmc_output</span>(<span class="st">&quot;toy_model_rwm&quot;</span>, <span class="at">ggmcmc =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb7-2"><a href="toy-example.html#cb7-2" tabindex="-1"></a><span class="fu">library</span>(ggmcmc)</span>
 <span id="cb7-3"><a href="toy-example.html#cb7-3" tabindex="-1"></a><span class="fu">ggs_traceplot</span>(output)</span></code></pre></div>
 <p><img src="toy_trace.png" /></p>

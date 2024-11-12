@@ -1,0 +1,17 @@
+# Debugging ilike {#debugging}
+
+ilike is currently in an early stage of development, and as such, it is likely that you will encounter errors. This section provides some guidance on how to debug these errors. I am working on providing more descriptive error messages where possible.
+
+## Error in ...: could not find function "..."
+
+Example error:
+
+`Error in get_data() : could not find function "get_data"`
+
+Possible cause:
+
+The compiled ilike model was expecting an R (or Python, or Julia) function naned `get_data` to be available to call, but it didn't find it.
+
+Action:
+
+Check that you included an R (or Python or Julia) file of the same name (and with the appropriate extension) as the ilike file in the same directory as the ilike file. Check that this file contains a function called `get_data`.

@@ -140,9 +140,9 @@ No output is provided to the R console on running an MCMC algorithm - it can be 
 The ilike package contains functions for loading the output from ilike algorithms into R, in a format amenable to summarising or plotting. For this simple example, we can plot the output as a scatter plot using the [`ggsmc`](https://CRAN.R-project.org/package=ggsmc) package.
 
 ```{r,eval=FALSE}
-output = load_mcmc_output("toy_model_rwm",ilike.output = TRUE)
+output = load_mcmc_output("toy_model_rwm")
 library(ggsmc)
-plot_scatter(output,x_parameter = "θ",x_dimension=1,y_parameter="θ",y_dimension=2,use_initial_points = FALSE)
+plot_scatter(output,x_parameter = "θ",x_dimension=1,y_parameter="θ",y_dimension=2,mcmc = TRUE)
 ```
 
 ![](toy_scatter.png)
@@ -150,7 +150,7 @@ plot_scatter(output,x_parameter = "θ",x_dimension=1,y_parameter="θ",y_dimensio
 We can plot trace plots using, for example, [`ggmcmc`](https://CRAN.R-project.org/package=ggmcmc)
 
 ```{r,eval=FALSE}
-output = load_mcmc_output("toy_model_rwm")
+output = load_mcmc_output("toy_model_rwm", ggmcmc = TRUE)
 library(ggmcmc)
 ggs_traceplot(output)
 ```
