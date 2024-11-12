@@ -34,7 +34,6 @@ The ilike package contains functions that implement Bayesian computation techniq
 * importance sampling (IS);
 * Markov chain Monte Carlo (MCMC);
 * sequential Monte Carlo (SMC);
-* iterative ensemble Kalman inversion (EnKI);
 * particle filters (PFs);
 * ensemble Kalman filters (EnKFs).
 
@@ -42,7 +41,8 @@ ilike files include the option to estimate the likelihood using any of the infer
 
 * an exact likelihood;
 * approximate Bayesian computation (ABC);
-* synthetic likelihood (SL).
+* synthetic likelihood (SL);
+* iterative ensemble Kalman inversion ABC (IEnKI-ABC).
 
 We begin the documentation in section \@ref(toy-example) by giving an example of how to use the package, from (a) the specification of the ilike file and its compilation, to (b) calling the function that runs the inference algorithm, then (c) visualising the output of the algorithm. The documentation then follows the same order, providing full details about every step.
 
@@ -147,7 +147,7 @@ plot_scatter(output,x_parameter = "θ",x_dimension=1,y_parameter="θ",y_dimensio
 
 ![](toy_scatter.png)
 
-We can plot trace plots using [`ggmcmc`](https://CRAN.R-project.org/package=ggmcmc)
+We can plot trace plots using, for example, [`ggmcmc`](https://CRAN.R-project.org/package=ggmcmc)
 
 ```{r,eval=FALSE}
 output = load_mcmc_output("toy_model_rwm")

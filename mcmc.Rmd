@@ -26,7 +26,7 @@ Before describing the different types of proposals, we describe how to provide t
 
 The most common way to terminate a run of MCMC is after a pre-determined number of iterations. This is currently the only approach supported by ilike, and is set via the function type `mcmc_termination`.
 
-### mcmc_termination (ilike functions)
+### mcmc_termination
 
 `mcmc_termination` allows the user to set the method for deciding when to terminate the MCMC, and the parameters for this method.
 
@@ -186,7 +186,7 @@ Input: (optional) Any parameters the proposal relies on.
 
   -- of type `const Parameters &` in a C++ function
   
-  -- available as R list `parameters` in an R function
+  -- available as R list `proposal_parameters` in an R function
   
 Input: (optional) The observed data.
 
@@ -218,9 +218,9 @@ R example:
 /***simulate_mh_proposal,x=rnorm(1,parameters$x,proposal_parameters$theta)***/
 ```
 
-## Metropolis proposals: ilike
+## Built-in Metropolis proposals
 
-### m_proposal (ilike functions)
+### m_proposal
 
 The `m_proposal` function type allows the user to specify a Metropolis proposal through an ilike function.
 
@@ -233,7 +233,7 @@ The following sections detail the available ilike functions.
 Specifies a normal random walk proposal over the given variable, where the proposed state $\theta^*$ is simulated using
 
 $$
-\theta^* \sim \mathcal{N}(\theta}, \sigma)
+\theta^* \sim \mathcal{N}(\theta, \sigma)
 $$
 
 Inputs:
@@ -263,7 +263,7 @@ Inputs:
 Specifies a uniform random walk proposal over the given variable, where the proposed state $\theta^*$ is simulated using
 
 $$
-\theta^* \sim \mathcal{U}(\theta - \sigma, \theta} + \sigma)
+\theta^* \sim \mathcal{U}(\theta - w, \theta + w)
 $$
 
 
@@ -271,21 +271,21 @@ Inputs:
 
   1. string: the variable for which the proposal is specified
     
-  2. numeric: the half-width of the uniform distribution
+  2. numeric: the half-width $w$ of the uniform distribution
   
 #### Multivariate uniform random walk proposal `ilike::mvunif_rw`
 
 Specifies a multivariate random walk normal proposal over the given variable, where proposed state $\theta^*$ is simulated using
 
 $$
-\theta^* \sim \mathcal{MVU}(\theta - \Sigma, \theta + \Sigma)
+\theta^* \sim \mathcal{MVU}(\theta - W, \theta + W)
 $$
 
 Inputs:
 
   1. string: the variable for which the proposal is specified
     
-  2. vector/matrix: a matrix of half-widths of the uniform distribution, which must have the same dimensionality as $\theta$
+  2. vector/matrix: a matrix $W$ of half-widths of the uniform distribution, which must have the same dimensionality as $\theta$
 
 #### Mirror proposal `ilike::mirror`
 
@@ -324,7 +324,7 @@ Input: (optional) Any parameters the proposal relies on.
 
   -- of type `const Parameters &` in a C++ function
   
-  -- available as R list `parameters` in an R function
+  -- available as R list `proposal_parameters` in an R function
   
 Input: (optional) The observed data.
 
@@ -342,7 +342,7 @@ C++ example:
 
 ```{Rcpp,eval=FALSE}
 /***simulate_imh_proposal***/
-Parameters simulate_imh_proposal(RandomNumberGenerator &rng, const Parameters &parameters)
+Parameters simulate_imh_proposal(RandomNumberGenerator &rng, const Parameters &proposal_parameters)
 {
   arma::colvec x(1,1);
   x[0] = rnorm(rng, 0, proposal_parameters["theta"][0]);
@@ -400,9 +400,9 @@ R example:
 /***evaluate_log_imh_proposal,dnorm(proposed_parameters$x,0,proposal_parameters$theta)***/
 ```
 
-## Independent MH proposals: ilike
+## Built-in independent MH proposals
 
-### imh_proposal (ilike functions)
+### imh_proposal
 
 The `imh_proposal` function type allows the user to specify an independent Metropolis-Hastings proposal through an ilike function.
 
@@ -583,9 +583,9 @@ R example:
 /***evaluate_log_mh_proposal,dnorm(proposed_parameters$x,parameters$x,proposal_parameters$theta,log=TRUE)***/
 ```
 
-## MH proposals: ilike
+## Built-in MH proposals
 
-### mh_proposal (ilike functions)
+### mh_proposal
 
 The `mh_proposal` function type allows the user to specify a Metropolis-Hastings proposal through an ilike function.
 
@@ -598,7 +598,7 @@ The following sections detail the available ilike functions.
 Specifies a normal random walk proposal over the given variable, where the proposed state $\theta^*$ is simulated using
 
 $$
-\theta^* \sim \mathcal{N}(\theta}, \sigma)
+\theta^* \sim \mathcal{N}(\theta, \sigma)
 $$
 
 Inputs:
@@ -628,7 +628,7 @@ Inputs:
 Specifies a uniform random walk proposal over the given variable, where the proposed state $\theta^*$ is simulated using
 
 $$
-\theta^* \sim \mathcal{U}(\theta - \sigma, \theta} + \sigma)
+\theta^* \sim \mathcal{U}(\theta - w, \theta + w)
 $$
 
 
@@ -636,21 +636,21 @@ Inputs:
 
   1. string: the variable for which the proposal is specified
     
-  2. numeric: the half-width of the uniform distribution
+  2. numeric: the half-width $w$ of the uniform distribution
   
 #### Multivariate uniform random walk proposal `ilike::mvunif_rw`
 
 Specifies a multivariate random walk normal proposal over the given variable, where proposed state $\theta^*$ is simulated using
 
 $$
-\theta^* \sim \mathcal{MVU}(\theta - \Sigma, \theta + \Sigma)
+\theta^* \sim \mathcal{MVU}(\theta - W, \theta + W)
 $$
 
 Inputs:
 
   1. string: the variable for which the proposal is specified
     
-  2. vector/matrix: a matrix of half-widths of the uniform distribution, which must have the same dimensionality as $\theta$
+  2. vector/matrix: a matrix $W$ of half-widths of the uniform distribution, which must have the same dimensionality as $\theta$
 
 #### Langevin proposal `ilike::langevin`
     
@@ -783,9 +783,9 @@ R example:
 /***simulate_unadjusted_proposal,x=rnorm(parameters$x - (proposal_parameters$epsilon2/2.0)*parameters$x, sqrt(proposal_parameters$epsilon2))***/
 ```
 
-## Unadjusted proposals: ilike
+## Built-in unadjusted proposals
 
-### unadjusted_proposal (ilike functions)
+### unadjusted_proposal
 
 The `unadjusted_proposal` function type allows the user to specify a proposal that will be used directly as an MCMC update through using an ilike function. It is the user's responsibility to ensure that the proposal provided has the desired target distribution as its invariant distribution. Note that a number of the proposals provided will simulate a chain that does not have a limiting distribution. 
 
@@ -798,7 +798,7 @@ The following sections detail the available ilike functions.
 Specifies a normal random walk proposal over the given variable, where the proposed state $\theta^*$ is simulated using
 
 $$
-\theta^* \sim \mathcal{N}(\theta}, \sigma)
+\theta^* \sim \mathcal{N}(\theta, \sigma)
 $$
 
 Inputs:
@@ -828,7 +828,7 @@ Inputs:
 Specifies a uniform random walk proposal over the given variable, where the proposed state $\theta^*$ is simulated using
 
 $$
-\theta^* \sim \mathcal{U}(\theta - \sigma, \theta} + \sigma)
+\theta^* \sim \mathcal{U}(\theta - w, \theta + w)
 $$
 
 
@@ -836,21 +836,21 @@ Inputs:
 
   1. string: the variable for which the proposal is specified
     
-  2. numeric: the half-width of the uniform distribution
+  2. numeric: the half-width $w$ of the uniform distribution
   
 #### Multivariate uniform random walk proposal `ilike::mvunif_rw`
 
 Specifies a multivariate random walk normal proposal over the given variable, where proposed state $\theta^*$ is simulated using
 
 $$
-\theta^* \sim \mathcal{MVU}(\theta - \Sigma, \theta + \Sigma)
+\theta^* \sim \mathcal{MVU}(\theta - W, \theta + W)
 $$
 
 Inputs:
 
   1. string: the variable for which the proposal is specified
     
-  2. vector/matrix: a matrix of half-widths of the uniform distribution, which must have the same dimensionality as $\theta$
+  2. vector/matrix: a matrix $W$ of half-widths of the uniform distribution, which must have the same dimensionality as $\theta$
 
 #### Langevin proposal `ilike::langevin`
     

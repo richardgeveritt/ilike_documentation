@@ -1,0 +1,18 @@
+# Bin
+
+All of the example files used in this documentation use the automatic approach to specifying a model. For simple models, we anticipate that the user will not need to think very much about the precise structure of the model file. Nevertheless, this section details precisely how the compiler determines the blocks present in the file.
+
+The compiler reads the model file from top to bottom and determines when a block is "opened" and when it is "closed". There are multiple different types of block (some of which have subtypes), each of which is defined by containing different function types (this is fully described in section \@ref(blocks)). One of each block type can be "open" as the compiler processes the file. The first time a block of each type is encountered in the file by the compiler, a block of that type will be opened. A block is closed when either:
+
+1. A new block of the same type is opened. This happens when the next function type in the file is either:
+
+  + part of a block of the same type but of a different subtype (e.g. the current block has type "factor" and subtype "prior" and the next function type is `evaluate_log_likelihood`);
+  + part of a block of the same type (and subtype if this exists), and a function of this type is already in the open block (e.g. the current open block has type "factor" and subtype "prior", containing function type `evaluate_log_prior` and the next function type is `evaluate_log_prior`).
+
+2. The end of the file is reached.
+
+This sounds a bit technical and might be enough to put anyone off if all they want to do is run a bit of MCMC, but the end result quite simple. If you have two functions of type `evaluate_log_prior` next to each other in the file, the compiler will notice that these are different factors of the joint distribution. Likewise, if you have `evaluate_log_prior` and `evaluate_log_likelihood` next to each other, the complier will also know that these are different factors. Further, if you have `evaluate_log_prior`, then `simulate_prior`, then `evaluate_log_likelihood`, the compiler will work out that the first two functions refer to the same prior, then the likelihood is specified by the next function.
+
+When the model is compiled, messages will be fired out to the console to tell the user when it decided each block was closed.
+
+When the model is compiled, messages will be fired out to the console to tell the user when it decided each block was complete. This should help a user track .. determine if the compiler thinks that any block is complete before the user intended.

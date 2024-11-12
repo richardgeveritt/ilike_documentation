@@ -15,17 +15,17 @@ p(\phi) f(\theta \mid \phi) g(y \mid \theta).
 $$
 If we wish to perform inference on $\theta$ and $\phi$ given observed $y$, then $p(\phi)$ and $f(\theta \mid \phi)$ would be specified as prior factors, and $g(y \mid \theta)$ would be specified as a likelihood factor. If, for whatever reason, we wished to construct, say, an MCMC algorithm for simulating from the joint distribution on $\phi$, $\theta$ and $y$, then all three could be specified as "priors".
 
-The specification of a state-space model, which involves a time index $t$ and requires the specification of a transition model, is not described in this section: these details can be found in section \@(ssm).
+The specification of a state-space model, which involves a time index $t$ and requires the specification of a transition model, is not described in this section: these details can be found in section \@ref(ssm).
 
-There are two ways of specifying priors: through user-defined functions, or through (currently a fairly limited choice of) simple built-in "ilike" functions. For a likelihood, the specification through user-defined functions closely follows the analogous way of specifying a prior. The built-in choices of likelihood can be categorised as follows:
+There are two ways of specifying priors: through user-defined functions, or through simple built-in "ilike" functions. For a likelihood, the specification through user-defined functions closely follows the analogous way of specifying a prior. The built-in choices of likelihood can be categorised as follows:
 
 - linear and non-linear Gaussian models, covering the special case of measurements with Gaussian noise;
 
-- simulated-based likelihoods, allowing the use of data models that are specified in the form of a simulator;
+- simulation-based likelihoods, allowing the use of data models that are specified in the form of a simulator;
 
 - algorithmic likelihoods, where the likelihood is given by an algorithm such as a particle filter.
 
-Recall that every entry in an ilike file has a "function type". This section details every function type that may be used to specify a model: each subsubsection (e.g. 3.1.1) is named after a function type. For user-defined function types we detail the input and output arguments of the function, and give an example of its use. The specification of each function type is described in both C++ and R. Python and Julia function are both called from R - see section \@ref(ilike-files) - so do not require further description). For built-in (ilike) function types, we detail each available built-in function in subsubsubsubections (e.g. 3.2.1.1).
+Recall that every entry in an ilike file has a "function type". This section details every function type that may be used to specify a model: each subsubsection (e.g. 3.1.1) is named after a function type. For user-defined function types we detail the input and output arguments of the function, and give an example of its use. The specification of each function type is described in both C++ and R. Python and Julia function are both called from R - see section \@ref(ilike-files) - so do not require further description). For built-in (ilike) function types, we detail each available built-in function in subsubsubsections (e.g. 3.2.1.1).
 
 The order in which the factors are provided in the ilike file does not matter, but the compiler will allocate a number to each in the order they are provided, starting from 1. Some parts of the algorithm specification (e.g. specifying which factors must be evaluated in a Metropolis-Hastings update) require the user to refer to factors by their number, so the user may wish to use comments in the ilike file (through the C++ commenting style, i.e. `//` or `/* */`) to keep track of the factor numbers.
 
@@ -239,7 +239,7 @@ R example:
 
 ## Built-in prior {#ilike-prior}
 
-### prior (ilike functions)
+### prior
 
 The `prior` function type allows the user to specify the prior through an ilike function (e.g. `ilike::norm`). For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.
 
@@ -655,7 +655,7 @@ or
 /***linear_gaussian_data_covariance,parameters$scale*diag(2)***/
 ```
 
-### linear_gaussian_data_model (ilike function)
+### linear_gaussian_data_model
 
 We may use an ilike function to specify the complete linear-Gaussian data model.
 
@@ -854,7 +854,7 @@ R example:
 
 ### data_variable
 
-The `data_variable` function type specifies the variable or variables in the simulation that we wish to treat as observed for the purposes of constructing a likelihood based on the simulation. There are no input arguments.
+The `data_variable` function type specifies the variable or variables in the simulation that we wish to treat as observed for the purposes of constructing a likelihood based on the simulation. If summary statistics are being used, this should be the variables used in the summary statistics, rather than those in the data. There are no input arguments.
 
 Output: The variable or variables in the simulation that we wish to treat as observed for the purposes of constructing a likelihood based on the simulation. To specify multiple output variables they must be separated by a semi-colon (with no spaces).
 
@@ -911,7 +911,7 @@ R example:
 /***summary_statistics,y_mean=mean(data$y)***/
 ```
 
-### sbi_likelihood (ilike functions)
+### sbi_likelihood
 
 The `sbi_likelihood` function type uses an ilike function to define the desired simulation-based likelihood. For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.
 
@@ -1117,7 +1117,7 @@ Inputs:
 
 For some models, the likelihood can be computed or estimated by running an algorithm. For example, the marginal likelihood of a state-space model may be estimated using a particle filter. To specify such a likelihood, the user must provide a function type `algorithmic_likelihood`, then use an ilike function to specify the type of likelihood.
 
-### algorithmic_likelihood (ilike functions)
+### algorithmic_likelihood
 
 The likelihood function type allows the user to specify the likelihood through an ilike function. For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.
 
@@ -1129,17 +1129,17 @@ The Kalman filter (KF) is a recursive algorithm that estimates the state of a li
 
 Inputs:
 
-  1. string: The name of an ilike file (with extension) that contains the specification of a linear-Gaussian state-space model and the required ilike function for setting up a filter, as described in section \@ref(filter). A full description of what is required in the file is given in section \@ref(kf).
+  1. string: The name of an ilike file (with extension) that contains the specification of a linear-Gaussian state-space model, as described in section \@ref(ssm). A full description of what is required in the file is given in section \@ref(inference-kf).
   
-  2. (optional) integer: THe number of iterations output of the KF to store, counting from the final iteration backwards (default is `0`)
+  2. (optional) integer: The number of iterations output of the KF to store, counting from the final iteration backwards (default is `0`)
   
 #### Particle filter `ilike::pf`
 
-The particle filter is a recursive algorithm that estimates the state of a general state-space model and, in this context, can be used to estimate the marginal likelihood of parameters of the model. The arguments required for this ilike function follow as closely as possible those required for running a PF from the ilike R package as described in section \@ref(pf).
+The particle filter is a recursive algorithm that estimates the state of a general state-space model and, in this context, can be used to estimate the marginal likelihood of parameters of the model. The arguments required for this ilike function follow as closely as possible those required for running a PF from the ilike R package as described in section \@ref(inference-pf).
 
 Inputs:
 
-  1. string: The name of an ilike file (with extension) that contains the specification of a general state-space model and the required ilike function for setting up a filter, as described in section \@ref(filter). A full description of what is required in the file is given in section \@ref(pf).
+  1. string: The name of an ilike file (with extension) that contains the specification of a general state-space model, as described in section \@ref(ssm). A full description of what is required in the file is given in section \@ref(inference-pf).
 
   2. integer: The number of particles to use in the particle filter.
   
@@ -1151,11 +1151,11 @@ Inputs:
   
 #### Ensemble Kalman filter `ilike::enkf`
 
-The ensemble Kalman filter (EnKF) is a recursive algorithm that estimates the state of a general state-space model and, in this context, can be used to estimate the marginal likelihood of parameters of the model. The arguments required for this ilike function follow as closely as possible those required for running an EnKF from the ilike R package as described in section \@ref(enkf).
+The ensemble Kalman filter (EnKF) is a recursive algorithm that estimates the state of a general state-space model and, in this context, can be used to estimate the marginal likelihood of parameters of the model. The arguments required for this ilike function follow as closely as possible those required for running an EnKF from the ilike R package as described in section \@ref(inference-enkf).
 
 Inputs:
 
-  1. string: The name of an ilike file (with extension) that contains the specification of a general state-space model and the required ilike function for setting up a filter, as described in section \@ref(filter). A full description of what is required in the file is given in section \@ref(enkf).
+  1. string: The name of an ilike file (with extension) that contains the specification of a general state-space model, as described in section \@ref(ssm). A full description of what is required in the file is given in section \@ref(inference-enkf).
 
   2. integer: The number of ensemble members to use in the EnKF.
   

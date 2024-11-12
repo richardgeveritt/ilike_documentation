@@ -2,7 +2,7 @@
 
 The ilike package uses an ilike file is used to specify the statistical model (priors and likelihoods) on which we will perform inference, along with the data and functions and parameters for the inference algorithm. This section gives a full description of how to specify this file. If the description here seems a bit intimidating, then head over to section \@ref(examples) to see some worked examples first, and come back to this section if you need clarification on anything.
 
-An ilike file is an adapted version of a C++ source file: but don't let this put you off if you don't know C++! It is possible to specify an ilike file without knowing any C++ at all. The functions in an ilike file can be specified using C++, R, python, julia. A section will be devoted to specifying the file via each of these languages. Additionally, some functions in the file may be specified by using commands that are native to the ilike package, and different functions in the file may be specified using different languages. The ilike file is compiled before it is used for running inference algorithms.
+An ilike file is an adapted version of a C++ source file: but don't let this put you off if you don't know C++! It is possible to write an ilike file without knowing any C++ at all. The functions in an ilike file can be specified using C++, R, python, julia. A section will be devoted to providing functions via each of these languages. Additionally, some functions in the file may be specified by using commands that are native to the ilike package, and different functions in the file may be specified using different languages. The ilike file is compiled before it is used for running inference algorithms.
 
 This section fully describes the structure of the file (section \@ref(file-structure)), how to compile an ilike file (section \@ref(compiling)) and how to write functions in C++ (\@ref(C)), R (\@ref(R)), python (\@ref(python)), julia (\@ref(julia)). ilike native functions are described in section \@ref(ilike-functions).
 
@@ -22,43 +22,39 @@ For example, a block containing a prior may include two functions: `evaluate_log
 
 Blocks may be specified *explicitly* or determined *automatically*:
 
-* To explicitly end a block, include the characters `//#` on a new line in the file after a function.
-* The `compile` function will attempt to automatically determine the blocks that are present in a file.
+* To *explicitly* end a block, include the characters `//#` on a new line in the file after a function.
+* The `compile` function will attempt to *automatically* determine the blocks that are present in a file.
 
 Specifying blocks explicitly using `//#` has the benefit of avoiding ambiguity. If you decide to use the explicit approach, you need not read the next subsection, which explains how to write a file where the blocks are determined automatically.
 
-Whether specified explicitly or automatically, the block type (and subtype if this exists) is determined by the function types in the block. The function types that are used to determine the block type are described in section \@ref(blocks). For example, if a block contains  `evaluate_log_prior` and `simulate_prior`, the block type is "factor" and the subtype is "prior".
+Whether specified explicitly or automatically, the block type is determined by the function types in the block. For example, if a block contains  `evaluate_log_prior` and `simulate_prior` this, somewhat unsurprisingly, defines a prior. The following sections explain this in more detail.
 
 ### Specifying blocks automatically {#blocks-automatically}
 
-*****Change to making sure things are always in the same order for each block****
-Order doesn't matter, except where stated.
+All of the example files used in this documentation use the automatic approach to specifying a model. For simple models, we anticipate that the user will not need to think very much about the precise structure of the model file.
 
-All of the example files used in this documentation use the automatic approach to specifying a model. For simple models, we anticipate that the user will not need to think very much about the precise structure of the model file. Nevertheless, this section details precisely how the compiler determines the blocks present in the file.
+The compiler will determine the blocks in the file by looking at the function types in the file. The two principles that need to be followed are:
 
-The compiler reads the model file from top to bottom and determines when a block is "opened" and when it is "closed". There are multiple different types of block (some of which have subtypes), each of which is defined by containing different function types (this is fully described in section \@ref(blocks)). One of each block type can be "open" as the compiler processes the file. The first time a block of each type is encountered in the file by the compiler, a block of that type will be opened. A block is closed when either:
+1. If a block contains multiple function types, these function types should be next to each other in the file. For example, when specifying a prior, the function types `simulate_prior` and `evaluate_log_prior` should be one after the other in the file.
 
-1. A new block of the same type is opened. This happens when the next function type in the file is either:
+2. If multiple blocks contain the same function types, the function types should always be provided in the same order. For example, when specifying multiple priors, the order of function types `simulate_prior` and `evaluate_log_prior` must be consistent across different blocks.
 
-  + part of a block of the same type but of a different subtype (e.g. the current block has type "factor" and subtype "prior" and the next function type is `evaluate_log_likelihood`);
-  + part of a block of the same type (and subtype if this exists), and a function of this type is already in the open block (e.g. the current open block has type "factor" and subtype "prior", containing function type `evaluate_log_prior` and the next function type is `evaluate_log_prior`).
-
-2. The end of the file is reached.
-
-This sounds a bit technical and might be enough to put anyone off if all they want to do is run a bit of MCMC, but the end result quite simple. If you have two functions of type `evaluate_log_prior` next to each other in the file, the compiler will notice that these are different factors of the joint distribution. Likewise, if you have `evaluate_log_prior` and `evaluate_log_likelihood` next to each other, the complier will also know that these are different factors. Further, if you have `evaluate_log_prior`, then `simulate_prior`, then `evaluate_log_likelihood`, the compiler will work out that the first two functions refer to the same prior, then the likelihood is specified by the next function.
-
-When the model is compiled, messages will be fired out to the console to tell the user when it decided each block was closed.
+Regarding point 2, in almost all cases the order of the function types does not matter, as long as it is consistent across blocks. The only case where the order matters is when using "factor index" function types in MCMC proposals: these must be provided immediately *after* the associated proposal.
 
 ## Compiling an ilike file {#compiling}
 
-Compiling an ilike file is very simple. To compile the ilike file `myfile.ilike`, we call
+To compile the ilike file `myfile.ilike`, we call
 
 ```{r,eval=FALSE}
 library(ilike)
 model = compile("myfile.ilike")
 ```
 
-The remainder of this section gives some information about what the compiler does. This is probably not of any great interest to most users, but for those who would like to know a little more, read on!
+The resulting R object `model` is a list that contains all of the information in the ilike file. This object is used as input to the inference algorithms.
+
+The remainder of this section (i.e. \@ref(compiler-output)) gives some information about what the compiler does. This is probably not of any great interest to most users, and can be skipped. but for those who would like to know a little more, read on.
+
+### Compiler output {#compiler-output}
 
 The end result of the compilation is an R list that is created from the blocks in the ilike file. The different block types in the file are stored in different sublists in the compilation output. For example, an ilike file with two factor blocks (one prior with function `evaluate_log_prior` and one likelihood with function `evaluate_log_likelihood`) will compile to an R list (let's call it `model`) with entries `model$factor[[1]]` and `model$factor[[2]]`. `model$factor[[1]]` is itself a list with, in this case, only one element `model$factor[[1]]$evaluate_log_prior`. This list would have two elements if additionally a `simulate_prior` function was specified, i.e. `model$factor[[1]]$simulate_prior` would also be found in the output. As expected, `model$factor[[2]]` is a list with one element `model$factor[[2]]evaluate_log_likelihood`. Each of these entries is a compiled C++ function, stored in an `Rcpp::XPtr` function pointer object [@eddelbuettel2011rcpp]. When performing inference this R list is passed into the ilike engine (which is written in C++), and the user-inputted functions are used in the relevant places.
 
@@ -85,7 +81,7 @@ double prior_eval(const Parameters &parameters)
 }
 ```
 
-If you are not familiar with C++, I imagine the main thing that looks odd to you here is the "types", i.e. `double`, `Parameters` and `arma::colvec`. C++ is a typed language. In R we might write `x = 1` (or probably more correctly, although I never can get into this habit myself, `x<-1`), and then R works out that the `1` that it will store in `x` is a numeric type. This is invisible from the user, until for example you want to use a function that needs to take, say, a data frame, and the variable is stored as a matrix (in which case as.data_frame(...) is handy). In C++, these types must be explicitly specified in the code. We would write, for example, `double x = 1.0;` to specify that `x` has the numeric type `double`. Note that C++ also requires a semi-colon at the end of each line.
+If you are not familiar with C++, I imagine the main thing that looks odd to you here is the "types", i.e. `double`, `Parameters` and `arma::colvec`. C++ is a typed language. In R we might write `x = 1` (or, preferably, `x <- 1`), and then R works out that the `1` that it will store in `x` is a numeric type. This is invisible from the user, until for example you want to use a function that needs to take, say, a data frame, and the variable is stored as a matrix (in which case as.data_frame(...) is handy). In C++, these types must be explicitly specified in the code. We would write, for example, `double x = 1.0;` to specify that `x` has the numeric type `double`. Note that C++ also requires a semi-colon at the end of each line.
 
 There are several points that are worth highlighting about this function:
 
@@ -93,7 +89,7 @@ There are several points that are worth highlighting about this function:
 
 * It is a standard C++ function that, independently of being compiled by ilike would compile using a C++ compiler if all of the correct header files are included^[In fact this is also true for a whole ilike file. The headers that need to be included for the ilike package can be found in the package `inst/include` directory. Other headers from other R packages that ilike depends on are also required (see the `LinkingTo` section in the package `DESCRIPTION` file.].
 
-* It has a return type (`double`) and argument(s) (`const Parameters &`)^[If you are not familiar with C++, and you are not clear about what this means, don't worry about this just yet. This documentation should tell you most of what you need to know to get started. If you want to understand more, [this tutorial](https://cplusplus.com/doc/tutorial/functions/) is a reasonable starting point.] that are pre-determined by the ilike package. The key point is that if a function under the `evaluate_log_prior` type does not have this return type and arguments (including the `const` and the `&`), you will receive an error. The return type and arguments for each function type are given in section \@ref(blocks).
+* It has a return type (`double`) and argument(s) (`const Parameters &`)^[If you are not familiar with C++, and you are not clear about what this means, don't worry about this just yet. This documentation should tell you most of what you need to know to get started. If you want to understand more, [this tutorial](https://cplusplus.com/doc/tutorial/functions/) is a reasonable starting point.] that are pre-determined by the ilike package. The key point is that if a function under the `evaluate_log_prior` type does not have this return type and arguments (including the `const` and the `&`), you will receive an error. The return type and arguments for each function type are given in the following sections.
 
 * The type `Parameters` is a class defined in the ilike package source. It operates in a similar way to an R list, or a python dictionary. There are more details about this in section \@ref(ilike-cpp-classes).
 
@@ -915,7 +911,7 @@ This section discusses arguments in R functions, and details how to specify both
 
 ### Function arguments for R functions
 
-When using C++ functions, each function type has predefined arguments, as detailed in section \@ref(blocks). For example, the `evaluate_log_prior` function type has a `Parameters` object as its argument. A R function of the same type need not have these arguments, but it does have access to all of the same arguments used in the corresponding C++ function. For example an `evaluate_log_prior` function has access to an object called `parameters` that has the same content as the corresponding argument in the C++ code has.
+When using C++ functions, each function type has predefined arguments. For example, the `evaluate_log_prior` function type has a `Parameters` object as its argument. An R function of the same type need not have these arguments, but it does have access to all of the same arguments used in the corresponding C++ function. For example an `evaluate_log_prior` function has access to an object called `parameters` that has the same content as the corresponding argument in the C++ code has.
 
 When using the arguments in R functions, users should also be aware of the following:
 
@@ -923,7 +919,7 @@ When using the arguments in R functions, users should also be aware of the follo
 
 - A `Data` object is used in the same ways as a `Parameters` object - it is an R list, and elements may be accessed using `data$variable`.
 
-- The names of the objects that may be used is pre-specified (and described in in section \@ref(blocks)). For example, the objects available in the `evaluate_log_likelihood` function type are named `parameters` and `data`.
+- The names of the objects that may be used is pre-specified (defined in later sections). For example, the objects available in the `evaluate_log_likelihood` function type are named `parameters` and `data`.
 
 - In case you read the section on C++ functions and were wondering, random number streams do not need to be used in R functions.
 
@@ -937,7 +933,7 @@ For C++ functions, a function header takes the form of, for example, `/***evalua
 
 where `parameters$x` is the value at which the prior is to be evaluated. Here the use of `parameters$x` will be interpreted as taking the parameter `x` from the `parameters` object.
 
-Just as when using C++ functions, each function type has a set of arguments it may use (in this case, `parameters`): these are detailed in section \@ref(blocks). There is some flexibility in how to use these arguments. For example, the `parameters` object may be used as a whole, or individual elements may be extracted from it. The example
+Just as when using C++ functions, each function type has a set of arguments it may use (in this case, `parameters`): these are detailed in later sections. There is some flexibility in how to use these arguments. For example, the `parameters` object may be used as a whole, or individual elements may be extracted from it. The example
 
 ```{Rcpp,eval=FALSE}
 /***evaluate_log_prior, dnorm(parameters$x,log=TRUE)***/
@@ -1119,7 +1115,7 @@ ilike contains a number of built-in functions that, under the hood, call C++ cod
 /***mcmc_termination,ilike::iterations(100000)***/
 ```
 
-Other uses for ilike functions include specifying the proposal in an MCMC algorithm, or the prior distribution for a parameter. ilike functions also allow access to some key algoritms in ilike, for example approximate Bayesian computation (ABC). Documentation of all available ilike functions can be found in section \@ref(blocks).
+Other uses for ilike functions include specifying the proposal in an MCMC algorithm, or the prior distribution for a parameter. ilike functions also allow access to some key algorithms in ilike, for example approximate Bayesian computation (ABC). Documentation of all available ilike functions can be found in the following sections.
 
 All ilike functions must include the prefix `ilike::` to distinguish them from a call to an R, Python or Julia function. ilike functions only have inputs, and do not return any values. The input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.
 

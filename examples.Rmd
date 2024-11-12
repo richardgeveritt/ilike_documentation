@@ -1,13 +1,8 @@
-# Loading and visualising output {#output}
+# Examples {#examples}
 
-## IS and SMC output
+## Running code
 
-## Ensemble Kalman output
-
-## MCMC output
-
-## Further detail about output files
-
+## Converting an MCMC into an SMC sampler {#smc-from-mcmc}
 
 <!-- You can label chapter and section titles using `{#label}` after them, e.g., we can reference Chapter \@ref(intro). If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \@ref(methods). -->
 

@@ -16,19 +16,15 @@
 
 ### .ilike file requirements
 
-## Iterative ensemble Kalman inversion
+## Kalman filters {#inference-kf}
 
 ### .ilike file requirements
 
-## Kalman filters {#kf}
+## Particle filters {#inference-pf}
 
 ### .ilike file requirements
 
-## Particle filters {#pf} {#inference-pf}
-
-### .ilike file requirements
-
-## Ensemble Kalman filters {#enkf}
+## Ensemble Kalman filters {#inference-enkf}
 
 ### .ilike file requirements
 

@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>7.6 Nonlinear-Gaussian transition proposal | ilike documentation</title>
+  <meta name="description" content="Documentation for the ilike R package." />
+  <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="7.6 Nonlinear-Gaussian transition proposal | ilike documentation" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="Documentation for the ilike R package." />
+  <meta name="github-repo" content="richardgeveritt/ilike_documentation" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="7.6 Nonlinear-Gaussian transition proposal | ilike documentation" />
+  
+  <meta name="twitter:description" content="Documentation for the ilike R package." />
+  
+
+<meta name="author" content="Richard G. Everitt" />
+
+
+<meta name="date" content="2024-11-11" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="linear-gaussian-transition-proposal.html"/>
+<link rel="next" href="user-defined-transition-proposal.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">ilike documentation</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preface</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="toy-example.html"><a href="toy-example.html"><i class="fa fa-check"></i><b>1.1</b> Example</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="toy-example.html"><a href="toy-example.html#model"><i class="fa fa-check"></i><b>1.1.1</b> Model</a></li>
+<li class="chapter" data-level="1.1.2" data-path="toy-example.html"><a href="toy-example.html#ilike-file"><i class="fa fa-check"></i><b>1.1.2</b> ilike file</a></li>
+<li class="chapter" data-level="1.1.3" data-path="toy-example.html"><a href="toy-example.html#running-mcmc"><i class="fa fa-check"></i><b>1.1.3</b> Running MCMC</a></li>
+<li class="chapter" data-level="1.1.4" data-path="toy-example.html"><a href="toy-example.html#visualising-the-output"><i class="fa fa-check"></i><b>1.1.4</b> Visualising the output</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="inference.html"><a href="inference.html"><i class="fa fa-check"></i><b>2</b> Inference algorithms</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="random-numbers.html"><a href="random-numbers.html"><i class="fa fa-check"></i><b>2.1</b> Random numbers</a></li>
+<li class="chapter" data-level="2.2" data-path="parameters.html"><a href="parameters.html"><i class="fa fa-check"></i><b>2.2</b> Model and algorithm parameters</a></li>
+<li class="chapter" data-level="2.3" data-path="inference-is.html"><a href="inference-is.html"><i class="fa fa-check"></i><b>2.3</b> Importance sampling</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="inference-is.html"><a href="inference-is.html#ilike-file-requirements"><i class="fa fa-check"></i><b>2.3.1</b> .ilike file requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="2.4" data-path="inference-mcmc.html"><a href="inference-mcmc.html"><i class="fa fa-check"></i><b>2.4</b> MCMC</a>
+<ul>
+<li class="chapter" data-level="2.4.1" data-path="inference-mcmc.html"><a href="inference-mcmc.html#ilike-file-requirements-1"><i class="fa fa-check"></i><b>2.4.1</b> .ilike file requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="2.5" data-path="inference-smc.html"><a href="inference-smc.html"><i class="fa fa-check"></i><b>2.5</b> SMC with MCMC moves</a>
+<ul>
+<li class="chapter" data-level="2.5.1" data-path="inference-smc.html"><a href="inference-smc.html#ilike-file-requirements-2"><i class="fa fa-check"></i><b>2.5.1</b> .ilike file requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="2.6" data-path="inference-kf.html"><a href="inference-kf.html"><i class="fa fa-check"></i><b>2.6</b> Kalman filters</a>
+<ul>
+<li class="chapter" data-level="2.6.1" data-path="inference-kf.html"><a href="inference-kf.html#ilike-file-requirements-3"><i class="fa fa-check"></i><b>2.6.1</b> .ilike file requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="2.7" data-path="inference-pf.html"><a href="inference-pf.html"><i class="fa fa-check"></i><b>2.7</b> Particle filters</a>
+<ul>
+<li class="chapter" data-level="2.7.1" data-path="inference-pf.html"><a href="inference-pf.html#ilike-file-requirements-4"><i class="fa fa-check"></i><b>2.7.1</b> .ilike file requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="2.8" data-path="inference-enkf.html"><a href="inference-enkf.html"><i class="fa fa-check"></i><b>2.8</b> Ensemble Kalman filters</a>
+<ul>
+<li class="chapter" data-level="2.8.1" data-path="inference-enkf.html"><a href="inference-enkf.html#ilike-file-requirements-5"><i class="fa fa-check"></i><b>2.8.1</b> .ilike file requirements</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="ilike-files.html"><a href="ilike-files.html"><i class="fa fa-check"></i><b>3</b> ilike files</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="file-structure.html"><a href="file-structure.html"><i class="fa fa-check"></i><b>3.1</b> File structure</a>
+<ul>
+<li class="chapter" data-level="3.1.1" data-path="file-structure.html"><a href="file-structure.html#blocks-automatically"><i class="fa fa-check"></i><b>3.1.1</b> Specifying blocks automatically</a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="compiling.html"><a href="compiling.html"><i class="fa fa-check"></i><b>3.2</b> Compiling an ilike file</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="compiling.html"><a href="compiling.html#compiler-output"><i class="fa fa-check"></i><b>3.2.1</b> Compiler output</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="C.html"><a href="C.html"><i class="fa fa-check"></i><b>3.3</b> C++ functions</a>
+<ul>
+<li class="chapter" data-level="3.3.1" data-path="C.html"><a href="C.html#including-additional-code"><i class="fa fa-check"></i><b>3.3.1</b> Including additional code</a></li>
+<li class="chapter" data-level="3.3.2" data-path="C.html"><a href="C.html#ilike-cpp-classes"><i class="fa fa-check"></i><b>3.3.2</b> ilike C++ classes</a></li>
+<li class="chapter" data-level="3.3.3" data-path="C.html"><a href="C.html#ilike-cpp-functions"><i class="fa fa-check"></i><b>3.3.3</b> ilike C++ functions</a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="R.html"><a href="R.html"><i class="fa fa-check"></i><b>3.4</b> R functions</a>
+<ul>
+<li class="chapter" data-level="3.4.1" data-path="R.html"><a href="R.html#function-arguments-for-r-functions"><i class="fa fa-check"></i><b>3.4.1</b> Function arguments for R functions</a></li>
+<li class="chapter" data-level="3.4.2" data-path="R.html"><a href="R.html#function-headers-for-r-functions"><i class="fa fa-check"></i><b>3.4.2</b> Function headers for R functions</a></li>
+</ul></li>
+<li class="chapter" data-level="3.5" data-path="python.html"><a href="python.html"><i class="fa fa-check"></i><b>3.5</b> Python functions</a>
+<ul>
+<li class="chapter" data-level="3.5.1" data-path="python.html"><a href="python.html#using-jax-to-calculate-gradients"><i class="fa fa-check"></i><b>3.5.1</b> Using jax to calculate gradients</a></li>
+</ul></li>
+<li class="chapter" data-level="3.6" data-path="julia.html"><a href="julia.html"><i class="fa fa-check"></i><b>3.6</b> Julia functions</a></li>
+<li class="chapter" data-level="3.7" data-path="ilike-functions.html"><a href="ilike-functions.html"><i class="fa fa-check"></i><b>3.7</b> ilike functions</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="models.html"><a href="models.html"><i class="fa fa-check"></i><b>4</b> Models</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>4.1</b> Data</a>
+<ul>
+<li class="chapter" data-level="4.1.1" data-path="data.html"><a href="data.html#data-1"><i class="fa fa-check"></i><b>4.1.1</b> data</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="user-defined-prior.html"><a href="user-defined-prior.html"><i class="fa fa-check"></i><b>4.2</b> User-defined prior</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="user-defined-prior.html"><a href="user-defined-prior.html#evaluate_log_prior"><i class="fa fa-check"></i><b>4.2.1</b> evaluate_log_prior</a></li>
+<li class="chapter" data-level="4.2.2" data-path="user-defined-prior.html"><a href="user-defined-prior.html#simulate_prior"><i class="fa fa-check"></i><b>4.2.2</b> simulate_prior</a></li>
+<li class="chapter" data-level="4.2.3" data-path="user-defined-prior.html"><a href="user-defined-prior.html#evaluate_gradient_log_prior"><i class="fa fa-check"></i><b>4.2.3</b> evaluate_gradient_log_prior</a></li>
+<li class="chapter" data-level="4.2.4" data-path="user-defined-prior.html"><a href="user-defined-prior.html#evaluate_second_gradient_log_prior"><i class="fa fa-check"></i><b>4.2.4</b> evaluate_second_gradient_log_prior</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="ilike-prior.html"><a href="ilike-prior.html"><i class="fa fa-check"></i><b>4.3</b> Built-in prior</a>
+<ul>
+<li class="chapter" data-level="4.3.1" data-path="ilike-prior.html"><a href="ilike-prior.html#prior"><i class="fa fa-check"></i><b>4.3.1</b> prior</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="user-defined-likelihood.html"><a href="user-defined-likelihood.html"><i class="fa fa-check"></i><b>4.4</b> User-defined likelihood</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="user-defined-likelihood.html"><a href="user-defined-likelihood.html#evaluate_log_likelihood"><i class="fa fa-check"></i><b>4.4.1</b> evaluate_log_likelihood</a></li>
+<li class="chapter" data-level="4.4.2" data-path="user-defined-likelihood.html"><a href="user-defined-likelihood.html#evaluate_gradient_log_likelihood"><i class="fa fa-check"></i><b>4.4.2</b> evaluate_gradient_log_likelihood</a></li>
+<li class="chapter" data-level="4.4.3" data-path="user-defined-likelihood.html"><a href="user-defined-likelihood.html#evaluate_second_gradient_log_likelihood"><i class="fa fa-check"></i><b>4.4.3</b> evaluate_second_gradient_log_likelihood</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="linear-gaussian-model.html"><a href="linear-gaussian-model.html"><i class="fa fa-check"></i><b>4.5</b> Linear-Gaussian model</a>
+<ul>
+<li class="chapter" data-level="4.5.1" data-path="linear-gaussian-model.html"><a href="linear-gaussian-model.html#linear_gaussian_data_variable"><i class="fa fa-check"></i><b>4.5.1</b> linear_gaussian_data_variable</a></li>
+<li class="chapter" data-level="4.5.2" data-path="linear-gaussian-model.html"><a href="linear-gaussian-model.html#linear_gaussian_data_state_variable"><i class="fa fa-check"></i><b>4.5.2</b> linear_gaussian_data_state_variable</a></li>
+<li class="chapter" data-level="4.5.3" data-path="linear-gaussian-model.html"><a href="linear-gaussian-model.html#linear_gaussian_data_matrix"><i class="fa fa-check"></i><b>4.5.3</b> linear_gaussian_data_matrix</a></li>
+<li class="chapter" data-level="4.5.4" data-path="linear-gaussian-model.html"><a href="linear-gaussian-model.html#linear_gaussian_data_covariance"><i class="fa fa-check"></i><b>4.5.4</b> linear_gaussian_data_covariance</a></li>
+<li class="chapter" data-level="4.5.5" data-path="linear-gaussian-model.html"><a href="linear-gaussian-model.html#linear_gaussian_data_model"><i class="fa fa-check"></i><b>4.5.5</b> linear_gaussian_data_model</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="nonlinear-gaussian-model.html"><a href="nonlinear-gaussian-model.html"><i class="fa fa-check"></i><b>4.6</b> Nonlinear-Gaussian model</a>
+<ul>
+<li class="chapter" data-level="4.6.1" data-path="nonlinear-gaussian-model.html"><a href="nonlinear-gaussian-model.html#nonlinear_gaussian_data_variable"><i class="fa fa-check"></i><b>4.6.1</b> nonlinear_gaussian_data_variable</a></li>
+<li class="chapter" data-level="4.6.2" data-path="nonlinear-gaussian-model.html"><a href="nonlinear-gaussian-model.html#nonlinear_gaussian_data_function"><i class="fa fa-check"></i><b>4.6.2</b> nonlinear_gaussian_data_function</a></li>
+<li class="chapter" data-level="4.6.3" data-path="nonlinear-gaussian-model.html"><a href="nonlinear-gaussian-model.html#nonlinear_gaussian_data_covariance"><i class="fa fa-check"></i><b>4.6.3</b> nonlinear_gaussian_data_covariance</a></li>
+</ul></li>
+<li class="chapter" data-level="4.7" data-path="simulation-based-likelihood.html"><a href="simulation-based-likelihood.html"><i class="fa fa-check"></i><b>4.7</b> Simulation-based likelihood</a>
+<ul>
+<li class="chapter" data-level="4.7.1" data-path="simulation-based-likelihood.html"><a href="simulation-based-likelihood.html#simulate_data_model"><i class="fa fa-check"></i><b>4.7.1</b> simulate_data_model</a></li>
+<li class="chapter" data-level="4.7.2" data-path="simulation-based-likelihood.html"><a href="simulation-based-likelihood.html#data_variable"><i class="fa fa-check"></i><b>4.7.2</b> data_variable</a></li>
+<li class="chapter" data-level="4.7.3" data-path="simulation-based-likelihood.html"><a href="simulation-based-likelihood.html#summary_statistics"><i class="fa fa-check"></i><b>4.7.3</b> summary_statistics</a></li>
+<li class="chapter" data-level="4.7.4" data-path="simulation-based-likelihood.html"><a href="simulation-based-likelihood.html#sbi_likelihood"><i class="fa fa-check"></i><b>4.7.4</b> sbi_likelihood</a></li>
+</ul></li>
+<li class="chapter" data-level="4.8" data-path="algorithmic-likelihood.html"><a href="algorithmic-likelihood.html"><i class="fa fa-check"></i><b>4.8</b> Algorithmic likelihood</a>
+<ul>
+<li class="chapter" data-level="4.8.1" data-path="algorithmic-likelihood.html"><a href="algorithmic-likelihood.html#algorithmic_likelihood"><i class="fa fa-check"></i><b>4.8.1</b> algorithmic_likelihood</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="mcmc.html"><a href="mcmc.html"><i class="fa fa-check"></i><b>5</b> Markov chain Monte Carlo</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="mcmc-termination.html"><a href="mcmc-termination.html"><i class="fa fa-check"></i><b>5.1</b> MCMC termination</a>
+<ul>
+<li class="chapter" data-level="5.1.1" data-path="mcmc-termination.html"><a href="mcmc-termination.html#mcmc_termination"><i class="fa fa-check"></i><b>5.1.1</b> mcmc_termination</a></li>
+</ul></li>
+<li class="chapter" data-level="5.2" data-path="mcmc-sweeps.html"><a href="mcmc-sweeps.html"><i class="fa fa-check"></i><b>5.2</b> MCMC sweeps</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="mcmc-sweeps.html"><a href="mcmc-sweeps.html#mcmc_weights"><i class="fa fa-check"></i><b>5.2.1</b> mcmc_weights</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="selecting-factors.html"><a href="selecting-factors.html"><i class="fa fa-check"></i><b>5.3</b> Selecting factors</a>
+<ul>
+<li class="chapter" data-level="5.3.1" data-path="selecting-factors.html"><a href="selecting-factors.html#m_factor_index"><i class="fa fa-check"></i><b>5.3.1</b> m_factor_index</a></li>
+<li class="chapter" data-level="5.3.2" data-path="selecting-factors.html"><a href="selecting-factors.html#imh_factor_index"><i class="fa fa-check"></i><b>5.3.2</b> imh_factor_index</a></li>
+<li class="chapter" data-level="5.3.3" data-path="selecting-factors.html"><a href="selecting-factors.html#mh_factor_index"><i class="fa fa-check"></i><b>5.3.3</b> mh_factor_index</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="user-defined-metropolis-proposals.html"><a href="user-defined-metropolis-proposals.html"><i class="fa fa-check"></i><b>5.4</b> User-defined Metropolis proposals</a>
+<ul>
+<li class="chapter" data-level="5.4.1" data-path="user-defined-metropolis-proposals.html"><a href="user-defined-metropolis-proposals.html#simulate_m_proposal"><i class="fa fa-check"></i><b>5.4.1</b> simulate_m_proposal</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="built-in-metropolis-proposals.html"><a href="built-in-metropolis-proposals.html"><i class="fa fa-check"></i><b>5.5</b> Built-in Metropolis proposals</a>
+<ul>
+<li class="chapter" data-level="5.5.1" data-path="built-in-metropolis-proposals.html"><a href="built-in-metropolis-proposals.html#m_proposal"><i class="fa fa-check"></i><b>5.5.1</b> m_proposal</a></li>
+</ul></li>
+<li class="chapter" data-level="5.6" data-path="user-defined-independent-mh-proposals.html"><a href="user-defined-independent-mh-proposals.html"><i class="fa fa-check"></i><b>5.6</b> User-defined independent MH proposals</a>
+<ul>
+<li class="chapter" data-level="5.6.1" data-path="user-defined-independent-mh-proposals.html"><a href="user-defined-independent-mh-proposals.html#simulate_imh_proposal"><i class="fa fa-check"></i><b>5.6.1</b> simulate_imh_proposal</a></li>
+<li class="chapter" data-level="5.6.2" data-path="user-defined-independent-mh-proposals.html"><a href="user-defined-independent-mh-proposals.html#evaluate_log_imh_proposal"><i class="fa fa-check"></i><b>5.6.2</b> evaluate_log_imh_proposal</a></li>
+</ul></li>
+<li class="chapter" data-level="5.7" data-path="built-in-independent-mh-proposals.html"><a href="built-in-independent-mh-proposals.html"><i class="fa fa-check"></i><b>5.7</b> Built-in independent MH proposals</a>
+<ul>
+<li class="chapter" data-level="5.7.1" data-path="built-in-independent-mh-proposals.html"><a href="built-in-independent-mh-proposals.html#imh_proposal"><i class="fa fa-check"></i><b>5.7.1</b> imh_proposal</a></li>
+</ul></li>
+<li class="chapter" data-level="5.8" data-path="user-defined-mh-proposals.html"><a href="user-defined-mh-proposals.html"><i class="fa fa-check"></i><b>5.8</b> User-defined MH proposals</a>
+<ul>
+<li class="chapter" data-level="5.8.1" data-path="user-defined-mh-proposals.html"><a href="user-defined-mh-proposals.html#simulate_mh_proposal"><i class="fa fa-check"></i><b>5.8.1</b> simulate_mh_proposal</a></li>
+<li class="chapter" data-level="5.8.2" data-path="user-defined-mh-proposals.html"><a href="user-defined-mh-proposals.html#evaluate_log_mh_proposal"><i class="fa fa-check"></i><b>5.8.2</b> evaluate_log_mh_proposal</a></li>
+</ul></li>
+<li class="chapter" data-level="5.9" data-path="built-in-mh-proposals.html"><a href="built-in-mh-proposals.html"><i class="fa fa-check"></i><b>5.9</b> Built-in MH proposals</a>
+<ul>
+<li class="chapter" data-level="5.9.1" data-path="built-in-mh-proposals.html"><a href="built-in-mh-proposals.html#mh_proposal"><i class="fa fa-check"></i><b>5.9.1</b> mh_proposal</a></li>
+</ul></li>
+<li class="chapter" data-level="5.10" data-path="user-defined-unadjusted-proposals.html"><a href="user-defined-unadjusted-proposals.html"><i class="fa fa-check"></i><b>5.10</b> User-defined unadjusted proposals</a>
+<ul>
+<li class="chapter" data-level="5.10.1" data-path="user-defined-unadjusted-proposals.html"><a href="user-defined-unadjusted-proposals.html#simulate_unadjusted_proposal"><i class="fa fa-check"></i><b>5.10.1</b> simulate_unadjusted_proposal</a></li>
+</ul></li>
+<li class="chapter" data-level="5.11" data-path="built-in-unadjusted-proposals.html"><a href="built-in-unadjusted-proposals.html"><i class="fa fa-check"></i><b>5.11</b> Built-in unadjusted proposals</a>
+<ul>
+<li class="chapter" data-level="5.11.1" data-path="built-in-unadjusted-proposals.html"><a href="built-in-unadjusted-proposals.html#unadjusted_proposal"><i class="fa fa-check"></i><b>5.11.1</b> unadjusted_proposal</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="smc.html"><a href="smc.html"><i class="fa fa-check"></i><b>6</b> Importance sampling and sequential Monte Carlo</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="user-proposal.html"><a href="user-proposal.html"><i class="fa fa-check"></i><b>6.1</b> User-defined proposals</a>
+<ul>
+<li class="chapter" data-level="6.1.1" data-path="user-proposal.html"><a href="user-proposal.html#simulate_is_proposal"><i class="fa fa-check"></i><b>6.1.1</b> simulate_is_proposal</a></li>
+<li class="chapter" data-level="6.1.2" data-path="user-proposal.html"><a href="user-proposal.html#evaluate_log_is_proposal"><i class="fa fa-check"></i><b>6.1.2</b> evaluate_log_is_proposal</a></li>
+</ul></li>
+<li class="chapter" data-level="6.2" data-path="ilike-proposal.html"><a href="ilike-proposal.html"><i class="fa fa-check"></i><b>6.2</b> Built-in proposals</a>
+<ul>
+<li class="chapter" data-level="6.2.1" data-path="ilike-proposal.html"><a href="ilike-proposal.html#is_proposal"><i class="fa fa-check"></i><b>6.2.1</b> is_proposal</a></li>
+</ul></li>
+<li class="chapter" data-level="6.3" data-path="adaptive-resampling.html"><a href="adaptive-resampling.html"><i class="fa fa-check"></i><b>6.3</b> Adaptive resampling</a>
+<ul>
+<li class="chapter" data-level="6.3.1" data-path="adaptive-resampling.html"><a href="adaptive-resampling.html#adaptive_resampling"><i class="fa fa-check"></i><b>6.3.1</b> adaptive_resampling</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="smc-sequence.html"><a href="smc-sequence.html"><i class="fa fa-check"></i><b>6.4</b> SMC sequence</a>
+<ul>
+<li class="chapter" data-level="6.4.1" data-path="smc-sequence.html"><a href="smc-sequence.html#smc_sequence"><i class="fa fa-check"></i><b>6.4.1</b> smc_sequence</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="adaptive-target.html"><a href="adaptive-target.html"><i class="fa fa-check"></i><b>6.5</b> Adaptive target</a>
+<ul>
+<li class="chapter" data-level="6.5.1" data-path="adaptive-target.html"><a href="adaptive-target.html#adaptive_target"><i class="fa fa-check"></i><b>6.5.1</b> adaptive_target</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6" data-path="smc-termination.html"><a href="smc-termination.html"><i class="fa fa-check"></i><b>6.6</b> SMC termination</a>
+<ul>
+<li class="chapter" data-level="6.6.1" data-path="smc-termination.html"><a href="smc-termination.html#smc_termination"><i class="fa fa-check"></i><b>6.6.1</b> smc_termination</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="ssm.html"><a href="ssm.html"><i class="fa fa-check"></i><b>7</b> State-space models</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="state-space-supporting-detail.html"><a href="state-space-supporting-detail.html"><i class="fa fa-check"></i><b>7.1</b> State-space supporting detail</a>
+<ul>
+<li class="chapter" data-level="7.1.1" data-path="state-space-supporting-detail.html"><a href="state-space-supporting-detail.html#ssm-1"><i class="fa fa-check"></i><b>7.1.1</b> ssm</a></li>
+</ul></li>
+<li class="chapter" data-level="7.2" data-path="linear-gaussian-transition-model.html"><a href="linear-gaussian-transition-model.html"><i class="fa fa-check"></i><b>7.2</b> Linear-Gaussian transition model</a>
+<ul>
+<li class="chapter" data-level="7.2.1" data-path="linear-gaussian-transition-model.html"><a href="linear-gaussian-transition-model.html#linear_gaussian_transition_variable"><i class="fa fa-check"></i><b>7.2.1</b> linear_gaussian_transition_variable</a></li>
+<li class="chapter" data-level="7.2.2" data-path="linear-gaussian-transition-model.html"><a href="linear-gaussian-transition-model.html#linear_gaussian_transition_matrix"><i class="fa fa-check"></i><b>7.2.2</b> linear_gaussian_transition_matrix</a></li>
+<li class="chapter" data-level="7.2.3" data-path="linear-gaussian-transition-model.html"><a href="linear-gaussian-transition-model.html#linear_gaussian_transition_covariance"><i class="fa fa-check"></i><b>7.2.3</b> linear_gaussian_transition_covariance</a></li>
+<li class="chapter" data-level="7.2.4" data-path="linear-gaussian-transition-model.html"><a href="linear-gaussian-transition-model.html#linear_gaussian_transition_model"><i class="fa fa-check"></i><b>7.2.4</b> linear_gaussian_transition_model</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3" data-path="nonlinear-gaussian-transition-model.html"><a href="nonlinear-gaussian-transition-model.html"><i class="fa fa-check"></i><b>7.3</b> Nonlinear-Gaussian transition model</a>
+<ul>
+<li class="chapter" data-level="7.3.1" data-path="nonlinear-gaussian-transition-model.html"><a href="nonlinear-gaussian-transition-model.html#nonlinear_gaussian_transition_variable"><i class="fa fa-check"></i><b>7.3.1</b> nonlinear_gaussian_transition_variable</a></li>
+<li class="chapter" data-level="7.3.2" data-path="nonlinear-gaussian-transition-model.html"><a href="nonlinear-gaussian-transition-model.html#nonlinear_gaussian_transition_function"><i class="fa fa-check"></i><b>7.3.2</b> nonlinear_gaussian_transition_function</a></li>
+<li class="chapter" data-level="7.3.3" data-path="nonlinear-gaussian-transition-model.html"><a href="nonlinear-gaussian-transition-model.html#nonlinear_gaussian_transition_covariance"><i class="fa fa-check"></i><b>7.3.3</b> nonlinear_gaussian_transition_covariance</a></li>
+</ul></li>
+<li class="chapter" data-level="7.4" data-path="user-defined-transition-model.html"><a href="user-defined-transition-model.html"><i class="fa fa-check"></i><b>7.4</b> User-defined transition model</a>
+<ul>
+<li class="chapter" data-level="7.4.1" data-path="user-defined-transition-model.html"><a href="user-defined-transition-model.html#simulate_transition-model"><i class="fa fa-check"></i><b>7.4.1</b> simulate_transition model</a></li>
+<li class="chapter" data-level="7.4.2" data-path="user-defined-transition-model.html"><a href="user-defined-transition-model.html#evaluate_log_transition_model"><i class="fa fa-check"></i><b>7.4.2</b> evaluate_log_transition_model</a></li>
+</ul></li>
+<li class="chapter" data-level="7.5" data-path="linear-gaussian-transition-proposal.html"><a href="linear-gaussian-transition-proposal.html"><i class="fa fa-check"></i><b>7.5</b> Linear-Gaussian transition proposal</a>
+<ul>
+<li class="chapter" data-level="7.5.1" data-path="linear-gaussian-transition-proposal.html"><a href="linear-gaussian-transition-proposal.html#linear_gaussian_transition_variable-1"><i class="fa fa-check"></i><b>7.5.1</b> linear_gaussian_transition_variable</a></li>
+<li class="chapter" data-level="7.5.2" data-path="linear-gaussian-transition-proposal.html"><a href="linear-gaussian-transition-proposal.html#linear_gaussian_transition_matrix-1"><i class="fa fa-check"></i><b>7.5.2</b> linear_gaussian_transition_matrix</a></li>
+<li class="chapter" data-level="7.5.3" data-path="linear-gaussian-transition-proposal.html"><a href="linear-gaussian-transition-proposal.html#linear_gaussian_transition_covariance-1"><i class="fa fa-check"></i><b>7.5.3</b> linear_gaussian_transition_covariance</a></li>
+<li class="chapter" data-level="7.5.4" data-path="linear-gaussian-transition-proposal.html"><a href="linear-gaussian-transition-proposal.html#linear_gaussian_transition_proposal"><i class="fa fa-check"></i><b>7.5.4</b> linear_gaussian_transition_proposal</a></li>
+</ul></li>
+<li class="chapter" data-level="7.6" data-path="nonlinear-gaussian-transition-proposal.html"><a href="nonlinear-gaussian-transition-proposal.html"><i class="fa fa-check"></i><b>7.6</b> Nonlinear-Gaussian transition proposal</a>
+<ul>
+<li class="chapter" data-level="7.6.1" data-path="nonlinear-gaussian-transition-proposal.html"><a href="nonlinear-gaussian-transition-proposal.html#nonlinear_gaussian_transition_variable-1"><i class="fa fa-check"></i><b>7.6.1</b> nonlinear_gaussian_transition_variable</a></li>
+<li class="chapter" data-level="7.6.2" data-path="nonlinear-gaussian-transition-proposal.html"><a href="nonlinear-gaussian-transition-proposal.html#nonlinear_gaussian_transition_function-1"><i class="fa fa-check"></i><b>7.6.2</b> nonlinear_gaussian_transition_function</a></li>
+<li class="chapter" data-level="7.6.3" data-path="nonlinear-gaussian-transition-proposal.html"><a href="nonlinear-gaussian-transition-proposal.html#nonlinear_gaussian_transition_covariance-1"><i class="fa fa-check"></i><b>7.6.3</b> nonlinear_gaussian_transition_covariance</a></li>
+</ul></li>
+<li class="chapter" data-level="7.7" data-path="user-defined-transition-proposal.html"><a href="user-defined-transition-proposal.html"><i class="fa fa-check"></i><b>7.7</b> User-defined transition proposal</a>
+<ul>
+<li class="chapter" data-level="7.7.1" data-path="user-defined-transition-proposal.html"><a href="user-defined-transition-proposal.html#simulate_transition-proposal"><i class="fa fa-check"></i><b>7.7.1</b> simulate_transition proposal</a></li>
+<li class="chapter" data-level="7.7.2" data-path="user-defined-transition-proposal.html"><a href="user-defined-transition-proposal.html#evaluate_log_transition_proposal"><i class="fa fa-check"></i><b>7.7.2</b> evaluate_log_transition_proposal</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="output.html"><a href="output.html"><i class="fa fa-check"></i><b>8</b> Loading and visualising output</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="is-and-smc-output.html"><a href="is-and-smc-output.html"><i class="fa fa-check"></i><b>8.1</b> IS and SMC output</a></li>
+<li class="chapter" data-level="8.2" data-path="ensemble-kalman-output.html"><a href="ensemble-kalman-output.html"><i class="fa fa-check"></i><b>8.2</b> Ensemble Kalman output</a></li>
+<li class="chapter" data-level="8.3" data-path="mcmc-output.html"><a href="mcmc-output.html"><i class="fa fa-check"></i><b>8.3</b> MCMC output</a></li>
+<li class="chapter" data-level="8.4" data-path="further-detail-about-output-files.html"><a href="further-detail-about-output-files.html"><i class="fa fa-check"></i><b>8.4</b> Further detail about output files</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="examples.html"><a href="examples.html"><i class="fa fa-check"></i><b>9</b> Examples</a>
+<ul>
+<li class="chapter" data-level="9.1" data-path="running-code.html"><a href="running-code.html"><i class="fa fa-check"></i><b>9.1</b> Running code</a></li>
+<li class="chapter" data-level="9.2" data-path="smc-from-mcmc.html"><a href="smc-from-mcmc.html"><i class="fa fa-check"></i><b>9.2</b> Converting an MCMC into an SMC sampler</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="bugs.html"><a href="bugs.html"><i class="fa fa-check"></i><b>10</b> Known issues and glaring omissions</a>
+<ul>
+<li class="chapter" data-level="10.1" data-path="known-issues.html"><a href="known-issues.html"><i class="fa fa-check"></i><b>10.1</b> Known issues</a></li>
+<li class="chapter" data-level="10.2" data-path="glaring-omissions.html"><a href="glaring-omissions.html"><i class="fa fa-check"></i><b>10.2</b> Glaring omissions</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">ilike documentation</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="nonlinear-gaussian-transition-proposal" class="section level2 hasAnchor" number="7.6">
+<h2><span class="header-section-number">7.6</span> Nonlinear-Gaussian transition proposal<a href="nonlinear-gaussian-transition-proposal.html#nonlinear-gaussian-transition-proposal" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>The nonlinear-Gaussian transition proposal subtype may be used to specify a proposal where the state <span class="math inline">\(x_t\)</span> has a Gaussian distribution where the mean depends nonlinearly on <span class="math inline">\(x_{t-1}\)</span>, plus some Gaussian noise, i.e.</p>
+<p><span class="math display" id="eq:nlgtm">\[
+x_t \sim \mathcal{N}(g(x_{t-1}), Q)
+\tag{7.2}
+\]</span>
+where <span class="math inline">\(g\)</span> is a function and <span class="math inline">\(Q\)</span> is a covariance matrix. To specify the proposal we need to provide the variable name (<span class="math inline">\(x\)</span>), the function <span class="math inline">\(g\)</span> and the matrix <span class="math inline">\(Q\)</span>. To do this the user must provide three function types, respectively: <code>nonlinear_gaussian_transition_variable</code>, <code>nonlinear_gaussian_transition_function</code> and <code>nonlinear_gaussian_transition_covariance</code>.</p>
+<div id="nonlinear_gaussian_transition_variable-1" class="section level3 hasAnchor" number="7.6.1">
+<h3><span class="header-section-number">7.6.1</span> nonlinear_gaussian_transition_variable<a href="nonlinear-gaussian-transition-proposal.html#nonlinear_gaussian_transition_variable-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Specifies the name of the observed transition variable. There are no input arguments.</p>
+<p>Output: The name of the observed transition variable.</p>
+<p>– of type <code>const std::string &amp;</code> in a C++ function</p>
+<p>– a string in R.</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb33-1"><a href="nonlinear-gaussian-transition-proposal.html#cb33-1" tabindex="-1"></a><span class="co">/***nonlinear_gaussian_transition_variable***/</span></span>
+<span id="cb33-2"><a href="nonlinear-gaussian-transition-proposal.html#cb33-2" tabindex="-1"></a><span class="bu">std::</span>string set_variable<span class="op">()</span></span>
+<span id="cb33-3"><a href="nonlinear-gaussian-transition-proposal.html#cb33-3" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb33-4"><a href="nonlinear-gaussian-transition-proposal.html#cb33-4" tabindex="-1"></a>  <span class="cf">return</span> <span class="st">&quot;x&quot;</span><span class="op">;</span></span>
+<span id="cb33-5"><a href="nonlinear-gaussian-transition-proposal.html#cb33-5" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb34-1"><a href="nonlinear-gaussian-transition-proposal.html#cb34-1" tabindex="-1"></a><span class="co">/***nonlinear_gaussian_transition_variable,&quot;x&quot;***/</span></span></code></pre></div>
+</div>
+<div id="nonlinear_gaussian_transition_function-1" class="section level3 hasAnchor" number="7.6.2">
+<h3><span class="header-section-number">7.6.2</span> nonlinear_gaussian_transition_function<a href="nonlinear-gaussian-transition-proposal.html#nonlinear_gaussian_transition_function-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Specifies the function <span class="math inline">\(g\)</span> in the nonlinear-Gaussian transition proposal.</p>
+<p>Input: The state <span class="math inline">\(x\)</span> and any parameters that the function relies on (the latter may be included to allow the specification of a parameter-dependent function)</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>parameters</code> in an R function</p>
+<p>Output: The output of the function <span class="math inline">\(g\)</span> in equation <a href="nonlinear-gaussian-transition-model.html#eq:nlgtm">(7.2)</a>.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– a list in R.</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb35-1"><a href="nonlinear-gaussian-transition-proposal.html#cb35-1" tabindex="-1"></a><span class="co">/***nonlinear_gaussian_transition_function***/</span></span>
+<span id="cb35-2"><a href="nonlinear-gaussian-transition-proposal.html#cb35-2" tabindex="-1"></a>Parameters transform_state<span class="op">(</span><span class="at">const</span> Parameters <span class="op">&amp;</span>xtminus1_and_theta<span class="op">)</span></span>
+<span id="cb35-3"><a href="nonlinear-gaussian-transition-proposal.html#cb35-3" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb35-4"><a href="nonlinear-gaussian-transition-proposal.html#cb35-4" tabindex="-1"></a>  arma<span class="op">::</span>colvec noiseless_xt<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb35-5"><a href="nonlinear-gaussian-transition-proposal.html#cb35-5" tabindex="-1"></a>  noiseless_xt<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> exp<span class="op">(</span>xtminus1_and_theta<span class="op">[</span><span class="st">&quot;x&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">)</span> <span class="op">+</span> xtminus1_and_theta<span class="op">[</span><span class="st">&quot;theta&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">];</span></span>
+<span id="cb35-6"><a href="nonlinear-gaussian-transition-proposal.html#cb35-6" tabindex="-1"></a>  <span class="cf">return</span> Parameters<span class="op">(</span><span class="st">&quot;x&quot;</span><span class="op">,</span> noiseless_xt<span class="op">);</span></span>
+<span id="cb35-7"><a href="nonlinear-gaussian-transition-proposal.html#cb35-7" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb36-1"><a href="nonlinear-gaussian-transition-proposal.html#cb36-1" tabindex="-1"></a><span class="co">/***nonlinear_gaussian_transition_function,x=exp(parameters$x)+parameters$theta***/</span></span></code></pre></div>
+</div>
+<div id="nonlinear_gaussian_transition_covariance-1" class="section level3 hasAnchor" number="7.6.3">
+<h3><span class="header-section-number">7.6.3</span> nonlinear_gaussian_transition_covariance<a href="nonlinear-gaussian-transition-proposal.html#nonlinear_gaussian_transition_covariance-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Specifies the covariance matrix <span class="math inline">\(Q\)</span> in the nonlinear-Gaussian transition proposal.</p>
+<p>Input (optional): Parameters that the matrix relies on, to allow the specification of a parameter-dependent matrix.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>parameters</code> in an R function</p>
+<p>Output: The covariance matrix <span class="math inline">\(Q\)</span> in equation <a href="nonlinear-gaussian-transition-model.html#eq:nlgtm">(7.2)</a>.</p>
+<p>– of type <code>arma::mat</code> in a C++ function</p>
+<p>– a matrix in R.</p>
+<p>C++ examples:</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb37-1"><a href="nonlinear-gaussian-transition-proposal.html#cb37-1" tabindex="-1"></a><span class="co">/***nonlinear_gaussian_transition_covariance***/</span></span>
+<span id="cb37-2"><a href="nonlinear-gaussian-transition-proposal.html#cb37-2" tabindex="-1"></a>arma<span class="op">::</span>mat set_covariance<span class="op">()</span></span>
+<span id="cb37-3"><a href="nonlinear-gaussian-transition-proposal.html#cb37-3" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb37-4"><a href="nonlinear-gaussian-transition-proposal.html#cb37-4" tabindex="-1"></a>  arma<span class="op">::</span>mat Q<span class="op">(</span><span class="dv">2</span><span class="op">,</span><span class="dv">2</span><span class="op">);</span></span>
+<span id="cb37-5"><a href="nonlinear-gaussian-transition-proposal.html#cb37-5" tabindex="-1"></a>  Q<span class="op">(</span><span class="dv">0</span><span class="op">,</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> <span class="fl">1.0</span><span class="op">;</span></span>
+<span id="cb37-6"><a href="nonlinear-gaussian-transition-proposal.html#cb37-6" tabindex="-1"></a>  Q<span class="op">(</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">)</span> <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span></span>
+<span id="cb37-7"><a href="nonlinear-gaussian-transition-proposal.html#cb37-7" tabindex="-1"></a>  Q<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span></span>
+<span id="cb37-8"><a href="nonlinear-gaussian-transition-proposal.html#cb37-8" tabindex="-1"></a>  Q<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">)</span> <span class="op">=</span> <span class="fl">1.0</span><span class="op">;</span></span>
+<span id="cb37-9"><a href="nonlinear-gaussian-transition-proposal.html#cb37-9" tabindex="-1"></a>  <span class="cf">return</span> Q<span class="op">;</span></span>
+<span id="cb37-10"><a href="nonlinear-gaussian-transition-proposal.html#cb37-10" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>or</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb38-1"><a href="nonlinear-gaussian-transition-proposal.html#cb38-1" tabindex="-1"></a><span class="co">/***nonlinear_gaussian_transition_covariance***/</span></span>
+<span id="cb38-2"><a href="nonlinear-gaussian-transition-proposal.html#cb38-2" tabindex="-1"></a>arma<span class="op">::</span>mat set_covariance<span class="op">(</span><span class="at">const</span> Parameters <span class="op">&amp;</span>parameters<span class="op">)</span></span>
+<span id="cb38-3"><a href="nonlinear-gaussian-transition-proposal.html#cb38-3" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb38-4"><a href="nonlinear-gaussian-transition-proposal.html#cb38-4" tabindex="-1"></a>  <span class="dt">double</span> scale <span class="op">=</span> parameters<span class="op">[</span><span class="st">&quot;scale&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">];</span></span>
+<span id="cb38-5"><a href="nonlinear-gaussian-transition-proposal.html#cb38-5" tabindex="-1"></a>  arma<span class="op">::</span>mat Q<span class="op">(</span><span class="dv">2</span><span class="op">,</span><span class="dv">2</span><span class="op">);</span></span>
+<span id="cb38-6"><a href="nonlinear-gaussian-transition-proposal.html#cb38-6" tabindex="-1"></a>  Q<span class="op">,</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> scale<span class="op">;</span></span>
+<span id="cb38-7"><a href="nonlinear-gaussian-transition-proposal.html#cb38-7" tabindex="-1"></a>  Q<span class="op">(</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">)</span> <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span></span>
+<span id="cb38-8"><a href="nonlinear-gaussian-transition-proposal.html#cb38-8" tabindex="-1"></a>  Q<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span></span>
+<span id="cb38-9"><a href="nonlinear-gaussian-transition-proposal.html#cb38-9" tabindex="-1"></a>  Q<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">)</span> <span class="op">=</span> scale<span class="op">;</span></span>
+<span id="cb38-10"><a href="nonlinear-gaussian-transition-proposal.html#cb38-10" tabindex="-1"></a>  <span class="cf">return</span> Q<span class="op">;</span></span>
+<span id="cb38-11"><a href="nonlinear-gaussian-transition-proposal.html#cb38-11" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R examples:</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb39-1"><a href="nonlinear-gaussian-transition-proposal.html#cb39-1" tabindex="-1"></a><span class="co">/***nonlinear_gaussian_transition_covariance,diag(2)***/</span></span></code></pre></div>
+<p>or</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb40-1"><a href="nonlinear-gaussian-transition-proposal.html#cb40-1" tabindex="-1"></a><span class="co">/***nonlinear_gaussian_transition_covariance,parameters$scale*diag(2)***/</span></span></code></pre></div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="linear-gaussian-transition-proposal.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="user-defined-transition-proposal.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/richardgeveritt/ilike_documentation/edit/master/ssm.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["ilike docs.pdf", "ilike docs.epub"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
