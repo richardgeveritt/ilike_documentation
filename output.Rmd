@@ -2,7 +2,7 @@
 
 Running an ilike inference algorithm writes algorithm output to a directory specified by the user. The output directory contains a number of files containing output from the inference algorithm. ilike contains functions that allow the user to easily load the algorithm output into R data frames, ready for analysis. The packages [`ggsmc`](https://cran.r-project.org/package=ggsmc) [@ggsmc] and `ilike.output` are designed to process output in this format, respectively used for plotting and calculating statistics. MCMC output can also easily be plotted using [`ggmcmc`](https://cran.r-project.org/package=ggmcmc) [@ggmcmc].
 
-The following sections will describe how to load and process output from the different inference algorithms in ilike. Then, at the end of the chapter, in section \@ref(nested) we describe how to load the output from the inner layers of a nested algorithm (such as particle MCMC or ABC), section \@ref(pivot-wider) describes how to `pivot_wider` ilike data (transform it from tidy format to a matrix format), and in section \@ref(output-detail) we describe the file and directory structure of ilike output (for users who may wish to examine this output directly).
+The following sections will describe how to load and process output from the different inference algorithms in ilike. Then, at the end of the chapter, in section \@ref(pivot-wider) describes how to `pivot_wider` ilike data (transform it from tidy format to a matrix format), and in section \@ref(output-detail) we describe the file and directory structure of ilike output (for users who may wish to examine this output directly).
 
 ## MCMC output
 
@@ -236,9 +236,27 @@ The format is the same as that from the function `load_smc_output` in section \â
 
 - `LogWeight`, since each particle (member of the ensemble) has equal weight.
 
-## Loading nested output {#nested}
 
 ## `pivot_wider` for ilike data {#pivot-wider}
+
+Users who are not familiar with the "tidy" data format, or have their own functions for plotting Monte Carlo output, may prefer to load algorithm output in a matrix format, with one row per simulated point. The function `ilike_pivot_wider` may be used for this. For example, to load the output of the toy model in a matrix format, we can use the following code.
+
+```{r}
+one_row_per_point = ilike_pivot_wider(toy_model_rwm_ilike)
+```
+
+The output is a data frame with one row per simulated point, and columns for each parameter and iteration:
+
+```{r}
+head(one_row_per_point,n=16L)
+```
+
+To remove the columns that do not contain the points themselves, use
+
+```{r}
+just_the_points <- dplyr::select(one_row_per_point, -c(ExternalIndex, Time, Iteration, Chain))
+head(just_the_points,n=16L)
+```
 
 ## Further detail about output files {#output-detail}
 

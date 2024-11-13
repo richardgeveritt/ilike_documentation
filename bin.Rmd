@@ -16,3 +16,38 @@ This sounds a bit technical and might be enough to put anyone off if all they wa
 When the model is compiled, messages will be fired out to the console to tell the user when it decided each block was closed.
 
 When the model is compiled, messages will be fired out to the console to tell the user when it decided each block was complete. This should help a user track .. determine if the compiler thinks that any block is complete before the user intended.
+
+
+
+in section \@ref(nested) we describe how to load the output from the inner layers of a nested algorithm (such as particle MCMC or ABC),
+
+
+## Loading nested output {#nested}
+
+The functions described in the previous sections can also be used to load the output of the inner layers of nested algorithms, such as approximate Bayesian computation (ABC) SMC, particle MCMC or ensemble MCMC.
+
+### ABC-SMC
+
+ABC-SMC [@???] is...
+
+load ext
+
+load int
+
+Describe
+
+### Particle MCMC
+
+Particle MCMC [@andrieu2010particle] is...
+
+load ext
+
+load int
+
+### Ensemble MCMC
+
+Ensemble MCMC [@???] is...
+
+load ext
+
+load int

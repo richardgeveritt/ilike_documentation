@@ -23,7 +23,7 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2024-11-12" />
+<meta name="date" content="2024-11-13" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -416,15 +416,16 @@ div.csl-indent {
 <li class="chapter" data-level="8.2.1" data-path="smc-output.html"><a href="smc-output.html#visualising-output-using-ggsmc"><i class="fa fa-check"></i><b>8.2.1</b> Visualising output using <code>ggsmc</code></a></li>
 </ul></li>
 <li class="chapter" data-level="8.3" data-path="ensemble-kalman-output.html"><a href="ensemble-kalman-output.html"><i class="fa fa-check"></i><b>8.3</b> Ensemble Kalman output</a></li>
-<li class="chapter" data-level="8.4" data-path="nested.html"><a href="nested.html"><i class="fa fa-check"></i><b>8.4</b> Loading nested output</a></li>
-<li class="chapter" data-level="8.5" data-path="pivot-wider.html"><a href="pivot-wider.html"><i class="fa fa-check"></i><b>8.5</b> <code>pivot_wider</code> for ilike data</a></li>
-<li class="chapter" data-level="8.6" data-path="output-detail.html"><a href="output-detail.html"><i class="fa fa-check"></i><b>8.6</b> Further detail about output files</a></li>
+<li class="chapter" data-level="8.4" data-path="pivot-wider.html"><a href="pivot-wider.html"><i class="fa fa-check"></i><b>8.4</b> <code>pivot_wider</code> for ilike data</a></li>
+<li class="chapter" data-level="8.5" data-path="output-detail.html"><a href="output-detail.html"><i class="fa fa-check"></i><b>8.5</b> Further detail about output files</a></li>
 </ul></li>
 <li class="chapter" data-level="9" data-path="examples.html"><a href="examples.html"><i class="fa fa-check"></i><b>9</b> Examples</a>
 <ul>
-<li class="chapter" data-level="9.1" data-path="running-code.html"><a href="running-code.html"><i class="fa fa-check"></i><b>9.1</b> Running code</a></li>
+<li class="chapter" data-level="9.1" data-path="mcmc-gaussian.html"><a href="mcmc-gaussian.html"><i class="fa fa-check"></i><b>9.1</b> MCMC algorithms for sampling from a Gaussian</a></li>
 <li class="chapter" data-level="9.2" data-path="smc-from-mcmc.html"><a href="smc-from-mcmc.html"><i class="fa fa-check"></i><b>9.2</b> Converting an MCMC into an SMC sampler</a></li>
 <li class="chapter" data-level="9.3" data-path="filtering_cv.html"><a href="filtering_cv.html"><i class="fa fa-check"></i><b>9.3</b> Filtering on a constant velocity model</a></li>
+<li class="chapter" data-level="9.4" data-path="mcmc-lv.html"><a href="mcmc-lv.html"><i class="fa fa-check"></i><b>9.4</b> MCMC on the Lotka-Volterra model</a></li>
+<li class="chapter" data-level="9.5" data-path="abc-smc-lv.html"><a href="abc-smc-lv.html"><i class="fa fa-check"></i><b>9.5</b> ABC-SMC for the Lotka-Volterra model</a></li>
 </ul></li>
 <li class="chapter" data-level="10" data-path="bugs.html"><a href="bugs.html"><i class="fa fa-check"></i><b>10</b> Known issues and glaring omissions</a>
 <ul>
@@ -499,7 +500,7 @@ div.csl-indent {
 <li><p><code>Dimension</code> is the dimension of the parameter (here 1 for <span class="math inline">\(\theta_1\)</span> and 2 for <span class="math inline">\(\theta_2\)</span>);</p></li>
 <li><p><code>Value</code> is the value of the given dimension of the parameter at the given iteration.</p></li>
 </ul>
-<p>This data frame uses the <a href="https://r4ds.had.co.nz/tidy-data.html">tidy</a> format that is popular in R since it is easy to summarise and plot. It is more standard for Monte Carlo output to be in a matrix format, where each row corresponds to a single iteration and each column corresponds to a parameter. To convert ilike data to this format, see the function <code>ilike_pivot_wider</code> in section <a href="pivot-wider.html#pivot-wider">8.5</a>.</p>
+<p>This data frame uses the <a href="https://r4ds.had.co.nz/tidy-data.html">tidy</a> format that is popular in R since it is easy to summarise and plot. It is more standard for Monte Carlo output to be in a matrix format, where each row corresponds to a single iteration and each column corresponds to a parameter. To convert ilike data to this format, see the function <code>ilike_pivot_wider</code> in section <a href="pivot-wider.html#pivot-wider">8.4</a>.</p>
 </div>
 <div id="plotting-using-ggsmc" class="section level3 hasAnchor" number="8.1.2">
 <h3><span class="header-section-number">8.1.2</span> Plotting using <code>ggsmc</code><a href="mcmc-output.html#plotting-using-ggsmc" class="anchor-section" aria-label="Anchor link to header"></a></h3>

@@ -6,6 +6,10 @@
 
 Parallel.
 
+Speed
+
+Nested output
+
 Dists.
 
 Indices.

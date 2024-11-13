@@ -1,10 +1,14 @@
 # Examples {#examples}
 
-## Running code
+## MCMC algorithms for sampling from a Gaussian {#mcmc-gaussian}
 
 ## Converting an MCMC into an SMC sampler {#smc-from-mcmc}
 
 ## Filtering on a constant velocity model {#filtering_cv}
+
+## MCMC on the Lotka-Volterra model {#mcmc-lv}
+
+## ABC-SMC for the Lotka-Volterra model {#abc-smc-lv}
 
 <!-- You can label chapter and section titles using `{#label}` after them, e.g., we can reference Chapter \@ref(intro). If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \@ref(methods). -->
 
