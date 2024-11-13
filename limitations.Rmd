@@ -6,9 +6,9 @@
 
 Parallel.
 
-Speed
+Speed.
 
-Nested output
+Nested output.
 
 Dists.
 
