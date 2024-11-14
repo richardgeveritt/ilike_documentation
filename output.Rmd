@@ -260,24 +260,108 @@ head(just_the_points,n=16L)
 
 ## Further detail about output files {#output-detail}
 
+ilike output is stored in a directory, the name of which is specified by a user. This contains a subdirectory, named either `ilike_smc` (for MCMC^[This might seem odd, but `ilike_smc` is used here since internally MCMC is run as a special case of an SMC sampler.], IS and SMC algorithms), `ilike_enk` (for ensemble algorithms) or `ilike_kf` (for Kalman filters).
 
+For nested algorithms where a factor is evaluated/estimated using an algorithm, the same convention is used, with the suffixes `_smc`, `_enk` and `_kf` being used after the word `factor` in the directory names. For factors that can be evaluated exactly, the suffix `_exact` is used. When these factors are nested in an IS, SMC or MCMC algorithm, the factor will be evaluated/estimated multiple times, and the files in that directory will be appended each time the factor is evaluated/estimated.
 
-<!-- You can label chapter and section titles using `{#label}` after them, e.g., we can reference Chapter \@ref(intro). If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \@ref(methods). -->
+At present all information is stored in text files, but I plan to add support for binary files in the future.
 
-<!-- Figures and tables with captions will be placed in `figure` and `table` environments, respectively. -->
+### SMC output {#smc-output}
 
-<!-- ```{r nice-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'} -->
-<!-- par(mar = c(4, 4, .1, .1)) -->
-<!-- plot(pressure, type = 'b', pch = 19) -->
-<!-- ``` -->
+The `ilike_smc` directory contains the following:
 
-<!-- Reference a figure by its code chunk label with the `fig:` prefix, e.g., see Figure \@ref(fig:nice-fig). Similarly, you can reference tables generated from `knitr::kable()`, e.g., see Table \@ref(tab:nice-tab). -->
+- `log_likelihood.txt`, which contains a vector of estimates of the log-normalising constant of each distribution in the sequence of SMC targets;
 
-<!-- ```{r nice-tab, tidy=FALSE} -->
-<!-- knitr::kable( -->
-<!--   head(iris, 20), caption = 'Here is a nice table!', -->
-<!--   booktabs = TRUE -->
-<!-- ) -->
-<!-- ``` -->
+- `output_lengths.txt`, where each row corresponds to an SMC target, providing a vector of output lengths for each particle (the output length for each particle will be 1 unless multiple MCMC moves are used within the SMC algorithm, in which case the output length is the length of the MCMC chain);
 
-<!-- You can write citations, too. For example, we are using the **bookdown** package [@R-bookdown] in this sample book, which was built on top of R Markdown and **knitr** [@xie2015]. -->
+- `time.txt`, which gives the cumulative time taken by the SMC algorithm, recorded at each target;
+
+- `vector_variable_sizes.txt`, which gives the dimension of each variable in the output at each target at each SMC iteration, with the variables sizes separated by a semi-colon;
+
+- `vector_variables.txt`, which gives the name of each variable in the output at each target at each SMC iteration, with the variables names separated by a semi-colon;
+
+- subfolders named `iteration1`, `iteration2`, etc, which contain the SMC output at each iteration.
+
+The subfolders `iteration1`, `iteration2`, etc, contain the following, for each iteration of the SMC:
+
+- `ancestor_index.txt`, which gives the ancestor index of each particle;
+
+- `any_points.txt`, which is not used at present;
+
+- `ess.txt`, which gives the effective sample size at the current SMC iteration;
+
+- `incremental_log_likelihood.txt`, which gives an estimate of the log of the ratio of the normalising constant of this target and the previous target;
+
+- `normalised_log_weights.txt`, containing the log of the normalised weights for the particles;
+
+- `resampled.txt`, which contains `1` if the particle population was resampled, and `0` otherwise;
+
+- `schedule_parameters.txt`, which contains the parameters of the SMC schedule at this iteration , in the form `variablename:value`, with the parameters separated by a semi-colon;
+
+- `unnormalised_log_weights.txt`, containing the log of the unnormalised weights for the particles;
+
+- `vector_points.txt`, which contains the particle values, with one row per particle. Each row concatenates the values of all variables in the particle - this can be reconstructed using the `vector_variable_sizes.txt` and `vector_variables.txt` files.
+
+- `factor1_xxxxx`, `factor2_xxxxx`, etc, which correspond to each factor of the posterior. The `_xxxxx` for each factor is derived from the type of factor used. If IS or SMC is used, the factor will have the suffix `_smc`, and the structure in that subdirectory will be the same as the structure of the `ilike_smc` folder that we have just described. Other possible suffixes are `_exact` (exact factor), `_enk` (factor that uses an ensemble method) or `_kf` (factor that uses a Kalman filter).
+
+### Ensemble output
+
+The `ilike_enk` directory contains the following:
+
+- `log_likelihood.txt`, which contains a vector of estimates of the log-normalising constant of each distribution in the sequence of EnK targets, as described in @drovandi2022ensemble for the EnKF or @everitt2024ensemble for IEnKI;
+
+- `output_lengths.txt`, where each row corresponds to an EnK target, providing a vector of output lengths for each ensemble member (the output length for each ensemble member will be 1 unless multiple MCMC moves are used within the EnK algorithm, in which case the output length is the length of the MCMC chain);
+
+- `time.txt`, which gives the cumulative time taken by the EnK algorithm, recorded at each target;
+
+- `vector_variable_sizes.txt`, which gives the dimension of each variable in the output at each target at each EnK iteration, with the variables sizes separated by a semi-colon;
+
+- `vector_variables.txt`, which gives the name of each variable in the output at each target at each EnK iteration, with the variables names separated by a semi-colon;
+
+- subfolders named `iteration1`, `iteration2`, etc, which contain the SMC output at each iteration.
+
+The subfolders `iteration1`, `iteration2`, etc, contain the following, for each iteration of the EnK:
+
+- `ess.txt`, which gives the effective sample size at the current EnK iteration, as defined in @iglesias2018bayesian;
+
+- `incremental_log_likelihood.txt`, which gives an estimate of the log of the ratio of the normalising constant of this target and the previous target, as described in @drovandi2022ensemble for the EnKF or @everitt2024ensemble for IEnKI;
+
+- `schedule_parameters.txt`, which contains the parameters of the SMC schedule at this iteration , in the form `variablename:value`, with the parameters separated by a semi-colon;
+
+- `vector_points.txt`, which contains the particle values, with one row per particle. Each row concatenates the values of all variables in the particle - this can be reconstructed using the `vector_variable_sizes.txt` and `vector_variables.txt` files.
+
+- `ensemble_1_xxxxx`, `ensemble_2_xxxxx`, etc, which correspond to each factor of the posterior. At present, nothing is outputted in these directories.
+
+### Kalman filter output
+
+The `ilike_kf` directory contains the following:
+
+- `log_likelihood.txt`, which contains a vector of estimates of the log-normalising constant of each distribution in the sequence of Kalman filter targets;
+
+- `output_lengths.txt`, where each row corresponds to a Kalman filter target, providing a vector of output lengths for each ensemble member (the output length for each particle will be 1);
+
+- `time.txt`, which gives the cumulative time taken by the Kalman filter algorithm, recorded at each target;
+
+- `vector_variable_sizes.txt`, which gives the dimension of each variable in the output at each target at each Kalman filter iteration, with the variables sizes separated by a semi-colon;
+
+- `vector_variables.txt`, which gives the name of each variable in the output at each target at each Kalman filter iteration, with the variables names separated by a semi-colon.
+
+- subfolders named `iteration1`, `iteration2`, etc, which contain the Kalman filter output at each iteration.
+
+The subfolders `iteration1`, `iteration2`, etc, contain the following, for each iteration of the Kalman filter:
+
+- `incremental_log_likelihood.txt`, which gives an estimate of the log of the ratio of the normalising constant of this target and the previous target;
+
+- `schedule_parameters.txt`, which contains the parameters of the Kalman filter schedule at this iteration , in the form `variablename:value`, with the parameters separated by a semi-colon;
+
+- `posterior_means.txt`, which contains the posterior mean from the Kalman filter at this iteration (as a row vector);
+
+- `posterior_covariances.txt`, which contains the posterior covariance from the Kalman filter at this iteration (flattened to a row vector using `as_row` in [armadillo](https://arma.sourceforge.net/docs.html));
+
+- `predicted_means.txt`, which contains the predicted mean from the Kalman filter at this iteration (as a row vector);
+
+- `predicted_covariances.txt`, which contains the predicted covariance from the Kalman filter at this iteration (flattened to a row vector using `as_row` in [armadillo](https://arma.sourceforge.net/docs.html)).
+
+### Exact output
+
+For a factor that can be evaluated analytically, the directory contains only a single file `log_likelihood.txt`, which contains the evaluation of the factor (note that the file is called `log_likelihood.txt` even if the factor is a prior).

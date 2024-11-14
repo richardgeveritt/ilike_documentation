@@ -23,7 +23,7 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2024-11-13" />
+<meta name="date" content="2024-11-14" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -417,7 +417,13 @@ div.csl-indent {
 </ul></li>
 <li class="chapter" data-level="8.3" data-path="ensemble-kalman-output.html"><a href="ensemble-kalman-output.html"><i class="fa fa-check"></i><b>8.3</b> Ensemble Kalman output</a></li>
 <li class="chapter" data-level="8.4" data-path="pivot-wider.html"><a href="pivot-wider.html"><i class="fa fa-check"></i><b>8.4</b> <code>pivot_wider</code> for ilike data</a></li>
-<li class="chapter" data-level="8.5" data-path="output-detail.html"><a href="output-detail.html"><i class="fa fa-check"></i><b>8.5</b> Further detail about output files</a></li>
+<li class="chapter" data-level="8.5" data-path="output-detail.html"><a href="output-detail.html"><i class="fa fa-check"></i><b>8.5</b> Further detail about output files</a>
+<ul>
+<li class="chapter" data-level="8.5.1" data-path="smc-output.html"><a href="smc-output.html#smc-output"><i class="fa fa-check"></i><b>8.5.1</b> SMC output</a></li>
+<li class="chapter" data-level="8.5.2" data-path="output-detail.html"><a href="output-detail.html#ensemble-output"><i class="fa fa-check"></i><b>8.5.2</b> Ensemble output</a></li>
+<li class="chapter" data-level="8.5.3" data-path="output-detail.html"><a href="output-detail.html#kalman-filter-output"><i class="fa fa-check"></i><b>8.5.3</b> Kalman filter output</a></li>
+<li class="chapter" data-level="8.5.4" data-path="output-detail.html"><a href="output-detail.html#exact-output"><i class="fa fa-check"></i><b>8.5.4</b> Exact output</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="9" data-path="examples.html"><a href="examples.html"><i class="fa fa-check"></i><b>9</b> Examples</a>
 <ul>
@@ -459,13 +465,13 @@ div.csl-indent {
             <section class="normal" id="section-">
 <div id="output" class="section level1 hasAnchor" number="8">
 <h1><span class="header-section-number">Chapter 8</span> Loading and visualising output<a href="output.html#output" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<p>Running an ilike inference algorithm writes algorithm output to a directory specified by the user. The output directory contains a number of files containing output from the inference algorithm. ilike contains functions that allow the user to easily load the algorithm output into R data frames, ready for analysis. The packages <a href="https://cran.r-project.org/package=ggsmc"><code>ggsmc</code></a> <span class="citation">(<a href="#ref-ggsmc">Everitt 2024</a>)</span> and <code>ilike.output</code> are designed to process output in this format, respectively used for plotting and calculating statistics. MCMC output can also easily be plotted using <a href="https://cran.r-project.org/package=ggmcmc"><code>ggmcmc</code></a> <span class="citation">(<a href="#ref-ggmcmc">Fernández-i-Marín 2016</a>)</span>.</p>
+<p>Running an ilike inference algorithm writes algorithm output to a directory specified by the user. The output directory contains a number of files containing output from the inference algorithm. ilike contains functions that allow the user to easily load the algorithm output into R data frames, ready for analysis. The packages <a href="https://cran.r-project.org/package=ggsmc"><code>ggsmc</code></a> <span class="citation">(<a href="#ref-ggsmc">Everitt 2024b</a>)</span> and <code>ilike.output</code> are designed to process output in this format, respectively used for plotting and calculating statistics. MCMC output can also easily be plotted using <a href="https://cran.r-project.org/package=ggmcmc"><code>ggmcmc</code></a> <span class="citation">(<a href="#ref-ggmcmc">Fernández-i-Marín 2016</a>)</span>.</p>
 <p>The following sections will describe how to load and process output from the different inference algorithms in ilike. Then, at the end of the chapter, in section <a href="pivot-wider.html#pivot-wider">8.4</a> describes how to <code>pivot_wider</code> ilike data (transform it from tidy format to a matrix format), and in section <a href="output-detail.html#output-detail">8.5</a> we describe the file and directory structure of ilike output (for users who may wish to examine this output directly).</p>
 </div>
 <h3>References<a href="references.html#references" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-ggsmc" class="csl-entry">
-Everitt, Richard G. 2024. <em>Ggsmc: Visualising Output from Sequential Monte Carlo Samplers and Ensemble-Based Methods</em>. <a href="https://github.com/richardgeveritt/ggsmc">https://github.com/richardgeveritt/ggsmc</a>.
+———. 2024b. <em>Ggsmc: Visualising Output from Sequential Monte Carlo Samplers and Ensemble-Based Methods</em>. <a href="https://github.com/richardgeveritt/ggsmc">https://github.com/richardgeveritt/ggsmc</a>.
 </div>
 <div id="ref-ggmcmc" class="csl-entry">
 Fernández-i-Marín, Xavier. 2016. <span>“<span class="nocase">ggmcmc</span>: Analysis of <span>MCMC</span> Samples and <span>B</span>ayesian Inference.”</span> <em>Journal of Statistical Software</em> 70 (9): 1–20. <a href="https://doi.org/10.18637/jss.v070.i09">https://doi.org/10.18637/jss.v070.i09</a>.

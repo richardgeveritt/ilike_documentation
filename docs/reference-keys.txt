@@ -622,3 +622,6 @@ smc-output
 mcmc-gaussian
 mcmc-lv
 abc-smc-lv
+ensemble-output
+kalman-filter-output
+exact-output

@@ -23,7 +23,7 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2024-11-13" />
+<meta name="date" content="2024-11-14" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -417,7 +417,13 @@ div.csl-indent {
 </ul></li>
 <li class="chapter" data-level="8.3" data-path="ensemble-kalman-output.html"><a href="ensemble-kalman-output.html"><i class="fa fa-check"></i><b>8.3</b> Ensemble Kalman output</a></li>
 <li class="chapter" data-level="8.4" data-path="pivot-wider.html"><a href="pivot-wider.html"><i class="fa fa-check"></i><b>8.4</b> <code>pivot_wider</code> for ilike data</a></li>
-<li class="chapter" data-level="8.5" data-path="output-detail.html"><a href="output-detail.html"><i class="fa fa-check"></i><b>8.5</b> Further detail about output files</a></li>
+<li class="chapter" data-level="8.5" data-path="output-detail.html"><a href="output-detail.html"><i class="fa fa-check"></i><b>8.5</b> Further detail about output files</a>
+<ul>
+<li class="chapter" data-level="8.5.1" data-path="smc-output.html"><a href="smc-output.html#smc-output"><i class="fa fa-check"></i><b>8.5.1</b> SMC output</a></li>
+<li class="chapter" data-level="8.5.2" data-path="output-detail.html"><a href="output-detail.html#ensemble-output"><i class="fa fa-check"></i><b>8.5.2</b> Ensemble output</a></li>
+<li class="chapter" data-level="8.5.3" data-path="output-detail.html"><a href="output-detail.html#kalman-filter-output"><i class="fa fa-check"></i><b>8.5.3</b> Kalman filter output</a></li>
+<li class="chapter" data-level="8.5.4" data-path="output-detail.html"><a href="output-detail.html#exact-output"><i class="fa fa-check"></i><b>8.5.4</b> Exact output</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="9" data-path="examples.html"><a href="examples.html"><i class="fa fa-check"></i><b>9</b> Examples</a>
 <ul>
@@ -482,14 +488,24 @@ div.csl-indent {
 ## 16             1 0.5935487        16     1 -11.07381 10.97233</code></pre>
 <p>To remove the columns that do not contain the points themselves, use</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="pivot-wider.html#cb22-1" tabindex="-1"></a>just_the_points <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">select</span>(one_row_per_point, <span class="sc">-</span><span class="fu">c</span>(ExternalIndex, Time, Iteration, Chain))</span>
-<span id="cb22-2"><a href="pivot-wider.html#cb22-2" tabindex="-1"></a><span class="fu">head</span>(just_the_points)</span></code></pre></div>
-<pre><code>##   θ_1 θ_2
-## 1   0   0
-## 2   0   0
-## 3   0   0
-## 4   0   0
-## 5   0   0
-## 6   0   0</code></pre>
+<span id="cb22-2"><a href="pivot-wider.html#cb22-2" tabindex="-1"></a><span class="fu">head</span>(just_the_points,<span class="at">n=</span><span class="dv">16</span><span class="dt">L</span>)</span></code></pre></div>
+<pre><code>##          θ_1      θ_2
+## 1    0.00000  0.00000
+## 2    0.00000  0.00000
+## 3    0.00000  0.00000
+## 4    0.00000  0.00000
+## 5    0.00000  0.00000
+## 6    0.00000  0.00000
+## 7  -11.07381 10.97233
+## 8  -11.07381 10.97233
+## 9  -11.07381 10.97233
+## 10 -11.07381 10.97233
+## 11 -11.07381 10.97233
+## 12 -11.07381 10.97233
+## 13 -11.07381 10.97233
+## 14 -11.07381 10.97233
+## 15 -11.07381 10.97233
+## 16 -11.07381 10.97233</code></pre>
 </div>
             </section>
 

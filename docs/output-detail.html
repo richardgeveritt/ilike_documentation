@@ -23,7 +23,7 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2024-11-13" />
+<meta name="date" content="2024-11-14" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -417,7 +417,13 @@ div.csl-indent {
 </ul></li>
 <li class="chapter" data-level="8.3" data-path="ensemble-kalman-output.html"><a href="ensemble-kalman-output.html"><i class="fa fa-check"></i><b>8.3</b> Ensemble Kalman output</a></li>
 <li class="chapter" data-level="8.4" data-path="pivot-wider.html"><a href="pivot-wider.html"><i class="fa fa-check"></i><b>8.4</b> <code>pivot_wider</code> for ilike data</a></li>
-<li class="chapter" data-level="8.5" data-path="output-detail.html"><a href="output-detail.html"><i class="fa fa-check"></i><b>8.5</b> Further detail about output files</a></li>
+<li class="chapter" data-level="8.5" data-path="output-detail.html"><a href="output-detail.html"><i class="fa fa-check"></i><b>8.5</b> Further detail about output files</a>
+<ul>
+<li class="chapter" data-level="8.5.1" data-path="smc-output.html"><a href="smc-output.html#smc-output"><i class="fa fa-check"></i><b>8.5.1</b> SMC output</a></li>
+<li class="chapter" data-level="8.5.2" data-path="output-detail.html"><a href="output-detail.html#ensemble-output"><i class="fa fa-check"></i><b>8.5.2</b> Ensemble output</a></li>
+<li class="chapter" data-level="8.5.3" data-path="output-detail.html"><a href="output-detail.html#kalman-filter-output"><i class="fa fa-check"></i><b>8.5.3</b> Kalman filter output</a></li>
+<li class="chapter" data-level="8.5.4" data-path="output-detail.html"><a href="output-detail.html#exact-output"><i class="fa fa-check"></i><b>8.5.4</b> Exact output</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="9" data-path="examples.html"><a href="examples.html"><i class="fa fa-check"></i><b>9</b> Examples</a>
 <ul>
@@ -459,23 +465,100 @@ div.csl-indent {
             <section class="normal" id="section-">
 <div id="output-detail" class="section level2 hasAnchor" number="8.5">
 <h2><span class="header-section-number">8.5</span> Further detail about output files<a href="output-detail.html#output-detail" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<!-- You can label chapter and section titles using `{#label}` after them, e.g., we can reference Chapter \@ref(intro). If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \@ref(methods). -->
-<!-- Figures and tables with captions will be placed in `figure` and `table` environments, respectively. -->
-<!-- ```{r nice-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'} -->
-<!-- par(mar = c(4, 4, .1, .1)) -->
-<!-- plot(pressure, type = 'b', pch = 19) -->
-<!-- ``` -->
-<!-- Reference a figure by its code chunk label with the `fig:` prefix, e.g., see Figure \@ref(fig:nice-fig). Similarly, you can reference tables generated from `knitr::kable()`, e.g., see Table \@ref(tab:nice-tab). -->
-<!-- ```{r nice-tab, tidy=FALSE} -->
-<!-- knitr::kable( -->
-<!--   head(iris, 20), caption = 'Here is a nice table!', -->
-<!--   booktabs = TRUE -->
-<!-- ) -->
-<!-- ``` -->
-<!-- You can write citations, too. For example, we are using the **bookdown** package [@R-bookdown] in this sample book, which was built on top of R Markdown and **knitr** [@xie2015]. -->
+<p>ilike output is stored in a directory, the name of which is specified by a user. This contains a subdirectory, named either <code>ilike_smc</code> (for MCMC<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, IS and SMC algorithms), <code>ilike_enk</code> (for ensemble algorithms) or <code>ilike_kf</code> (for Kalman filters).</p>
+<p>For nested algorithms where a factor is evaluated/estimated using an algorithm, the same convention is used, with the suffixes <code>_smc</code>, <code>_enk</code> and <code>_kf</code> being used after the word <code>factor</code> in the directory names. For factors that can be evaluated exactly, the suffix <code>_exact</code> is used. When these factors are nested in an IS, SMC or MCMC algorithm, the factor will be evaluated/estimated multiple times, and the files in that directory will be appended each time the factor is evaluated/estimated.</p>
+<p>At present all information is stored in text files, but I plan to add support for binary files in the future.</p>
+<div id="smc-output" class="section level3 hasAnchor" number="8.5.1">
+<h3><span class="header-section-number">8.5.1</span> SMC output<a href="smc-output.html#smc-output" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The <code>ilike_smc</code> directory contains the following:</p>
+<ul>
+<li><p><code>log_likelihood.txt</code>, which contains a vector of estimates of the log-normalising constant of each distribution in the sequence of SMC targets;</p></li>
+<li><p><code>output_lengths.txt</code>, where each row corresponds to an SMC target, providing a vector of output lengths for each particle (the output length for each particle will be 1 unless multiple MCMC moves are used within the SMC algorithm, in which case the output length is the length of the MCMC chain);</p></li>
+<li><p><code>time.txt</code>, which gives the cumulative time taken by the SMC algorithm, recorded at each target;</p></li>
+<li><p><code>vector_variable_sizes.txt</code>, which gives the dimension of each variable in the output at each target at each SMC iteration, with the variables sizes separated by a semi-colon;</p></li>
+<li><p><code>vector_variables.txt</code>, which gives the name of each variable in the output at each target at each SMC iteration, with the variables names separated by a semi-colon;</p></li>
+<li><p>subfolders named <code>iteration1</code>, <code>iteration2</code>, etc, which contain the SMC output at each iteration.</p></li>
+</ul>
+<p>The subfolders <code>iteration1</code>, <code>iteration2</code>, etc, contain the following, for each iteration of the SMC:</p>
+<ul>
+<li><p><code>ancestor_index.txt</code>, which gives the ancestor index of each particle;</p></li>
+<li><p><code>any_points.txt</code>, which is not used at present;</p></li>
+<li><p><code>ess.txt</code>, which gives the effective sample size at the current SMC iteration;</p></li>
+<li><p><code>incremental_log_likelihood.txt</code>, which gives an estimate of the log of the ratio of the normalising constant of this target and the previous target;</p></li>
+<li><p><code>normalised_log_weights.txt</code>, containing the log of the normalised weights for the particles;</p></li>
+<li><p><code>resampled.txt</code>, which contains <code>1</code> if the particle population was resampled, and <code>0</code> otherwise;</p></li>
+<li><p><code>schedule_parameters.txt</code>, which contains the parameters of the SMC schedule at this iteration , in the form <code>variablename:value</code>, with the parameters separated by a semi-colon;</p></li>
+<li><p><code>unnormalised_log_weights.txt</code>, containing the log of the unnormalised weights for the particles;</p></li>
+<li><p><code>vector_points.txt</code>, which contains the particle values, with one row per particle. Each row concatenates the values of all variables in the particle - this can be reconstructed using the <code>vector_variable_sizes.txt</code> and <code>vector_variables.txt</code> files.</p></li>
+<li><p><code>factor1_xxxxx</code>, <code>factor2_xxxxx</code>, etc, which correspond to each factor of the posterior. The <code>_xxxxx</code> for each factor is derived from the type of factor used. If IS or SMC is used, the factor will have the suffix <code>_smc</code>, and the structure in that subdirectory will be the same as the structure of the <code>ilike_smc</code> folder that we have just described. Other possible suffixes are <code>_exact</code> (exact factor), <code>_enk</code> (factor that uses an ensemble method) or <code>_kf</code> (factor that uses a Kalman filter).</p></li>
+</ul>
+</div>
+<div id="ensemble-output" class="section level3 hasAnchor" number="8.5.2">
+<h3><span class="header-section-number">8.5.2</span> Ensemble output<a href="output-detail.html#ensemble-output" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The <code>ilike_enk</code> directory contains the following:</p>
+<ul>
+<li><p><code>log_likelihood.txt</code>, which contains a vector of estimates of the log-normalising constant of each distribution in the sequence of EnK targets, as described in <span class="citation">Drovandi et al. (<a href="#ref-drovandi2022ensemble">2022</a>)</span> for the EnKF or <span class="citation">Everitt (<a href="#ref-everitt2024ensemble">2024a</a>)</span> for IEnKI;</p></li>
+<li><p><code>output_lengths.txt</code>, where each row corresponds to an EnK target, providing a vector of output lengths for each ensemble member (the output length for each ensemble member will be 1 unless multiple MCMC moves are used within the EnK algorithm, in which case the output length is the length of the MCMC chain);</p></li>
+<li><p><code>time.txt</code>, which gives the cumulative time taken by the EnK algorithm, recorded at each target;</p></li>
+<li><p><code>vector_variable_sizes.txt</code>, which gives the dimension of each variable in the output at each target at each EnK iteration, with the variables sizes separated by a semi-colon;</p></li>
+<li><p><code>vector_variables.txt</code>, which gives the name of each variable in the output at each target at each EnK iteration, with the variables names separated by a semi-colon;</p></li>
+<li><p>subfolders named <code>iteration1</code>, <code>iteration2</code>, etc, which contain the SMC output at each iteration.</p></li>
+</ul>
+<p>The subfolders <code>iteration1</code>, <code>iteration2</code>, etc, contain the following, for each iteration of the EnK:</p>
+<ul>
+<li><p><code>ess.txt</code>, which gives the effective sample size at the current EnK iteration, as defined in <span class="citation">Iglesias, Park, and Tretyakov (<a href="#ref-iglesias2018bayesian">2018</a>)</span>;</p></li>
+<li><p><code>incremental_log_likelihood.txt</code>, which gives an estimate of the log of the ratio of the normalising constant of this target and the previous target, as described in <span class="citation">Drovandi et al. (<a href="#ref-drovandi2022ensemble">2022</a>)</span> for the EnKF or <span class="citation">Everitt (<a href="#ref-everitt2024ensemble">2024a</a>)</span> for IEnKI;</p></li>
+<li><p><code>schedule_parameters.txt</code>, which contains the parameters of the SMC schedule at this iteration , in the form <code>variablename:value</code>, with the parameters separated by a semi-colon;</p></li>
+<li><p><code>vector_points.txt</code>, which contains the particle values, with one row per particle. Each row concatenates the values of all variables in the particle - this can be reconstructed using the <code>vector_variable_sizes.txt</code> and <code>vector_variables.txt</code> files.</p></li>
+<li><p><code>ensemble_1_xxxxx</code>, <code>ensemble_2_xxxxx</code>, etc, which correspond to each factor of the posterior. At present, nothing is outputted in these directories.</p></li>
+</ul>
+</div>
+<div id="kalman-filter-output" class="section level3 hasAnchor" number="8.5.3">
+<h3><span class="header-section-number">8.5.3</span> Kalman filter output<a href="output-detail.html#kalman-filter-output" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The <code>ilike_kf</code> directory contains the following:</p>
+<ul>
+<li><p><code>log_likelihood.txt</code>, which contains a vector of estimates of the log-normalising constant of each distribution in the sequence of Kalman filter targets;</p></li>
+<li><p><code>output_lengths.txt</code>, where each row corresponds to a Kalman filter target, providing a vector of output lengths for each ensemble member (the output length for each particle will be 1);</p></li>
+<li><p><code>time.txt</code>, which gives the cumulative time taken by the Kalman filter algorithm, recorded at each target;</p></li>
+<li><p><code>vector_variable_sizes.txt</code>, which gives the dimension of each variable in the output at each target at each Kalman filter iteration, with the variables sizes separated by a semi-colon;</p></li>
+<li><p><code>vector_variables.txt</code>, which gives the name of each variable in the output at each target at each Kalman filter iteration, with the variables names separated by a semi-colon.</p></li>
+<li><p>subfolders named <code>iteration1</code>, <code>iteration2</code>, etc, which contain the Kalman filter output at each iteration.</p></li>
+</ul>
+<p>The subfolders <code>iteration1</code>, <code>iteration2</code>, etc, contain the following, for each iteration of the Kalman filter:</p>
+<ul>
+<li><p><code>incremental_log_likelihood.txt</code>, which gives an estimate of the log of the ratio of the normalising constant of this target and the previous target;</p></li>
+<li><p><code>schedule_parameters.txt</code>, which contains the parameters of the Kalman filter schedule at this iteration , in the form <code>variablename:value</code>, with the parameters separated by a semi-colon;</p></li>
+<li><p><code>posterior_means.txt</code>, which contains the posterior mean from the Kalman filter at this iteration (as a row vector);</p></li>
+<li><p><code>posterior_covariances.txt</code>, which contains the posterior covariance from the Kalman filter at this iteration (flattened to a row vector using <code>as_row</code> in <a href="https://arma.sourceforge.net/docs.html">armadillo</a>);</p></li>
+<li><p><code>predicted_means.txt</code>, which contains the predicted mean from the Kalman filter at this iteration (as a row vector);</p></li>
+<li><p><code>predicted_covariances.txt</code>, which contains the predicted covariance from the Kalman filter at this iteration (flattened to a row vector using <code>as_row</code> in <a href="https://arma.sourceforge.net/docs.html">armadillo</a>).</p></li>
+</ul>
+</div>
+<div id="exact-output" class="section level3 hasAnchor" number="8.5.4">
+<h3><span class="header-section-number">8.5.4</span> Exact output<a href="output-detail.html#exact-output" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>For a factor that can be evaluated analytically, the directory contains only a single file <code>log_likelihood.txt</code>, which contains the evaluation of the factor (note that the file is called <code>log_likelihood.txt</code> even if the factor is a prior).</p>
 
 </div>
+</div>
 <!-- </div> -->
+<h3>References<a href="references.html#references" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="ref-drovandi2022ensemble" class="csl-entry">
+Drovandi, Christopher, Richard G Everitt, Andrew Golightly, and Dennis Prangle. 2022. <span>“Ensemble MCMC: Accelerating Pseudo-Marginal MCMC for State Space Models Using the Ensemble Kalman Filter.”</span> <em>Bayesian Analysis</em> 17 (1): 223–60.
+</div>
+<div id="ref-everitt2024ensemble" class="csl-entry">
+Everitt, Richard G. 2024a. <span>“Ensemble Kalman Inversion Approximate Bayesian Computation.”</span> <em>arXiv Preprint arXiv:2407.18721</em>.
+</div>
+<div id="ref-iglesias2018bayesian" class="csl-entry">
+Iglesias, Marco, Minho Park, and Michael V Tretyakov. 2018. <span>“Bayesian Inversion in Resin Transfer Molding.”</span> <em>Inverse Problems</em> 34 (10): 105002.
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol start="1">
+<li id="fn1"><p>This might seem odd, but <code>ilike_smc</code> is used here since internally MCMC is run as a special case of an SMC sampler.<a href="output-detail.html#fnref1" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
             </section>
 
           </div>
