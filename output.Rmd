@@ -230,7 +230,7 @@ To load the output from this algorithm we call
 enk_cwna_model = load_enk_output("enk_cwna_model")
 ```
 
-The format is the same as that from the function `load_smc_output` in section \€ref(smc-output), except that the following two columns are not present in the output:
+The format is the same as that from the function `load_smc_output` in section \@ref(smc-output), except that the following two columns are not present in the output:
 
 - `AncestorIndex`, since the set of particles (usually called an *ensemble* in this context), is not resampled;
 

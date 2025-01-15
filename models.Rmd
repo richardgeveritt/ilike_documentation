@@ -982,11 +982,11 @@ Inputs:
   
   3. numeric: the tolerance level for the ABC
   
-  4. (optional) string: the name of the variable that stores the scaling $\sigma_i$ of the data/summaries in the ABC (default is `""` - in this case the scale will be `1` for every dimension)
+  4. (optional) boolean: whether to store the output of the model simulations (default is `false`)
   
-  5. (optional) numeric vector: the scaling of the data/summary in the ABC, which must be of the same dimension as the data/summary This is only used if the scale variable (argument 4) is set.
+  5. (optional) string: the name of the variable that stores the scaling $\sigma_i$ of the data/summaries in the ABC (default is `""` - in this case the scale will be `1` for every dimension)
   
-  6. (optional) boolean: whether to store the output of the model simulations (default is `false`)
+  6. (optional) numeric vector: the scaling of the data/summary in the ABC, which must be of the same dimension as the data/summary This is only used if the scale variable (argument 5) is set.
   
   7. (optional) boolean: whether to run the simulations in parallel (default is `false`)
   
@@ -1026,11 +1026,11 @@ Inputs:
   
   4. numeric: the value of $p$ for the $L^p$ distance metric
   
-  5. (optional) string: the name of the variable that stores the scaling $\sigma_i$ of the data/summaries in the ABC (default is `""` - in this case the scale will be `1` for every dimension)
+  5. (optional) boolean: whether to store the output of the model simulations (default is `false`)
   
-  6. (optional) numeric vector: the scaling of the data/summary in the ABC, which must be of the same dimension as the data/summary This is only used if the scale variable (argument 5) is set.
+  6. (optional) string: the name of the variable that stores the scaling $\sigma_i$ of the data/summaries in the ABC (default is `""` - in this case the scale will be `1` for every dimension)
   
-  7. (optional) boolean: whether to store the output of the model simulations (default is `false`)
+  7. (optional) numeric vector: the scaling of the data/summary in the ABC, which must be of the same dimension as the data/summary This is only used if the scale variable (argument 6) is set.
   
   8. (optional) boolean: whether to run the simulations in parallel (default is `false`)
   
@@ -1057,11 +1057,11 @@ Inputs:
   
   3. numeric: the tolerance level for the ABC
   
-  4. (optional) string: the name of the variable that stores the scaling $\sigma_i$ of the data/summaries in the ABC (default is `""` - in this case the scale will be `1` for every dimension)
+  4. (optional) boolean: whether to store the output of the model simulations (default is `false`)
   
-  5. (optional) numeric vector: the scaling of the data/summary in the ABC, which must be of the same dimension as the data/summary This is only used if the scale variable (argument 4) is set.
+  5. (optional) string: the name of the variable that stores the scaling $\sigma_i$ of the data/summaries in the ABC (default is `""` - in this case the scale will be `1` for every dimension)
   
-  6. (optional) boolean: whether to store the output of the model simulations (default is `false`)
+  6. (optional) numeric vector: the scaling of the data/summary in the ABC, which must be of the same dimension as the data/summary This is only used if the scale variable (argument 5) is set.
   
   7. (optional) boolean: whether to run the simulations in parallel (default is `false`)
   

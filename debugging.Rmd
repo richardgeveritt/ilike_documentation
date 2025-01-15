@@ -4,6 +4,7 @@ ilike is currently in an early stage of development, and as such, it is likely t
 
 ## Error in ...: could not find function "..."
 
+
 Example error:
 
 `Error in get_data() : could not find function "get_data"`
@@ -11,6 +12,12 @@ Example error:
 Possible cause:
 
 The compiled ilike model was expecting an R (or Python, or Julia) function naned `get_data` to be available to call, but it didn't find it.
+
+Example error:
+
+`Error: extract_int_parameter: Parameter index does not correspond to a real number in the parameters file. Did you supply a model_parameter_list argument?`
+
+
 
 Action:
 
