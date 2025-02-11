@@ -13,7 +13,7 @@ This section describes how to provide the initial proposal distribution in secti
 One useful feature of the ilike package is that it is relatively easy to convert an MCMC move into an SMC sampler that uses this MCMC move. Examples of how to do this are given in section \@ref(smc-from-mcmc).
 
 
-## User-defined proposals {#user-proposal}
+## User-defined proposals {#user-proposal} {#is-user}
 
 The functions in this section allow the specification of a user-defined importance proposal. If a proposal is provided, and an importance sampling, particle filtering or sequential Monte Carlo inference algorithm is used, the proposal will be used to draw points in the first iteration of the algorithm. A custom importance sampling proposal requires the specification of two function types: `simulate_is_proposal` and `evaluate_log_is_proposal`.
 
@@ -109,7 +109,7 @@ R example:
 /***evaluate_log_is_proposal,dnorm(proposed_parameters$x,0,proposal_parameters$theta,log=TRUE)***/
 ```
 
-## Built-in proposals {#ilike-proposal}
+## Built-in proposals {#ilike-proposal} {#is-builtin}
 
 ### is_proposal
 

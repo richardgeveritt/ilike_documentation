@@ -27,7 +27,7 @@ This book provides documentation for the R package `ilike`, which can be [access
 devtools::install_github("richardgeveritt/ilike")
 ```
 
-This installation will take some time, so go and make a cup of tea at this point.
+This installation will take some time, so go and make a cup of tea (or even lunch?) at this point.
 
 The ilike package contains functions that implement Bayesian computation techniques, focussed on cases when the likelihood is intractable. The functions in the package use statistical models specified in a file with the extension .ilike (hereby referred to as an ilike file). This file allows a user to specify priors, likelihoods, data, and the parameters of the inference algorithm (in either C++, R, python, julia or native ilike functions). Inference algorithms included in the package are:
 
@@ -48,7 +48,7 @@ We begin the documentation in section \@ref(toy-example) by giving an example of
 
 ## Example {#toy-example}
 
-### Model
+### Recipe
 
 We are going to use the ilike package to run MCMC to approximate the posterior distribution of a two-dimensional parameter $\theta = (\theta_1,\theta_2)$, where $\theta_1 + \theta_2$ gives the mean of a normal distribution with standard deviation 1.
 
@@ -111,27 +111,27 @@ get_data <- function()
 
 5. `/***mcmc_termination,ilike::iterations(100000)***/`. This uses the ilike function `iterations` to specify that the MCMC will be terminated after 100000 iterations.
 
-To use this model it must first be compiled. To do this we call
+Item 1 defines the data; items 2&3 define a model; items 4&5 define provide all of the elements required to specify a Metropolis algorithm. Together we refer to this as a "recipe". To use the file it must first be compiled into an ilike "recipe" object. To do this we call
 
 ```{r,eval=FALSE}
 library(ilike)
-model = compile("toy_model_rwm.ilike")
+recipe = compile("toy_model_rwm.ilike")
 ```
 
 where `toy_model_rwm.ilike` is the file containing the code we described above.
 
 ### Running MCMC
 
-We run the Metropolis algorithm on this model/data by calling:
+We run the Metropolis algorithm on this recipe by calling:
 
 ```{r,eval=FALSE}
-mcmc(model,
+mcmc(recipe,
      results_name = "toy_model_rwm",
      initial_values = list(list(θ=c(0,0))),
      model_parameter_list = list(300.0*diag(2)))
 ```
 
-The first argument is the `model` we compiled in the previous step. `results_name`, specifies the folder where the results will be written. `initial_values` gives the initial values of the chain. `model_parameter_list` gives the value of `p1`, the proposal covariance.
+The first argument is the `recipe` we compiled in the previous step. `results_name`, specifies the folder where the results will be written. `initial_values` gives the initial values of the chain. `model_parameter_list` gives the value of `p1`, the proposal covariance.
 
 No output is provided to the R console on running an MCMC algorithm - it can be found in the folder `results_name`, which is created in the current working directory. The following section gives an example of loading the output into R, and plotting it.
 

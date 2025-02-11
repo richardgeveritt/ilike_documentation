@@ -4,7 +4,7 @@ Running an ilike inference algorithm writes algorithm output to a directory spec
 
 The following sections will describe how to load and process output from the different inference algorithms in ilike. Then, at the end of the chapter, in section \@ref(pivot-wider) describes how to `pivot_wider` ilike data (transform it from tidy format to a matrix format), and in section \@ref(output-detail) we describe the file and directory structure of ilike output (for users who may wish to examine this output directly).
 
-## MCMC output
+## MCMC output {#mcmc-output}
 
 To illustrate how to load and process MCMC output, we return to the example in section \@ref(toy-example). The following code compiles the model (which has a two-dimensional parameter $\theta = (\theta_1,\theta_2)$) and runs an MCMC algorithm, storing the output in a new folder named `toy_model_rwm` in the current working directory.
 
@@ -154,7 +154,7 @@ toy_model_rwm_ggmcmc_burned_in <- toy_model_rwm_ggmcmc %>%
   filter(Iteration > 100)
 ```
 
-## IS and SMC output {#smc-output}
+## IS and SMC output {#is-smc-output}
 
 For loading the output of IS and SMC algorithms we use the function `load_smc_output`. We use the particle filter output from section \€ref(filtering_cv) as example output for this section.
 
@@ -230,7 +230,7 @@ To load the output from this algorithm we call
 enk_cwna_model = load_enk_output("enk_cwna_model")
 ```
 
-The format is the same as that from the function `load_smc_output` in section \@ref(smc-output), except that the following two columns are not present in the output:
+The format is the same as that from the function `load_smc_output` in section \@ref(is-smc-output), except that the following two columns are not present in the output:
 
 - `AncestorIndex`, since the set of particles (usually called an *ensemble* in this context), is not resampled;
 

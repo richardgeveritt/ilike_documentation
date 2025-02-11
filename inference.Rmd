@@ -1,32 +1,228 @@
 # Inference algorithms {#inference}
 
-## Random numbers
+This chapter describes how to run the various inference algorithms implemented in the ilike package, with a section devoted to each algorithm. Preceding these sections, section \@ref(inference-arguments) describes the arguments that are common to all of the inference algorithms which allow, for example, the user to specify parameters, the random number seed, etc.
 
-## Model and algorithm parameters {#parameters}
+When developing ilike, much of the focus has been on Bayesian computation, although the software can be used to simulate from and perform optimisation on any distribution. In this chapter we provide a descriptions of the algorithms implemented in the software. To aid these descriptions we begin by setting out some notation.
+
+Most algorithms are used to estimate properties of a *target* distribution $\pi$ on a space $\Theta$. In most cases, $\pi$ is only known up to a normalising constant: we use $\tilde{\pi}$ to denote its unnormalised form with $Z$ as the corresponding normalising constant, so that
+
+$$
+\pi(\theta) = \tilde{\pi}(\theta)/Z.
+$$
+
+In the case of Bayesian computation, the target distribution is the *posterior* distribution of parameters $\theta \in \Theta$ given data $y$. In this case we have
+
+$$
+\tilde{\pi}(\theta) = p(\theta)f(y|\theta),
+$$
+where $f(y|\theta)$ is a *data model* for $y$ given $\theta$ and $p(\theta)$ is a *prior* distribution. When $f(y|\theta)$ is thought of as a function of $\theta$ with $y$ fixed, it is known as a *likelihood*. The normalising constant $Z$ is the marginal likelihood of the data $y$:
+$$
+Z = \int_{\vartheta} p(\vartheta) f(y \mid \vartheta) d \vartheta.
+$$
+Quantities of interest in Bayesian computation are almost always integrals. For example:
+
+- the posterior expectation
+
+$$
+\mathbb{E}_{\pi}\left[ \theta \right] = \int_{\theta} \theta \pi(\theta) d\theta,
+$$
+
+- or the posterior variance
+
+$$
+\mathbb{V}_{\pi}\left[ \theta \right] = \mathbb{E}_{\pi}\left[ h(\theta) \right] = \int_{\theta} h(\theta) \pi(\theta) d\theta,
+$$
+
+where $h(\theta) = \left( \theta - \mathbb{E}_{\pi}\left[ \theta \mid y \right] \right)^2$.
+
+When using Monte Carlo methods to estimate these integrals, we use the philosophy of approximating the target distribution $\pi$ by a sample $\left\{ \theta^i \right\}_{i=1}^n$ using
+
+$$
+\hat{\pi} := \frac{1}{N} \sum_{i=1}^N \delta_{\theta^i},
+$$
+where $\delta_{\theta^i}$ is the delta Dirac mass at $\theta^i$. Monte Carlo estimators of integrals then follow from plugging in the approximation $\hat{\pi}$ in place of the target distribution $\pi$. For example, the Monte Carlo estimator of the posterior expectation is
+$$
+\hat{\mathbb{E}}_{\pi}\left[\theta \right] = \frac{1}{n} \sum_{i=1}^n \theta^i.
+$$
+
+We may also be interested in maxima of the likelihood (the maximum likelihood estimator, MLE) or the posterior distribution (the maximum *a posteriori* estimator, MAP).
+
+One feature of the of the ilike package is the ability to use estimated likelihoods: for example using a sequential Monte Carlo algorithm for estimating the likelihood when using particle MCMC. A user might wonder at the validity of this approach when mixing and matching estimating likelihoods with different inference algorithms. Fortunately, this is easy to justify: details can be found in appendix \@ref{estimated-likelihoods}.
+
+## Inference algorithm arguments {#inference-arguments}
+
+All inference algorithms have the following arguments in common.
+
+### `recipe` (required)
+
+Every inference algorithm requires the specification of a model, in most cases additionally some observed data and parameters required by the inference algorithm (collectively referred to in this documentation as a "recipe"). These must be specified in ilike files by the user (see section \@ref(ilike-files)). The `recipe` argument for an inference algorithm can be provided in three possible ways:
+
+1. Compiled, as an ilike recipe object, through the `compile` function. Using a pre-compiled model is the most suitable approach where you wish to perform multiple runs of the same algorithm on the same model/data, where some parameters are changed from one run to the next.
+
+2. As the filename of an ilike file. This is a suitable approach when performing a single run of an algorithm on a particular model/data.
+
+3. Where the recipe is specified across multiple files, as a vector of filenames of ilike files. This is a useful approach when performing a single run of an algorithm, and where it is advantageous to divide the specification of the model and algorithm across multiple files (maybe when you wish to specify the model separately from the inference algorithm).
+
+### `results_name` (required)
+
+`results_name`, specifies the folder where the results will be written. A new folder with this name will be created in the `results_path` directory. If the folder already exists, you will be prompted to check that you are ok with overwriting the contents of the folder.
+
+### `results_path` (optional)
+
+The name of the directory where the folder with name `results_name` will be written. The default is the current working directory.
+
+### `model_parameter_list` (optional)
+
+In the ilike file, some parameters can be left unspecified - instead given as `p1`, `p2`, etc. These parameters must can be provided at runtime in the `model_parameter_list` argument. The order of the parameters in this list must match the order in which they appear in the ilike file.
+
+### `fixed_parameter_list` (optional)
+
+In C++ functions, for example those provided for evaluating a prior or likelihood, it is possible to make use of parameters that are stored in the `Parameters` object passed into the function. In most cases these parameters will be those that are being inferred using, for example, an MCMC algorithm. However, it is also possible to make use of other parameters that are treated as fixed throughout the run of the inference algorithm. These must be specified at runtime as fixed parameters in the named list `fixed_parameter_list`. This approach is suitable when you wish to complile the recipe only once, but wish to perform multiple runs of the algorithm using different values for these fixed parameters.
+
+### `external_packages` (optional)
+
+If the ilike file contains R functions (see section \@ref(R)) that make use of packages, their names must be provided here. Each package name must be an element in a vector of strings (e.g. `external_packages = c("distributional", "mvtnorm"))`.
+
+### `julia_bin_dir` (optional)
+
+If the ilike file contains Julia functions (see section \@ref(julia)), the path to the Julia binary must be provided here.
+
+### `julia_required_libraries` (optional)
+
+If the ilike file contains Julia functions (see section \@ref(julia)) that make use of Julia librry, their names must be provided here. Each package name must be an element in a vector of strings (e.g. `julia_required_libraries = c("Distributions", "StatsBase"))`.
+
+### `keep_temporary_model_code` (optional)
+
+If `TRUE`, the temporary files created during the compilation of the ilike file will be kept. This can be useful for debugging purposes. The default is `FALSE`.
+
+### `seed` (optional)
+
+The random number seed. If not provided, a random seed will be generated.
+
+### `parallel` (optional)
+
+This argument is available for all Monte Carlo algorithms, with the parallelisation being performed across the Monte Carlo points (or chains, in the case of MCMC). If `TRUE`, the inference algorithm will be run in parallel. The default is `FALSE`.
+
+### `grain_size` (optional)
+
+This argument is available for all Monte Carlo algorithms. The grain size for parallelisation see [guidance here](https://oneapi-src.github.io/oneTBB/main/tbb_userguide/Controlling_Chunking_os.html)). The advice is to pick a large grain size (such as the default of `100000`), then to try reducing the grain size (maybe halve each time) to see whether the computational time increases or decreases. A higher grain size reduces the parallelism, but requires less overhead.
 
 ## Importance sampling {#inference-is}
 
-### .ilike file requirements
+### Algorithm
+
+Importance sampling (IS) is used to approximate a target distribution $\pi$ through drawing $n$ points from a *proposal* distribution $q$. Each point $\theta^i$ drawn from $q$ is assigned an (unnormalised) *importance weight*:
+\begin{equation}
+\tilde{w}^i = \frac{\tilde{\pi}(\theta^i)}{q(\theta^i)} (\#eq:is-weight)
+\end{equation}
+An approximation $\hat{\pi}$ to the target distribution is then given by
+$$
+\hat{\pi} := \sum_{i=1}^n w^i \delta_{\theta^i},
+$$
+where the normalised weights $w^i$ are given by
+$$
+w^i = \frac{\tilde{w}^i}{\sum_{j=1}^n
+\tilde{w}^j}
+$$
+An estimate of the normalising constant $Z$ is given by
+\begin{equation}
+\hat{Z} = \frac{1}{n} \sum_{i=1}^n \tilde{w}^i. (\#eq:is-Z)
+\end{equation}
+
+For a comprehensive description see @chopin2020introduction.
+
+The R function `IS` implements importance sampling in ilike. The function returns the normalising constant estimator from equation \@ref(eq:is-Z), along with writing output to the specified `results_name` directory.
+
+In addition to the arguments described in section \@ref(inference-arguments), the `IS` function only has one additional argument:
+
+- `number_of_importance_points` (required) This argument provides the number of importance points $n$ to be drawn from the proposal distribution $q$.
+
+### ilike recipe requirements
+
+To run an importance sampler, we need to be able to:
+
+1. simulate from the proposal $q$;
+
+2. in order to implement equation \@ref(eq:is-weight), evaluate $q$ pointwise at $\theta$;
+
+3. in order to implement equation \@ref(eq:is-weight), evaluate the unnormalised target $\tilde{\pi}$ pointwise at $\theta$;
+
+Points 1 and 2 require a proposal to be fully specified (simulation and evaluation) in the recipe, using the approaches in sections \@ref(is-user) and \@ref(is-builtin). Point 3 requires the target distribution to be fully specified, via a model (section \@ref(models)).
+
+There is one exception to this rule: in the cade of Bayesian computation where the prior $p$ is chosen as the proposal $q$. In this case equation \@ref(eq:is-weight) simplifies to
+$$
+\tilde{w}^i = \frac{\tilde{\pi}(\theta^i)}{q(\theta^i)} = \frac{p(\theta^i) f(y\mid \theta^i) }{p(\theta^i)} = f(y\mid \theta^i),
+$$
+so that to implement IS we need only to be able to simulate from the prior $p$ and evaluate the likelihood $f$. In this case the recipe may be entirely specified though following the model specification in section \@ref(models), and the `IS` function will automatically use the prior as the proposal.
 
 ## MCMC {#inference-mcmc}
 
-### .ilike file requirements
+### Algorithm
+
+Markov chain Monte Carlo (MCMC) uses a Markov chain whose limiting distribution is the desired target distribution $\pi$ to generate points that can be used to approximate $\pi$. In most cases in practice this boils down to implementing the Metropolis-Hastings (MH) algorithm:
+
+-----
+
+**Metropolis-Hastings**
+
+| *Starting with* $\theta^0$ iterate for $i=1,2,\dots,n$
+|     *Draw* $\theta^* \sim q(\cdot\mid \theta^{i-1})$.
+|     *Compute*
+|
+|    $$\alpha(\theta^* \mid \theta^{i-1})=\min\left\{1,\frac{\displaystyle \tilde{\pi}(\theta^*) q(\theta^{i-1}\mid \theta^*)}{\tilde{\pi}(\theta^{i-1}) q(\theta^*\mid \theta^{i-1})} \right\}.$$
+|
+|    *With probability* $\alpha(\theta^* \mid \theta^{i-1})$ set $\theta^i=\theta^*$, otherwise set $\theta^i=\theta^{i-1}$.
+| **OUTPUT:** $\left\{\theta^i\right\}_{i=1}^n$
+
+-----
+
+Here $q$ is *proposal* distribution that is used at each iteration to propose a candidate point $\theta^*$ conditional on the current state of the chain $\theta^{i-1}$. The choice of proposal dramatically affects the efficiency of the algorithm. 
+
+Despite the apparent simplicity of this algorithm, MCMC encompasses a wide range of different approaches. Most well-known methods, including Gibbs sampling, MALA, HMC and NUTS are special cases of MH. For a description of a number of common approaches, see @brooks2011handbook.
+
+Most of the specification of an MCMC algorithm in ilike is done through the receipe: see section \@ref(mcmc) for full detail. Section \@ref(mcmc-output) then describes how to visualise the output of the MCMC algorithm after it has finished running. In this section we only describe how to run the MCMC algorithm, through calling the `MCMC` function.
+
+`MCMC` does not return anything^[MCMC output does not provide any useful direct estimate of $Z$. So in order to be be consistent with other inference algorithms which return the an estimate of $Z$.], but writes output to the specified `results_name` directory. In addition to the arguments described in section \@ref(inference-arguments), the `MCMC` takes the arguments:
+
+- `initial_values` (required) A list of lists containing the initial values for the chains. The length of the outer list should be equal to the number of chains; the inner list specifies the initial values of the parameters for each chain. For example, for a single chain on a model with parameters $\alpha$ and $\beta$, if we wanted the initial values to be 1 and 2 respectively, we would use
+
+```{r}
+initial_values = list(list(α=1, β=2))
+```
+
+In the, relatively common, case where we would like to start multiple chains at the same point, one solution is to use the `replicate` function to repeat the initial values. For example, to start 3 chains at the same point, we would use
+
+```{r}
+initial_values = replicate(3, list(α=1, β=2), simplify=FALSE)
+```
+
+- `number_of_chains` (optional) The number of MCMC chains to run (default is 1). The number of chains needs to match the number of initial values provided.
+
+### ilike recipe requirements
+
+To run an MCMC algorithm the user needs to provide the following in the recipe:
+
+1. a method for updating the chain;
+
+2. the criterion for terminating the chain.
+
+A complete description is provided in section \@ref(mcmc).
 
 ## SMC with MCMC moves {#inference-smc}
 
-### .ilike file requirements
+### ilike recipe requirements
 
 ## Kalman filters {#inference-kf}
 
-### .ilike file requirements
+### ilike recipe requirements
 
 ## Particle filters {#inference-pf}
 
-### .ilike file requirements
+### ilike recipe requirements
 
 ## Ensemble Kalman filters {#inference-enkf}
 
-### .ilike file requirements
+### ilike recipe requirements
 
 <!-- You can label chapter and section titles using `{#label}` after them, e.g., we can reference Chapter \@ref(intro). If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \@ref(methods). -->
 

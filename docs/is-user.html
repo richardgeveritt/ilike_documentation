@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>6.4 SMC sequence | ilike documentation</title>
+  <title>6.1 User-defined proposals {#user-proposal} | ilike documentation</title>
   <meta name="description" content="Documentation for the ilike R package." />
   <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="6.4 SMC sequence | ilike documentation" />
+  <meta property="og:title" content="6.1 User-defined proposals {#user-proposal} | ilike documentation" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="Documentation for the ilike R package." />
   <meta name="github-repo" content="richardgeveritt/ilike_documentation" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="6.4 SMC sequence | ilike documentation" />
+  <meta name="twitter:title" content="6.1 User-defined proposals {#user-proposal} | ilike documentation" />
   
   <meta name="twitter:description" content="Documentation for the ilike R package." />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="adaptive-resampling.html"/>
-<link rel="next" href="adaptive-target.html"/>
+<link rel="prev" href="smc.html"/>
+<link rel="next" href="is-builtin.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -476,38 +476,61 @@ div.csl-indent {
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="smc-sequence" class="section level2 hasAnchor" number="6.4">
-<h2><span class="header-section-number">6.4</span> SMC sequence<a href="smc-sequence.html#smc-sequence" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>The <code>smc_sequence</code> function type allows the user to provide the details required for setting up the sequence of targets in the SMC algorithm. This function type does not govern the sequence of targets used in a particle filter, which is described in section <a href="ssm.html#ssm">7</a>.</p>
-<div id="smc_sequence" class="section level3 hasAnchor" number="6.4.1">
-<h3><span class="header-section-number">6.4.1</span> smc_sequence<a href="smc-sequence.html#smc_sequence" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<div id="determined-by-a-named-parameter-ilikeparameter" class="section level4 hasAnchor" number="6.4.1.1">
-<h4><span class="header-section-number">6.4.1.1</span> Determined by a named parameter <code>ilike::parameter</code><a href="smc-sequence.html#determined-by-a-named-parameter-ilikeparameter" class="anchor-section" aria-label="Anchor link to header"></a></h4>
-<p>This function allows the user to use any parameter to change the target across SMC iterations.</p>
-<p>For example, one could define a sequence of Gaussian distributions whose variance <span class="math inline">\(\sigma^2_t\)</span> depends on the iteration <span class="math inline">\(t\)</span> in the SMC. To use this approach, the user could use the variable <code>sigma2</code> to denote this variance. To define a sequence of distributions to target in the SMC the user could specify a prior as follows:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="smc-sequence.html#cb6-1" tabindex="-1"></a><span class="co">/***evaluate_log_prior***/</span></span>
-<span id="cb6-2"><a href="smc-sequence.html#cb6-2" tabindex="-1"></a><span class="dt">double</span> prior_eval<span class="op">(</span><span class="at">const</span> Parameters <span class="op">&amp;</span>parameters<span class="op">)</span></span>
-<span id="cb6-3"><a href="smc-sequence.html#cb6-3" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb6-4"><a href="smc-sequence.html#cb6-4" tabindex="-1"></a>  <span class="cf">return</span> dnorm<span class="op">(</span><span class="dv">0</span><span class="op">,</span>parameters<span class="op">[</span><span class="st">&quot;sigma2&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">]);</span></span>
-<span id="cb6-5"><a href="smc-sequence.html#cb6-5" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<p>If the user wants to target a sequence of distributions with variance <span class="math inline">\(\sigma^2_t = 1/t\)</span> for <span class="math inline">\(t=1:10\)</span>, the <code>ilike::parameter</code> function can be used, using the variable name <code>sigma2</code> and this sequence of values as arguments.</p>
-<p>Inputs:</p>
-<ol style="list-style-type: decimal">
-<li><p>string: the variable for which the target is specified</p></li>
-<li><p>numeric vector: the sequence of values for the target variable</p></li>
-<li><p>(optional) integer vector: the factor indices for the factors that are affected by changing the variable specified in the first argument (default is to reevaluate all factors whe the target changes)</p></li>
-</ol>
+<div id="is-user" class="section level2 hasAnchor" number="6.1">
+<h2><span class="header-section-number">6.1</span> User-defined proposals {#user-proposal}<a href="is-user.html#is-user" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>The functions in this section allow the specification of a user-defined importance proposal. If a proposal is provided, and an importance sampling, particle filtering or sequential Monte Carlo inference algorithm is used, the proposal will be used to draw points in the first iteration of the algorithm. A custom importance sampling proposal requires the specification of two function types: <code>simulate_is_proposal</code> and <code>evaluate_log_is_proposal</code>.</p>
+<div id="simulate_is_proposal" class="section level3 hasAnchor" number="6.1.1">
+<h3><span class="header-section-number">6.1.1</span> simulate_is_proposal<a href="is-user.html#simulate_is_proposal" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The <code>simulate_is_proposal</code> function type simulates an importance sampling proposal distribution. There are two optional arguments for this function type, allowing the proposal to depend on some parameters, or the observed data. If both arguments are provided, the <code>proposal_parameters</code> argument must appear directly before the <code>data</code> argument.</p>
+<p>Input: (C++ only) The random number generator.</p>
+<p>– of type <code>RandomNumberGenerator &amp;</code> in a C++ function</p>
+<p>Input: (optional) Any parameters the proposal relies on.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>proposal_parameters</code> in an R function</p>
+<p>Input: (optional) Any data the proposal relies on.</p>
+<p>– of type <code>const Data &amp;</code> in a C++ function</p>
+<p>– available as R list <code>data</code> in an R function</p>
+<p>Output: The proposed parameters.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– of type <code>list</code> in R</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="is-user.html#cb1-1" tabindex="-1"></a><span class="co">/***simulate_is_proposal***/</span></span>
+<span id="cb1-2"><a href="is-user.html#cb1-2" tabindex="-1"></a>Parameters simulate_proposal<span class="op">(</span>RandomNumberGenerator <span class="op">&amp;</span>rng<span class="op">,</span></span>
+<span id="cb1-3"><a href="is-user.html#cb1-3" tabindex="-1"></a>                              <span class="at">const</span> Parameters <span class="op">&amp;</span>proposal_parameters<span class="op">)</span></span>
+<span id="cb1-4"><a href="is-user.html#cb1-4" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb1-5"><a href="is-user.html#cb1-5" tabindex="-1"></a>  arma<span class="op">::</span>colvec x<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb1-6"><a href="is-user.html#cb1-6" tabindex="-1"></a>  x<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> rnorm<span class="op">(</span>rng<span class="op">,</span> <span class="fl">0.0</span><span class="op">,</span> proposal_parameters<span class="op">[</span><span class="st">&quot;theta&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">]]);</span></span>
+<span id="cb1-7"><a href="is-user.html#cb1-7" tabindex="-1"></a>  <span class="cf">return</span> Parameters<span class="op">(</span><span class="st">&quot;x&quot;</span><span class="op">,</span> x<span class="op">);</span></span>
+<span id="cb1-8"><a href="is-user.html#cb1-8" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="is-user.html#cb2-1" tabindex="-1"></a><span class="co">/***simulate_is_proposal,x=rnorm(1,0,proposal_parameters$theta)***/</span></span></code></pre></div>
 </div>
-<div id="annealing-ilikeannealing" class="section level4 hasAnchor" number="6.4.1.2">
-<h4><span class="header-section-number">6.4.1.2</span> Annealing <code>ilike::annealing</code><a href="smc-sequence.html#annealing-ilikeannealing" class="anchor-section" aria-label="Anchor link to header"></a></h4>
-<p>This function allows the use of annealing to change the target distribution across SMC iterations. In target <span class="math inline">\(t\)</span> the chosen factors will be raised to a power that depends on <span class="math inline">\(t\)</span>. The user specifies the variable name to assign to the power variable and the sequence of powers to use. <code>ilike::tempering</code> has precisely the same functionality.</p>
-<p>Inputs:</p>
-<ol style="list-style-type: decimal">
-<li><p>string: the variable name that will be assigned to the annealing variable</p></li>
-<li><p>numeric vector: the sequence of temperatures to use in the annealing schedule</p></li>
-<li><p>(optional) integer vector: the factor indices for the factors that we wish to be raised to the provided temperature (default is to reevaluate all factors whe the target changes)</p></li>
-</ol>
-</div>
+<div id="evaluate_log_is_proposal" class="section level3 hasAnchor" number="6.1.2">
+<h3><span class="header-section-number">6.1.2</span> evaluate_log_is_proposal<a href="is-user.html#evaluate_log_is_proposal" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The <code>evaluate_log_is_proposal</code> function type evaluates the log density of the importance sampling proposal distribution. As for <code>simulate_is_proposal</code>, there are two optional arguments for this function type, allowing the proposal to depend on some parameters, or the observed data. The arguments that are chosen must be specified in the order of the inputs listed below.</p>
+<p>Input: The proposed parameters.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>proposed_parameters</code> in an R function</p>
+<p>Input: (optional) Any parameters the proposal relies on.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>proposal_parameters</code> in an R function</p>
+<p>Input: (optional) Any data the proposal relies on.</p>
+<p>– of type <code>const Data &amp;</code> in a C++ function</p>
+<p>– available as R list <code>data</code> in an R function</p>
+<p>Output: The log density of the proposed parameters under the proposal distribution.</p>
+<p>– of type <code>double</code> in a C++ function</p>
+<p>– of type <code>numeric</code> in R</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="is-user.html#cb3-1" tabindex="-1"></a><span class="co">/***evaluate_log_is_proposal***/</span></span>
+<span id="cb3-2"><a href="is-user.html#cb3-2" tabindex="-1"></a><span class="dt">double</span> log_importance_density<span class="op">(</span><span class="at">const</span> Parameters <span class="op">&amp;</span>proposed_parameters<span class="op">,</span></span>
+<span id="cb3-3"><a href="is-user.html#cb3-3" tabindex="-1"></a>                              <span class="at">const</span> Parameters <span class="op">&amp;</span>proposal_parameters<span class="op">)</span></span>
+<span id="cb3-4"><a href="is-user.html#cb3-4" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb3-5"><a href="is-user.html#cb3-5" tabindex="-1"></a>  <span class="dt">double</span> x <span class="op">=</span> proposed_parameters<span class="op">[</span><span class="st">&quot;x&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">];</span></span>
+<span id="cb3-6"><a href="is-user.html#cb3-6" tabindex="-1"></a>  <span class="dt">double</span> theta <span class="op">=</span> proposal_parameters<span class="op">[</span><span class="st">&quot;theta&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">];</span></span>
+<span id="cb3-7"><a href="is-user.html#cb3-7" tabindex="-1"></a>  <span class="cf">return</span> dnorm<span class="op">(</span>x<span class="op">,</span> <span class="fl">0.0</span><span class="op">,</span> theta<span class="op">);</span></span>
+<span id="cb3-8"><a href="is-user.html#cb3-8" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="is-user.html#cb4-1" tabindex="-1"></a><span class="co">/***evaluate_log_is_proposal,dnorm(proposed_parameters$x,0,proposal_parameters$theta,log=TRUE)***/</span></span></code></pre></div>
 </div>
 </div>
             </section>
@@ -515,8 +538,8 @@ div.csl-indent {
           </div>
         </div>
       </div>
-<a href="adaptive-resampling.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="adaptive-target.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="smc.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="is-builtin.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

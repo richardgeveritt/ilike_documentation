@@ -23,7 +23,7 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2024-11-11" />
+<meta name="date" content="2025-02-11" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -167,7 +167,7 @@ div.csl-indent {
 <ul>
 <li class="chapter" data-level="1.1" data-path="toy-example.html"><a href="toy-example.html"><i class="fa fa-check"></i><b>1.1</b> Example</a>
 <ul>
-<li class="chapter" data-level="1.1.1" data-path="toy-example.html"><a href="toy-example.html#model"><i class="fa fa-check"></i><b>1.1.1</b> Model</a></li>
+<li class="chapter" data-level="1.1.1" data-path="toy-example.html"><a href="toy-example.html#recipe"><i class="fa fa-check"></i><b>1.1.1</b> Recipe</a></li>
 <li class="chapter" data-level="1.1.2" data-path="toy-example.html"><a href="toy-example.html#ilike-file"><i class="fa fa-check"></i><b>1.1.2</b> ilike file</a></li>
 <li class="chapter" data-level="1.1.3" data-path="toy-example.html"><a href="toy-example.html#running-mcmc"><i class="fa fa-check"></i><b>1.1.3</b> Running MCMC</a></li>
 <li class="chapter" data-level="1.1.4" data-path="toy-example.html"><a href="toy-example.html#visualising-the-output"><i class="fa fa-check"></i><b>1.1.4</b> Visualising the output</a></li>
@@ -175,31 +175,44 @@ div.csl-indent {
 </ul></li>
 <li class="chapter" data-level="2" data-path="inference.html"><a href="inference.html"><i class="fa fa-check"></i><b>2</b> Inference algorithms</a>
 <ul>
-<li class="chapter" data-level="2.1" data-path="random-numbers.html"><a href="random-numbers.html"><i class="fa fa-check"></i><b>2.1</b> Random numbers</a></li>
-<li class="chapter" data-level="2.2" data-path="parameters.html"><a href="parameters.html"><i class="fa fa-check"></i><b>2.2</b> Model and algorithm parameters</a></li>
-<li class="chapter" data-level="2.3" data-path="inference-is.html"><a href="inference-is.html"><i class="fa fa-check"></i><b>2.3</b> Importance sampling</a>
+<li class="chapter" data-level="2.1" data-path="inference-arguments.html"><a href="inference-arguments.html"><i class="fa fa-check"></i><b>2.1</b> Inference algorithm arguments</a>
 <ul>
-<li class="chapter" data-level="2.3.1" data-path="inference-is.html"><a href="inference-is.html#ilike-file-requirements"><i class="fa fa-check"></i><b>2.3.1</b> .ilike file requirements</a></li>
+<li class="chapter" data-level="2.1.1" data-path="inference-arguments.html"><a href="inference-arguments.html#recipe-required"><i class="fa fa-check"></i><b>2.1.1</b> <code>recipe</code> (required)</a></li>
+<li class="chapter" data-level="2.1.2" data-path="inference-arguments.html"><a href="inference-arguments.html#results_name-required"><i class="fa fa-check"></i><b>2.1.2</b> <code>results_name</code> (required)</a></li>
+<li class="chapter" data-level="2.1.3" data-path="inference-arguments.html"><a href="inference-arguments.html#results_path-optional"><i class="fa fa-check"></i><b>2.1.3</b> <code>results_path</code> (optional)</a></li>
+<li class="chapter" data-level="2.1.4" data-path="inference-arguments.html"><a href="inference-arguments.html#model_parameter_list-optional"><i class="fa fa-check"></i><b>2.1.4</b> <code>model_parameter_list</code> (optional)</a></li>
+<li class="chapter" data-level="2.1.5" data-path="inference-arguments.html"><a href="inference-arguments.html#fixed_parameter_list-optional"><i class="fa fa-check"></i><b>2.1.5</b> <code>fixed_parameter_list</code> (optional)</a></li>
+<li class="chapter" data-level="2.1.6" data-path="inference-arguments.html"><a href="inference-arguments.html#external_packages-optional"><i class="fa fa-check"></i><b>2.1.6</b> <code>external_packages</code> (optional)</a></li>
+<li class="chapter" data-level="2.1.7" data-path="inference-arguments.html"><a href="inference-arguments.html#julia_bin_dir-optional"><i class="fa fa-check"></i><b>2.1.7</b> <code>julia_bin_dir</code> (optional)</a></li>
+<li class="chapter" data-level="2.1.8" data-path="inference-arguments.html"><a href="inference-arguments.html#julia_required_libraries-optional"><i class="fa fa-check"></i><b>2.1.8</b> <code>julia_required_libraries</code> (optional)</a></li>
+<li class="chapter" data-level="2.1.9" data-path="inference-arguments.html"><a href="inference-arguments.html#keep_temporary_model_code-optional"><i class="fa fa-check"></i><b>2.1.9</b> <code>keep_temporary_model_code</code> (optional)</a></li>
+<li class="chapter" data-level="2.1.10" data-path="inference-arguments.html"><a href="inference-arguments.html#seed-optional"><i class="fa fa-check"></i><b>2.1.10</b> <code>seed</code> (optional)</a></li>
+<li class="chapter" data-level="2.1.11" data-path="inference-arguments.html"><a href="inference-arguments.html#parallel-optional"><i class="fa fa-check"></i><b>2.1.11</b> <code>parallel</code> (optional)</a></li>
+<li class="chapter" data-level="2.1.12" data-path="inference-arguments.html"><a href="inference-arguments.html#grain_size-optional"><i class="fa fa-check"></i><b>2.1.12</b> <code>grain_size</code> (optional)</a></li>
 </ul></li>
-<li class="chapter" data-level="2.4" data-path="inference-mcmc.html"><a href="inference-mcmc.html"><i class="fa fa-check"></i><b>2.4</b> MCMC</a>
+<li class="chapter" data-level="2.2" data-path="inference-is.html"><a href="inference-is.html"><i class="fa fa-check"></i><b>2.2</b> Importance sampling</a>
 <ul>
-<li class="chapter" data-level="2.4.1" data-path="inference-mcmc.html"><a href="inference-mcmc.html#ilike-file-requirements-1"><i class="fa fa-check"></i><b>2.4.1</b> .ilike file requirements</a></li>
+<li class="chapter" data-level="2.2.1" data-path="inference-is.html"><a href="inference-is.html#ilike-recipe-requirements"><i class="fa fa-check"></i><b>2.2.1</b> ilike recipe requirements</a></li>
 </ul></li>
-<li class="chapter" data-level="2.5" data-path="inference-smc.html"><a href="inference-smc.html"><i class="fa fa-check"></i><b>2.5</b> SMC with MCMC moves</a>
+<li class="chapter" data-level="2.3" data-path="inference-mcmc.html"><a href="inference-mcmc.html"><i class="fa fa-check"></i><b>2.3</b> MCMC</a>
 <ul>
-<li class="chapter" data-level="2.5.1" data-path="inference-smc.html"><a href="inference-smc.html#ilike-file-requirements-2"><i class="fa fa-check"></i><b>2.5.1</b> .ilike file requirements</a></li>
+<li class="chapter" data-level="2.3.1" data-path="inference-mcmc.html"><a href="inference-mcmc.html#ilike-recipe-requirements-1"><i class="fa fa-check"></i><b>2.3.1</b> ilike recipe requirements</a></li>
 </ul></li>
-<li class="chapter" data-level="2.6" data-path="inference-kf.html"><a href="inference-kf.html"><i class="fa fa-check"></i><b>2.6</b> Kalman filters</a>
+<li class="chapter" data-level="2.4" data-path="inference-smc.html"><a href="inference-smc.html"><i class="fa fa-check"></i><b>2.4</b> SMC with MCMC moves</a>
 <ul>
-<li class="chapter" data-level="2.6.1" data-path="inference-kf.html"><a href="inference-kf.html#ilike-file-requirements-3"><i class="fa fa-check"></i><b>2.6.1</b> .ilike file requirements</a></li>
+<li class="chapter" data-level="2.4.1" data-path="inference-smc.html"><a href="inference-smc.html#ilike-recipe-requirements-2"><i class="fa fa-check"></i><b>2.4.1</b> ilike recipe requirements</a></li>
 </ul></li>
-<li class="chapter" data-level="2.7" data-path="inference-pf.html"><a href="inference-pf.html"><i class="fa fa-check"></i><b>2.7</b> Particle filters</a>
+<li class="chapter" data-level="2.5" data-path="inference-kf.html"><a href="inference-kf.html"><i class="fa fa-check"></i><b>2.5</b> Kalman filters</a>
 <ul>
-<li class="chapter" data-level="2.7.1" data-path="inference-pf.html"><a href="inference-pf.html#ilike-file-requirements-4"><i class="fa fa-check"></i><b>2.7.1</b> .ilike file requirements</a></li>
+<li class="chapter" data-level="2.5.1" data-path="inference-kf.html"><a href="inference-kf.html#ilike-recipe-requirements-3"><i class="fa fa-check"></i><b>2.5.1</b> ilike recipe requirements</a></li>
 </ul></li>
-<li class="chapter" data-level="2.8" data-path="inference-enkf.html"><a href="inference-enkf.html"><i class="fa fa-check"></i><b>2.8</b> Ensemble Kalman filters</a>
+<li class="chapter" data-level="2.6" data-path="inference-pf.html"><a href="inference-pf.html"><i class="fa fa-check"></i><b>2.6</b> Particle filters</a>
 <ul>
-<li class="chapter" data-level="2.8.1" data-path="inference-enkf.html"><a href="inference-enkf.html#ilike-file-requirements-5"><i class="fa fa-check"></i><b>2.8.1</b> .ilike file requirements</a></li>
+<li class="chapter" data-level="2.6.1" data-path="inference-pf.html"><a href="inference-pf.html#ilike-recipe-requirements-4"><i class="fa fa-check"></i><b>2.6.1</b> ilike recipe requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="2.7" data-path="inference-enkf.html"><a href="inference-enkf.html"><i class="fa fa-check"></i><b>2.7</b> Ensemble Kalman filters</a>
+<ul>
+<li class="chapter" data-level="2.7.1" data-path="inference-enkf.html"><a href="inference-enkf.html#ilike-recipe-requirements-5"><i class="fa fa-check"></i><b>2.7.1</b> ilike recipe requirements</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="ilike-files.html"><a href="ilike-files.html"><i class="fa fa-check"></i><b>3</b> ilike files</a>
@@ -332,14 +345,14 @@ div.csl-indent {
 </ul></li>
 <li class="chapter" data-level="6" data-path="smc.html"><a href="smc.html"><i class="fa fa-check"></i><b>6</b> Importance sampling and sequential Monte Carlo</a>
 <ul>
-<li class="chapter" data-level="6.1" data-path="user-proposal.html"><a href="user-proposal.html"><i class="fa fa-check"></i><b>6.1</b> User-defined proposals</a>
+<li class="chapter" data-level="6.1" data-path="is-user.html"><a href="is-user.html"><i class="fa fa-check"></i><b>6.1</b> User-defined proposals {#user-proposal}</a>
 <ul>
-<li class="chapter" data-level="6.1.1" data-path="user-proposal.html"><a href="user-proposal.html#simulate_is_proposal"><i class="fa fa-check"></i><b>6.1.1</b> simulate_is_proposal</a></li>
-<li class="chapter" data-level="6.1.2" data-path="user-proposal.html"><a href="user-proposal.html#evaluate_log_is_proposal"><i class="fa fa-check"></i><b>6.1.2</b> evaluate_log_is_proposal</a></li>
+<li class="chapter" data-level="6.1.1" data-path="is-user.html"><a href="is-user.html#simulate_is_proposal"><i class="fa fa-check"></i><b>6.1.1</b> simulate_is_proposal</a></li>
+<li class="chapter" data-level="6.1.2" data-path="is-user.html"><a href="is-user.html#evaluate_log_is_proposal"><i class="fa fa-check"></i><b>6.1.2</b> evaluate_log_is_proposal</a></li>
 </ul></li>
-<li class="chapter" data-level="6.2" data-path="ilike-proposal.html"><a href="ilike-proposal.html"><i class="fa fa-check"></i><b>6.2</b> Built-in proposals</a>
+<li class="chapter" data-level="6.2" data-path="is-builtin.html"><a href="is-builtin.html"><i class="fa fa-check"></i><b>6.2</b> Built-in proposals {#ilike-proposal}</a>
 <ul>
-<li class="chapter" data-level="6.2.1" data-path="ilike-proposal.html"><a href="ilike-proposal.html#is_proposal"><i class="fa fa-check"></i><b>6.2.1</b> is_proposal</a></li>
+<li class="chapter" data-level="6.2.1" data-path="is-builtin.html"><a href="is-builtin.html#is_proposal"><i class="fa fa-check"></i><b>6.2.1</b> is_proposal</a></li>
 </ul></li>
 <li class="chapter" data-level="6.3" data-path="adaptive-resampling.html"><a href="adaptive-resampling.html"><i class="fa fa-check"></i><b>6.3</b> Adaptive resampling</a>
 <ul>
@@ -403,20 +416,44 @@ div.csl-indent {
 </ul></li>
 <li class="chapter" data-level="8" data-path="output.html"><a href="output.html"><i class="fa fa-check"></i><b>8</b> Loading and visualising output</a>
 <ul>
-<li class="chapter" data-level="8.1" data-path="is-and-smc-output.html"><a href="is-and-smc-output.html"><i class="fa fa-check"></i><b>8.1</b> IS and SMC output</a></li>
-<li class="chapter" data-level="8.2" data-path="ensemble-kalman-output.html"><a href="ensemble-kalman-output.html"><i class="fa fa-check"></i><b>8.2</b> Ensemble Kalman output</a></li>
-<li class="chapter" data-level="8.3" data-path="mcmc-output.html"><a href="mcmc-output.html"><i class="fa fa-check"></i><b>8.3</b> MCMC output</a></li>
-<li class="chapter" data-level="8.4" data-path="further-detail-about-output-files.html"><a href="further-detail-about-output-files.html"><i class="fa fa-check"></i><b>8.4</b> Further detail about output files</a></li>
+<li class="chapter" data-level="8.1" data-path="mcmc-output.html"><a href="mcmc-output.html"><i class="fa fa-check"></i><b>8.1</b> MCMC output</a>
+<ul>
+<li class="chapter" data-level="8.1.1" data-path="mcmc-output.html"><a href="mcmc-output.html#loading-mcmc-output-ilike-format"><i class="fa fa-check"></i><b>8.1.1</b> Loading MCMC output (ilike format)</a></li>
+<li class="chapter" data-level="8.1.2" data-path="mcmc-output.html"><a href="mcmc-output.html#plotting-using-ggsmc"><i class="fa fa-check"></i><b>8.1.2</b> Plotting using <code>ggsmc</code></a></li>
+<li class="chapter" data-level="8.1.3" data-path="mcmc-output.html"><a href="mcmc-output.html#loading-mcmc-output-ggmcmc-format"><i class="fa fa-check"></i><b>8.1.3</b> Loading MCMC output (ggmcmc format)</a></li>
+<li class="chapter" data-level="8.1.4" data-path="mcmc-output.html"><a href="mcmc-output.html#plotting-using-ggmcmc"><i class="fa fa-check"></i><b>8.1.4</b> Plotting using <code>ggmcmc</code></a></li>
+<li class="chapter" data-level="8.1.5" data-path="mcmc-output.html"><a href="mcmc-output.html#burn-in-warm-up"><i class="fa fa-check"></i><b>8.1.5</b> Burn-in / warm-up</a></li>
+</ul></li>
+<li class="chapter" data-level="8.2" data-path="is-smc-output.html"><a href="is-smc-output.html"><i class="fa fa-check"></i><b>8.2</b> IS and SMC output</a>
+<ul>
+<li class="chapter" data-level="8.2.1" data-path="is-smc-output.html"><a href="is-smc-output.html#visualising-output-using-ggsmc"><i class="fa fa-check"></i><b>8.2.1</b> Visualising output using <code>ggsmc</code></a></li>
+</ul></li>
+<li class="chapter" data-level="8.3" data-path="ensemble-kalman-output.html"><a href="ensemble-kalman-output.html"><i class="fa fa-check"></i><b>8.3</b> Ensemble Kalman output</a></li>
+<li class="chapter" data-level="8.4" data-path="pivot-wider.html"><a href="pivot-wider.html"><i class="fa fa-check"></i><b>8.4</b> <code>pivot_wider</code> for ilike data</a></li>
+<li class="chapter" data-level="8.5" data-path="output-detail.html"><a href="output-detail.html"><i class="fa fa-check"></i><b>8.5</b> Further detail about output files</a>
+<ul>
+<li class="chapter" data-level="8.5.1" data-path="output-detail.html"><a href="output-detail.html#smc-output"><i class="fa fa-check"></i><b>8.5.1</b> SMC output</a></li>
+<li class="chapter" data-level="8.5.2" data-path="output-detail.html"><a href="output-detail.html#ensemble-output"><i class="fa fa-check"></i><b>8.5.2</b> Ensemble output</a></li>
+<li class="chapter" data-level="8.5.3" data-path="output-detail.html"><a href="output-detail.html#kalman-filter-output"><i class="fa fa-check"></i><b>8.5.3</b> Kalman filter output</a></li>
+<li class="chapter" data-level="8.5.4" data-path="output-detail.html"><a href="output-detail.html#exact-output"><i class="fa fa-check"></i><b>8.5.4</b> Exact output</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="9" data-path="examples.html"><a href="examples.html"><i class="fa fa-check"></i><b>9</b> Examples</a>
 <ul>
-<li class="chapter" data-level="9.1" data-path="running-code.html"><a href="running-code.html"><i class="fa fa-check"></i><b>9.1</b> Running code</a></li>
+<li class="chapter" data-level="9.1" data-path="mcmc-gaussian.html"><a href="mcmc-gaussian.html"><i class="fa fa-check"></i><b>9.1</b> MCMC algorithms for sampling from a Gaussian</a></li>
 <li class="chapter" data-level="9.2" data-path="smc-from-mcmc.html"><a href="smc-from-mcmc.html"><i class="fa fa-check"></i><b>9.2</b> Converting an MCMC into an SMC sampler</a></li>
+<li class="chapter" data-level="9.3" data-path="filtering_cv.html"><a href="filtering_cv.html"><i class="fa fa-check"></i><b>9.3</b> Filtering on a constant velocity model</a></li>
+<li class="chapter" data-level="9.4" data-path="mcmc-lv.html"><a href="mcmc-lv.html"><i class="fa fa-check"></i><b>9.4</b> MCMC on the Lotka-Volterra model</a></li>
+<li class="chapter" data-level="9.5" data-path="abc-smc-lv.html"><a href="abc-smc-lv.html"><i class="fa fa-check"></i><b>9.5</b> ABC-SMC for the Lotka-Volterra model</a></li>
 </ul></li>
 <li class="chapter" data-level="10" data-path="bugs.html"><a href="bugs.html"><i class="fa fa-check"></i><b>10</b> Known issues and glaring omissions</a>
 <ul>
 <li class="chapter" data-level="10.1" data-path="known-issues.html"><a href="known-issues.html"><i class="fa fa-check"></i><b>10.1</b> Known issues</a></li>
 <li class="chapter" data-level="10.2" data-path="glaring-omissions.html"><a href="glaring-omissions.html"><i class="fa fa-check"></i><b>10.2</b> Glaring omissions</a></li>
+</ul></li>
+<li class="chapter" data-level="11" data-path="debugging.html"><a href="debugging.html"><i class="fa fa-check"></i><b>11</b> Debugging ilike</a>
+<ul>
+<li class="chapter" data-level="11.1" data-path="error-in-could-not-find-function.html"><a href="error-in-could-not-find-function.html"><i class="fa fa-check"></i><b>11.1</b> Error in …: could not find function “…”</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 <li class="divider"></li>

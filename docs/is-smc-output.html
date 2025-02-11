@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>6.4 SMC sequence | ilike documentation</title>
+  <title>8.2 IS and SMC output | ilike documentation</title>
   <meta name="description" content="Documentation for the ilike R package." />
   <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="6.4 SMC sequence | ilike documentation" />
+  <meta property="og:title" content="8.2 IS and SMC output | ilike documentation" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="Documentation for the ilike R package." />
   <meta name="github-repo" content="richardgeveritt/ilike_documentation" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="6.4 SMC sequence | ilike documentation" />
+  <meta name="twitter:title" content="8.2 IS and SMC output | ilike documentation" />
   
   <meta name="twitter:description" content="Documentation for the ilike R package." />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="adaptive-resampling.html"/>
-<link rel="next" href="adaptive-target.html"/>
+<link rel="prev" href="mcmc-output.html"/>
+<link rel="next" href="ensemble-kalman-output.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -476,38 +476,59 @@ div.csl-indent {
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="smc-sequence" class="section level2 hasAnchor" number="6.4">
-<h2><span class="header-section-number">6.4</span> SMC sequence<a href="smc-sequence.html#smc-sequence" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>The <code>smc_sequence</code> function type allows the user to provide the details required for setting up the sequence of targets in the SMC algorithm. This function type does not govern the sequence of targets used in a particle filter, which is described in section <a href="ssm.html#ssm">7</a>.</p>
-<div id="smc_sequence" class="section level3 hasAnchor" number="6.4.1">
-<h3><span class="header-section-number">6.4.1</span> smc_sequence<a href="smc-sequence.html#smc_sequence" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<div id="determined-by-a-named-parameter-ilikeparameter" class="section level4 hasAnchor" number="6.4.1.1">
-<h4><span class="header-section-number">6.4.1.1</span> Determined by a named parameter <code>ilike::parameter</code><a href="smc-sequence.html#determined-by-a-named-parameter-ilikeparameter" class="anchor-section" aria-label="Anchor link to header"></a></h4>
-<p>This function allows the user to use any parameter to change the target across SMC iterations.</p>
-<p>For example, one could define a sequence of Gaussian distributions whose variance <span class="math inline">\(\sigma^2_t\)</span> depends on the iteration <span class="math inline">\(t\)</span> in the SMC. To use this approach, the user could use the variable <code>sigma2</code> to denote this variance. To define a sequence of distributions to target in the SMC the user could specify a prior as follows:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="smc-sequence.html#cb6-1" tabindex="-1"></a><span class="co">/***evaluate_log_prior***/</span></span>
-<span id="cb6-2"><a href="smc-sequence.html#cb6-2" tabindex="-1"></a><span class="dt">double</span> prior_eval<span class="op">(</span><span class="at">const</span> Parameters <span class="op">&amp;</span>parameters<span class="op">)</span></span>
-<span id="cb6-3"><a href="smc-sequence.html#cb6-3" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb6-4"><a href="smc-sequence.html#cb6-4" tabindex="-1"></a>  <span class="cf">return</span> dnorm<span class="op">(</span><span class="dv">0</span><span class="op">,</span>parameters<span class="op">[</span><span class="st">&quot;sigma2&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">]);</span></span>
-<span id="cb6-5"><a href="smc-sequence.html#cb6-5" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<p>If the user wants to target a sequence of distributions with variance <span class="math inline">\(\sigma^2_t = 1/t\)</span> for <span class="math inline">\(t=1:10\)</span>, the <code>ilike::parameter</code> function can be used, using the variable name <code>sigma2</code> and this sequence of values as arguments.</p>
-<p>Inputs:</p>
-<ol style="list-style-type: decimal">
-<li><p>string: the variable for which the target is specified</p></li>
-<li><p>numeric vector: the sequence of values for the target variable</p></li>
-<li><p>(optional) integer vector: the factor indices for the factors that are affected by changing the variable specified in the first argument (default is to reevaluate all factors whe the target changes)</p></li>
-</ol>
-</div>
-<div id="annealing-ilikeannealing" class="section level4 hasAnchor" number="6.4.1.2">
-<h4><span class="header-section-number">6.4.1.2</span> Annealing <code>ilike::annealing</code><a href="smc-sequence.html#annealing-ilikeannealing" class="anchor-section" aria-label="Anchor link to header"></a></h4>
-<p>This function allows the use of annealing to change the target distribution across SMC iterations. In target <span class="math inline">\(t\)</span> the chosen factors will be raised to a power that depends on <span class="math inline">\(t\)</span>. The user specifies the variable name to assign to the power variable and the sequence of powers to use. <code>ilike::tempering</code> has precisely the same functionality.</p>
-<p>Inputs:</p>
-<ol style="list-style-type: decimal">
-<li><p>string: the variable name that will be assigned to the annealing variable</p></li>
-<li><p>numeric vector: the sequence of temperatures to use in the annealing schedule</p></li>
-<li><p>(optional) integer vector: the factor indices for the factors that we wish to be raised to the provided temperature (default is to reevaluate all factors whe the target changes)</p></li>
-</ol>
-</div>
+<div id="is-smc-output" class="section level2 hasAnchor" number="8.2">
+<h2><span class="header-section-number">8.2</span> IS and SMC output<a href="is-smc-output.html#is-smc-output" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>For loading the output of IS and SMC algorithms we use the function <code>load_smc_output</code>. We use the particle filter output from section €ref(filtering_cv) as example output for this section.</p>
+<p>To load the output from this algorithm we call</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="is-smc-output.html#cb14-1" tabindex="-1"></a>sir_cwna_model <span class="ot">=</span> <span class="fu">load_smc_output</span>(<span class="st">&quot;sir_cwna_model&quot;</span>)</span></code></pre></div>
+<p>The format is not dissimilar to that for MCMC algorithms.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="is-smc-output.html#cb15-1" tabindex="-1"></a><span class="fu">head</span>(sir_cwna_model)</span></code></pre></div>
+<pre><code>##   ExternalIndex Target      Time NormalisingConstant   ISESS TargetParameters
+## 1             1      1 0.0025475            -3.07181 16.2299        i=0;dt=1;
+## 2             1      1 0.0025475            -3.07181 16.2299        i=0;dt=1;
+## 3             1      1 0.0025475            -3.07181 16.2299        i=0;dt=1;
+## 4             1      1 0.0025475            -3.07181 16.2299        i=0;dt=1;
+## 5             1      1 0.0025475            -3.07181 16.2299        i=0;dt=1;
+## 6             1      1 0.0025475            -3.07181 16.2299        i=0;dt=1;
+##   Iteration Particle AncestorIndex  LogWeight ParameterName Dimension    Value
+## 1         1        1             1 -28.057199             x         1   6.5297
+## 2         1        1             1 -28.057199             x         2 -15.4264
+## 3         1        2             2  -2.453099             x         1  -0.5869
+## 4         1        2             2  -2.453099             x         2  -8.7790
+## 5         1        3             3 -11.568199             x         1   3.6434
+## 6         1        3             3 -11.568199             x         2 -14.1641</code></pre>
+<ul>
+<li><p><code>ExternalIndex</code> is only used when the output is from a nested algorithm such as particle MCMC, so can be ignored for now;</p></li>
+<li><p><code>Target</code> is the index of the target distribution in the SMC algorithm. This will be equal to <code>1</code> when an IS algorithm is used;</p></li>
+<li><p><code>Time</code> gives the time taken by the SMC algorithm up to the given target distribution;</p></li>
+<li><p><code>NormalisingConstant</code> is the estimated normalising constant of the given target distribution;</p></li>
+<li><p><code>ISESS</code> is the estimated effective sample size of the particles at the given target distribution;</p></li>
+<li><p><code>TargetParameters</code> is a string giving the parameters of the target distribution;</p></li>
+<li><p><code>Iteration</code> is the iteration of the of an MCMC algorithm used within the SMC algorithm. When no MCMC iterations are used, this will be equal to <code>1</code>;</p></li>
+<li><p><code>Particle</code> is the index of the particle;</p></li>
+<li><p><code>AncestorIndex</code> is the index of the ancestor of the particle. This is used to trace the ancestry of the particles, which is useful for analysing the effect of resampling;</p></li>
+<li><p><code>LogWeight</code> is the log weight of the particle;</p></li>
+<li><p><code>ParameterName</code> is the name of the parameter;</p></li>
+<li><p><code>Dimension</code> is the dimension of the parameter;</p></li>
+<li><p><code>Value</code> is the value of the given dimension of the parameter at the given MCMC iteration for the given SMC target.</p></li>
+</ul>
+<div id="visualising-output-using-ggsmc" class="section level3 hasAnchor" number="8.2.1">
+<h3><span class="header-section-number">8.2.1</span> Visualising output using <code>ggsmc</code><a href="is-smc-output.html#visualising-output-using-ggsmc" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>This output can be visualised using the <code>ggsmc</code> package, which contains functions for plotting and animating histograms, densities, scatter plots and the genealogy of the particle population. Examples of these plots for this model can be found in <a href="https://cran.r-project.org/web/packages/ggsmc/vignettes/Visualising.html">the vigentte for the <code>ggsmc</code> package</a>. Here we include ony an example of the evolution of the particle population over time.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="is-smc-output.html#cb17-1" tabindex="-1"></a><span class="fu">data</span>(cwna_data)</span>
+<span id="cb17-2"><a href="is-smc-output.html#cb17-2" tabindex="-1"></a><span class="fu">plot_genealogy</span>(sir_cwna_model,</span>
+<span id="cb17-3"><a href="is-smc-output.html#cb17-3" tabindex="-1"></a>               <span class="at">parameter =</span> <span class="st">&quot;x&quot;</span>,</span>
+<span id="cb17-4"><a href="is-smc-output.html#cb17-4" tabindex="-1"></a>               <span class="at">dimension =</span> <span class="dv">1</span>,</span>
+<span id="cb17-5"><a href="is-smc-output.html#cb17-5" tabindex="-1"></a>               <span class="at">use_initial_points =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb17-6"><a href="is-smc-output.html#cb17-6" tabindex="-1"></a>               <span class="at">vertical =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb17-7"><a href="is-smc-output.html#cb17-7" tabindex="-1"></a>               <span class="at">alpha_lines =</span> <span class="dv">0</span>,</span>
+<span id="cb17-8"><a href="is-smc-output.html#cb17-8" tabindex="-1"></a>               <span class="at">alpha_points =</span> <span class="fl">0.05</span>,</span>
+<span id="cb17-9"><a href="is-smc-output.html#cb17-9" tabindex="-1"></a>               <span class="at">arrows =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb17-10"><a href="is-smc-output.html#cb17-10" tabindex="-1"></a>               <span class="at">default_title =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb17-11"><a href="is-smc-output.html#cb17-11" tabindex="-1"></a>ggplot2<span class="sc">::</span><span class="fu">geom_line</span>(<span class="at">data=</span>cwna_data,ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x=</span>Index,<span class="at">y=</span>Position),<span class="at">colour=</span><span class="st">&quot;red&quot;</span>,<span class="at">inherit.aes =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb17-12"><a href="is-smc-output.html#cb17-12" tabindex="-1"></a>ggplot2<span class="sc">::</span><span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb17-13"><a href="is-smc-output.html#cb17-13" tabindex="-1"></a>ggplot2<span class="sc">::</span><span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">&quot;none&quot;</span>)</span></code></pre></div>
+<p><img src="ilike-docs_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
 </div>
 </div>
             </section>
@@ -515,8 +536,8 @@ div.csl-indent {
           </div>
         </div>
       </div>
-<a href="adaptive-resampling.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="adaptive-target.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="mcmc-output.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="ensemble-kalman-output.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
@@ -547,7 +568,7 @@ gitbook.start({
 "size": 2
 },
 "edit": {
-"link": "https://github.com/richardgeveritt/ilike_documentation/edit/master/smc.Rmd",
+"link": "https://github.com/richardgeveritt/ilike_documentation/edit/master/output.Rmd",
 "text": "Edit"
 },
 "history": {

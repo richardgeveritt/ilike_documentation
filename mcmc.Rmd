@@ -256,7 +256,7 @@ Inputs:
     
   2. matrix: the covariance $\Sigma$ of the multivariate normal distribution
   
-  3. numeric: the scaling factor $s^2$ of the covariance matrix (default is 1)
+  3. numeric: the scaling factor $s^2$ of the covariance matrix
    
 #### Uniform random walk proposal `ilike::unif_rw`
 
@@ -304,7 +304,7 @@ Inputs:
   
   3. matrix: the covariance $\Sigma$ of the multivariate normal distribution used in the proposal
   
-  4. numeric: the scaling factor $s^2$ of the covariance matrix (default is 1)
+  4. numeric: the scaling factor $s^2$ of the covariance matrix
   
 ## User-defined independent MH proposals
 
@@ -621,7 +621,7 @@ Inputs:
     
   2. matrix: the covariance $\Sigma$ of the multivariate normal distribution
   
-  3. numeric: the scaling factor $s^2$ of the covariance matrix (default is 1)
+  3. numeric: the scaling factor $s^2$ of the covariance matrix
    
 #### Uniform random walk proposal `ilike::unif_rw`
 
@@ -667,7 +667,7 @@ Inputs:
       
   2. matrix: the covariance $\Sigma$ of the multivariate normal distribution used in the proposal
     
-  3. numeric: the scaling factor $s^2$ of the preconditioning matrix (default is 1)
+  3. numeric: the scaling factor $s^2$ of the preconditioning matrix
 
 #### Barker proposal `ilike::barker`
 
@@ -702,7 +702,7 @@ Inputs:
     
   2. matrix: the covariance $\Sigma$ of the multivariate normal distribution used in the proposal
   
-  3. numeric: the scaling factor $s^2$ of the preconditioning matrix (default is 1)
+  3. numeric: the scaling factor $s^2$ of the preconditioning matrix
   
 #### Mirror proposal `ilike::mirror`
 
@@ -721,7 +721,7 @@ Inputs:
   
   3. matrix: the covariance $\Sigma$ of the multivariate normal distribution used in the proposal
   
-  4. numeric: the scaling factor $s^2$ of the covariance matrix (default is 1)
+  4. numeric: the scaling factor $s^2$ of the covariance matrix
 
 
 ## User-defined unadjusted proposals
@@ -821,7 +821,7 @@ Inputs:
     
   2. matrix: the covariance $\Sigma$ of the multivariate normal distribution
   
-  3. numeric: the scaling factor $s^2$ of the covariance matrix (default is 1)
+  3. numeric: the scaling factor $s^2$ of the covariance matrix
    
 #### Uniform random walk proposal `ilike::unif_rw`
 
@@ -867,7 +867,7 @@ Inputs:
       
   2. matrix: the covariance $\Sigma$ of the multivariate normal distribution used in the proposal
     
-  3. numeric: the scaling factor $s^2$ of the preconditioning matrix (default is 1)
+  3. numeric: the scaling factor $s^2$ of the preconditioning matrix
 
 #### Barker proposal `ilike::barker`
 
@@ -902,7 +902,7 @@ Inputs:
     
   2. matrix: the covariance $\Sigma$ of the multivariate normal distribution used in the proposal
   
-  3. numeric: the scaling factor $s^2$ of the preconditioning matrix (default is 1)
+  3. numeric: the scaling factor $s^2$ of the preconditioning matrix
   
 #### Mirror proposal `ilike::mirror`
 
@@ -921,5 +921,5 @@ Inputs:
   
   3. matrix: the covariance $\Sigma$ of the multivariate normal distribution used in the proposal
   
-  4. numeric: the scaling factor $s^2$ of the covariance matrix (default is 1)
+  4. numeric: the scaling factor $s^2$ of the covariance matrix
   
