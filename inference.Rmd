@@ -47,7 +47,7 @@ $$
 
 We may also be interested in maxima of the likelihood (the maximum likelihood estimator, MLE) or the posterior distribution (the maximum *a posteriori* estimator, MAP).
 
-One feature of the of the ilike package is the ability to use estimated likelihoods: for example using a sequential Monte Carlo algorithm for estimating the likelihood when using particle MCMC. A user might wonder at the validity of this approach when mixing and matching estimating likelihoods with different inference algorithms. Fortunately, this is easy to justify: details can be found in appendix \@ref{estimated-likelihoods}.
+One feature of the of the ilike package is the ability to use estimated likelihoods: for example using a sequential Monte Carlo algorithm for estimating the likelihood when using particle MCMC. A user might wonder at the validity of this approach when mixing and matching estimating likelihoods with different inference algorithms. Fortunately, this is easy to justify: details can be found in appendix \@ref(estimated-likelihoods).
 
 ## Inference algorithm arguments {#inference-arguments}
 
@@ -137,7 +137,9 @@ In addition to the arguments described in section \@ref(inference-arguments), th
 
 - `number_of_importance_points` (required) This argument provides the number of importance points $n$ to be drawn from the proposal distribution $q$.
 
-### ilike recipe requirements
+Section \@ref(smc-output) describes how to visualise the output of an IS algorithm after it has finished running.
+
+### ilike recipe requirements {#requirements-is}
 
 To run an importance sampler, we need to be able to:
 
@@ -147,13 +149,13 @@ To run an importance sampler, we need to be able to:
 
 3. in order to implement equation \@ref(eq:is-weight), evaluate the unnormalised target $\tilde{\pi}$ pointwise at $\theta$;
 
-Points 1 and 2 require a proposal to be fully specified (simulation and evaluation) in the recipe, using the approaches in sections \@ref(is-user) and \@ref(is-builtin). Point 3 requires the target distribution to be fully specified, via a model (section \@ref(models)).
+Points 1 and 2 require a proposal to be fully specified (simulation and evaluation) in the recipe, using the approaches in sections \@ref(user-proposal) and \@ref(ilike-proposal). Point 3 requires the target distribution to be fully specified, via a model (section \@ref(models)).
 
 There is one exception to this rule: in the cade of Bayesian computation where the prior $p$ is chosen as the proposal $q$. In this case equation \@ref(eq:is-weight) simplifies to
 $$
 \tilde{w}^i = \frac{\tilde{\pi}(\theta^i)}{q(\theta^i)} = \frac{p(\theta^i) f(y\mid \theta^i) }{p(\theta^i)} = f(y\mid \theta^i),
 $$
-so that to implement IS we need only to be able to simulate from the prior $p$ and evaluate the likelihood $f$. In this case the recipe may be entirely specified though following the model specification in section \@ref(models), and the `IS` function will automatically use the prior as the proposal.
+so that to implement IS we need only to be able to simulate from the prior $p$ and evaluate the likelihood $f$. In this case the recipe may be entirely specified though following the model specification in section \@ref(models), and the `IS` function will automatically use the prior as the proposal. In this case, only a method for simulating from the prior need be specified.
 
 ## MCMC {#inference-mcmc}
 
@@ -182,7 +184,7 @@ Despite the apparent simplicity of this algorithm, MCMC encompasses a wide range
 
 Most of the specification of an MCMC algorithm in ilike is done through the receipe: see section \@ref(mcmc) for full detail. Section \@ref(mcmc-output) then describes how to visualise the output of the MCMC algorithm after it has finished running. In this section we only describe how to run the MCMC algorithm, through calling the `MCMC` function.
 
-`MCMC` does not return anything^[MCMC output does not provide any useful direct estimate of $Z$. So in order to be be consistent with other inference algorithms which return the an estimate of $Z$.], but writes output to the specified `results_name` directory. In addition to the arguments described in section \@ref(inference-arguments), the `MCMC` takes the arguments:
+`MCMC` does not return anything^[MCMC output does not provide any useful direct estimate of $Z$. So in order to be be consistent with other inference algorithms which return the an estimate of $Z$.], but writes output to the specified `results_name` directory. In addition to the arguments described in section \@ref(inference-arguments), `MCMC` takes the arguments:
 
 - `initial_values` (required) A list of lists containing the initial values for the chains. The length of the outer list should be equal to the number of chains; the inner list specifies the initial values of the parameters for each chain. For example, for a single chain on a model with parameters $\alpha$ and $\beta$, if we wanted the initial values to be 1 and 2 respectively, we would use
 
@@ -198,7 +200,7 @@ initial_values = replicate(3, list(α=1, β=2), simplify=FALSE)
 
 - `number_of_chains` (optional) The number of MCMC chains to run (default is 1). The number of chains needs to match the number of initial values provided.
 
-### ilike recipe requirements
+### ilike recipe requirements {#requirements-mcmc}
 
 To run an MCMC algorithm the user needs to provide the following in the recipe:
 
@@ -210,19 +212,146 @@ A complete description is provided in section \@ref(mcmc).
 
 ## SMC with MCMC moves {#inference-smc}
 
-### ilike recipe requirements
+### Algorithm
 
-## Kalman filters {#inference-kf}
+The performance of IS poor when the distance between the proposal $q$ and the target $\pi$ is large. In this situation, the the points drawn from $q$ may be a long way from $\pi$, and the points need to be reweighted dramatically in order to provide an approximation to $\pi$. The thing to watch out for is when the variance of the weights is very large: this likely indicates that a few of the points have a large weight, and most of the others have a very small weight. In this case, the approximation of $\pi$ will essentially be based on this small number of points that have a large weight.
 
-### ilike recipe requirements
+Sequential Monte Carlo (SMC) samplers [@del2006sequential] make use of an iterative IS-based approach to approximate a target distribution. One way of viewing SMC samplers is as an enhancement of IS that is less dependent on the choice of initial proposal. The idea is to construct a sequence of distributions between the proposal and the target, providing a "path" of $T$ targets through which we move a population of weighted importance points ("particles"). We provide only a bare-bones introduction to SMC here: a comprehensive description is given by @chopin2020introduction.
+
+The sequence of distributions is denoted by $\pi_t$ for $t=0:T$, with $\pi_0 = q$ and $\pi_T = \pi$. We use $\tilde{\pi}_t$ to denote an unnormalised version of $\pi_t$ at iteration $t$, with a normalising constant of $Z_t$. We denote the position of the particles at the $t$th iteration by $\left\{ \theta^i_t \right\}_{i=1}^n$, with their weights being given by $\left\{ w^i_t \right\}_{i=1}^n$. At the $t$ iteration, three operations are performed:
+
+- **Move.** Each of the particles is moved using a Markov kernel $K_t(\cdot \mid \theta^i_{t-1})$ to diversify the particle positions.
+
+- **Reweight.** An IS step is used to reweight the particles such that the weighted particle population can be used to approximate the target $\pi_t$. This step consists of calculating unnormalised weights $\left\{ \tilde{w}^i_t \right\}_{i=1}^n$, then normalising them to give $\left\{ w^i_t \right\}_{i=1}^n$, similarly to IS.
+
+- **Resample.** Particles are resampled with replacement according to their weights, and their weights are all set to $1/n$. Although resampled particles will include a number of duplicate particles, this step ensures that the unweighted particles (i.e. the particle positions) approximate the target $\pi_t$.
+
+An illustration of the output SMC algorithm (generated using `ilike` and plotted using the `plot_genealogy` function in `ggsmc`) is shown in the figure below, where the proposal (top) is a Gaussian distribution, the target (bottom) is a mixture distribution, and the size of the points represents their weights.
+
+![](mixture_smc.png)
+
+A further illustration, on a different example, is shown in the animation below (also generated using `ilike` and plotted using the `animate_scatter` function in `ggsmc`).
+
+![](mixture_smc.gif)
+
+The sequence of distributions is typically chosen such that the distance between successive distributions is small, with the aim that at step $t$, the particles from step $t-1$ do not need dramatically reweighting (we wish the variance of the weights to be small) to approximate $\pi_t$. One sequence of distributions that is commonly chosen in practice (including in the examples above) is $\pi_t \propto q^{1-\alpha_t} \pi^\alpha$, with $0 = \alpha_0 < \alpha_1 < ... < \alpha_{T} = 1$. This is commonly known as "annealing" or "tempering".
+
+The choice of the sequence of distributions significantly affects the performance of the algorithm, as does the choice of $K$, which moves the points at each iteration. In ilike, ths choice of $K$ is currently restricted to an MCMC kernel, which is specified in the same way as described in \@ref(mcmc). One use-case for ilike is that, having specifed an MCMC move, it is easy to use it in an SMC sampler as well as in a run of MCMC.
+
+Most of the specification of an SMC algorithm in ilike is done through the recipe: see section \@ref(smc) for full detail. Section \@ref(smc-output) then describes how to visualise the output of the SMC algorithm after it has finished running. In this section we only describe how to run the SMC algorithm, through calling the `SMC` function.
+
+`SMC_with_MCMC` returns the estimate of the normalising constant $Z$ calculated from SMC output using
+
+$$
+\hat{Z} = \prod_{s=0}^t l^n_s \quad \mbox{where} \quad l^n_t = \frac{1}{n} \sum_{i=1}^n \tilde{w}^i_t.
+$$
+and also writes output to the specified `results_name` directory. In addition to the arguments described in section \@ref(inference-arguments), `SMC_with_MCMC` takes the arguments:
+
+- `number_of_particles` (required) This argument provides the number of particles $n$.
+
+- `smc_iterations_to_store` (optional) This argument provides the number of SMC iterations to store in the output, counting backwards (inclusive) from the final iteration. The default is to store the minimal number of iterations required to perform the SMC updates (which is 2 in the current version of ilike). If the user wishes to examine the entire SMC history, they should choose a number that is equal to or larger than $T+1$. If only points from the final target as required, and memory requirements are a concern due to the output only being written to file at the end of the run (see below), then the default values is recommended.
+
+- `write_to_file_at_each_iteration` (optional) This boolean argument allows the user to choose if the output will be written to the file at the end of every iteration (use TRUE, which is also the default), or if the output of each SMC iteration will be written to file between iterations (use FALSE).
+
+### ilike recipe requirements {#requirements-smc}
+
+To run an SMC algorithm with MCMC moves the user needs to provide the requirements described in both those described in \@ref(requirements-is) (for IS) and in \@ref(requirements-mcmc) (for MCMC). As in IS, in the case of Bayesian computation, if the proposal is not specified, the prior will be used by default.
+
+There are no other essential requirements to ensure that an SMC algorithm will run. However, if no sequence of distributions is set, the algorithm will default to performing IS. Thus the user should specify a sequence of distributions as described in section \@ref(smc-sequence).
+
+A complete description is provided in section \@ref(smc), including options to adaptively choose the sequence of distributions and to resample adaptively.
 
 ## Particle filters {#inference-pf}
 
+Particle filters (PFs) are a particular type of SMC algorithm (as in the previous section, section \@ref(inference-smc)), where the sequence of distributions is determined by a state-space model (SSM).
+
+An SSM describes the evolution of an indirectly observed latent "state" variable over time (from 0 to $T$). We denote the state at time $t$ as $x_t$ and the observation at time $t$ as $y_t$. A Markov assumption is made on the state, so that the distribution of $x_t$ depends only on $x_{t-1}$. Along with the prior distribution at time 0, denoted $p$, the distribution of $x_t \mid x_{t-1}$, known as the transition/dynamic model, is sufficient to describe the distribution on the latent state. We denote this distribution using $p_t$.
+
+A further conditional independence assumption is made that $y_t$ is conditionally independent of all other variables in the system given $x_t$. The distribution of $y_t$ given $x_t$, which we denote using $f_t$, is known as the measurement/observation model. Together this provides a joint distribution over variables $x_{0:T}$ and $y_{0:T}$:
+
+$$
+p\left( x_0 \right) \prod_{t=1}^T p_t\left(x_t \mid x_{t-1} \right) \prod_{t=0}^T f_t \left( y_t \mid x_t \right).
+$$
+SSMs are also used in sections \@ref(inference-enkf) and \ref@(inference-kf). We describe how to specify an SSM in ilike in chapter \@ref(ssm).
+
+PFs are focused on the inference goal of *filtering*: i.e. given measurements up to time $t$, inferring $\pi_t\left( x_t \mid y_{0:t} \right)$. As a by-product they also provide an estimator of the normalising constant $Z_t = p\left( y_{0:t} \right)$. A PF iteratively approximates $\pi_t\left( x_t \mid y_{0:t} \right)$ using a population of particles $\left\{ x^i_t \right\}_{i=1}^n$, with weights $\left\{ w^i_t \right\}_{i=1}^n$ through an SMC algorithm that use the following steps at iteration $t$ (on receipt of measurement $y_t$):
+
+- **Move.** Each of the particles is moved using a Markov kernel $q_t(\cdot \mid x^i_{t-1})$, which we call a *transition proposal*, to move the points from their positions at iteration $t-1$ to new positions at time $t$.
+
+- **Reweight.** An IS step is used to reweight the particles such that the weighted particle population can be used to approximate the target $\pi_t$. This step consists of calculating unnormalised weights $\left\{ \tilde{w}^i_t \right\}_{i=1}^n$, then normalising them to give $\left\{ w^i_t \right\}_{i=1}^n$, similarly to IS.
+
+- **Resample.** Particles are resampled with replacement according to their weights, and their weights are all set to $1/n$. Although resampled particles will include a number of duplicate particles, this step ensures that the unweighted particles (i.e. the particle positions) approximate the target $\pi_t$.
+
+Most of the specification of an PF algorithm in ilike is done through the recipe (see section \@ref(requirements-pf)). The `PF` function is used to run a PF, which returns the estimate of the normalising constant $Z_T$ (for $T$ measurements) calculated from PF output using
+
+$$
+\hat{Z_T} = \prod_{s=0}^t l^n_s \quad \mbox{where} \quad l^n_t = \frac{1}{n} \sum_{i=1}^n \tilde{w}^i_t.
+$$
+and also writes output to the specified `results_name` directory. In addition to the arguments described in section \@ref(inference-arguments), `PF` takes the arguments:
+
+- `number_of_particles` (required) This argument provides the number of particles $n$.
+
+- `smc_iterations_to_store` (optional) This argument provides the number of SMC iterations to store in the output, counting backwards (inclusive) from the final iteration. The default is to store the minimal number of iterations required to perform the SMC updates (which is 2 in the current version of ilike). If the user wishes to examine the entire SMC history, they should choose a number that is equal to or larger than $T+1$. If only points from the final target as required, and memory requirements are a concern due to the output only being written to file at the end of the run (see below), then the default values is recommended.
+
+- `write_to_file_at_each_iteration` (optional) This boolean argument allows the user to choose if the output will be written to the file at the end of every iteration (use TRUE, which is also the default), or if the output of each SMC iteration will be written to file between iterations (use FALSE).
+
+As for an SMC sampler, section \@ref(smc-output) then describes how to visualise the output of the PF after it has finished running.
+
+### ilike recipe requirements {#requirements-pf}
+
+To use the function `PF`, the recipe must specify:
+
+1. An IS proposal $q_0$, which is used to generate points at the 0th iteration of the PF. The specification would follow that described in section \@ref(user-proposal) or \@ref(user-builtin). As in section \ref(requirements-is), a method for simulating from and evaluating must both be specified. If no proposal is specified, the prior specified in the SSM (see the next point) is used as the initial proposal, and only a method to simulate from the prior is required (similarly to section \ref(requirements-is)).
+
+2. An SSM, as described in section \@ref(ssm).
+
+3. A transition proposal $q_t$, which is also described in section \@ref(ssm). If no transition proposal is supplied, the transition model will be used as the transition proposal. In this case, only an approach to simulating from the transition model need be supplied when specifying the model, since the transition model need not be evaluated in the PF weight update (via a similar argument to that seen in section \ref(requirements-is)).
+
+## Kalman filters {#inference-kf}
+
+This section relies on ideas (state-space models, filtering) introduced in section \@ref(inference-pf) on particle filters.
+
+Kalman filters (KFs) provide an exact solution to the filtering problem for a SSM in the case where the transition model $p_t(\cdot \mid x_{t-1})$ and measurement model $f_t(\cdot \mid x_{t})$ are both (multivariate) Gaussian and where the mean depends linearly on, for the transition model $x_{t-1}$ (equation \@ref(eq:lgtm)), and for the measurement model $x_{t}$ (equation \@ref(eq:lgdm)). In this case the filtering distribution at each iteration $t$ is also Gaussian and is fully described using a mean $\mu_t$ and covariance $\Sigma_t$. The update from the filtering distribution at time $t-1$ to time $t$ can be described via matrix operations on the mean and covariance.
+
+ilike contains a straightforward implementation of the KF^[This implementation is currently unlikely to be as robust as those found in some other packages. THus far it has only been tested on models where the standard implementation is well-behaved.]. The `KF` function is used to run a KF, which return the (exact) normalising constant $Z_T$ (for $T$ measurements) calculated from KF output.
+
+ In addition to the arguments described in section \@ref(inference-arguments), `KF` takes the arguments:
+
+- `kf_iterations_to_store` (optional) This argument provides the number of SMC iterations to store in the output, counting backwards (inclusive) from the final iteration. To be consistent with the PF, the default is to output the mean and covariance from the last 2 iterations. If the user wishes to examine the entire KF history, they should choose a number that is equal to or larger than $T+1$. If only the mean and covariance from the final target as required, and memory requirements are a concern due to the output only being written to file at the end of the run (see below), then the default values is recommended.
+
+- `write_to_file_at_each_iteration` (optional) This boolean argument allows the user to choose if the output will be written to the file at the end of every iteration (use TRUE, which is also the default), or if the output of each SMC iteration will be written to file between iterations (use FALSE).
+
 ### ilike recipe requirements
+
+The KF requires only the specification of a linear-Gaussian SSM, following section \@ref(ssm). The transition model must be specified using the method from section \@ref(linear-gaussian-transition-model), and the measurement model must be specified using the method from section \@ref(linear-gaussian-data-model).
 
 ## Ensemble Kalman filters {#inference-enkf}
 
+This section relies on ideas (state-space models, filtering) introduced in section \@ref(inference-pf) on particle filters.
+
+Ensemble-Kalman filters provide an alternative to particle filters for the filtering problem in the case of non-linear/Gaussian measurement models. That is, the conditional distribution $f_t$ is Gaussian, where the mean is given by a possibly non-linear function of $x_t$ (equation \@ref(eq:nlgdm)).
+
+The ensemble-Kalman filter (EnKF) is a Monte Carlo approximation of the Kalman filter. An *ensemble* $\left\{ x^i_t \right\}$ is used to approximate the filtering distribution $\pi_{t}$ at iteration $t$. The ensemble is updated from time $t-1$ to $t$ through a sequence of operations that, for a linear/Gaussian SSM, would result in the sample mean and covariance of the ensemble being estimators of the true mean and covariance of the filtering distribution. This is performed in two steps:
+
+- *Prediction* where the ensemble is simulated from the transition model $x^i_t \sim p_t(\cdot \mid x^i_{t-1})$;
+
+- *Update* where each member of the ensemble is moved such that the sample mean and variance of the updated ensemble estimate the mean and variance of the true filtering distribution.
+
+Whilst the update is only exact in the linear/Gaussian case, the same sequence of operations can be used outside of this case to provide an approximation to the filtering distribution. @katzfuss2016understanding contains a useful review from the statistical perspective.
+
+Most of the specification of an EnKF algorithm in ilike is done through the recipe (see section \@ref(requirements-pf)). The `EnKF` function is used to run an EnKF, which returns the estimate of the normalising constant $Z_T$ (for $T$ measurements) calculated from PF output using the direct (biased) estimator described in @drovandi2022ensemble, and also writes output to the specified `results_name` directory. In addition to the arguments described in section \@ref(inference-arguments), `EnKF` takes the arguments:
+
+- `number_of_ensemble_members` (required) This argument provides the number of ensemble members $n$.
+
+- `enkf_iterations_to_store` (optional) This argument provides the number of EnKF iterations to store in the output, counting backwards (inclusive) from the final iteration. The default is to store the minimal number of iterations required to perform the EnKF updates (which is 2 in the current version of ilike). If the user wishes to examine the entire EnKF history, they should choose a number that is equal to or larger than $T+1$. If only points from the final target as required, and memory requirements are a concern due to the output only being written to file at the end of the run (see below), then the default values is recommended.
+
+- `write_to_file_at_each_iteration` (optional) This boolean argument allows the user to choose if the output will be written to the file at the end of every iteration (use TRUE, which is also the default), or if the output of each EnKF iteration will be written to file between iterations (use FALSE).
+
+As for a PF, section \@ref(enk-output) then describes how to visualise the output of the PF after it has finished running.
+
 ### ilike recipe requirements
+
+The EnKF requires only the specification of a linear-Gaussian SSM, following section \@ref(ssm). The transition model must be specified using any approach, but the measurement model must be specified using the method from either section \@ref(linear-gaussian-data-model) or section \@ref(nonlinear-gaussian-data-model).
 
 <!-- You can label chapter and section titles using `{#label}` after them, e.g., we can reference Chapter \@ref(intro). If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \@ref(methods). -->
 

@@ -23,7 +23,7 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2025-02-11" />
+<meta name="date" content="2025-02-13" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -31,7 +31,7 @@
   
   
 <link rel="prev" href="built-in-unadjusted-proposals.html"/>
-<link rel="next" href="is-user.html"/>
+<link rel="next" href="user-proposal.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -192,27 +192,30 @@ div.csl-indent {
 </ul></li>
 <li class="chapter" data-level="2.2" data-path="inference-is.html"><a href="inference-is.html"><i class="fa fa-check"></i><b>2.2</b> Importance sampling</a>
 <ul>
-<li class="chapter" data-level="2.2.1" data-path="inference-is.html"><a href="inference-is.html#ilike-recipe-requirements"><i class="fa fa-check"></i><b>2.2.1</b> ilike recipe requirements</a></li>
+<li class="chapter" data-level="2.2.1" data-path="inference-is.html"><a href="inference-is.html#algorithm"><i class="fa fa-check"></i><b>2.2.1</b> Algorithm</a></li>
+<li class="chapter" data-level="2.2.2" data-path="inference-is.html"><a href="inference-is.html#requirements-is"><i class="fa fa-check"></i><b>2.2.2</b> ilike recipe requirements</a></li>
 </ul></li>
 <li class="chapter" data-level="2.3" data-path="inference-mcmc.html"><a href="inference-mcmc.html"><i class="fa fa-check"></i><b>2.3</b> MCMC</a>
 <ul>
-<li class="chapter" data-level="2.3.1" data-path="inference-mcmc.html"><a href="inference-mcmc.html#ilike-recipe-requirements-1"><i class="fa fa-check"></i><b>2.3.1</b> ilike recipe requirements</a></li>
+<li class="chapter" data-level="2.3.1" data-path="inference-mcmc.html"><a href="inference-mcmc.html#algorithm-1"><i class="fa fa-check"></i><b>2.3.1</b> Algorithm</a></li>
+<li class="chapter" data-level="2.3.2" data-path="inference-mcmc.html"><a href="inference-mcmc.html#requirements-mcmc"><i class="fa fa-check"></i><b>2.3.2</b> ilike recipe requirements</a></li>
 </ul></li>
 <li class="chapter" data-level="2.4" data-path="inference-smc.html"><a href="inference-smc.html"><i class="fa fa-check"></i><b>2.4</b> SMC with MCMC moves</a>
 <ul>
-<li class="chapter" data-level="2.4.1" data-path="inference-smc.html"><a href="inference-smc.html#ilike-recipe-requirements-2"><i class="fa fa-check"></i><b>2.4.1</b> ilike recipe requirements</a></li>
+<li class="chapter" data-level="2.4.1" data-path="inference-smc.html"><a href="inference-smc.html#algorithm-2"><i class="fa fa-check"></i><b>2.4.1</b> Algorithm</a></li>
+<li class="chapter" data-level="2.4.2" data-path="inference-smc.html"><a href="inference-smc.html#requirements-smc"><i class="fa fa-check"></i><b>2.4.2</b> ilike recipe requirements</a></li>
 </ul></li>
 <li class="chapter" data-level="2.5" data-path="inference-kf.html"><a href="inference-kf.html"><i class="fa fa-check"></i><b>2.5</b> Kalman filters</a>
 <ul>
-<li class="chapter" data-level="2.5.1" data-path="inference-kf.html"><a href="inference-kf.html#ilike-recipe-requirements-3"><i class="fa fa-check"></i><b>2.5.1</b> ilike recipe requirements</a></li>
+<li class="chapter" data-level="2.5.1" data-path="inference-kf.html"><a href="inference-kf.html#ilike-recipe-requirements"><i class="fa fa-check"></i><b>2.5.1</b> ilike recipe requirements</a></li>
 </ul></li>
 <li class="chapter" data-level="2.6" data-path="inference-pf.html"><a href="inference-pf.html"><i class="fa fa-check"></i><b>2.6</b> Particle filters</a>
 <ul>
-<li class="chapter" data-level="2.6.1" data-path="inference-pf.html"><a href="inference-pf.html#ilike-recipe-requirements-4"><i class="fa fa-check"></i><b>2.6.1</b> ilike recipe requirements</a></li>
+<li class="chapter" data-level="2.6.1" data-path="inference-pf.html"><a href="inference-pf.html#ilike-recipe-requirements-1"><i class="fa fa-check"></i><b>2.6.1</b> ilike recipe requirements</a></li>
 </ul></li>
 <li class="chapter" data-level="2.7" data-path="inference-enkf.html"><a href="inference-enkf.html"><i class="fa fa-check"></i><b>2.7</b> Ensemble Kalman filters</a>
 <ul>
-<li class="chapter" data-level="2.7.1" data-path="inference-enkf.html"><a href="inference-enkf.html#ilike-recipe-requirements-5"><i class="fa fa-check"></i><b>2.7.1</b> ilike recipe requirements</a></li>
+<li class="chapter" data-level="2.7.1" data-path="inference-enkf.html"><a href="inference-enkf.html#ilike-recipe-requirements-2"><i class="fa fa-check"></i><b>2.7.1</b> ilike recipe requirements</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="ilike-files.html"><a href="ilike-files.html"><i class="fa fa-check"></i><b>3</b> ilike files</a>
@@ -345,30 +348,28 @@ div.csl-indent {
 </ul></li>
 <li class="chapter" data-level="6" data-path="smc.html"><a href="smc.html"><i class="fa fa-check"></i><b>6</b> Importance sampling and sequential Monte Carlo</a>
 <ul>
-<li class="chapter" data-level="6.1" data-path="is-user.html"><a href="is-user.html"><i class="fa fa-check"></i><b>6.1</b> User-defined proposals {#user-proposal}</a>
+<li class="chapter" data-level="6.1" data-path="user-proposal.html"><a href="user-proposal.html"><i class="fa fa-check"></i><b>6.1</b> User-defined proposals</a>
 <ul>
-<li class="chapter" data-level="6.1.1" data-path="is-user.html"><a href="is-user.html#simulate_is_proposal"><i class="fa fa-check"></i><b>6.1.1</b> simulate_is_proposal</a></li>
-<li class="chapter" data-level="6.1.2" data-path="is-user.html"><a href="is-user.html#evaluate_log_is_proposal"><i class="fa fa-check"></i><b>6.1.2</b> evaluate_log_is_proposal</a></li>
+<li class="chapter" data-level="6.1.1" data-path="user-proposal.html"><a href="user-proposal.html#simulate_is_proposal"><i class="fa fa-check"></i><b>6.1.1</b> simulate_is_proposal</a></li>
+<li class="chapter" data-level="6.1.2" data-path="user-proposal.html"><a href="user-proposal.html#evaluate_log_is_proposal"><i class="fa fa-check"></i><b>6.1.2</b> evaluate_log_is_proposal</a></li>
 </ul></li>
-<li class="chapter" data-level="6.2" data-path="is-builtin.html"><a href="is-builtin.html"><i class="fa fa-check"></i><b>6.2</b> Built-in proposals {#ilike-proposal}</a>
+<li class="chapter" data-level="6.2" data-path="ilike-proposal.html"><a href="ilike-proposal.html"><i class="fa fa-check"></i><b>6.2</b> Built-in proposals</a>
 <ul>
-<li class="chapter" data-level="6.2.1" data-path="is-builtin.html"><a href="is-builtin.html#is_proposal"><i class="fa fa-check"></i><b>6.2.1</b> is_proposal</a></li>
+<li class="chapter" data-level="6.2.1" data-path="ilike-proposal.html"><a href="ilike-proposal.html#is_proposal"><i class="fa fa-check"></i><b>6.2.1</b> is_proposal</a></li>
 </ul></li>
-<li class="chapter" data-level="6.3" data-path="adaptive-resampling.html"><a href="adaptive-resampling.html"><i class="fa fa-check"></i><b>6.3</b> Adaptive resampling</a>
+<li class="chapter" data-level="6.3" data-path="smc-sequence.html"><a href="smc-sequence.html"><i class="fa fa-check"></i><b>6.3</b> SMC sequence</a>
 <ul>
-<li class="chapter" data-level="6.3.1" data-path="adaptive-resampling.html"><a href="adaptive-resampling.html#adaptive_resampling"><i class="fa fa-check"></i><b>6.3.1</b> adaptive_resampling</a></li>
+<li class="chapter" data-level="6.3.1" data-path="smc-sequence.html"><a href="smc-sequence.html#smc_sequence"><i class="fa fa-check"></i><b>6.3.1</b> smc_sequence</a></li>
 </ul></li>
-<li class="chapter" data-level="6.4" data-path="smc-sequence.html"><a href="smc-sequence.html"><i class="fa fa-check"></i><b>6.4</b> SMC sequence</a>
+<li class="chapter" data-level="6.4" data-path="adaptive-target.html"><a href="adaptive-target.html"><i class="fa fa-check"></i><b>6.4</b> Adaptive target</a>
 <ul>
-<li class="chapter" data-level="6.4.1" data-path="smc-sequence.html"><a href="smc-sequence.html#smc_sequence"><i class="fa fa-check"></i><b>6.4.1</b> smc_sequence</a></li>
+<li class="chapter" data-level="6.4.1" data-path="adaptive-target.html"><a href="adaptive-target.html#adaptive_target"><i class="fa fa-check"></i><b>6.4.1</b> adaptive_target</a></li>
 </ul></li>
-<li class="chapter" data-level="6.5" data-path="adaptive-target.html"><a href="adaptive-target.html"><i class="fa fa-check"></i><b>6.5</b> Adaptive target</a>
+<li class="chapter" data-level="6.5" data-path="smc-termination.html"><a href="smc-termination.html"><i class="fa fa-check"></i><b>6.5</b> SMC termination</a></li>
+<li class="chapter" data-level="6.6" data-path="adaptive-resampling.html"><a href="adaptive-resampling.html"><i class="fa fa-check"></i><b>6.6</b> Adaptive resampling</a>
 <ul>
-<li class="chapter" data-level="6.5.1" data-path="adaptive-target.html"><a href="adaptive-target.html#adaptive_target"><i class="fa fa-check"></i><b>6.5.1</b> adaptive_target</a></li>
-</ul></li>
-<li class="chapter" data-level="6.6" data-path="smc-termination.html"><a href="smc-termination.html"><i class="fa fa-check"></i><b>6.6</b> SMC termination</a>
-<ul>
-<li class="chapter" data-level="6.6.1" data-path="smc-termination.html"><a href="smc-termination.html#smc_termination"><i class="fa fa-check"></i><b>6.6.1</b> smc_termination</a></li>
+<li class="chapter" data-level="6.6.1" data-path="adaptive-resampling.html"><a href="adaptive-resampling.html#adaptive_resampling"><i class="fa fa-check"></i><b>6.6.1</b> adaptive_resampling</a></li>
+<li class="chapter" data-level="6.6.2" data-path="adaptive-resampling.html"><a href="adaptive-resampling.html#smc_termination"><i class="fa fa-check"></i><b>6.6.2</b> smc_termination</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="7" data-path="ssm.html"><a href="ssm.html"><i class="fa fa-check"></i><b>7</b> State-space models</a>
@@ -481,10 +482,10 @@ div.csl-indent {
 <p>Importance sampling (IS) and sequential Monte Carlo (SMC) algorithms are mainly configured through the ilike file. Currently ilike includes: IS; SMC with MCMC moves; and particle filters (PFs). We now give an overview of what is required to configure these algorithms.</p>
 <ul>
 <li><p>IS (section <a href="inference-is.html#inference-is">2.2</a>). Only the specification of a model (as in section <a href="models.html#models">4</a>) and a proposal distribution (described below). is required in order to use this approach</p></li>
-<li><p>SMC sampler with MCMC moves (section <a href="inference-is.html#inference-is">2.2</a>). In addition to a model, and a proposal (used to simulate points in the initial step of the algorithm) this requires the specification of a Markov chain Monte Carlo (MCMC) algorithm: for details on how to configure this, see section <a href="mcmc.html#mcmc">5</a>. SMC also requires the specification of a sequence of distributions, and parameters related to resampling and adaptive methods, which we detail later in this section.</p></li>
+<li><p>SMC sampler with MCMC moves (section <a href="inference-smc.html#inference-smc">2.4</a>). In addition to a model, and a proposal (used to simulate points in the initial step of the algorithm) this requires the specification of a Markov chain Monte Carlo (MCMC) algorithm: for details on how to configure this, see section <a href="mcmc.html#mcmc">5</a>. SMC also requires the specification of a sequence of distributions, and parameters related to resampling and adaptive methods, which we detail later in this section.</p></li>
 <li><p>PF (section <a href="inference-pf.html#inference-pf">2.6</a>). Again, a proposal is required to simulate points in the initial step of the algorithm. However, using a particle filter requires the specification of a state-space model, which requires additional function types to be defined in the ilike file, on top of those from <a href="models.html#models">4</a>. These are defined in section <a href="ssm.html#ssm">7</a>.</p></li>
 </ul>
-<p>This section describes how to provide the initial proposal distribution in sections <a href="#user-proposal"><strong>??</strong></a> and <a href="#ilike-proposal"><strong>??</strong></a>. The following sections describe how to provide the remainder of the configuration for SMC algorithms.</p>
+<p>This section describes how to provide the initial proposal distribution in sections <a href="user-proposal.html#user-proposal">6.1</a> and <a href="ilike-proposal.html#ilike-proposal">6.2</a>. The following sections describe how to provide the remainder of the configuration for SMC algorithms.</p>
 <p>One useful feature of the ilike package is that it is relatively easy to convert an MCMC move into an SMC sampler that uses this MCMC move. Examples of how to do this are given in section <a href="smc-from-mcmc.html#smc-from-mcmc">9.2</a>.</p>
 </div>
             </section>
@@ -493,7 +494,7 @@ div.csl-indent {
         </div>
       </div>
 <a href="built-in-unadjusted-proposals.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="is-user.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="user-proposal.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

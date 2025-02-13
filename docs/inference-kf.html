@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>2.5 Kalman filters | ilike documentation</title>
+  <title>2.6 Kalman filters | ilike documentation</title>
   <meta name="description" content="Documentation for the ilike R package." />
   <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="2.5 Kalman filters | ilike documentation" />
+  <meta property="og:title" content="2.6 Kalman filters | ilike documentation" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="Documentation for the ilike R package." />
   <meta name="github-repo" content="richardgeveritt/ilike_documentation" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="2.5 Kalman filters | ilike documentation" />
+  <meta name="twitter:title" content="2.6 Kalman filters | ilike documentation" />
   
   <meta name="twitter:description" content="Documentation for the ilike R package." />
   
@@ -23,15 +23,15 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2025-02-11" />
+<meta name="date" content="2025-02-13" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="inference-smc.html"/>
-<link rel="next" href="inference-pf.html"/>
+<link rel="prev" href="inference-pf.html"/>
+<link rel="next" href="inference-enkf.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -193,28 +193,29 @@ div.csl-indent {
 <li class="chapter" data-level="2.2" data-path="inference-is.html"><a href="inference-is.html"><i class="fa fa-check"></i><b>2.2</b> Importance sampling</a>
 <ul>
 <li class="chapter" data-level="2.2.1" data-path="inference-is.html"><a href="inference-is.html#algorithm"><i class="fa fa-check"></i><b>2.2.1</b> Algorithm</a></li>
-<li class="chapter" data-level="2.2.2" data-path="inference-is.html"><a href="inference-is.html#ilike-recipe-requirements"><i class="fa fa-check"></i><b>2.2.2</b> ilike recipe requirements</a></li>
+<li class="chapter" data-level="2.2.2" data-path="inference-is.html"><a href="inference-is.html#requirements-is"><i class="fa fa-check"></i><b>2.2.2</b> ilike recipe requirements</a></li>
 </ul></li>
 <li class="chapter" data-level="2.3" data-path="inference-mcmc.html"><a href="inference-mcmc.html"><i class="fa fa-check"></i><b>2.3</b> MCMC</a>
 <ul>
 <li class="chapter" data-level="2.3.1" data-path="inference-mcmc.html"><a href="inference-mcmc.html#algorithm-1"><i class="fa fa-check"></i><b>2.3.1</b> Algorithm</a></li>
-<li class="chapter" data-level="2.3.2" data-path="inference-mcmc.html"><a href="inference-mcmc.html#ilike-recipe-requirements-1"><i class="fa fa-check"></i><b>2.3.2</b> ilike recipe requirements</a></li>
+<li class="chapter" data-level="2.3.2" data-path="inference-mcmc.html"><a href="inference-mcmc.html#requirements-mcmc"><i class="fa fa-check"></i><b>2.3.2</b> ilike recipe requirements</a></li>
 </ul></li>
 <li class="chapter" data-level="2.4" data-path="inference-smc.html"><a href="inference-smc.html"><i class="fa fa-check"></i><b>2.4</b> SMC with MCMC moves</a>
 <ul>
-<li class="chapter" data-level="2.4.1" data-path="inference-smc.html"><a href="inference-smc.html#ilike-recipe-requirements-2"><i class="fa fa-check"></i><b>2.4.1</b> ilike recipe requirements</a></li>
+<li class="chapter" data-level="2.4.1" data-path="inference-smc.html"><a href="inference-smc.html#algorithm-2"><i class="fa fa-check"></i><b>2.4.1</b> Algorithm</a></li>
+<li class="chapter" data-level="2.4.2" data-path="inference-smc.html"><a href="inference-smc.html#requirements-smc"><i class="fa fa-check"></i><b>2.4.2</b> ilike recipe requirements</a></li>
 </ul></li>
-<li class="chapter" data-level="2.5" data-path="inference-kf.html"><a href="inference-kf.html"><i class="fa fa-check"></i><b>2.5</b> Kalman filters</a>
+<li class="chapter" data-level="2.5" data-path="inference-pf.html"><a href="inference-pf.html"><i class="fa fa-check"></i><b>2.5</b> Particle filters</a>
 <ul>
-<li class="chapter" data-level="2.5.1" data-path="inference-kf.html"><a href="inference-kf.html#ilike-recipe-requirements-3"><i class="fa fa-check"></i><b>2.5.1</b> ilike recipe requirements</a></li>
+<li class="chapter" data-level="2.5.1" data-path="inference-pf.html"><a href="inference-pf.html#requirements-pf"><i class="fa fa-check"></i><b>2.5.1</b> ilike recipe requirements</a></li>
 </ul></li>
-<li class="chapter" data-level="2.6" data-path="inference-pf.html"><a href="inference-pf.html"><i class="fa fa-check"></i><b>2.6</b> Particle filters</a>
+<li class="chapter" data-level="2.6" data-path="inference-kf.html"><a href="inference-kf.html"><i class="fa fa-check"></i><b>2.6</b> Kalman filters</a>
 <ul>
-<li class="chapter" data-level="2.6.1" data-path="inference-pf.html"><a href="inference-pf.html#ilike-recipe-requirements-4"><i class="fa fa-check"></i><b>2.6.1</b> ilike recipe requirements</a></li>
+<li class="chapter" data-level="2.6.1" data-path="inference-kf.html"><a href="inference-kf.html#ilike-recipe-requirements"><i class="fa fa-check"></i><b>2.6.1</b> ilike recipe requirements</a></li>
 </ul></li>
 <li class="chapter" data-level="2.7" data-path="inference-enkf.html"><a href="inference-enkf.html"><i class="fa fa-check"></i><b>2.7</b> Ensemble Kalman filters</a>
 <ul>
-<li class="chapter" data-level="2.7.1" data-path="inference-enkf.html"><a href="inference-enkf.html#ilike-recipe-requirements-5"><i class="fa fa-check"></i><b>2.7.1</b> ilike recipe requirements</a></li>
+<li class="chapter" data-level="2.7.1" data-path="inference-enkf.html"><a href="inference-enkf.html#ilike-recipe-requirements-1"><i class="fa fa-check"></i><b>2.7.1</b> ilike recipe requirements</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="ilike-files.html"><a href="ilike-files.html"><i class="fa fa-check"></i><b>3</b> ilike files</a>
@@ -268,19 +269,19 @@ div.csl-indent {
 <li class="chapter" data-level="4.4.2" data-path="user-defined-likelihood.html"><a href="user-defined-likelihood.html#evaluate_gradient_log_likelihood"><i class="fa fa-check"></i><b>4.4.2</b> evaluate_gradient_log_likelihood</a></li>
 <li class="chapter" data-level="4.4.3" data-path="user-defined-likelihood.html"><a href="user-defined-likelihood.html#evaluate_second_gradient_log_likelihood"><i class="fa fa-check"></i><b>4.4.3</b> evaluate_second_gradient_log_likelihood</a></li>
 </ul></li>
-<li class="chapter" data-level="4.5" data-path="linear-gaussian-model.html"><a href="linear-gaussian-model.html"><i class="fa fa-check"></i><b>4.5</b> Linear-Gaussian model</a>
+<li class="chapter" data-level="4.5" data-path="linear-gaussian-data-model.html"><a href="linear-gaussian-data-model.html"><i class="fa fa-check"></i><b>4.5</b> Linear-Gaussian model</a>
 <ul>
-<li class="chapter" data-level="4.5.1" data-path="linear-gaussian-model.html"><a href="linear-gaussian-model.html#linear_gaussian_data_variable"><i class="fa fa-check"></i><b>4.5.1</b> linear_gaussian_data_variable</a></li>
-<li class="chapter" data-level="4.5.2" data-path="linear-gaussian-model.html"><a href="linear-gaussian-model.html#linear_gaussian_data_state_variable"><i class="fa fa-check"></i><b>4.5.2</b> linear_gaussian_data_state_variable</a></li>
-<li class="chapter" data-level="4.5.3" data-path="linear-gaussian-model.html"><a href="linear-gaussian-model.html#linear_gaussian_data_matrix"><i class="fa fa-check"></i><b>4.5.3</b> linear_gaussian_data_matrix</a></li>
-<li class="chapter" data-level="4.5.4" data-path="linear-gaussian-model.html"><a href="linear-gaussian-model.html#linear_gaussian_data_covariance"><i class="fa fa-check"></i><b>4.5.4</b> linear_gaussian_data_covariance</a></li>
-<li class="chapter" data-level="4.5.5" data-path="linear-gaussian-model.html"><a href="linear-gaussian-model.html#linear_gaussian_data_model"><i class="fa fa-check"></i><b>4.5.5</b> linear_gaussian_data_model</a></li>
+<li class="chapter" data-level="4.5.1" data-path="linear-gaussian-data-model.html"><a href="linear-gaussian-data-model.html#linear_gaussian_data_variable"><i class="fa fa-check"></i><b>4.5.1</b> linear_gaussian_data_variable</a></li>
+<li class="chapter" data-level="4.5.2" data-path="linear-gaussian-data-model.html"><a href="linear-gaussian-data-model.html#linear_gaussian_data_state_variable"><i class="fa fa-check"></i><b>4.5.2</b> linear_gaussian_data_state_variable</a></li>
+<li class="chapter" data-level="4.5.3" data-path="linear-gaussian-data-model.html"><a href="linear-gaussian-data-model.html#linear_gaussian_data_matrix"><i class="fa fa-check"></i><b>4.5.3</b> linear_gaussian_data_matrix</a></li>
+<li class="chapter" data-level="4.5.4" data-path="linear-gaussian-data-model.html"><a href="linear-gaussian-data-model.html#linear_gaussian_data_covariance"><i class="fa fa-check"></i><b>4.5.4</b> linear_gaussian_data_covariance</a></li>
+<li class="chapter" data-level="4.5.5" data-path="linear-gaussian-data-model.html"><a href="linear-gaussian-data-model.html#linear_gaussian_data_model"><i class="fa fa-check"></i><b>4.5.5</b> linear_gaussian_data_model</a></li>
 </ul></li>
-<li class="chapter" data-level="4.6" data-path="nonlinear-gaussian-model.html"><a href="nonlinear-gaussian-model.html"><i class="fa fa-check"></i><b>4.6</b> Nonlinear-Gaussian model</a>
+<li class="chapter" data-level="4.6" data-path="nonlinear-gaussian-data-model.html"><a href="nonlinear-gaussian-data-model.html"><i class="fa fa-check"></i><b>4.6</b> Nonlinear-Gaussian model</a>
 <ul>
-<li class="chapter" data-level="4.6.1" data-path="nonlinear-gaussian-model.html"><a href="nonlinear-gaussian-model.html#nonlinear_gaussian_data_variable"><i class="fa fa-check"></i><b>4.6.1</b> nonlinear_gaussian_data_variable</a></li>
-<li class="chapter" data-level="4.6.2" data-path="nonlinear-gaussian-model.html"><a href="nonlinear-gaussian-model.html#nonlinear_gaussian_data_function"><i class="fa fa-check"></i><b>4.6.2</b> nonlinear_gaussian_data_function</a></li>
-<li class="chapter" data-level="4.6.3" data-path="nonlinear-gaussian-model.html"><a href="nonlinear-gaussian-model.html#nonlinear_gaussian_data_covariance"><i class="fa fa-check"></i><b>4.6.3</b> nonlinear_gaussian_data_covariance</a></li>
+<li class="chapter" data-level="4.6.1" data-path="nonlinear-gaussian-data-model.html"><a href="nonlinear-gaussian-data-model.html#nonlinear_gaussian_data_variable"><i class="fa fa-check"></i><b>4.6.1</b> nonlinear_gaussian_data_variable</a></li>
+<li class="chapter" data-level="4.6.2" data-path="nonlinear-gaussian-data-model.html"><a href="nonlinear-gaussian-data-model.html#nonlinear_gaussian_data_function"><i class="fa fa-check"></i><b>4.6.2</b> nonlinear_gaussian_data_function</a></li>
+<li class="chapter" data-level="4.6.3" data-path="nonlinear-gaussian-data-model.html"><a href="nonlinear-gaussian-data-model.html#nonlinear_gaussian_data_covariance"><i class="fa fa-check"></i><b>4.6.3</b> nonlinear_gaussian_data_covariance</a></li>
 </ul></li>
 <li class="chapter" data-level="4.7" data-path="simulation-based-likelihood.html"><a href="simulation-based-likelihood.html"><i class="fa fa-check"></i><b>4.7</b> Simulation-based likelihood</a>
 <ul>
@@ -347,30 +348,28 @@ div.csl-indent {
 </ul></li>
 <li class="chapter" data-level="6" data-path="smc.html"><a href="smc.html"><i class="fa fa-check"></i><b>6</b> Importance sampling and sequential Monte Carlo</a>
 <ul>
-<li class="chapter" data-level="6.1" data-path="is-user.html"><a href="is-user.html"><i class="fa fa-check"></i><b>6.1</b> User-defined proposals {#user-proposal}</a>
+<li class="chapter" data-level="6.1" data-path="user-proposal.html"><a href="user-proposal.html"><i class="fa fa-check"></i><b>6.1</b> User-defined proposals</a>
 <ul>
-<li class="chapter" data-level="6.1.1" data-path="is-user.html"><a href="is-user.html#simulate_is_proposal"><i class="fa fa-check"></i><b>6.1.1</b> simulate_is_proposal</a></li>
-<li class="chapter" data-level="6.1.2" data-path="is-user.html"><a href="is-user.html#evaluate_log_is_proposal"><i class="fa fa-check"></i><b>6.1.2</b> evaluate_log_is_proposal</a></li>
+<li class="chapter" data-level="6.1.1" data-path="user-proposal.html"><a href="user-proposal.html#simulate_is_proposal"><i class="fa fa-check"></i><b>6.1.1</b> simulate_is_proposal</a></li>
+<li class="chapter" data-level="6.1.2" data-path="user-proposal.html"><a href="user-proposal.html#evaluate_log_is_proposal"><i class="fa fa-check"></i><b>6.1.2</b> evaluate_log_is_proposal</a></li>
 </ul></li>
-<li class="chapter" data-level="6.2" data-path="is-builtin.html"><a href="is-builtin.html"><i class="fa fa-check"></i><b>6.2</b> Built-in proposals {#ilike-proposal}</a>
+<li class="chapter" data-level="6.2" data-path="ilike-proposal.html"><a href="ilike-proposal.html"><i class="fa fa-check"></i><b>6.2</b> Built-in proposals</a>
 <ul>
-<li class="chapter" data-level="6.2.1" data-path="is-builtin.html"><a href="is-builtin.html#is_proposal"><i class="fa fa-check"></i><b>6.2.1</b> is_proposal</a></li>
+<li class="chapter" data-level="6.2.1" data-path="ilike-proposal.html"><a href="ilike-proposal.html#is_proposal"><i class="fa fa-check"></i><b>6.2.1</b> is_proposal</a></li>
 </ul></li>
-<li class="chapter" data-level="6.3" data-path="adaptive-resampling.html"><a href="adaptive-resampling.html"><i class="fa fa-check"></i><b>6.3</b> Adaptive resampling</a>
+<li class="chapter" data-level="6.3" data-path="smc-sequence.html"><a href="smc-sequence.html"><i class="fa fa-check"></i><b>6.3</b> SMC sequence</a>
 <ul>
-<li class="chapter" data-level="6.3.1" data-path="adaptive-resampling.html"><a href="adaptive-resampling.html#adaptive_resampling"><i class="fa fa-check"></i><b>6.3.1</b> adaptive_resampling</a></li>
+<li class="chapter" data-level="6.3.1" data-path="smc-sequence.html"><a href="smc-sequence.html#smc_sequence"><i class="fa fa-check"></i><b>6.3.1</b> smc_sequence</a></li>
 </ul></li>
-<li class="chapter" data-level="6.4" data-path="smc-sequence.html"><a href="smc-sequence.html"><i class="fa fa-check"></i><b>6.4</b> SMC sequence</a>
+<li class="chapter" data-level="6.4" data-path="adaptive-target.html"><a href="adaptive-target.html"><i class="fa fa-check"></i><b>6.4</b> Adaptive target</a>
 <ul>
-<li class="chapter" data-level="6.4.1" data-path="smc-sequence.html"><a href="smc-sequence.html#smc_sequence"><i class="fa fa-check"></i><b>6.4.1</b> smc_sequence</a></li>
+<li class="chapter" data-level="6.4.1" data-path="adaptive-target.html"><a href="adaptive-target.html#adaptive_target"><i class="fa fa-check"></i><b>6.4.1</b> adaptive_target</a></li>
 </ul></li>
-<li class="chapter" data-level="6.5" data-path="adaptive-target.html"><a href="adaptive-target.html"><i class="fa fa-check"></i><b>6.5</b> Adaptive target</a>
+<li class="chapter" data-level="6.5" data-path="smc-termination.html"><a href="smc-termination.html"><i class="fa fa-check"></i><b>6.5</b> SMC termination</a></li>
+<li class="chapter" data-level="6.6" data-path="adaptive-resampling.html"><a href="adaptive-resampling.html"><i class="fa fa-check"></i><b>6.6</b> Adaptive resampling</a>
 <ul>
-<li class="chapter" data-level="6.5.1" data-path="adaptive-target.html"><a href="adaptive-target.html#adaptive_target"><i class="fa fa-check"></i><b>6.5.1</b> adaptive_target</a></li>
-</ul></li>
-<li class="chapter" data-level="6.6" data-path="smc-termination.html"><a href="smc-termination.html"><i class="fa fa-check"></i><b>6.6</b> SMC termination</a>
-<ul>
-<li class="chapter" data-level="6.6.1" data-path="smc-termination.html"><a href="smc-termination.html#smc_termination"><i class="fa fa-check"></i><b>6.6.1</b> smc_termination</a></li>
+<li class="chapter" data-level="6.6.1" data-path="adaptive-resampling.html"><a href="adaptive-resampling.html#adaptive_resampling"><i class="fa fa-check"></i><b>6.6.1</b> adaptive_resampling</a></li>
+<li class="chapter" data-level="6.6.2" data-path="adaptive-resampling.html"><a href="adaptive-resampling.html#smc_termination"><i class="fa fa-check"></i><b>6.6.2</b> smc_termination</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="7" data-path="ssm.html"><a href="ssm.html"><i class="fa fa-check"></i><b>7</b> State-space models</a>
@@ -397,23 +396,10 @@ div.csl-indent {
 <li class="chapter" data-level="7.4.1" data-path="user-defined-transition-model.html"><a href="user-defined-transition-model.html#simulate_transition-model"><i class="fa fa-check"></i><b>7.4.1</b> simulate_transition model</a></li>
 <li class="chapter" data-level="7.4.2" data-path="user-defined-transition-model.html"><a href="user-defined-transition-model.html#evaluate_log_transition_model"><i class="fa fa-check"></i><b>7.4.2</b> evaluate_log_transition_model</a></li>
 </ul></li>
-<li class="chapter" data-level="7.5" data-path="linear-gaussian-transition-proposal.html"><a href="linear-gaussian-transition-proposal.html"><i class="fa fa-check"></i><b>7.5</b> Linear-Gaussian transition proposal</a>
+<li class="chapter" data-level="7.5" data-path="user-defined-transition-proposal.html"><a href="user-defined-transition-proposal.html"><i class="fa fa-check"></i><b>7.5</b> User-defined transition proposal</a>
 <ul>
-<li class="chapter" data-level="7.5.1" data-path="linear-gaussian-transition-proposal.html"><a href="linear-gaussian-transition-proposal.html#linear_gaussian_transition_variable-1"><i class="fa fa-check"></i><b>7.5.1</b> linear_gaussian_transition_variable</a></li>
-<li class="chapter" data-level="7.5.2" data-path="linear-gaussian-transition-proposal.html"><a href="linear-gaussian-transition-proposal.html#linear_gaussian_transition_matrix-1"><i class="fa fa-check"></i><b>7.5.2</b> linear_gaussian_transition_matrix</a></li>
-<li class="chapter" data-level="7.5.3" data-path="linear-gaussian-transition-proposal.html"><a href="linear-gaussian-transition-proposal.html#linear_gaussian_transition_covariance-1"><i class="fa fa-check"></i><b>7.5.3</b> linear_gaussian_transition_covariance</a></li>
-<li class="chapter" data-level="7.5.4" data-path="linear-gaussian-transition-proposal.html"><a href="linear-gaussian-transition-proposal.html#linear_gaussian_transition_proposal"><i class="fa fa-check"></i><b>7.5.4</b> linear_gaussian_transition_proposal</a></li>
-</ul></li>
-<li class="chapter" data-level="7.6" data-path="nonlinear-gaussian-transition-proposal.html"><a href="nonlinear-gaussian-transition-proposal.html"><i class="fa fa-check"></i><b>7.6</b> Nonlinear-Gaussian transition proposal</a>
-<ul>
-<li class="chapter" data-level="7.6.1" data-path="nonlinear-gaussian-transition-proposal.html"><a href="nonlinear-gaussian-transition-proposal.html#nonlinear_gaussian_transition_variable-1"><i class="fa fa-check"></i><b>7.6.1</b> nonlinear_gaussian_transition_variable</a></li>
-<li class="chapter" data-level="7.6.2" data-path="nonlinear-gaussian-transition-proposal.html"><a href="nonlinear-gaussian-transition-proposal.html#nonlinear_gaussian_transition_function-1"><i class="fa fa-check"></i><b>7.6.2</b> nonlinear_gaussian_transition_function</a></li>
-<li class="chapter" data-level="7.6.3" data-path="nonlinear-gaussian-transition-proposal.html"><a href="nonlinear-gaussian-transition-proposal.html#nonlinear_gaussian_transition_covariance-1"><i class="fa fa-check"></i><b>7.6.3</b> nonlinear_gaussian_transition_covariance</a></li>
-</ul></li>
-<li class="chapter" data-level="7.7" data-path="user-defined-transition-proposal.html"><a href="user-defined-transition-proposal.html"><i class="fa fa-check"></i><b>7.7</b> User-defined transition proposal</a>
-<ul>
-<li class="chapter" data-level="7.7.1" data-path="user-defined-transition-proposal.html"><a href="user-defined-transition-proposal.html#simulate_transition-proposal"><i class="fa fa-check"></i><b>7.7.1</b> simulate_transition proposal</a></li>
-<li class="chapter" data-level="7.7.2" data-path="user-defined-transition-proposal.html"><a href="user-defined-transition-proposal.html#evaluate_log_transition_proposal"><i class="fa fa-check"></i><b>7.7.2</b> evaluate_log_transition_proposal</a></li>
+<li class="chapter" data-level="7.5.1" data-path="user-defined-transition-proposal.html"><a href="user-defined-transition-proposal.html#simulate_transition-proposal"><i class="fa fa-check"></i><b>7.5.1</b> simulate_transition proposal</a></li>
+<li class="chapter" data-level="7.5.2" data-path="user-defined-transition-proposal.html"><a href="user-defined-transition-proposal.html#evaluate_log_transition_proposal"><i class="fa fa-check"></i><b>7.5.2</b> evaluate_log_transition_proposal</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="8" data-path="output.html"><a href="output.html"><i class="fa fa-check"></i><b>8</b> Loading and visualising output</a>
@@ -430,7 +416,7 @@ div.csl-indent {
 <ul>
 <li class="chapter" data-level="8.2.1" data-path="is-smc-output.html"><a href="is-smc-output.html#visualising-output-using-ggsmc"><i class="fa fa-check"></i><b>8.2.1</b> Visualising output using <code>ggsmc</code></a></li>
 </ul></li>
-<li class="chapter" data-level="8.3" data-path="ensemble-kalman-output.html"><a href="ensemble-kalman-output.html"><i class="fa fa-check"></i><b>8.3</b> Ensemble Kalman output</a></li>
+<li class="chapter" data-level="8.3" data-path="enk-output.html"><a href="enk-output.html"><i class="fa fa-check"></i><b>8.3</b> Ensemble Kalman output</a></li>
 <li class="chapter" data-level="8.4" data-path="pivot-wider.html"><a href="pivot-wider.html"><i class="fa fa-check"></i><b>8.4</b> <code>pivot_wider</code> for ilike data</a></li>
 <li class="chapter" data-level="8.5" data-path="output-detail.html"><a href="output-detail.html"><i class="fa fa-check"></i><b>8.5</b> Further detail about output files</a>
 <ul>
@@ -478,19 +464,34 @@ div.csl-indent {
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="inference-kf" class="section level2 hasAnchor" number="2.5">
-<h2><span class="header-section-number">2.5</span> Kalman filters<a href="inference-kf.html#inference-kf" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<div id="ilike-recipe-requirements-3" class="section level3 hasAnchor" number="2.5.1">
-<h3><span class="header-section-number">2.5.1</span> ilike recipe requirements<a href="inference-kf.html#ilike-recipe-requirements-3" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="inference-kf" class="section level2 hasAnchor" number="2.6">
+<h2><span class="header-section-number">2.6</span> Kalman filters<a href="inference-kf.html#inference-kf" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>This section relies on ideas (state-space models, filtering) introduced in section <a href="inference-pf.html#inference-pf">2.5</a> on particle filters.</p>
+<p>Kalman filters (KFs) provide an exact solution to the filtering problem for a SSM in the case where the transition model <span class="math inline">\(p_t(\cdot \mid x_{t-1})\)</span> and measurement model <span class="math inline">\(f_t(\cdot \mid x_{t})\)</span> are both (multivariate) Gaussian and where the mean depends linearly on, for the transition model <span class="math inline">\(x_{t-1}\)</span> (equation <a href="#eq:lgtm">(<strong>??</strong>)</a>), and for the measurement model <span class="math inline">\(x_{t}\)</span> (equation <a href="#eq:lgdm">(<strong>??</strong>)</a>). In this case the filtering distribution at each iteration <span class="math inline">\(t\)</span> is also Gaussian and is fully described using a mean <span class="math inline">\(\mu_t\)</span> and covariance <span class="math inline">\(\Sigma_t\)</span>. The update from the filtering distribution at time <span class="math inline">\(t-1\)</span> to time <span class="math inline">\(t\)</span> can be described via matrix operations on the mean and covariance.</p>
+<p>ilike contains a straightforward implementation of the KF<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. The <code>KF</code> function is used to run a KF, which return the (exact) normalising constant <span class="math inline">\(Z_T\)</span> (for <span class="math inline">\(T\)</span> measurements) calculated from KF output.</p>
+<p>In addition to the arguments described in section <a href="inference-arguments.html#inference-arguments">2.1</a>, <code>KF</code> takes the arguments:</p>
+<ul>
+<li><p><code>kf_iterations_to_store</code> (optional) This argument provides the number of SMC iterations to store in the output, counting backwards (inclusive) from the final iteration. To be consistent with the PF, the default is to output the mean and covariance from the last 2 iterations. If the user wishes to examine the entire KF history, they should choose a number that is equal to or larger than <span class="math inline">\(T+1\)</span>. If only the mean and covariance from the final target as required, and memory requirements are a concern due to the output only being written to file at the end of the run (see below), then the default values is recommended.</p></li>
+<li><p><code>write_to_file_at_each_iteration</code> (optional) This boolean argument allows the user to choose if the output will be written to the file at the end of every iteration (use TRUE, which is also the default), or if the output of each SMC iteration will be written to file between iterations (use FALSE).</p></li>
+</ul>
+<div id="ilike-recipe-requirements" class="section level3 hasAnchor" number="2.6.1">
+<h3><span class="header-section-number">2.6.1</span> ilike recipe requirements<a href="inference-kf.html#ilike-recipe-requirements" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The KF requires only the specification of a linear-Gaussian SSM, following section <a href="ssm.html#ssm">7</a>. The transition model must be specified using the method from section <a href="linear-gaussian-transition-model.html#linear-gaussian-transition-model">7.2</a>, and the measurement model must be specified using the method from section <a href="linear-gaussian-data-model.html#linear-gaussian-data-model">4.5</a>.</p>
 </div>
+</div>
+<div class="footnotes">
+<hr />
+<ol start="2">
+<li id="fn2"><p>This implementation is currently unlikely to be as robust as those found in some other packages. THus far it has only been tested on models where the standard implementation is well-behaved.<a href="inference-kf.html#fnref2" class="footnote-back">↩︎</a></p></li>
+</ol>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="inference-smc.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="inference-pf.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="inference-pf.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="inference-enkf.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

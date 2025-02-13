@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>2.5 Particle filters | ilike documentation</title>
+  <title>4.5 Linear-Gaussian model | ilike documentation</title>
   <meta name="description" content="Documentation for the ilike R package." />
   <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="2.5 Particle filters | ilike documentation" />
+  <meta property="og:title" content="4.5 Linear-Gaussian model | ilike documentation" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="Documentation for the ilike R package." />
   <meta name="github-repo" content="richardgeveritt/ilike_documentation" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="2.5 Particle filters | ilike documentation" />
+  <meta name="twitter:title" content="4.5 Linear-Gaussian model | ilike documentation" />
   
   <meta name="twitter:description" content="Documentation for the ilike R package." />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="inference-smc.html"/>
-<link rel="next" href="inference-kf.html"/>
+<link rel="prev" href="user-defined-likelihood.html"/>
+<link rel="next" href="nonlinear-gaussian-data-model.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -464,40 +464,138 @@ div.csl-indent {
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="inference-pf" class="section level2 hasAnchor" number="2.5">
-<h2><span class="header-section-number">2.5</span> Particle filters<a href="inference-pf.html#inference-pf" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>Particle filters (PFs) are a particular type of SMC algorithm (as in the previous section, section <a href="inference-smc.html#inference-smc">2.4</a>), where the sequence of distributions is determined by a state-space model (SSM).</p>
-<p>An SSM describes the evolution of an indirectly observed latent “state” variable over time (from 0 to <span class="math inline">\(T\)</span>). We denote the state at time <span class="math inline">\(t\)</span> as <span class="math inline">\(x_t\)</span> and the observation at time <span class="math inline">\(t\)</span> as <span class="math inline">\(y_t\)</span>. A Markov assumption is made on the state, so that the distribution of <span class="math inline">\(x_t\)</span> depends only on <span class="math inline">\(x_{t-1}\)</span>. Along with the prior distribution at time 0, denoted <span class="math inline">\(p\)</span>, the distribution of <span class="math inline">\(x_t \mid x_{t-1}\)</span>, known as the transition/dynamic model, is sufficient to describe the distribution on the latent state. We denote this distribution using <span class="math inline">\(p_t\)</span>.</p>
-<p>A further conditional independence assumption is made that <span class="math inline">\(y_t\)</span> is conditionally independent of all other variables in the system given <span class="math inline">\(x_t\)</span>. The distribution of <span class="math inline">\(y_t\)</span> given <span class="math inline">\(x_t\)</span>, which we denote using <span class="math inline">\(f_t\)</span>, is known as the measurement/observation model. Together this provides a joint distribution over variables <span class="math inline">\(x_{0:T}\)</span> and <span class="math inline">\(y_{0:T}\)</span>:</p>
-<p><span class="math display">\[
-p\left( x_0 \right) \prod_{t=1}^T p_t\left(x_t \mid x_{t-1} \right) \prod_{t=0}^T f_t \left( y_t \mid x_t \right).
+<div id="linear-gaussian-data-model" class="section level2 hasAnchor" number="4.5">
+<h2><span class="header-section-number">4.5</span> Linear-Gaussian model<a href="linear-gaussian-data-model.html#linear-gaussian-data-model" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>A commonly-used class of model is one where data <span class="math inline">\(y\)</span> arises from a linear function of some latent state, plus some Gaussian noise, i.e.</p>
+<p><span class="math display" id="eq:lgdm">\[
+y \sim \mathcal{MVN}(H x, R)
+\tag{4.1}
 \]</span>
-SSMs are also used in sections <a href="inference-enkf.html#inference-enkf">2.7</a> and @(inference-kf). We describe how to specify an SSM in ilike in chapter <a href="ssm.html#ssm">7</a>.</p>
-<p>PFs are focused on the inference goal of <em>filtering</em>: i.e. given measurements up to time <span class="math inline">\(t\)</span>, inferring <span class="math inline">\(\pi_t\left( x_t \mid y_{0:t} \right)\)</span>. As a by-product they also provide an estimator of the normalising constant <span class="math inline">\(Z_t = p\left( y_{0:t} \right)\)</span>. A PF iteratively approximates <span class="math inline">\(\pi_t\left( x_t \mid y_{0:t} \right)\)</span> using a population of particles <span class="math inline">\(\left\{ x^i_t \right\}_{i=1}^n\)</span>, with weights <span class="math inline">\(\left\{ w^i_t \right\}_{i=1}^n\)</span> through an SMC algorithm that use the following steps at iteration <span class="math inline">\(t\)</span> (on receipt of measurement <span class="math inline">\(y_t\)</span>):</p>
-<ul>
-<li><p><strong>Move.</strong> Each of the particles is moved using a Markov kernel <span class="math inline">\(q_t(\cdot \mid x^i_{t-1})\)</span>, which we call a <em>transition proposal</em>, to move the points from their positions at iteration <span class="math inline">\(t-1\)</span> to new positions at time <span class="math inline">\(t\)</span>.</p></li>
-<li><p><strong>Reweight.</strong> An IS step is used to reweight the particles such that the weighted particle population can be used to approximate the target <span class="math inline">\(\pi_t\)</span>. This step consists of calculating unnormalised weights <span class="math inline">\(\left\{ \tilde{w}^i_t \right\}_{i=1}^n\)</span>, then normalising them to give <span class="math inline">\(\left\{ w^i_t \right\}_{i=1}^n\)</span>, similarly to IS.</p></li>
-<li><p><strong>Resample.</strong> Particles are resampled with replacement according to their weights, and their weights are all set to <span class="math inline">\(1/n\)</span>. Although resampled particles will include a number of duplicate particles, this step ensures that the unweighted particles (i.e. the particle positions) approximate the target <span class="math inline">\(\pi_t\)</span>.</p></li>
-</ul>
-<p>Most of the specification of an PF algorithm in ilike is done through the recipe (see section <a href="inference-pf.html#requirements-pf">2.5.1</a>). The <code>PF</code> function is used to run a PF, which returns the estimate of the normalising constant <span class="math inline">\(Z_T\)</span> (for <span class="math inline">\(T\)</span> measurements) calculated from PF output using</p>
-<p><span class="math display">\[
-\hat{Z_T} = \prod_{s=0}^t l^n_s \quad \mbox{where} \quad l^n_t = \frac{1}{n} \sum_{i=1}^n \tilde{w}^i_t.
-\]</span>
-and also writes output to the specified <code>results_name</code> directory. In addition to the arguments described in section <a href="inference-arguments.html#inference-arguments">2.1</a>, <code>PF</code> takes the arguments:</p>
-<ul>
-<li><p><code>number_of_particles</code> (required) This argument provides the number of particles <span class="math inline">\(n\)</span>.</p></li>
-<li><p><code>smc_iterations_to_store</code> (optional) This argument provides the number of SMC iterations to store in the output, counting backwards (inclusive) from the final iteration. The default is to store the minimal number of iterations required to perform the SMC updates (which is 2 in the current version of ilike). If the user wishes to examine the entire SMC history, they should choose a number that is equal to or larger than <span class="math inline">\(T+1\)</span>. If only points from the final target as required, and memory requirements are a concern due to the output only being written to file at the end of the run (see below), then the default values is recommended.</p></li>
-<li><p><code>write_to_file_at_each_iteration</code> (optional) This boolean argument allows the user to choose if the output will be written to the file at the end of every iteration (use TRUE, which is also the default), or if the output of each SMC iteration will be written to file between iterations (use FALSE).</p></li>
-</ul>
-<p>As for an SMC sampler, section <a href="output-detail.html#smc-output">8.5.1</a> then describes how to visualise the output of the PF after it has finished running.</p>
-<div id="requirements-pf" class="section level3 hasAnchor" number="2.5.1">
-<h3><span class="header-section-number">2.5.1</span> ilike recipe requirements<a href="inference-pf.html#requirements-pf" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<p>To use the function <code>PF</code>, the recipe must specify:</p>
+where <span class="math inline">\(H\)</span> is a matrix and <span class="math inline">\(R\)</span> is a covariance matrix. The linear-Gaussian data model subtype allows the specification of such model, through providing the variable names (<span class="math inline">\(y\)</span> and <span class="math inline">\(x\)</span> here) and the values for <span class="math inline">\(H\)</span> and <span class="math inline">\(R\)</span>. Note that, using this block subtype, it would be possible to specify a model for a number of independent observations from a Gaussian distribution. However, this would be an inefficient way of specifying this model since it would require the user to supply a large diagonal covariance matrix. Such a model would be more effectively specified via the exact_likelihood block sutype.</p>
+<p>There are two ways of specifying a linear-Gaussian data model:</p>
 <ol style="list-style-type: decimal">
-<li><p>An IS proposal <span class="math inline">\(q_0\)</span>, which is used to generate points at the 0th iteration of the PF. The specification would follow that described in section <a href="user-proposal.html#user-proposal">6.1</a> or <a href="#user-builtin"><strong>??</strong></a>. As in section (requirements-is), a method for simulating from and evaluating must both be specified. If no proposal is specified, the prior specified in the SSM (see the next point) is used as the initial proposal, and only a method to simulate from the prior is required (similarly to section (requirements-is)).</p></li>
-<li><p>An SSM, as described in section <a href="ssm.html#ssm">7</a>.</p></li>
-<li><p>A transition proposal <span class="math inline">\(q_t\)</span>, which is also described in section <a href="ssm.html#ssm">7</a>. If no transition proposal is supplied, the transition model will be used as the transition proposal. In this case, only an approach to simulating from the transition model need be supplied when specifying the model, since the transition model need not be evaluated in the PF weight update (via a similar argument to that seen in section (requirements-is)).</p></li>
+<li><p>Through the function types <code>linear_gaussian_data_variable</code> (specifying the name of the <span class="math inline">\(y\)</span> variable), <code>linear_gaussian_data_state_variable</code> (specifying the name of the <span class="math inline">\(x\)</span> variable), <code>linear_gaussian_data_matrix</code> (specifying the <span class="math inline">\(A\)</span> matrix), and <code>linear_gaussian_data_covariance</code> (specifying the name of the <span class="math inline">\(\Sigma\)</span> matrix), The user needs to provide <strong>all</strong> of these functions in order to fully specify the model.</p></li>
+<li><p>Through the function type <code>linear_gaussian_data_model</code>, which allows the user to specify the complete model through an ilike function.</p></li>
 </ol>
+<p>We now detail the function types.</p>
+<div id="linear_gaussian_data_variable" class="section level3 hasAnchor" number="4.5.1">
+<h3><span class="header-section-number">4.5.1</span> linear_gaussian_data_variable<a href="linear-gaussian-data-model.html#linear_gaussian_data_variable" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Specifies the name of the observed data variable in the linear-Gaussian data model. There are no input arguments.</p>
+<p>Output: The name of the variable used as <span class="math inline">\(y\)</span> in equation <a href="linear-gaussian-data-model.html#eq:lgdm">(4.1)</a>.</p>
+<p>– of type <code>const std::string &amp;</code> in a C++ function</p>
+<p>– a string in R.</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="linear-gaussian-data-model.html#cb18-1" tabindex="-1"></a><span class="co">/***linear_gaussian_data_variable***/</span></span>
+<span id="cb18-2"><a href="linear-gaussian-data-model.html#cb18-2" tabindex="-1"></a><span class="bu">std::</span>string set_data_variable<span class="op">()</span></span>
+<span id="cb18-3"><a href="linear-gaussian-data-model.html#cb18-3" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb18-4"><a href="linear-gaussian-data-model.html#cb18-4" tabindex="-1"></a>  <span class="cf">return</span> <span class="st">&quot;y&quot;</span><span class="op">;</span></span>
+<span id="cb18-5"><a href="linear-gaussian-data-model.html#cb18-5" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb19-1"><a href="linear-gaussian-data-model.html#cb19-1" tabindex="-1"></a><span class="co">/***linear_gaussian_data_variable,&quot;y&quot;***/</span></span></code></pre></div>
+</div>
+<div id="linear_gaussian_data_state_variable" class="section level3 hasAnchor" number="4.5.2">
+<h3><span class="header-section-number">4.5.2</span> linear_gaussian_data_state_variable<a href="linear-gaussian-data-model.html#linear_gaussian_data_state_variable" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Specifies the name of the latent state variable in the linear-Gaussian data model. There are no input arguments.</p>
+<p>Output: The name of the variable used as <span class="math inline">\(x\)</span> in equation <a href="linear-gaussian-data-model.html#eq:lgdm">(4.1)</a>.</p>
+<p>– of type <code>const std::string &amp;</code> in a C++ function</p>
+<p>– a string in R.</p>
+<p>C++ example:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb20-1"><a href="linear-gaussian-data-model.html#cb20-1" tabindex="-1"></a><span class="co">/***linear_gaussian_data_state_variable***/</span></span>
+<span id="cb20-2"><a href="linear-gaussian-data-model.html#cb20-2" tabindex="-1"></a><span class="bu">std::</span>string set_state_variable<span class="op">()</span></span>
+<span id="cb20-3"><a href="linear-gaussian-data-model.html#cb20-3" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb20-4"><a href="linear-gaussian-data-model.html#cb20-4" tabindex="-1"></a>  <span class="cf">return</span> <span class="st">&quot;x&quot;</span><span class="op">;</span></span>
+<span id="cb20-5"><a href="linear-gaussian-data-model.html#cb20-5" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb21-1"><a href="linear-gaussian-data-model.html#cb21-1" tabindex="-1"></a><span class="co">/***linear_gaussian_data_state_variable,&quot;x&quot;***/</span></span></code></pre></div>
+</div>
+<div id="linear_gaussian_data_matrix" class="section level3 hasAnchor" number="4.5.3">
+<h3><span class="header-section-number">4.5.3</span> linear_gaussian_data_matrix<a href="linear-gaussian-data-model.html#linear_gaussian_data_matrix" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Specifies the matrix <span class="math inline">\(A\)</span> in the linear-Gaussian data model.</p>
+<p>Input (optional): Parameters that the matrix relies on, to allow the specification of a parameter-dependent matrix.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>parameters</code> in an R function</p>
+<p>Output: The matrix <span class="math inline">\(A\)</span> in equation <a href="linear-gaussian-data-model.html#eq:lgdm">(4.1)</a>.</p>
+<p>– of type <code>arma::mat</code> in a C++ function</p>
+<p>– a matrix in R.</p>
+<p>C++ examples:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb22-1"><a href="linear-gaussian-data-model.html#cb22-1" tabindex="-1"></a><span class="co">/***linear_gaussian_data_matrix***/</span></span>
+<span id="cb22-2"><a href="linear-gaussian-data-model.html#cb22-2" tabindex="-1"></a>arma<span class="op">::</span>mat set_matrix<span class="op">()</span></span>
+<span id="cb22-3"><a href="linear-gaussian-data-model.html#cb22-3" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb22-4"><a href="linear-gaussian-data-model.html#cb22-4" tabindex="-1"></a>  arma<span class="op">::</span>mat A<span class="op">(</span><span class="dv">2</span><span class="op">,</span><span class="dv">2</span><span class="op">);</span></span>
+<span id="cb22-5"><a href="linear-gaussian-data-model.html#cb22-5" tabindex="-1"></a>  A<span class="op">(</span><span class="dv">0</span><span class="op">,</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> <span class="fl">1.0</span><span class="op">;</span></span>
+<span id="cb22-6"><a href="linear-gaussian-data-model.html#cb22-6" tabindex="-1"></a>  A<span class="op">(</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">)</span> <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span></span>
+<span id="cb22-7"><a href="linear-gaussian-data-model.html#cb22-7" tabindex="-1"></a>  A<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span></span>
+<span id="cb22-8"><a href="linear-gaussian-data-model.html#cb22-8" tabindex="-1"></a>  A<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">)</span> <span class="op">=</span> <span class="fl">1.0</span><span class="op">;</span></span>
+<span id="cb22-9"><a href="linear-gaussian-data-model.html#cb22-9" tabindex="-1"></a>  <span class="cf">return</span> A<span class="op">;</span></span>
+<span id="cb22-10"><a href="linear-gaussian-data-model.html#cb22-10" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>or</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb23-1"><a href="linear-gaussian-data-model.html#cb23-1" tabindex="-1"></a><span class="co">/***linear_gaussian_data_matrix***/</span></span>
+<span id="cb23-2"><a href="linear-gaussian-data-model.html#cb23-2" tabindex="-1"></a>arma<span class="op">::</span>mat set_matrix<span class="op">(</span><span class="at">const</span> Parameters <span class="op">&amp;</span>parameters<span class="op">)</span></span>
+<span id="cb23-3"><a href="linear-gaussian-data-model.html#cb23-3" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb23-4"><a href="linear-gaussian-data-model.html#cb23-4" tabindex="-1"></a>  <span class="dt">double</span> scale <span class="op">=</span> parameters<span class="op">[</span><span class="st">&quot;scale&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">];</span></span>
+<span id="cb23-5"><a href="linear-gaussian-data-model.html#cb23-5" tabindex="-1"></a>  arma<span class="op">::</span>mat A<span class="op">(</span><span class="dv">2</span><span class="op">,</span><span class="dv">2</span><span class="op">);</span></span>
+<span id="cb23-6"><a href="linear-gaussian-data-model.html#cb23-6" tabindex="-1"></a>  A<span class="op">(</span><span class="dv">0</span><span class="op">,</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> scale<span class="op">;</span></span>
+<span id="cb23-7"><a href="linear-gaussian-data-model.html#cb23-7" tabindex="-1"></a>  A<span class="op">(</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">)</span> <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span></span>
+<span id="cb23-8"><a href="linear-gaussian-data-model.html#cb23-8" tabindex="-1"></a>  A<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span></span>
+<span id="cb23-9"><a href="linear-gaussian-data-model.html#cb23-9" tabindex="-1"></a>  A<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">)</span> <span class="op">=</span> scale<span class="op">;</span></span>
+<span id="cb23-10"><a href="linear-gaussian-data-model.html#cb23-10" tabindex="-1"></a>  <span class="cf">return</span> A<span class="op">;</span></span>
+<span id="cb23-11"><a href="linear-gaussian-data-model.html#cb23-11" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R example:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb24-1"><a href="linear-gaussian-data-model.html#cb24-1" tabindex="-1"></a><span class="co">/***linear_gaussian_data_matrix,diag(2)***/</span></span></code></pre></div>
+<p>or</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb25-1"><a href="linear-gaussian-data-model.html#cb25-1" tabindex="-1"></a><span class="co">/***linear_gaussian_data_matrix,parameters$scale*diag(2)***/</span></span></code></pre></div>
+</div>
+<div id="linear_gaussian_data_covariance" class="section level3 hasAnchor" number="4.5.4">
+<h3><span class="header-section-number">4.5.4</span> linear_gaussian_data_covariance<a href="linear-gaussian-data-model.html#linear_gaussian_data_covariance" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Specifies the covariance matrix <span class="math inline">\(R\)</span> in the linear-Gaussian data model.</p>
+<p>Input (optional): Parameters that the matrix relies on, to allow the specification of a parameter-dependent matrix.</p>
+<p>– of type <code>const Parameters &amp;</code> in a C++ function</p>
+<p>– available as R list <code>parameters</code> in an R function</p>
+<p>Output: The covariance matrix <span class="math inline">\(R\)</span> in equation <a href="linear-gaussian-data-model.html#eq:lgdm">(4.1)</a>.</p>
+<p>– of type <code>arma::mat</code> in a C++ function</p>
+<p>– a matrix in R</p>
+<p>C++ examples:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb26-1"><a href="linear-gaussian-data-model.html#cb26-1" tabindex="-1"></a><span class="co">/***linear_gaussian_data_covariance***/</span></span>
+<span id="cb26-2"><a href="linear-gaussian-data-model.html#cb26-2" tabindex="-1"></a>arma<span class="op">::</span>mat set_covariance<span class="op">()</span></span>
+<span id="cb26-3"><a href="linear-gaussian-data-model.html#cb26-3" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb26-4"><a href="linear-gaussian-data-model.html#cb26-4" tabindex="-1"></a>  arma<span class="op">::</span>mat R<span class="op">(</span><span class="dv">2</span><span class="op">,</span><span class="dv">2</span><span class="op">);</span></span>
+<span id="cb26-5"><a href="linear-gaussian-data-model.html#cb26-5" tabindex="-1"></a>  R<span class="op">(</span><span class="dv">0</span><span class="op">,</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> <span class="fl">1.0</span><span class="op">;</span></span>
+<span id="cb26-6"><a href="linear-gaussian-data-model.html#cb26-6" tabindex="-1"></a>  R<span class="op">(</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">)</span> <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span></span>
+<span id="cb26-7"><a href="linear-gaussian-data-model.html#cb26-7" tabindex="-1"></a>  R<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span></span>
+<span id="cb26-8"><a href="linear-gaussian-data-model.html#cb26-8" tabindex="-1"></a>  R<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">)</span> <span class="op">=</span> <span class="fl">1.0</span><span class="op">;</span></span>
+<span id="cb26-9"><a href="linear-gaussian-data-model.html#cb26-9" tabindex="-1"></a>  <span class="cf">return</span> R<span class="op">;</span></span>
+<span id="cb26-10"><a href="linear-gaussian-data-model.html#cb26-10" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>or</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb27-1"><a href="linear-gaussian-data-model.html#cb27-1" tabindex="-1"></a><span class="co">/***linear_gaussian_data_covariance***/</span></span>
+<span id="cb27-2"><a href="linear-gaussian-data-model.html#cb27-2" tabindex="-1"></a>arma<span class="op">::</span>mat set_covariance<span class="op">(</span><span class="at">const</span> Parameters <span class="op">&amp;</span>parameters<span class="op">)</span></span>
+<span id="cb27-3"><a href="linear-gaussian-data-model.html#cb27-3" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb27-4"><a href="linear-gaussian-data-model.html#cb27-4" tabindex="-1"></a>  <span class="dt">double</span> scale <span class="op">=</span> parameters<span class="op">[</span><span class="st">&quot;scale&quot;</span><span class="op">][</span><span class="dv">0</span><span class="op">];</span></span>
+<span id="cb27-5"><a href="linear-gaussian-data-model.html#cb27-5" tabindex="-1"></a>  arma<span class="op">::</span>mat R<span class="op">(</span><span class="dv">2</span><span class="op">,</span><span class="dv">2</span><span class="op">);</span></span>
+<span id="cb27-6"><a href="linear-gaussian-data-model.html#cb27-6" tabindex="-1"></a>  R<span class="op">(</span><span class="dv">0</span><span class="op">,</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> scale<span class="op">;</span></span>
+<span id="cb27-7"><a href="linear-gaussian-data-model.html#cb27-7" tabindex="-1"></a>  R<span class="op">(</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">)</span> <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span></span>
+<span id="cb27-8"><a href="linear-gaussian-data-model.html#cb27-8" tabindex="-1"></a>  R<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">)</span> <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span></span>
+<span id="cb27-9"><a href="linear-gaussian-data-model.html#cb27-9" tabindex="-1"></a>  R<span class="op">(</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">)</span> <span class="op">=</span> scale<span class="op">;</span></span>
+<span id="cb27-10"><a href="linear-gaussian-data-model.html#cb27-10" tabindex="-1"></a>  <span class="cf">return</span> R<span class="op">;</span></span>
+<span id="cb27-11"><a href="linear-gaussian-data-model.html#cb27-11" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>R examples:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb28-1"><a href="linear-gaussian-data-model.html#cb28-1" tabindex="-1"></a><span class="co">/***linear_gaussian_data_covariance,diag(2)***/</span></span></code></pre></div>
+<p>or</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb29-1"><a href="linear-gaussian-data-model.html#cb29-1" tabindex="-1"></a><span class="co">/***linear_gaussian_data_covariance,parameters$scale*diag(2)***/</span></span></code></pre></div>
+</div>
+<div id="linear_gaussian_data_model" class="section level3 hasAnchor" number="4.5.5">
+<h3><span class="header-section-number">4.5.5</span> linear_gaussian_data_model<a href="linear-gaussian-data-model.html#linear_gaussian_data_model" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>We may use an ilike function to specify the complete linear-Gaussian data model.</p>
+<div id="linear-gaussian-data-model-ilikelinear_gaussian_data_model" class="section level4 hasAnchor" number="4.5.5.1">
+<h4><span class="header-section-number">4.5.5.1</span> Linear-Gaussian data model <code>ilike::linear_gaussian_data_model</code><a href="linear-gaussian-data-model.html#linear-gaussian-data-model-ilikelinear_gaussian_data_model" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Specifies the linear-Gaussian data model.</p>
+<p>Inputs:</p>
+<ol style="list-style-type: decimal">
+<li><p>string: The name of the observed data variable</p></li>
+<li><p>string: The name of the latent state variable</p></li>
+<li><p>matrix: The matrix <span class="math inline">\(A\)</span></p></li>
+<li><p>matrix: The covariance matrix <span class="math inline">\(R\)</span></p></li>
+</ol>
+</div>
 </div>
 </div>
             </section>
@@ -505,8 +603,8 @@ and also writes output to the specified <code>results_name</code> directory. In 
           </div>
         </div>
       </div>
-<a href="inference-smc.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="inference-kf.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="user-defined-likelihood.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="nonlinear-gaussian-data-model.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
@@ -537,7 +635,7 @@ gitbook.start({
 "size": 2
 },
 "edit": {
-"link": "https://github.com/richardgeveritt/ilike_documentation/edit/master/inference.Rmd",
+"link": "https://github.com/richardgeveritt/ilike_documentation/edit/master/models.Rmd",
 "text": "Edit"
 },
 "history": {

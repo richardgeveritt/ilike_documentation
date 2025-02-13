@@ -220,7 +220,7 @@ ggplot2::theme_minimal() +
 ggplot2::theme(legend.position="none")
 ```
 
-## Ensemble Kalman output
+## Ensemble Kalman output {#enk-output}
 
 Loading and plotting output from ensemble methods is very similar to that for SMC methods. We use the ensemble Kalman filter output from section \€ref(filtering_cv) as example output for this section.
 

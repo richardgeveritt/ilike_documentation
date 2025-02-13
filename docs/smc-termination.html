@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>6.6 SMC termination | ilike documentation</title>
+  <title>6.5 SMC termination | ilike documentation</title>
   <meta name="description" content="Documentation for the ilike R package." />
   <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="6.6 SMC termination | ilike documentation" />
+  <meta property="og:title" content="6.5 SMC termination | ilike documentation" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="Documentation for the ilike R package." />
   <meta name="github-repo" content="richardgeveritt/ilike_documentation" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="6.6 SMC termination | ilike documentation" />
+  <meta name="twitter:title" content="6.5 SMC termination | ilike documentation" />
   
   <meta name="twitter:description" content="Documentation for the ilike R package." />
   
@@ -23,7 +23,7 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2025-02-11" />
+<meta name="date" content="2025-02-13" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -31,7 +31,7 @@
   
   
 <link rel="prev" href="adaptive-target.html"/>
-<link rel="next" href="ssm.html"/>
+<link rel="next" href="adaptive-resampling.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -192,27 +192,30 @@ div.csl-indent {
 </ul></li>
 <li class="chapter" data-level="2.2" data-path="inference-is.html"><a href="inference-is.html"><i class="fa fa-check"></i><b>2.2</b> Importance sampling</a>
 <ul>
-<li class="chapter" data-level="2.2.1" data-path="inference-is.html"><a href="inference-is.html#ilike-recipe-requirements"><i class="fa fa-check"></i><b>2.2.1</b> ilike recipe requirements</a></li>
+<li class="chapter" data-level="2.2.1" data-path="inference-is.html"><a href="inference-is.html#algorithm"><i class="fa fa-check"></i><b>2.2.1</b> Algorithm</a></li>
+<li class="chapter" data-level="2.2.2" data-path="inference-is.html"><a href="inference-is.html#requirements-is"><i class="fa fa-check"></i><b>2.2.2</b> ilike recipe requirements</a></li>
 </ul></li>
 <li class="chapter" data-level="2.3" data-path="inference-mcmc.html"><a href="inference-mcmc.html"><i class="fa fa-check"></i><b>2.3</b> MCMC</a>
 <ul>
-<li class="chapter" data-level="2.3.1" data-path="inference-mcmc.html"><a href="inference-mcmc.html#ilike-recipe-requirements-1"><i class="fa fa-check"></i><b>2.3.1</b> ilike recipe requirements</a></li>
+<li class="chapter" data-level="2.3.1" data-path="inference-mcmc.html"><a href="inference-mcmc.html#algorithm-1"><i class="fa fa-check"></i><b>2.3.1</b> Algorithm</a></li>
+<li class="chapter" data-level="2.3.2" data-path="inference-mcmc.html"><a href="inference-mcmc.html#requirements-mcmc"><i class="fa fa-check"></i><b>2.3.2</b> ilike recipe requirements</a></li>
 </ul></li>
 <li class="chapter" data-level="2.4" data-path="inference-smc.html"><a href="inference-smc.html"><i class="fa fa-check"></i><b>2.4</b> SMC with MCMC moves</a>
 <ul>
-<li class="chapter" data-level="2.4.1" data-path="inference-smc.html"><a href="inference-smc.html#ilike-recipe-requirements-2"><i class="fa fa-check"></i><b>2.4.1</b> ilike recipe requirements</a></li>
+<li class="chapter" data-level="2.4.1" data-path="inference-smc.html"><a href="inference-smc.html#algorithm-2"><i class="fa fa-check"></i><b>2.4.1</b> Algorithm</a></li>
+<li class="chapter" data-level="2.4.2" data-path="inference-smc.html"><a href="inference-smc.html#requirements-smc"><i class="fa fa-check"></i><b>2.4.2</b> ilike recipe requirements</a></li>
 </ul></li>
 <li class="chapter" data-level="2.5" data-path="inference-kf.html"><a href="inference-kf.html"><i class="fa fa-check"></i><b>2.5</b> Kalman filters</a>
 <ul>
-<li class="chapter" data-level="2.5.1" data-path="inference-kf.html"><a href="inference-kf.html#ilike-recipe-requirements-3"><i class="fa fa-check"></i><b>2.5.1</b> ilike recipe requirements</a></li>
+<li class="chapter" data-level="2.5.1" data-path="inference-kf.html"><a href="inference-kf.html#ilike-recipe-requirements"><i class="fa fa-check"></i><b>2.5.1</b> ilike recipe requirements</a></li>
 </ul></li>
 <li class="chapter" data-level="2.6" data-path="inference-pf.html"><a href="inference-pf.html"><i class="fa fa-check"></i><b>2.6</b> Particle filters</a>
 <ul>
-<li class="chapter" data-level="2.6.1" data-path="inference-pf.html"><a href="inference-pf.html#ilike-recipe-requirements-4"><i class="fa fa-check"></i><b>2.6.1</b> ilike recipe requirements</a></li>
+<li class="chapter" data-level="2.6.1" data-path="inference-pf.html"><a href="inference-pf.html#ilike-recipe-requirements-1"><i class="fa fa-check"></i><b>2.6.1</b> ilike recipe requirements</a></li>
 </ul></li>
 <li class="chapter" data-level="2.7" data-path="inference-enkf.html"><a href="inference-enkf.html"><i class="fa fa-check"></i><b>2.7</b> Ensemble Kalman filters</a>
 <ul>
-<li class="chapter" data-level="2.7.1" data-path="inference-enkf.html"><a href="inference-enkf.html#ilike-recipe-requirements-5"><i class="fa fa-check"></i><b>2.7.1</b> ilike recipe requirements</a></li>
+<li class="chapter" data-level="2.7.1" data-path="inference-enkf.html"><a href="inference-enkf.html#ilike-recipe-requirements-2"><i class="fa fa-check"></i><b>2.7.1</b> ilike recipe requirements</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="ilike-files.html"><a href="ilike-files.html"><i class="fa fa-check"></i><b>3</b> ilike files</a>
@@ -345,30 +348,28 @@ div.csl-indent {
 </ul></li>
 <li class="chapter" data-level="6" data-path="smc.html"><a href="smc.html"><i class="fa fa-check"></i><b>6</b> Importance sampling and sequential Monte Carlo</a>
 <ul>
-<li class="chapter" data-level="6.1" data-path="is-user.html"><a href="is-user.html"><i class="fa fa-check"></i><b>6.1</b> User-defined proposals {#user-proposal}</a>
+<li class="chapter" data-level="6.1" data-path="user-proposal.html"><a href="user-proposal.html"><i class="fa fa-check"></i><b>6.1</b> User-defined proposals</a>
 <ul>
-<li class="chapter" data-level="6.1.1" data-path="is-user.html"><a href="is-user.html#simulate_is_proposal"><i class="fa fa-check"></i><b>6.1.1</b> simulate_is_proposal</a></li>
-<li class="chapter" data-level="6.1.2" data-path="is-user.html"><a href="is-user.html#evaluate_log_is_proposal"><i class="fa fa-check"></i><b>6.1.2</b> evaluate_log_is_proposal</a></li>
+<li class="chapter" data-level="6.1.1" data-path="user-proposal.html"><a href="user-proposal.html#simulate_is_proposal"><i class="fa fa-check"></i><b>6.1.1</b> simulate_is_proposal</a></li>
+<li class="chapter" data-level="6.1.2" data-path="user-proposal.html"><a href="user-proposal.html#evaluate_log_is_proposal"><i class="fa fa-check"></i><b>6.1.2</b> evaluate_log_is_proposal</a></li>
 </ul></li>
-<li class="chapter" data-level="6.2" data-path="is-builtin.html"><a href="is-builtin.html"><i class="fa fa-check"></i><b>6.2</b> Built-in proposals {#ilike-proposal}</a>
+<li class="chapter" data-level="6.2" data-path="ilike-proposal.html"><a href="ilike-proposal.html"><i class="fa fa-check"></i><b>6.2</b> Built-in proposals</a>
 <ul>
-<li class="chapter" data-level="6.2.1" data-path="is-builtin.html"><a href="is-builtin.html#is_proposal"><i class="fa fa-check"></i><b>6.2.1</b> is_proposal</a></li>
+<li class="chapter" data-level="6.2.1" data-path="ilike-proposal.html"><a href="ilike-proposal.html#is_proposal"><i class="fa fa-check"></i><b>6.2.1</b> is_proposal</a></li>
 </ul></li>
-<li class="chapter" data-level="6.3" data-path="adaptive-resampling.html"><a href="adaptive-resampling.html"><i class="fa fa-check"></i><b>6.3</b> Adaptive resampling</a>
+<li class="chapter" data-level="6.3" data-path="smc-sequence.html"><a href="smc-sequence.html"><i class="fa fa-check"></i><b>6.3</b> SMC sequence</a>
 <ul>
-<li class="chapter" data-level="6.3.1" data-path="adaptive-resampling.html"><a href="adaptive-resampling.html#adaptive_resampling"><i class="fa fa-check"></i><b>6.3.1</b> adaptive_resampling</a></li>
+<li class="chapter" data-level="6.3.1" data-path="smc-sequence.html"><a href="smc-sequence.html#smc_sequence"><i class="fa fa-check"></i><b>6.3.1</b> smc_sequence</a></li>
 </ul></li>
-<li class="chapter" data-level="6.4" data-path="smc-sequence.html"><a href="smc-sequence.html"><i class="fa fa-check"></i><b>6.4</b> SMC sequence</a>
+<li class="chapter" data-level="6.4" data-path="adaptive-target.html"><a href="adaptive-target.html"><i class="fa fa-check"></i><b>6.4</b> Adaptive target</a>
 <ul>
-<li class="chapter" data-level="6.4.1" data-path="smc-sequence.html"><a href="smc-sequence.html#smc_sequence"><i class="fa fa-check"></i><b>6.4.1</b> smc_sequence</a></li>
+<li class="chapter" data-level="6.4.1" data-path="adaptive-target.html"><a href="adaptive-target.html#adaptive_target"><i class="fa fa-check"></i><b>6.4.1</b> adaptive_target</a></li>
 </ul></li>
-<li class="chapter" data-level="6.5" data-path="adaptive-target.html"><a href="adaptive-target.html"><i class="fa fa-check"></i><b>6.5</b> Adaptive target</a>
+<li class="chapter" data-level="6.5" data-path="smc-termination.html"><a href="smc-termination.html"><i class="fa fa-check"></i><b>6.5</b> SMC termination</a></li>
+<li class="chapter" data-level="6.6" data-path="adaptive-resampling.html"><a href="adaptive-resampling.html"><i class="fa fa-check"></i><b>6.6</b> Adaptive resampling</a>
 <ul>
-<li class="chapter" data-level="6.5.1" data-path="adaptive-target.html"><a href="adaptive-target.html#adaptive_target"><i class="fa fa-check"></i><b>6.5.1</b> adaptive_target</a></li>
-</ul></li>
-<li class="chapter" data-level="6.6" data-path="smc-termination.html"><a href="smc-termination.html"><i class="fa fa-check"></i><b>6.6</b> SMC termination</a>
-<ul>
-<li class="chapter" data-level="6.6.1" data-path="smc-termination.html"><a href="smc-termination.html#smc_termination"><i class="fa fa-check"></i><b>6.6.1</b> smc_termination</a></li>
+<li class="chapter" data-level="6.6.1" data-path="adaptive-resampling.html"><a href="adaptive-resampling.html#adaptive_resampling"><i class="fa fa-check"></i><b>6.6.1</b> adaptive_resampling</a></li>
+<li class="chapter" data-level="6.6.2" data-path="adaptive-resampling.html"><a href="adaptive-resampling.html#smc_termination"><i class="fa fa-check"></i><b>6.6.2</b> smc_termination</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="7" data-path="ssm.html"><a href="ssm.html"><i class="fa fa-check"></i><b>7</b> State-space models</a>
@@ -476,31 +477,17 @@ div.csl-indent {
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="smc-termination" class="section level2 hasAnchor" number="6.6">
-<h2><span class="header-section-number">6.6</span> SMC termination<a href="smc-termination.html#smc-termination" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="smc-termination" class="section level2 hasAnchor" number="6.5">
+<h2><span class="header-section-number">6.5</span> SMC termination<a href="smc-termination.html#smc-termination" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>The <code>smc_termination</code> function type allows the user to specify the method used to decide when to terminate the SMC algorithm. This function should be used in situations where the user wants to terminate the algorithm based on a criterion other than reaching the final target.</p>
-<div id="smc_termination" class="section level3 hasAnchor" number="6.6.1">
-<h3><span class="header-section-number">6.6.1</span> smc_termination<a href="smc-termination.html#smc_termination" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<div id="stability-ilikestable" class="section level4 hasAnchor" number="6.6.1.1">
-<h4><span class="header-section-number">6.6.1.1</span> Stability <code>ilike::stable</code><a href="smc-termination.html#stability-ilikestable" class="anchor-section" aria-label="Anchor link to header"></a></h4>
-<p>This method can be used to terminate the SMC if the parameter that changes across SMC iterations stabilises: a situation that may be encountered when using an adaptive approach to setting this parameter. For example, when using an approximate Bayesian computation algorithm with an adaptive tolerance, it may become practically impossible to reduce the tolerance past a certain point. This method allows the user to specify the conditions under which the algorithm should terminate in these circumstances.</p>
-<p>Inputs:</p>
-<ol style="list-style-type: decimal">
-<li><p>numeric: the threshold for the stability of the parameter</p></li>
-<li><p>integer: the number of iterations over which the parameter must change less than or equal to this threshold before the algorithm is terminated</p></li>
-</ol>
-
 </div>
-</div>
-</div>
-<!-- </div> -->
             </section>
 
           </div>
         </div>
       </div>
 <a href="adaptive-target.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="ssm.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="adaptive-resampling.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

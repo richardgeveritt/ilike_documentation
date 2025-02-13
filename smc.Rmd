@@ -4,7 +4,7 @@ Importance sampling (IS) and sequential Monte Carlo (SMC) algorithms are mainly 
 
 - IS (section \@ref(inference-is)). Only the specification of a model (as in section \@ref(models)) and a proposal distribution (described below). is required in order to use this approach
 
-- SMC sampler with MCMC moves (section \@ref(inference-is)). In addition to a model, and a proposal (used to simulate points in the initial step of the algorithm) this requires the specification of a Markov chain Monte Carlo (MCMC) algorithm: for details on how to configure this, see section \@ref(mcmc). SMC also requires the specification of a sequence of distributions, and parameters related to resampling and adaptive methods, which we detail later in this section.
+- SMC sampler with MCMC moves (section \@ref(inference-smc)). In addition to a model, and a proposal (used to simulate points in the initial step of the algorithm) this requires the specification of a Markov chain Monte Carlo (MCMC) algorithm: for details on how to configure this, see section \@ref(mcmc). SMC also requires the specification of a sequence of distributions, and parameters related to resampling and adaptive methods, which we detail later in this section.
 
 - PF (section \@ref(inference-pf)). Again, a proposal is required to simulate points in the initial step of the algorithm. However, using a particle filter requires the specification of a state-space model, which requires additional function types to be defined in the ilike file, on top of those from \@ref(models). These are defined in section \@ref(ssm).
 
@@ -13,7 +13,7 @@ This section describes how to provide the initial proposal distribution in secti
 One useful feature of the ilike package is that it is relatively easy to convert an MCMC move into an SMC sampler that uses this MCMC move. Examples of how to do this are given in section \@ref(smc-from-mcmc).
 
 
-## User-defined proposals {#user-proposal} {#is-user}
+## User-defined proposals {#user-proposal}
 
 The functions in this section allow the specification of a user-defined importance proposal. If a proposal is provided, and an importance sampling, particle filtering or sequential Monte Carlo inference algorithm is used, the proposal will be used to draw points in the first iteration of the algorithm. A custom importance sampling proposal requires the specification of two function types: `simulate_is_proposal` and `evaluate_log_is_proposal`.
 
@@ -109,7 +109,7 @@ R example:
 /***evaluate_log_is_proposal,dnorm(proposed_parameters$x,0,proposal_parameters$theta,log=TRUE)***/
 ```
 
-## Built-in proposals {#ilike-proposal} {#is-builtin}
+## Built-in proposals {#ilike-proposal}
 
 ### is_proposal
 
@@ -184,22 +184,8 @@ Inputs:
   2. numeric: the shape of the gamma distribution
     
   3. numeric: the rate of the gamma distribution
-
-## Adaptive resampling
-
-The `adaptive_resampling` function type allows the user to specify the method used to decide when to resample in the SMC algorithm.
-
-### adaptive_resampling
-
-#### Effective sample size `ilike::ess`
-
-Specifies that resampling should occur when the effective sample size [@kong1994sequential] falls below a given threshold.
-
-Inputs:
-
-  1. numeric: the threshold for the effective sample size, expressed as a proportion of the total number of particles
   
-## SMC sequence
+## SMC sequence {#smc-sequence}
 
 The `smc_sequence` function type allows the user to provide the details required for setting up the sequence of targets in the SMC algorithm. This function type does not govern the sequence of targets used in a particle filter, which is described in section \@ref(ssm).
 
@@ -270,6 +256,20 @@ Inputs:
 ## SMC termination
 
 The `smc_termination` function type allows the user to specify the method used to decide when to terminate the SMC algorithm. This function should be used in situations where the user wants to terminate the algorithm based on a criterion other than reaching the final target.
+
+## Adaptive resampling
+
+The `adaptive_resampling` function type allows the user to specify the method used to decide when to resample in the SMC algorithm.
+
+### adaptive_resampling
+
+#### Effective sample size `ilike::ess`
+
+Specifies that resampling should occur when the effective sample size [@kong1994sequential] falls below a given threshold.
+
+Inputs:
+
+  1. numeric: the threshold for the effective sample size, expressed as a proportion of the total number of particles
 
 ### smc_termination
 

@@ -654,3 +654,12 @@ metropolis-hastings-1
 is-smc-output
 algorithm
 algorithm-1
+requirements-is
+requirements-mcmc
+algorithm-2
+requirements-smc
+requirements-pf
+linear_gaussian_data_model-1
+linear-gaussian-data-model
+nonlinear-gaussian-data-model
+enk-output

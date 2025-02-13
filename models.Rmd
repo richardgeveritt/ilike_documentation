@@ -467,7 +467,7 @@ R example:
 /***evaluate_second_gradient_log_likelihood,if (variable1=="θ" && variable2=="θ") {-length(data$y)/1.0} else {stop("Unknown variable in likelihood hessian.")}***/
 ```
 
-## Linear-Gaussian model
+## Linear-Gaussian model {#linear-gaussian-data-model}
 
 A commonly-used class of model is one where data $y$ arises from a linear function of some latent state, plus some Gaussian noise, i.e.
 
@@ -673,7 +673,7 @@ Inputs:
   
   4. matrix: The covariance matrix $R$
   
-## Nonlinear-Gaussian model
+## Nonlinear-Gaussian model {#nonlinear-gaussian-data-model}
 
 The nonlinear-Gaussian data model subtype may be used to specify a model where data $y$ arises from a nonlinear function of some latent state, plus some Gaussian noise, i.e.
 
