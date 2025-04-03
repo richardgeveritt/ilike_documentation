@@ -23,7 +23,7 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2025-02-13" />
+<meta name="date" content="2025-03-27" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -468,7 +468,7 @@ div.csl-indent {
 <h2><span class="header-section-number">8.3</span> Ensemble Kalman output<a href="enk-output.html#enk-output" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Loading and plotting output from ensemble methods is very similar to that for SMC methods. We use the ensemble Kalman filter output from section €ref(filtering_cv) as example output for this section.</p>
 <p>To load the output from this algorithm we call</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="enk-output.html#cb18-1" tabindex="-1"></a>enk_cwna_model <span class="ot">=</span> <span class="fu">load_enk_output</span>(<span class="st">&quot;enk_cwna_model&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb214"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb214-1"><a href="enk-output.html#cb214-1" tabindex="-1"></a>enk_cwna_model <span class="ot">=</span> <span class="fu">load_enk_output</span>(<span class="st">&quot;enk_cwna_model&quot;</span>)</span></code></pre></div>
 <p>The format is the same as that from the function <code>load_smc_output</code> in section <a href="is-smc-output.html#is-smc-output">8.2</a>, except that the following two columns are not present in the output:</p>
 <ul>
 <li><p><code>AncestorIndex</code>, since the set of particles (usually called an <em>ensemble</em> in this context), is not resampled;</p></li>

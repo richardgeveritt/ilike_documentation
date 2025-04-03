@@ -1067,51 +1067,51 @@ Inputs:
   
   8. (optional) integer: the grain size for parallelisation (default is `100000`; see [guidance here](https://oneapi-src.github.io/oneTBB/main/tbb_userguide/Controlling_Chunking_os.html))
   
-#### IEnKI-ABC `ilike::ienki_abc`
+<!-- #### IEnKI-ABC `ilike::ienki_abc` -->
 
-Specifies an approximate Bayesian computation (ABC) likelihood, estimating using iterative ensemble Kalman inversion (IEnKI), as described in @everitt2024ensemble. This approach uses an alternative estimator for the ABC likelihood using the Gaussian kernel, with tolerance $\epsilon$, described in section \@ref(gaussian-abc). IEnKI uses an ensemble of points to simulate from a sequence of $0:T$ distributions using a decreasing sequence of tolerances $\infty = \epsilon_0 > .... > \epsilon_T = \epsilon$. The 0th distrbution is $f_s( s \mid \theta)$ (corresponding to the case where $\epsilon=\infty$), where $f_s$ is the distribution resulting from the data generating process $f( \cdot \mid \theta)$ and the summary statistic transformation. The $t$th distribution for $t>0$ is $f_s( s \mid \theta) K_{\epsilon_t}\left(s_{\text{obs}}\mid s\right)$. The estimator of the normalising constant of the final target distribution, constructed using the ensemble at each step of the IEnKI, is an estimator of the ABC likelihood. This estimator is biased in general, but is likely to have significantly lower variance than that from standard ABC. When the final $\epsilon$ is taken to be zero, and $T=1$, the estimator is the same as that used in synthetic likelihood (section \@ref(sl)). Full details can be found in @everitt2024ensemble.
+<!-- Specifies an approximate Bayesian computation (ABC) likelihood, estimating using iterative ensemble Kalman inversion (IEnKI), as described in @everitt2024ensemble. This approach uses an alternative estimator for the ABC likelihood using the Gaussian kernel, with tolerance $\epsilon$, described in section \@ref(gaussian-abc). IEnKI uses an ensemble of points to simulate from a sequence of $0:T$ distributions using a decreasing sequence of tolerances $\infty = \epsilon_0 > .... > \epsilon_T = \epsilon$. The 0th distrbution is $f_s( s \mid \theta)$ (corresponding to the case where $\epsilon=\infty$), where $f_s$ is the distribution resulting from the data generating process $f( \cdot \mid \theta)$ and the summary statistic transformation. The $t$th distribution for $t>0$ is $f_s( s \mid \theta) K_{\epsilon_t}\left(s_{\text{obs}}\mid s\right)$. The estimator of the normalising constant of the final target distribution, constructed using the ensemble at each step of the IEnKI, is an estimator of the ABC likelihood. This estimator is biased in general, but is likely to have significantly lower variance than that from standard ABC. When the final $\epsilon$ is taken to be zero, and $T=1$, the estimator is the same as that used in synthetic likelihood (section \@ref(sl)). Full details can be found in @everitt2024ensemble. -->
 
-Inputs:
+<!-- Inputs: -->
 
-  1. integer: the number of ensemble members $M$ to use in the IEnKI-ABC
-  
-  2. integer: the estimator type constructed from the IEnKI output. The meaning of each of the four options below is given in the paper @everitt2024ensemble. The options are:
-  
-  - `1` (recommended): the "direct" estimator
-    
-  - `2`: the "unbiased" estimator, using the approach analogous to the unbiased method in @price2018bayesian
-    
-  - `3`: the path sampling estimator
-    
-  - `4`: the alternative path sampling estimator from @friel2014improving
-  
-  3. string: the name of the tolerance variable in the ABC
-  
-  4. numeric: the tolerance level for the ABC
-  
-  5. string: the shifter used in the IEnKI (the method for moving the ensemble at each iteration). The options are:
-  
-  - `stochastic` (recommended): the stochastic shifter
-  
-  - `sqrt`: the square root shifter
-  
-  - `adjustment`: the adjustment shifter
-  
-  6. integer: the number of targets $T$ used in the IEnKI
-  
-  7. (optional) numeric: the significance level for the significance test used in determining when to use the target skipping approach proposed in @everitt2024ensemble (default is `1`, which results in skipping no targets; `0.1` recommended when using the stochastic shifter)
-  
-  8. (optional) integer: the number of iterations of output of each run of the IEnKI to store, counting from the final iteration backwards (default is `0`)
-  
-  9. (optional) string: the name of the variable that stores the scaling $\sigma_i$ of the data/summaries in the ABC (default is `""` - in this case the scale will be `1` for every dimension)
-  
-  10. (optional) numeric vector: the scaling of the data/summary in the ABC, which must be of the same dimension as the data/summary This is only used if the scale variable (argument 5) is set.
-  
-  11. (optional) boolean: whether to perform the IEnKI on the summary statistic space (default is `true`; `false` is largely untested)
-  
-  12. (optional) boolean: whether to run the simulations in parallel (default is `false`)
-  
-  13. (optional) integer: the grain size for parallelisation (default is `100000`; see [guidance here](https://oneapi-src.github.io/oneTBB/main/tbb_userguide/Controlling_Chunking_os.html))
+<!--   1. integer: the number of ensemble members $M$ to use in the IEnKI-ABC -->
+
+<!--   2. integer: the estimator type constructed from the IEnKI output. The meaning of each of the four options below is given in the paper @everitt2024ensemble. The options are: -->
+
+<!--   - `1` (recommended): the "direct" estimator -->
+
+<!--   - `2`: the "unbiased" estimator, using the approach analogous to the unbiased method in @price2018bayesian -->
+
+<!--   - `3`: the path sampling estimator -->
+
+<!--   - `4`: the alternative path sampling estimator from @friel2014improving -->
+
+<!--   3. string: the name of the tolerance variable in the ABC -->
+
+<!--   4. numeric: the tolerance level for the ABC -->
+
+<!--   5. string: the shifter used in the IEnKI (the method for moving the ensemble at each iteration). The options are: -->
+
+<!--   - `stochastic` (recommended): the stochastic shifter -->
+
+<!--   - `sqrt`: the square root shifter -->
+
+<!--   - `adjustment`: the adjustment shifter -->
+
+<!--   6. integer: the number of targets $T$ used in the IEnKI -->
+
+<!--   7. (optional) numeric: the significance level for the significance test used in determining when to use the target skipping approach proposed in @everitt2024ensemble (default is `1`, which results in skipping no targets; `0.1` recommended when using the stochastic shifter) -->
+
+<!--   8. (optional) integer: the number of iterations of output of each run of the IEnKI to store, counting from the final iteration backwards (default is `0`) -->
+
+<!--   9. (optional) string: the name of the variable that stores the scaling $\sigma_i$ of the data/summaries in the ABC (default is `""` - in this case the scale will be `1` for every dimension) -->
+
+<!--   10. (optional) numeric vector: the scaling of the data/summary in the ABC, which must be of the same dimension as the data/summary This is only used if the scale variable (argument 5) is set. -->
+
+<!--   11. (optional) boolean: whether to perform the IEnKI on the summary statistic space (default is `true`; `false` is largely untested) -->
+
+<!--   12. (optional) boolean: whether to run the simulations in parallel (default is `false`) -->
+
+<!--   13. (optional) integer: the grain size for parallelisation (default is `100000`; see [guidance here](https://oneapi-src.github.io/oneTBB/main/tbb_userguide/Controlling_Chunking_os.html)) -->
 
 ## Algorithmic likelihood
 

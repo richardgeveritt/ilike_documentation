@@ -2,8 +2,7 @@
 
 ilike is currently in an early stage of development, and as such, it is likely that you will encounter errors. This section provides some guidance on how to debug these errors. I am working on providing more descriptive error messages where possible.
 
-## Error in ...: could not find function "..."
-
+## Error in ... could not find function ...
 
 Example error:
 
@@ -13,12 +12,38 @@ Possible cause:
 
 The compiled ilike model was expecting an R (or Python, or Julia) function naned `get_data` to be available to call, but it didn't find it.
 
+Action:
+
+Provide the `get_data` function in a file with the same name as the ilike file (with the appropriate extension, i.e. `.R`, `.py` or `.jl`) in the same directory as the ilike file.
+
+## Parameter index does not correspond to ... in the parameters file
+
 Example error:
 
-`Error: extract_int_parameter: Parameter index does not correspond to a real number in the parameters file. Did you supply a model_parameter_list argument?`
-
-
+...
 
 Action:
 
-Check that you included an R (or Python or Julia) file of the same name (and with the appropriate extension) as the ilike file in the same directory as the ilike file. Check that this file contains a function called `get_data`.
+...
+
+
+## Parameters operator variable ... not found in Parameters
+
+Example error:
+
+`Parameters::operator[]: variable 'x' not found in Parameters.`
+
+Possible cause:
+
+Either:
+
+- the Parameters (or Data) object passed into the function does not contain the variable "x";
+
+or:
+
+- the arguments supplied to the function are in a different order to that specified in the documentation. For example, the function type `evaluate_log_likelihood` requires the arguments in the order `Parameters`, then `Data`, but you may have supplied them in the reverse order.
+
+Action:
+
+Check the order of your arguments, and ensure that the desired variable is correctly referred to in your function.
+

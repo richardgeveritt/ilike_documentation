@@ -23,7 +23,7 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2025-02-13" />
+<meta name="date" content="2025-03-27" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -467,19 +467,19 @@ div.csl-indent {
 <div id="mcmc-output" class="section level2 hasAnchor" number="8.1">
 <h2><span class="header-section-number">8.1</span> MCMC output<a href="mcmc-output.html#mcmc-output" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>To illustrate how to load and process MCMC output, we return to the example in section <a href="toy-example.html#toy-example">1.1</a>. The following code compiles the model (which has a two-dimensional parameter <span class="math inline">\(\theta = (\theta_1,\theta_2)\)</span>) and runs an MCMC algorithm, storing the output in a new folder named <code>toy_model_rwm</code> in the current working directory.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="mcmc-output.html#cb1-1" tabindex="-1"></a><span class="fu">library</span>(ilike)</span>
-<span id="cb1-2"><a href="mcmc-output.html#cb1-2" tabindex="-1"></a>model <span class="ot">=</span> <span class="fu">compile</span>(<span class="st">&quot;toy_model_rwm.ilike&quot;</span>)</span>
-<span id="cb1-3"><a href="mcmc-output.html#cb1-3" tabindex="-1"></a><span class="fu">mcmc</span>(model,</span>
-<span id="cb1-4"><a href="mcmc-output.html#cb1-4" tabindex="-1"></a>     <span class="at">results_name =</span> <span class="st">&quot;toy_model_rwm&quot;</span>,</span>
-<span id="cb1-5"><a href="mcmc-output.html#cb1-5" tabindex="-1"></a>     <span class="at">initial_values =</span> <span class="fu">list</span>(<span class="fu">list</span>(θ<span class="ot">=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>))),</span>
-<span id="cb1-6"><a href="mcmc-output.html#cb1-6" tabindex="-1"></a>     <span class="at">model_parameter_list =</span> <span class="fu">list</span>(<span class="fl">300.0</span><span class="sc">*</span><span class="fu">diag</span>(<span class="dv">2</span>)))</span></code></pre></div>
+<div class="sourceCode" id="cb197"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb197-1"><a href="mcmc-output.html#cb197-1" tabindex="-1"></a><span class="fu">library</span>(ilike)</span>
+<span id="cb197-2"><a href="mcmc-output.html#cb197-2" tabindex="-1"></a>model <span class="ot">=</span> <span class="fu">compile</span>(<span class="st">&quot;toy_model_rwm.ilike&quot;</span>)</span>
+<span id="cb197-3"><a href="mcmc-output.html#cb197-3" tabindex="-1"></a><span class="fu">mcmc</span>(model,</span>
+<span id="cb197-4"><a href="mcmc-output.html#cb197-4" tabindex="-1"></a>     <span class="at">results_name =</span> <span class="st">&quot;toy_model_rwm&quot;</span>,</span>
+<span id="cb197-5"><a href="mcmc-output.html#cb197-5" tabindex="-1"></a>     <span class="at">initial_values =</span> <span class="fu">list</span>(<span class="fu">list</span>(θ<span class="ot">=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>))),</span>
+<span id="cb197-6"><a href="mcmc-output.html#cb197-6" tabindex="-1"></a>     <span class="at">model_parameter_list =</span> <span class="fu">list</span>(<span class="fl">300.0</span><span class="sc">*</span><span class="fu">diag</span>(<span class="dv">2</span>)))</span></code></pre></div>
 <div id="loading-mcmc-output-ilike-format" class="section level3 hasAnchor" number="8.1.1">
 <h3><span class="header-section-number">8.1.1</span> Loading MCMC output (ilike format)<a href="mcmc-output.html#loading-mcmc-output-ilike-format" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>To load MCMC output into an R data frame, the function <code>load_mcmc_output</code> is used. The first, and only required, argument is the name of the directory in which the ilike output is stored (<code>toy_model_rwm</code> in this case). The two other arguments are optional: <code>ggmcmc</code> and <code>ilike.output</code> both take values <code>TRUE</code> or <code>FALSE</code>, and determine whether the data frame is suitable for use in, respectively, the <code>ggmcmc</code> or <code>ilike.output</code> packages (the default is <code>ggmcmc = FALSE</code> and <code>ilike.output = TRUE</code>).</p>
 <p>We begin by loading the output from the MCMC algorithm using the <code>load_mcmc_output</code> function.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="mcmc-output.html#cb2-1" tabindex="-1"></a>toy_model_rwm_ilike <span class="ot">=</span> <span class="fu">load_mcmc_output</span>(<span class="st">&quot;toy_model_rwm&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb198"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb198-1"><a href="mcmc-output.html#cb198-1" tabindex="-1"></a>toy_model_rwm_ilike <span class="ot">=</span> <span class="fu">load_mcmc_output</span>(<span class="st">&quot;toy_model_rwm&quot;</span>)</span></code></pre></div>
 <p>Here <code>ilike.output</code> is set (by default) to <code>TRUE</code>, so this data frame is in the standard form for ilike output (for use in <code>ggsmc</code> and <code>ilike.output</code>).</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="mcmc-output.html#cb3-1" tabindex="-1"></a><span class="fu">head</span>(toy_model_rwm_ilike,<span class="at">n=</span><span class="dv">16</span><span class="dt">L</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb199"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb199-1"><a href="mcmc-output.html#cb199-1" tabindex="-1"></a><span class="fu">head</span>(toy_model_rwm_ilike,<span class="at">n=</span><span class="dv">16</span><span class="dt">L</span>)</span></code></pre></div>
 <pre><code>##    ExternalIndex      Time Iteration Chain ParameterName Dimension     Value
 ## 1              1 0.5935487         1     1             θ         1   0.00000
 ## 2              1 0.5935487         1     1             θ         2   0.00000
@@ -515,48 +515,48 @@ div.csl-indent {
 <ul>
 <li><code>plot_histogram</code> can be used for plotting histograms of marginal posterior distributions of the parameters.</li>
 </ul>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="mcmc-output.html#cb5-1" tabindex="-1"></a><span class="fu">library</span>(ggsmc)</span>
-<span id="cb5-2"><a href="mcmc-output.html#cb5-2" tabindex="-1"></a><span class="fu">plot_histogram</span>(toy_model_rwm_ilike,</span>
-<span id="cb5-3"><a href="mcmc-output.html#cb5-3" tabindex="-1"></a>               <span class="at">parameter =</span> <span class="st">&quot;θ&quot;</span>,</span>
-<span id="cb5-4"><a href="mcmc-output.html#cb5-4" tabindex="-1"></a>               <span class="at">dimension =</span> <span class="dv">1</span>,</span>
-<span id="cb5-5"><a href="mcmc-output.html#cb5-5" tabindex="-1"></a>               <span class="at">mcmc =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<p><img src="ilike-docs_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<div class="sourceCode" id="cb201"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb201-1"><a href="mcmc-output.html#cb201-1" tabindex="-1"></a><span class="fu">library</span>(ggsmc)</span>
+<span id="cb201-2"><a href="mcmc-output.html#cb201-2" tabindex="-1"></a><span class="fu">plot_histogram</span>(toy_model_rwm_ilike,</span>
+<span id="cb201-3"><a href="mcmc-output.html#cb201-3" tabindex="-1"></a>               <span class="at">parameter =</span> <span class="st">&quot;θ&quot;</span>,</span>
+<span id="cb201-4"><a href="mcmc-output.html#cb201-4" tabindex="-1"></a>               <span class="at">dimension =</span> <span class="dv">1</span>,</span>
+<span id="cb201-5"><a href="mcmc-output.html#cb201-5" tabindex="-1"></a>               <span class="at">mcmc =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p><img src="ilike-docs_files/figure-html/unnamed-chunk-202-1.png" width="672" /></p>
 <ul>
 <li><code>plot_density</code> can be used for plotting kernel density estimates of the marginal posterior distributions of the parameters.</li>
 </ul>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="mcmc-output.html#cb6-1" tabindex="-1"></a><span class="fu">plot_density</span>(toy_model_rwm_ilike,</span>
-<span id="cb6-2"><a href="mcmc-output.html#cb6-2" tabindex="-1"></a>             <span class="at">parameter =</span> <span class="st">&quot;θ&quot;</span>,</span>
-<span id="cb6-3"><a href="mcmc-output.html#cb6-3" tabindex="-1"></a>             <span class="at">dimension =</span> <span class="dv">1</span>,</span>
-<span id="cb6-4"><a href="mcmc-output.html#cb6-4" tabindex="-1"></a>             <span class="at">mcmc =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<p><img src="ilike-docs_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<div class="sourceCode" id="cb202"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb202-1"><a href="mcmc-output.html#cb202-1" tabindex="-1"></a><span class="fu">plot_density</span>(toy_model_rwm_ilike,</span>
+<span id="cb202-2"><a href="mcmc-output.html#cb202-2" tabindex="-1"></a>             <span class="at">parameter =</span> <span class="st">&quot;θ&quot;</span>,</span>
+<span id="cb202-3"><a href="mcmc-output.html#cb202-3" tabindex="-1"></a>             <span class="at">dimension =</span> <span class="dv">1</span>,</span>
+<span id="cb202-4"><a href="mcmc-output.html#cb202-4" tabindex="-1"></a>             <span class="at">mcmc =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p><img src="ilike-docs_files/figure-html/unnamed-chunk-203-1.png" width="672" /></p>
 <ul>
 <li><code>plot_scatter</code> can be used for plotting scatter plots of joint distributions of pairs of parameters.</li>
 </ul>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="mcmc-output.html#cb7-1" tabindex="-1"></a><span class="fu">library</span>(ggsmc)</span>
-<span id="cb7-2"><a href="mcmc-output.html#cb7-2" tabindex="-1"></a><span class="fu">plot_scatter</span>(toy_model_rwm_ilike,</span>
-<span id="cb7-3"><a href="mcmc-output.html#cb7-3" tabindex="-1"></a>             <span class="at">x_parameter =</span> <span class="st">&quot;θ&quot;</span>,</span>
-<span id="cb7-4"><a href="mcmc-output.html#cb7-4" tabindex="-1"></a>             <span class="at">x_dimension =</span> <span class="dv">1</span>,</span>
-<span id="cb7-5"><a href="mcmc-output.html#cb7-5" tabindex="-1"></a>             <span class="at">y_parameter =</span> <span class="st">&quot;θ&quot;</span>,</span>
-<span id="cb7-6"><a href="mcmc-output.html#cb7-6" tabindex="-1"></a>             <span class="at">y_dimension =</span> <span class="dv">2</span>,</span>
-<span id="cb7-7"><a href="mcmc-output.html#cb7-7" tabindex="-1"></a>             <span class="at">mcmc =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<p><img src="ilike-docs_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<div class="sourceCode" id="cb203"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb203-1"><a href="mcmc-output.html#cb203-1" tabindex="-1"></a><span class="fu">library</span>(ggsmc)</span>
+<span id="cb203-2"><a href="mcmc-output.html#cb203-2" tabindex="-1"></a><span class="fu">plot_scatter</span>(toy_model_rwm_ilike,</span>
+<span id="cb203-3"><a href="mcmc-output.html#cb203-3" tabindex="-1"></a>             <span class="at">x_parameter =</span> <span class="st">&quot;θ&quot;</span>,</span>
+<span id="cb203-4"><a href="mcmc-output.html#cb203-4" tabindex="-1"></a>             <span class="at">x_dimension =</span> <span class="dv">1</span>,</span>
+<span id="cb203-5"><a href="mcmc-output.html#cb203-5" tabindex="-1"></a>             <span class="at">y_parameter =</span> <span class="st">&quot;θ&quot;</span>,</span>
+<span id="cb203-6"><a href="mcmc-output.html#cb203-6" tabindex="-1"></a>             <span class="at">y_dimension =</span> <span class="dv">2</span>,</span>
+<span id="cb203-7"><a href="mcmc-output.html#cb203-7" tabindex="-1"></a>             <span class="at">mcmc =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p><img src="ilike-docs_files/figure-html/unnamed-chunk-204-1.png" width="672" /></p>
 <ul>
 <li><code>plot_time_series</code> can be used for plotting time series of the parameters. Here it is assumed that the <code>Dimension</code> column in the MCMC output refers to a time index. As an example, we show output from our two-dimensional model using this function, but this figure is meaningless since the <code>Dimension</code> column cannot be interpreted as a time series for the model we are studying.</li>
 </ul>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="mcmc-output.html#cb8-1" tabindex="-1"></a><span class="fu">library</span>(ggsmc)</span>
-<span id="cb8-2"><a href="mcmc-output.html#cb8-2" tabindex="-1"></a><span class="fu">plot_time_series</span>(toy_model_rwm_ilike,</span>
-<span id="cb8-3"><a href="mcmc-output.html#cb8-3" tabindex="-1"></a>                 <span class="at">parameter =</span> <span class="st">&quot;θ&quot;</span>,</span>
-<span id="cb8-4"><a href="mcmc-output.html#cb8-4" tabindex="-1"></a>                 <span class="at">mcmc =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb8-5"><a href="mcmc-output.html#cb8-5" tabindex="-1"></a>                 <span class="at">alpha =</span> <span class="fl">0.01</span>)</span></code></pre></div>
-<p><img src="ilike-docs_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<div class="sourceCode" id="cb204"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb204-1"><a href="mcmc-output.html#cb204-1" tabindex="-1"></a><span class="fu">library</span>(ggsmc)</span>
+<span id="cb204-2"><a href="mcmc-output.html#cb204-2" tabindex="-1"></a><span class="fu">plot_time_series</span>(toy_model_rwm_ilike,</span>
+<span id="cb204-3"><a href="mcmc-output.html#cb204-3" tabindex="-1"></a>                 <span class="at">parameter =</span> <span class="st">&quot;θ&quot;</span>,</span>
+<span id="cb204-4"><a href="mcmc-output.html#cb204-4" tabindex="-1"></a>                 <span class="at">mcmc =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb204-5"><a href="mcmc-output.html#cb204-5" tabindex="-1"></a>                 <span class="at">alpha =</span> <span class="fl">0.01</span>)</span></code></pre></div>
+<p><img src="ilike-docs_files/figure-html/unnamed-chunk-205-1.png" width="672" /></p>
 </div>
 <div id="loading-mcmc-output-ggmcmc-format" class="section level3 hasAnchor" number="8.1.3">
 <h3><span class="header-section-number">8.1.3</span> Loading MCMC output (ggmcmc format)<a href="mcmc-output.html#loading-mcmc-output-ggmcmc-format" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>We now show how to load the MCMC output in a format suitable for use with the <code>ggmcmc</code> package. This is done by setting the <code>ggmcmc</code> argument to <code>TRUE</code> in the <code>load_mcmc_output</code> function.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="mcmc-output.html#cb9-1" tabindex="-1"></a>toy_model_rwm_ggmcmc <span class="ot">=</span> <span class="fu">load_mcmc_output</span>(<span class="st">&quot;toy_model_rwm&quot;</span>,</span>
-<span id="cb9-2"><a href="mcmc-output.html#cb9-2" tabindex="-1"></a>                                        <span class="at">ggmcmc =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb205"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb205-1"><a href="mcmc-output.html#cb205-1" tabindex="-1"></a>toy_model_rwm_ggmcmc <span class="ot">=</span> <span class="fu">load_mcmc_output</span>(<span class="st">&quot;toy_model_rwm&quot;</span>,</span>
+<span id="cb205-2"><a href="mcmc-output.html#cb205-2" tabindex="-1"></a>                                        <span class="at">ggmcmc =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p>The format expected by <code>ggmcmc</code> is a little different to that expected by <code>ggsmc</code> and <code>ilike.output</code>.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="mcmc-output.html#cb10-1" tabindex="-1"></a><span class="fu">head</span>(toy_model_rwm_ggmcmc,<span class="at">n=</span><span class="dv">16</span><span class="dt">L</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb206"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb206-1"><a href="mcmc-output.html#cb206-1" tabindex="-1"></a><span class="fu">head</span>(toy_model_rwm_ggmcmc,<span class="at">n=</span><span class="dv">16</span><span class="dt">L</span>)</span></code></pre></div>
 <pre><code>##    ExternalIndex      Time Iteration Chain     value Parameter
 ## 1              1 0.5935487         1     1   0.00000       θ_1
 ## 2              1 0.5935487         1     1   0.00000       θ_2
@@ -587,16 +587,16 @@ div.csl-indent {
 <div id="plotting-using-ggmcmc" class="section level3 hasAnchor" number="8.1.4">
 <h3><span class="header-section-number">8.1.4</span> Plotting using <code>ggmcmc</code><a href="mcmc-output.html#plotting-using-ggmcmc" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>This data frame is in the format expected by <code>ggmcmc</code>, so we can use the <code>ggmcmc</code> package to plot histograms, densities, trace plots, running means, autocorrelation plots and other diagnostics. Here we show only how to plot trace plots using <code>ggmcmc</code>.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="mcmc-output.html#cb12-1" tabindex="-1"></a><span class="fu">library</span>(ggmcmc)</span>
-<span id="cb12-2"><a href="mcmc-output.html#cb12-2" tabindex="-1"></a><span class="fu">ggs_traceplot</span>(toy_model_rwm_ggmcmc)</span></code></pre></div>
-<p><img src="ilike-docs_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<div class="sourceCode" id="cb208"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb208-1"><a href="mcmc-output.html#cb208-1" tabindex="-1"></a><span class="fu">library</span>(ggmcmc)</span>
+<span id="cb208-2"><a href="mcmc-output.html#cb208-2" tabindex="-1"></a><span class="fu">ggs_traceplot</span>(toy_model_rwm_ggmcmc)</span></code></pre></div>
+<p><img src="ilike-docs_files/figure-html/unnamed-chunk-209-1.png" width="672" /></p>
 </div>
 <div id="burn-in-warm-up" class="section level3 hasAnchor" number="8.1.5">
 <h3><span class="header-section-number">8.1.5</span> Burn-in / warm-up<a href="mcmc-output.html#burn-in-warm-up" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>In MCMC algorithms, it is common to discard the first few iterations of the chain as a burn-in or warm-up period. This is because the chain may not have converged to the stationary distribution in the early iterations. ilike does not automatically discard any iterations as burn-in, so it is up to the user to decide how many iterations to discard (maybe after studying trace plots, such as that above, or using other diagnostics). This can be done by subsetting the data frame. For example, to discard the first 100 iterations of the MCMC output, we can use the following code, using the <code>dplyr</code> package.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="mcmc-output.html#cb13-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb13-2"><a href="mcmc-output.html#cb13-2" tabindex="-1"></a>toy_model_rwm_ggmcmc_burned_in <span class="ot">&lt;-</span> toy_model_rwm_ggmcmc <span class="sc">%&gt;%</span></span>
-<span id="cb13-3"><a href="mcmc-output.html#cb13-3" tabindex="-1"></a>  <span class="fu">filter</span>(Iteration <span class="sc">&gt;</span> <span class="dv">100</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb209"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb209-1"><a href="mcmc-output.html#cb209-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb209-2"><a href="mcmc-output.html#cb209-2" tabindex="-1"></a>toy_model_rwm_ggmcmc_burned_in <span class="ot">&lt;-</span> toy_model_rwm_ggmcmc <span class="sc">%&gt;%</span></span>
+<span id="cb209-3"><a href="mcmc-output.html#cb209-3" tabindex="-1"></a>  <span class="fu">filter</span>(Iteration <span class="sc">&gt;</span> <span class="dv">100</span>)</span></code></pre></div>
 </div>
 </div>
             </section>

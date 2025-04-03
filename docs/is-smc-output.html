@@ -23,7 +23,7 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2025-02-13" />
+<meta name="date" content="2025-03-27" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -468,9 +468,9 @@ div.csl-indent {
 <h2><span class="header-section-number">8.2</span> IS and SMC output<a href="is-smc-output.html#is-smc-output" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>For loading the output of IS and SMC algorithms we use the function <code>load_smc_output</code>. We use the particle filter output from section €ref(filtering_cv) as example output for this section.</p>
 <p>To load the output from this algorithm we call</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="is-smc-output.html#cb14-1" tabindex="-1"></a>sir_cwna_model <span class="ot">=</span> <span class="fu">load_smc_output</span>(<span class="st">&quot;sir_cwna_model&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb210"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb210-1"><a href="is-smc-output.html#cb210-1" tabindex="-1"></a>sir_cwna_model <span class="ot">=</span> <span class="fu">load_smc_output</span>(<span class="st">&quot;sir_cwna_model&quot;</span>)</span></code></pre></div>
 <p>The format is not dissimilar to that for MCMC algorithms.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="is-smc-output.html#cb15-1" tabindex="-1"></a><span class="fu">head</span>(sir_cwna_model)</span></code></pre></div>
+<div class="sourceCode" id="cb211"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb211-1"><a href="is-smc-output.html#cb211-1" tabindex="-1"></a><span class="fu">head</span>(sir_cwna_model)</span></code></pre></div>
 <pre><code>##   ExternalIndex Target      Time NormalisingConstant   ISESS TargetParameters
 ## 1             1      1 0.0025475            -3.07181 16.2299        i=0;dt=1;
 ## 2             1      1 0.0025475            -3.07181 16.2299        i=0;dt=1;
@@ -503,20 +503,20 @@ div.csl-indent {
 <div id="visualising-output-using-ggsmc" class="section level3 hasAnchor" number="8.2.1">
 <h3><span class="header-section-number">8.2.1</span> Visualising output using <code>ggsmc</code><a href="is-smc-output.html#visualising-output-using-ggsmc" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>This output can be visualised using the <code>ggsmc</code> package, which contains functions for plotting and animating histograms, densities, scatter plots and the genealogy of the particle population. Examples of these plots for this model can be found in <a href="https://cran.r-project.org/web/packages/ggsmc/vignettes/Visualising.html">the vigentte for the <code>ggsmc</code> package</a>. Here we include ony an example of the evolution of the particle population over time.</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="is-smc-output.html#cb17-1" tabindex="-1"></a><span class="fu">data</span>(cwna_data)</span>
-<span id="cb17-2"><a href="is-smc-output.html#cb17-2" tabindex="-1"></a><span class="fu">plot_genealogy</span>(sir_cwna_model,</span>
-<span id="cb17-3"><a href="is-smc-output.html#cb17-3" tabindex="-1"></a>               <span class="at">parameter =</span> <span class="st">&quot;x&quot;</span>,</span>
-<span id="cb17-4"><a href="is-smc-output.html#cb17-4" tabindex="-1"></a>               <span class="at">dimension =</span> <span class="dv">1</span>,</span>
-<span id="cb17-5"><a href="is-smc-output.html#cb17-5" tabindex="-1"></a>               <span class="at">use_initial_points =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb17-6"><a href="is-smc-output.html#cb17-6" tabindex="-1"></a>               <span class="at">vertical =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb17-7"><a href="is-smc-output.html#cb17-7" tabindex="-1"></a>               <span class="at">alpha_lines =</span> <span class="dv">0</span>,</span>
-<span id="cb17-8"><a href="is-smc-output.html#cb17-8" tabindex="-1"></a>               <span class="at">alpha_points =</span> <span class="fl">0.05</span>,</span>
-<span id="cb17-9"><a href="is-smc-output.html#cb17-9" tabindex="-1"></a>               <span class="at">arrows =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb17-10"><a href="is-smc-output.html#cb17-10" tabindex="-1"></a>               <span class="at">default_title =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
-<span id="cb17-11"><a href="is-smc-output.html#cb17-11" tabindex="-1"></a>ggplot2<span class="sc">::</span><span class="fu">geom_line</span>(<span class="at">data=</span>cwna_data,ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x=</span>Index,<span class="at">y=</span>Position),<span class="at">colour=</span><span class="st">&quot;red&quot;</span>,<span class="at">inherit.aes =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
-<span id="cb17-12"><a href="is-smc-output.html#cb17-12" tabindex="-1"></a>ggplot2<span class="sc">::</span><span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb17-13"><a href="is-smc-output.html#cb17-13" tabindex="-1"></a>ggplot2<span class="sc">::</span><span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">&quot;none&quot;</span>)</span></code></pre></div>
-<p><img src="ilike-docs_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+<div class="sourceCode" id="cb213"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb213-1"><a href="is-smc-output.html#cb213-1" tabindex="-1"></a><span class="fu">data</span>(cwna_data)</span>
+<span id="cb213-2"><a href="is-smc-output.html#cb213-2" tabindex="-1"></a><span class="fu">plot_genealogy</span>(sir_cwna_model,</span>
+<span id="cb213-3"><a href="is-smc-output.html#cb213-3" tabindex="-1"></a>               <span class="at">parameter =</span> <span class="st">&quot;x&quot;</span>,</span>
+<span id="cb213-4"><a href="is-smc-output.html#cb213-4" tabindex="-1"></a>               <span class="at">dimension =</span> <span class="dv">1</span>,</span>
+<span id="cb213-5"><a href="is-smc-output.html#cb213-5" tabindex="-1"></a>               <span class="at">use_initial_points =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb213-6"><a href="is-smc-output.html#cb213-6" tabindex="-1"></a>               <span class="at">vertical =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb213-7"><a href="is-smc-output.html#cb213-7" tabindex="-1"></a>               <span class="at">alpha_lines =</span> <span class="dv">0</span>,</span>
+<span id="cb213-8"><a href="is-smc-output.html#cb213-8" tabindex="-1"></a>               <span class="at">alpha_points =</span> <span class="fl">0.05</span>,</span>
+<span id="cb213-9"><a href="is-smc-output.html#cb213-9" tabindex="-1"></a>               <span class="at">arrows =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb213-10"><a href="is-smc-output.html#cb213-10" tabindex="-1"></a>               <span class="at">default_title =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb213-11"><a href="is-smc-output.html#cb213-11" tabindex="-1"></a>ggplot2<span class="sc">::</span><span class="fu">geom_line</span>(<span class="at">data=</span>cwna_data,ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x=</span>Index,<span class="at">y=</span>Position),<span class="at">colour=</span><span class="st">&quot;red&quot;</span>,<span class="at">inherit.aes =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb213-12"><a href="is-smc-output.html#cb213-12" tabindex="-1"></a>ggplot2<span class="sc">::</span><span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb213-13"><a href="is-smc-output.html#cb213-13" tabindex="-1"></a>ggplot2<span class="sc">::</span><span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">&quot;none&quot;</span>)</span></code></pre></div>
+<p><img src="ilike-docs_files/figure-html/unnamed-chunk-214-1.png" width="672" /></p>
 </div>
 </div>
             </section>

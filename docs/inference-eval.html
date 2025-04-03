@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Chapter 4 Models | ilike documentation</title>
+  <title>2.8 Evaluate | ilike documentation</title>
   <meta name="description" content="Documentation for the ilike R package." />
   <meta name="generator" content="bookdown 0.37 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Chapter 4 Models | ilike documentation" />
+  <meta property="og:title" content="2.8 Evaluate | ilike documentation" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="Documentation for the ilike R package." />
   <meta name="github-repo" content="richardgeveritt/ilike_documentation" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 4 Models | ilike documentation" />
+  <meta name="twitter:title" content="2.8 Evaluate | ilike documentation" />
   
   <meta name="twitter:description" content="Documentation for the ilike R package." />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="ilike-functions.html"/>
-<link rel="next" href="data.html"/>
+<link rel="prev" href="inference-enkf.html"/>
+<link rel="next" href="ilike-files.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -178,7 +178,7 @@ div.csl-indent {
 <li class="chapter" data-level="2.1" data-path="inference-arguments.html"><a href="inference-arguments.html"><i class="fa fa-check"></i><b>2.1</b> Inference algorithm arguments</a>
 <ul>
 <li class="chapter" data-level="2.1.1" data-path="inference-arguments.html"><a href="inference-arguments.html#recipe-required"><i class="fa fa-check"></i><b>2.1.1</b> <code>recipe</code> (required)</a></li>
-<li class="chapter" data-level="2.1.2" data-path="inference-arguments.html"><a href="inference-arguments.html#results_name-required"><i class="fa fa-check"></i><b>2.1.2</b> <code>results_name</code> (required)</a></li>
+<li class="chapter" data-level="2.1.2" data-path="inference-arguments.html"><a href="inference-arguments.html#results_name-optional"><i class="fa fa-check"></i><b>2.1.2</b> <code>results_name</code> (optional)</a></li>
 <li class="chapter" data-level="2.1.3" data-path="inference-arguments.html"><a href="inference-arguments.html#results_path-optional"><i class="fa fa-check"></i><b>2.1.3</b> <code>results_path</code> (optional)</a></li>
 <li class="chapter" data-level="2.1.4" data-path="inference-arguments.html"><a href="inference-arguments.html#model_parameter_list-optional"><i class="fa fa-check"></i><b>2.1.4</b> <code>model_parameter_list</code> (optional)</a></li>
 <li class="chapter" data-level="2.1.5" data-path="inference-arguments.html"><a href="inference-arguments.html#fixed_parameter_list-optional"><i class="fa fa-check"></i><b>2.1.5</b> <code>fixed_parameter_list</code> (optional)</a></li>
@@ -216,6 +216,11 @@ div.csl-indent {
 <li class="chapter" data-level="2.7" data-path="inference-enkf.html"><a href="inference-enkf.html"><i class="fa fa-check"></i><b>2.7</b> Ensemble Kalman filters</a>
 <ul>
 <li class="chapter" data-level="2.7.1" data-path="inference-enkf.html"><a href="inference-enkf.html#ilike-recipe-requirements-1"><i class="fa fa-check"></i><b>2.7.1</b> ilike recipe requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="2.8" data-path="inference-eval.html"><a href="inference-eval.html"><i class="fa fa-check"></i><b>2.8</b> Evaluate</a>
+<ul>
+<li class="chapter" data-level="2.8.1" data-path="inference-eval.html"><a href="inference-eval.html#algorithm-3"><i class="fa fa-check"></i><b>2.8.1</b> Algorithm</a></li>
+<li class="chapter" data-level="2.8.2" data-path="inference-is.html"><a href="inference-is.html#requirements-is"><i class="fa fa-check"></i><b>2.8.2</b> ilike recipe requirements</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="ilike-files.html"><a href="ilike-files.html"><i class="fa fa-check"></i><b>3</b> ilike files</a>
@@ -466,42 +471,53 @@ div.csl-indent {
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="models" class="section level1 hasAnchor" number="4">
-<h1><span class="header-section-number">Chapter 4</span> Models<a href="models.html#models" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<p>The section describes how to specify a model in an ilike file. A model is specified through factors, the product of which defines a (possibly unnormalised) joint distribution<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>. In most situations we envisage users will be using ilike to perform inference conditional on observed data: in these cases the use must specify a function for ilike to load the data.</p>
-<p>Factors can either be of the type <strong>prior</strong> or <strong>likelihood</strong>.</p>
+<div id="inference-eval" class="section level2 hasAnchor" number="2.8">
+<h2><span class="header-section-number">2.8</span> Evaluate<a href="inference-eval.html#inference-eval" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="algorithm-3" class="section level3 hasAnchor" number="2.8.1">
+<h3><span class="header-section-number">2.8.1</span> Algorithm<a href="inference-eval.html#algorithm-3" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Rather than running an inference algorithm, this function provides the ability to pointwise evaluate (the log of) a model specified in a recipe. Suppose the a model <span class="math inline">\(\tilde{\pi}(\theta) = p(\theta) f(y \mid \theta)\)</span> is specified in a recipe, alongside observed data <span class="math inline">\(y\)</span>. This function describes how to evaluate <span class="math inline">\(\log \tilde{\pi}\)</span> at a <span class="math inline">\(\theta\)</span> provided by the user. We anticipate that this function will be of most use for debugging a model before using it in an inference algorithm.</p>
+<p>The R function <code>evaluate_log</code> implements this functionality.</p>
+<p>In addition to the arguments described in section <a href="inference-arguments.html#inference-arguments">2.1</a>, the <code>evaluate_log</code> function has two additional arguments:</p>
 <ul>
-<li><p>A prior factor is any distribution that does not depend on observed data. Conditional distributions where none of the variables are observed would fall under this category.</p></li>
-<li><p>A likelihood factor is a distribution where one or more of the variables involved is observed.</p></li>
+<li><p><code>parameters</code> (required) This argument is a named list that provides the values of the parameters at which to evaluated the model;</p></li>
+<li><p><code>index</code> (optional) This argument is a vector that provides the indices of the factors (i.e. priors or likelihoods) of the model to evaluate, starting at 1 for the first factor provided in the recipe. The default is to evaluate all factors.</p></li>
 </ul>
-<p>To illustrate the distinction, consider a hierarchical model of the form</p>
-<p><span class="math display">\[
-p(\phi) f(\theta \mid \phi) g(y \mid \theta).
-\]</span>
-If we wish to perform inference on <span class="math inline">\(\theta\)</span> and <span class="math inline">\(\phi\)</span> given observed <span class="math inline">\(y\)</span>, then <span class="math inline">\(p(\phi)\)</span> and <span class="math inline">\(f(\theta \mid \phi)\)</span> would be specified as prior factors, and <span class="math inline">\(g(y \mid \theta)\)</span> would be specified as a likelihood factor. If, for whatever reason, we wished to construct, say, an MCMC algorithm for simulating from the joint distribution on <span class="math inline">\(\phi\)</span>, <span class="math inline">\(\theta\)</span> and <span class="math inline">\(y\)</span>, then all three could be specified as “priors”.</p>
-<p>The specification of a state-space model, which involves a time index <span class="math inline">\(t\)</span> and requires the specification of a transition model, is not described in this section: these details can be found in section <a href="ssm.html#ssm">7</a>.</p>
-<p>There are two ways of specifying priors: through user-defined functions, or through simple built-in “ilike” functions. For a likelihood, the specification through user-defined functions closely follows the analogous way of specifying a prior. The built-in choices of likelihood can be categorised as follows:</p>
+</div>
+<div id="requirements-is" class="section level3 hasAnchor" number="2.8.2">
+<h3><span class="header-section-number">2.8.2</span> ilike recipe requirements<a href="inference-is.html#requirements-is" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>To run the evaluate function in the receipe we require either:</p>
 <ul>
-<li><p>linear and non-linear Gaussian models, covering the special case of measurements with Gaussian noise;</p></li>
-<li><p>simulation-based likelihoods, allowing the use of data models that are specified in the form of a simulator;</p></li>
-<li><p>algorithmic likelihoods, where the likelihood is given by an algorithm such as a particle filter.</p></li>
+<li>(with observed data) functions that are sufficient to evaluate the priors and likelihoods used as factors in the model, plus observed data to allow the likelihoods to be evaluated;</li>
 </ul>
-<p>Recall that every entry in an ilike file has a “function type”. This section details every function type that may be used to specify a model: each subsubsection (e.g. 3.1.1) is named after a function type. For user-defined function types we detail the input and output arguments of the function, and give an example of its use. The specification of each function type is described in both C++ and R. Python and Julia function are both called from R - see section <a href="ilike-files.html#ilike-files">3</a> - so do not require further description). For built-in (ilike) function types, we detail each available built-in function in subsubsubsections (e.g. 3.2.1.1).</p>
-<p>The order in which the factors are provided in the ilike file does not matter, but the compiler will allocate a number to each in the order they are provided, starting from 1. Some parts of the algorithm specification (e.g. specifying which factors must be evaluated in a Metropolis-Hastings update) require the user to refer to factors by their number, so the user may wish to use comments in the ilike file (through the C++ commenting style, i.e. <code>//</code> or <code>/* */</code>) to keep track of the factor numbers.</p>
+<p>or:</p>
+<ul>
+<li>(without observed data) functions that are sufficient to evaluate the priors used as factors in the model, with no likelihoods specified.</li>
+</ul>
+<!-- You can label chapter and section titles using `{#label}` after them, e.g., we can reference Chapter \@ref(intro). If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \@ref(methods). -->
+<!-- Figures and tables with captions will be placed in `figure` and `table` environments, respectively. -->
+<!-- ```{r nice-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'} -->
+<!-- par(mar = c(4, 4, .1, .1)) -->
+<!-- plot(pressure, type = 'b', pch = 19) -->
+<!-- ``` -->
+<!-- Reference a figure by its code chunk label with the `fig:` prefix, e.g., see Figure \@ref(fig:nice-fig). Similarly, you can reference tables generated from `knitr::kable()`, e.g., see Table \@ref(tab:nice-tab). -->
+<!-- ```{r nice-tab, tidy=FALSE} -->
+<!-- knitr::kable( -->
+<!--   head(iris, 20), caption = 'Here is a nice table!', -->
+<!--   booktabs = TRUE -->
+<!-- ) -->
+<!-- ``` -->
+<!-- You can write citations, too. For example, we are using the **bookdown** package [@R-bookdown] in this sample book, which was built on top of R Markdown and **knitr** [@xie2015]. -->
+
 </div>
-<div class="footnotes">
-<hr />
-<ol start="1">
-<li id="fn1"><p>The compiler makes no checks as to whether the factors provided define a valid joint distribution: responsibility for this is left to the user.<a href="models.html#fnref1" class="footnote-back">↩︎</a></p></li>
-</ol>
 </div>
+<!-- </div> -->
             </section>
 
           </div>
         </div>
       </div>
-<a href="ilike-functions.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="data.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="inference-enkf.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="ilike-files.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
@@ -532,7 +548,7 @@ gitbook.start({
 "size": 2
 },
 "edit": {
-"link": "https://github.com/richardgeveritt/ilike_documentation/edit/master/models.Rmd",
+"link": "https://github.com/richardgeveritt/ilike_documentation/edit/master/inference.Rmd",
 "text": "Edit"
 },
 "history": {

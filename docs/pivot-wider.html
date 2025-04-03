@@ -23,7 +23,7 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2025-02-13" />
+<meta name="date" content="2025-03-27" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -467,9 +467,9 @@ div.csl-indent {
 <div id="pivot-wider" class="section level2 hasAnchor" number="8.4">
 <h2><span class="header-section-number">8.4</span> <code>pivot_wider</code> for ilike data<a href="pivot-wider.html#pivot-wider" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Users who are not familiar with the “tidy” data format, or have their own functions for plotting Monte Carlo output, may prefer to load algorithm output in a matrix format, with one row per simulated point. The function <code>ilike_pivot_wider</code> may be used for this. For example, to load the output of the toy model in a matrix format, we can use the following code.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="pivot-wider.html#cb19-1" tabindex="-1"></a>one_row_per_point <span class="ot">=</span> <span class="fu">ilike_pivot_wider</span>(toy_model_rwm_ilike)</span></code></pre></div>
+<div class="sourceCode" id="cb215"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb215-1"><a href="pivot-wider.html#cb215-1" tabindex="-1"></a>one_row_per_point <span class="ot">=</span> <span class="fu">ilike_pivot_wider</span>(toy_model_rwm_ilike)</span></code></pre></div>
 <p>The output is a data frame with one row per simulated point, and columns for each parameter and iteration:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="pivot-wider.html#cb20-1" tabindex="-1"></a><span class="fu">head</span>(one_row_per_point,<span class="at">n=</span><span class="dv">16</span><span class="dt">L</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb216"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb216-1"><a href="pivot-wider.html#cb216-1" tabindex="-1"></a><span class="fu">head</span>(one_row_per_point,<span class="at">n=</span><span class="dv">16</span><span class="dt">L</span>)</span></code></pre></div>
 <pre><code>##    ExternalIndex      Time Iteration Chain       θ_1      θ_2
 ## 1              1 0.5935487         1     1   0.00000  0.00000
 ## 2              1 0.5935487         2     1   0.00000  0.00000
@@ -488,8 +488,8 @@ div.csl-indent {
 ## 15             1 0.5935487        15     1 -11.07381 10.97233
 ## 16             1 0.5935487        16     1 -11.07381 10.97233</code></pre>
 <p>To remove the columns that do not contain the points themselves, use</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="pivot-wider.html#cb22-1" tabindex="-1"></a>just_the_points <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">select</span>(one_row_per_point, <span class="sc">-</span><span class="fu">c</span>(ExternalIndex, Time, Iteration, Chain))</span>
-<span id="cb22-2"><a href="pivot-wider.html#cb22-2" tabindex="-1"></a><span class="fu">head</span>(just_the_points,<span class="at">n=</span><span class="dv">16</span><span class="dt">L</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb218"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb218-1"><a href="pivot-wider.html#cb218-1" tabindex="-1"></a>just_the_points <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">select</span>(one_row_per_point, <span class="sc">-</span><span class="fu">c</span>(ExternalIndex, Time, Iteration, Chain))</span>
+<span id="cb218-2"><a href="pivot-wider.html#cb218-2" tabindex="-1"></a><span class="fu">head</span>(just_the_points,<span class="at">n=</span><span class="dv">16</span><span class="dt">L</span>)</span></code></pre></div>
 <pre><code>##          θ_1      θ_2
 ## 1    0.00000  0.00000
 ## 2    0.00000  0.00000

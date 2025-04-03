@@ -23,7 +23,7 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2025-02-13" />
+<meta name="date" content="2025-04-03" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -31,7 +31,7 @@
   
   
 <link rel="prev" href="inference-kf.html"/>
-<link rel="next" href="ilike-files.html"/>
+<link rel="next" href="inference-eval.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -178,7 +178,7 @@ div.csl-indent {
 <li class="chapter" data-level="2.1" data-path="inference-arguments.html"><a href="inference-arguments.html"><i class="fa fa-check"></i><b>2.1</b> Inference algorithm arguments</a>
 <ul>
 <li class="chapter" data-level="2.1.1" data-path="inference-arguments.html"><a href="inference-arguments.html#recipe-required"><i class="fa fa-check"></i><b>2.1.1</b> <code>recipe</code> (required)</a></li>
-<li class="chapter" data-level="2.1.2" data-path="inference-arguments.html"><a href="inference-arguments.html#results_name-required"><i class="fa fa-check"></i><b>2.1.2</b> <code>results_name</code> (required)</a></li>
+<li class="chapter" data-level="2.1.2" data-path="inference-arguments.html"><a href="inference-arguments.html#results_name-optional"><i class="fa fa-check"></i><b>2.1.2</b> <code>results_name</code> (optional)</a></li>
 <li class="chapter" data-level="2.1.3" data-path="inference-arguments.html"><a href="inference-arguments.html#results_path-optional"><i class="fa fa-check"></i><b>2.1.3</b> <code>results_path</code> (optional)</a></li>
 <li class="chapter" data-level="2.1.4" data-path="inference-arguments.html"><a href="inference-arguments.html#model_parameter_list-optional"><i class="fa fa-check"></i><b>2.1.4</b> <code>model_parameter_list</code> (optional)</a></li>
 <li class="chapter" data-level="2.1.5" data-path="inference-arguments.html"><a href="inference-arguments.html#fixed_parameter_list-optional"><i class="fa fa-check"></i><b>2.1.5</b> <code>fixed_parameter_list</code> (optional)</a></li>
@@ -216,6 +216,11 @@ div.csl-indent {
 <li class="chapter" data-level="2.7" data-path="inference-enkf.html"><a href="inference-enkf.html"><i class="fa fa-check"></i><b>2.7</b> Ensemble Kalman filters</a>
 <ul>
 <li class="chapter" data-level="2.7.1" data-path="inference-enkf.html"><a href="inference-enkf.html#ilike-recipe-requirements-1"><i class="fa fa-check"></i><b>2.7.1</b> ilike recipe requirements</a></li>
+</ul></li>
+<li class="chapter" data-level="2.8" data-path="inference-eval.html"><a href="inference-eval.html"><i class="fa fa-check"></i><b>2.8</b> Evaluate</a>
+<ul>
+<li class="chapter" data-level="2.8.1" data-path="inference-eval.html"><a href="inference-eval.html#algorithm-3"><i class="fa fa-check"></i><b>2.8.1</b> Algorithm</a></li>
+<li class="chapter" data-level="2.8.2" data-path="inference-is.html"><a href="inference-is.html#requirements-is"><i class="fa fa-check"></i><b>2.8.2</b> ilike recipe requirements</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="ilike-files.html"><a href="ilike-files.html"><i class="fa fa-check"></i><b>3</b> ilike files</a>
@@ -441,7 +446,9 @@ div.csl-indent {
 </ul></li>
 <li class="chapter" data-level="11" data-path="debugging.html"><a href="debugging.html"><i class="fa fa-check"></i><b>11</b> Debugging ilike</a>
 <ul>
-<li class="chapter" data-level="11.1" data-path="error-in-could-not-find-function.html"><a href="error-in-could-not-find-function.html"><i class="fa fa-check"></i><b>11.1</b> Error in …: could not find function “…”</a></li>
+<li class="chapter" data-level="11.1" data-path="error-in-could-not-find-function.html"><a href="error-in-could-not-find-function.html"><i class="fa fa-check"></i><b>11.1</b> Error in … could not find function …</a></li>
+<li class="chapter" data-level="11.2" data-path="parameter-index-does-not-correspond-to-in-the-parameters-file.html"><a href="parameter-index-does-not-correspond-to-in-the-parameters-file.html"><i class="fa fa-check"></i><b>11.2</b> Parameter index does not correspond to … in the parameters file</a></li>
+<li class="chapter" data-level="11.3" data-path="parameters-operator-variable-not-found-in-parameters.html"><a href="parameters-operator-variable-not-found-in-parameters.html"><i class="fa fa-check"></i><b>11.3</b> Parameters operator variable … not found in Parameters</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 <li class="divider"></li>
@@ -484,24 +491,8 @@ div.csl-indent {
 <div id="ilike-recipe-requirements-1" class="section level3 hasAnchor" number="2.7.1">
 <h3><span class="header-section-number">2.7.1</span> ilike recipe requirements<a href="inference-enkf.html#ilike-recipe-requirements-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>The EnKF requires only the specification of a linear-Gaussian SSM, following section <a href="ssm.html#ssm">7</a>. The transition model must be specified using any approach, but the measurement model must be specified using the method from either section <a href="linear-gaussian-data-model.html#linear-gaussian-data-model">4.5</a> or section <a href="nonlinear-gaussian-data-model.html#nonlinear-gaussian-data-model">4.6</a>.</p>
-<!-- You can label chapter and section titles using `{#label}` after them, e.g., we can reference Chapter \@ref(intro). If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \@ref(methods). -->
-<!-- Figures and tables with captions will be placed in `figure` and `table` environments, respectively. -->
-<!-- ```{r nice-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'} -->
-<!-- par(mar = c(4, 4, .1, .1)) -->
-<!-- plot(pressure, type = 'b', pch = 19) -->
-<!-- ``` -->
-<!-- Reference a figure by its code chunk label with the `fig:` prefix, e.g., see Figure \@ref(fig:nice-fig). Similarly, you can reference tables generated from `knitr::kable()`, e.g., see Table \@ref(tab:nice-tab). -->
-<!-- ```{r nice-tab, tidy=FALSE} -->
-<!-- knitr::kable( -->
-<!--   head(iris, 20), caption = 'Here is a nice table!', -->
-<!--   booktabs = TRUE -->
-<!-- ) -->
-<!-- ``` -->
-<!-- You can write citations, too. For example, we are using the **bookdown** package [@R-bookdown] in this sample book, which was built on top of R Markdown and **knitr** [@xie2015]. -->
-
 </div>
 </div>
-<!-- </div> -->
 <h3>References<a href="references.html#references" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-drovandi2022ensemble" class="csl-entry">
@@ -517,7 +508,7 @@ Katzfuss, Matthias, Jonathan R Stroud, and Christopher K Wikle. 2016. <span>“U
         </div>
       </div>
 <a href="inference-kf.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="ilike-files.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="inference-eval.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

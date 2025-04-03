@@ -23,7 +23,7 @@
 <meta name="author" content="Richard G. Everitt" />
 
 
-<meta name="date" content="2025-02-13" />
+<meta name="date" content="2025-03-27" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -466,7 +466,7 @@ div.csl-indent {
             <section class="normal" id="section-">
 <div id="output-detail" class="section level2 hasAnchor" number="8.5">
 <h2><span class="header-section-number">8.5</span> Further detail about output files<a href="output-detail.html#output-detail" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>ilike output is stored in a directory, the name of which is specified by a user. This contains a subdirectory, named either <code>ilike_smc</code> (for MCMC<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, IS and SMC algorithms), <code>ilike_enk</code> (for ensemble algorithms) or <code>ilike_kf</code> (for Kalman filters).</p>
+<p>ilike output is stored in a directory, the name of which is specified by a user. This contains a subdirectory, named either <code>ilike_smc</code> (for MCMC<a href="#fn9" class="footnote-ref" id="fnref9"><sup>9</sup></a>, IS and SMC algorithms), <code>ilike_enk</code> (for ensemble algorithms) or <code>ilike_kf</code> (for Kalman filters).</p>
 <p>For nested algorithms where a factor is evaluated/estimated using an algorithm, the same convention is used, with the suffixes <code>_smc</code>, <code>_enk</code> and <code>_kf</code> being used after the word <code>factor</code> in the directory names. For factors that can be evaluated exactly, the suffix <code>_exact</code> is used. When these factors are nested in an IS, SMC or MCMC algorithm, the factor will be evaluated/estimated multiple times, and the files in that directory will be appended each time the factor is evaluated/estimated.</p>
 <p>At present all information is stored in text files, but I plan to add support for binary files in the future.</p>
 <div id="smc-output" class="section level3 hasAnchor" number="8.5.1">
@@ -556,8 +556,8 @@ Iglesias, Marco, Minho Park, and Michael V Tretyakov. 2018. <span>“Bayesian In
 </div>
 <div class="footnotes">
 <hr />
-<ol start="1">
-<li id="fn1"><p>This might seem odd, but <code>ilike_smc</code> is used here since internally MCMC is run as a special case of an SMC sampler.<a href="output-detail.html#fnref1" class="footnote-back">↩︎</a></p></li>
+<ol start="9">
+<li id="fn9"><p>This might seem odd, but <code>ilike_smc</code> is used here since internally MCMC is run as a special case of an SMC sampler.<a href="output-detail.html#fnref9" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
             </section>

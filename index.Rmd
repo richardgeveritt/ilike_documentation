@@ -41,8 +41,8 @@ ilike files include the option to estimate the likelihood using any of the infer
 
 * an exact likelihood;
 * approximate Bayesian computation (ABC);
-* synthetic likelihood (SL);
-* iterative ensemble Kalman inversion ABC (IEnKI-ABC).
+* synthetic likelihood (SL).
+<!-- * iterative ensemble Kalman inversion ABC (IEnKI-ABC). -->
 
 We begin the documentation in section \@ref(toy-example) by giving an example of how to use the package, from (a) the specification of the ilike file and its compilation, to (b) calling the function that runs the inference algorithm, then (c) visualising the output of the algorithm. The documentation then follows the same order, providing full details about every step.
 

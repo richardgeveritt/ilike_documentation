@@ -51,7 +51,7 @@ One feature of the of the ilike package is the ability to use estimated likeliho
 
 ## Inference algorithm arguments {#inference-arguments}
 
-All inference algorithms have the following arguments in common.
+All inference algorithms have the following arguments in common. All users are encouraged to reed about the first two items on this page: the `recipe`, which is the means for providing ilike with the functions used in the inference algorithm and is required in all runs of an ilike algorithm; and the `results_name`, which is used in most circumstances.
 
 ### `recipe` (required)
 
@@ -63,9 +63,11 @@ Every inference algorithm requires the specification of a model, in most cases a
 
 3. Where the recipe is specified across multiple files, as a vector of filenames of ilike files. This is a useful approach when performing a single run of an algorithm, and where it is advantageous to divide the specification of the model and algorithm across multiple files (maybe when you wish to specify the model separately from the inference algorithm).
 
-### `results_name` (required)
+### `results_name` (optional)
 
-`results_name`, specifies the folder where the results will be written. A new folder with this name will be created in the `results_path` directory. If the folder already exists, you will be prompted to check that you are ok with overwriting the contents of the folder.
+`results_name`, specifies the folder where the results will be written. A new folder with this name will be created in the `results_path` directory. If the folder already exists, you will be prompted to check that you are ok with overwriting the contents of the folder. The default is for no results to be written to file.
+
+The results written to file depend on which algorithm is called. For MCMC, the folder contains the raw output of the chains; the IS or SMC, the weighted points. Cases in which the user may not wish to output to a file are when only, for example, evaluations of a model are required (when calling `evaluate_log`) or when ilike is being used to estimate a normalising constant (e.g. from IS or SMC). In these situations the function will return a numeric argument yielding the desired result.
 
 ### `results_path` (optional)
 
@@ -352,6 +354,31 @@ As for a PF, section \@ref(enk-output) then describes how to visualise the outpu
 ### ilike recipe requirements
 
 The EnKF requires only the specification of a linear-Gaussian SSM, following section \@ref(ssm). The transition model must be specified using any approach, but the measurement model must be specified using the method from either section \@ref(linear-gaussian-data-model) or section \@ref(nonlinear-gaussian-data-model).
+
+
+## Evaluate {#inference-eval}
+
+### Algorithm
+
+Rather than running an inference algorithm, this function provides the ability to pointwise evaluate (the log of) a model specified in a recipe. Suppose the a model $\tilde{\pi}(\theta) = p(\theta) f(y \mid \theta)$ is specified in a recipe, alongside observed data $y$. This function describes how to evaluate $\log \tilde{\pi}$ at a $\theta$ provided by the user. We anticipate that this function will be of most use for debugging a model before using it in an inference algorithm.
+
+The R function `evaluate_log` implements this functionality.
+
+In addition to the arguments described in section \@ref(inference-arguments), the `evaluate_log` function has two additional arguments:
+
+- `parameters` (required) This argument is a named list that provides the values of the parameters at which to evaluated the model;
+
+- `index` (optional) This argument is a vector that provides the indices of the factors (i.e. priors or likelihoods) of the model to evaluate, starting at 1 for the first factor provided in the recipe. The default is to evaluate all factors.
+
+### ilike recipe requirements {#requirements-is}
+
+To run the evaluate function in the receipe we require either:
+
+- (with observed data) functions that are sufficient to evaluate the priors and likelihoods used as factors in the model, plus observed data to allow the likelihoods to be evaluated;
+
+or:
+
+- (without observed data) functions that are sufficient to evaluate the priors used as factors in the model, with no likelihoods specified.
 
 <!-- You can label chapter and section titles using `{#label}` after them, e.g., we can reference Chapter \@ref(intro). If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \@ref(methods). -->
 
