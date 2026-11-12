@@ -153,7 +153,7 @@ To run an importance sampler, we need to be able to:
 
 Points 1 and 2 require a proposal to be fully specified (simulation and evaluation) in the recipe, using the approaches in sections \@ref(user-proposal) and \@ref(ilike-proposal). Point 3 requires the target distribution to be fully specified, via a model (section \@ref(models)).
 
-There is one exception to this rule: in the cade of Bayesian computation where the prior $p$ is chosen as the proposal $q$. In this case equation \@ref(eq:is-weight) simplifies to
+There is one exception to this rule: in the case of Bayesian computation where the prior $p$ is chosen as the proposal $q$. In this case equation \@ref(eq:is-weight) simplifies to
 $$
 \tilde{w}^i = \frac{\tilde{\pi}(\theta^i)}{q(\theta^i)} = \frac{p(\theta^i) f(y\mid \theta^i) }{p(\theta^i)} = f(y\mid \theta^i),
 $$
