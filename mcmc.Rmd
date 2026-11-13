@@ -71,15 +71,54 @@ R example:
 
 ## Selecting factors
 
-ilike uses no representation of the conditional independence structure of the joint distribution, therefore it is unable to automatically recognise when some factors in the joint distribution need not be evaluated in a Metropolis or Metropolis-Hastings update. To avoid evaluating every factor, the user can provide an "factor index" function type following the proposal function type, referring to the factors that should be included in the Metropolis-Hastings acceptance ratio, starting from "1".
+ilike does not know which factors of the model depend on which parameters, so by default every factor is used in every MCMC update. Each update can instead be told which factors to use, by giving one or both of the following function types *after* the associated proposal (factors are numbered from 1, in the order in which they appear in the ilike files):
 
-Note:
+- a **factor index** (`m_factor_index`, `mh_factor_index`, `imh_factor_index`, `unadjusted_factor_index`): the factors used by the update (in its acceptance ratio, or for an unadjusted update, in its gradient);
 
-- When no factor index vector is provided, all factors will be evaluated in the acceptance ratio.
+- a **cut factor index** (`m_cut_factor_index`, `mh_cut_factor_index`, `imh_cut_factor_index`, `unadjusted_cut_factor_index`): factors that depend on the parameters the update changes, but are deliberately left out of it.
 
-- If used, the factor index vector must be given *after* the associated proposal.
+For an update with an acceptance ratio, every factor is then in one of three groups:
 
-Each type of MCMC update that has an acceptance probability uses a different factor index function type: they all work in the same way as each other.
+| Group | Given by | In the acceptance ratio | After the update is accepted |
+|---|---|---|---|
+| used | factor index (default: all factors not in the cut factor index) | yes | its new value is kept |
+| cut | cut factor index (default: none) | no | re-evaluated at the new parameters |
+| other | neither | no | kept unchanged |
+
+A factor may not be in both the factor index and the cut factor index of the same update.
+
+**Factors that cancel (Metropolis-within-Gibbs).** If an update changes only some of the parameters, factors that do not depend on those parameters cancel in the acceptance ratio, and leaving them out saves their evaluation. List the factors that *do* depend on the changed parameters in the factor index; the others are kept unchanged. This does not change the target distribution, but it is only correct if the omitted factors really do not depend on the changed parameters: ilike cannot check this in general (but see "Checking the factor indices" below). For a factor whose value is a random estimate (for example a likelihood estimated by a nested importance sampler or particle filter), the existing estimate is kept, as required for a valid pseudo-marginal update.
+
+For example, with independent parameters `theta1` (factors 1 and 2) and `theta2` (factors 3 and 4):
+
+```{Rcpp,eval=FALSE}
+/***m_proposal,ilike::norm_rw(theta1,1)***/
+/***m_factor_index,c(1,2)***/
+
+/***m_proposal,ilike::norm_rw(theta2,1)***/
+/***m_factor_index,c(3,4)***/
+```
+
+**Cutting feedback.** Sometimes a factor that does depend on the changed parameters should nevertheless be ignored when updating them, to stop information flowing from one part of the model to another (a "cut", as in the `cut` function of OpenBUGS). Put such factors in the cut factor index. For example, with nuisance parameters `phi` informed by data $Z$, and parameters of interest `theta` informed by data $Y$ whose model also involves `phi` (factors: 1 $p(\phi)$, 2 $p(Z \mid \phi)$, 3 $p(\theta)$, 4 $p(Y \mid \theta, \phi)$):
+
+```{Rcpp,eval=FALSE}
+/***m_proposal,ilike::norm_rw(phi,0.5)***/
+/***m_factor_index,c(1,2)***/
+/***m_cut_factor_index,c(4)***/
+
+/***m_proposal,ilike::norm_rw(theta,0.5)***/
+/***m_factor_index,c(3,4)***/
+```
+
+Here `phi` is updated using only $p(\phi) p(Z \mid \phi)$; $p(Y \mid \theta, \phi)$ is ignored when updating `phi`, but is re-evaluated after each accepted update of `phi`, so that the update of `theta` uses its correct value. Factor 3 does not depend on `phi` and cancels.
+
+This is the "naive cut algorithm" described by @plummer2015cuts. Its limiting distribution depends on how `theta` is updated: it is the cut distribution $p(\theta \mid Y, \phi)\, p(\phi \mid Z)$ only if `theta` is drawn exactly from $p(\theta \mid Y, \phi)$ at each iteration. With a Metropolis-Hastings update for `theta`, the chain converges to a distribution that depends on the proposal, and it may differ noticeably from the cut distribution.
+
+**Unadjusted updates.** An unadjusted update (see below) does not evaluate any factor: often the reason for using it is to avoid this, and the functions to evaluate the factors need not be supplied. Its factor index lists the factors whose gradient it uses. Because these factors are not evaluated, an unadjusted update can only be combined with updates whose factor index does not include the factors that the unadjusted update changes (its factor index and cut factor index); otherwise ilike stops with an error. For example, an unadjusted update of `theta1` using factors 1 and 2 can be combined with a Metropolis update of `theta2` using factors 3 and 4, but not with a Metropolis update that uses factor 1 or 2.
+
+**Checking the factor indices.** Setting `check_factor_index = TRUE` in `MCMC` or `SMC_with_MCMC` makes ilike re-evaluate, after every accepted update, each factor in the "other" group whose value is not a random estimate, and stop with an error if its value changed (that is, it depends on the changed parameters and so does not cancel). This is slower and is intended for checking a model file.
+
+Each type of MCMC update uses its own factor index and cut factor index function types: they all work in the same way as each other.
 
 ### m_factor_index
 
@@ -159,8 +198,55 @@ NumericVector mh_factor_index()
 R example:
 
 ```{Rcpp,eval=FALSE}
-/***imh_factor_index,c(1,3)***/
+/***mh_factor_index,c(1,3)***/
 ```
+
+### unadjusted_factor_index
+
+`unadjusted_factor_index` allows the user to specify which factors are used (for their gradient) in an unadjusted update. The vector of indices must correspond to the order in which the factors are provided in the ilike file. There are no inputs. See "Unadjusted updates" above for which other updates it can be combined with.
+
+Output: The indices of the factors used by the update.
+
+  -- of type `NumericVector` in a C++ function (this is a vector format from `Rcpp`)
+  
+  -- a vector in R.
+
+R example:
+
+```{Rcpp,eval=FALSE}
+/***unadjusted_factor_index,c(1,2)***/
+```
+
+### m_cut_factor_index
+
+`m_cut_factor_index` allows the user to specify factors that depend on the parameters changed by a Metropolis update, but are deliberately left out of its acceptance ratio (see "Cutting feedback" above). These factors are re-evaluated after the update is accepted. A factor may not be in both `m_factor_index` and `m_cut_factor_index`. There are no inputs.
+
+Output: The indices of the cut factors.
+
+  -- of type `NumericVector` in a C++ function (this is a vector format from `Rcpp`)
+  
+  -- a vector in R.
+  
+C++ example:
+
+```{Rcpp,eval=FALSE}
+/***m_cut_factor_index***/
+NumericVector m_cut_factor_index()
+{
+  NumericVector factor_index = NumericVector::create(4); // example where factor 4 is cut
+  return factor_index;
+}
+```
+
+R example:
+
+```{Rcpp,eval=FALSE}
+/***m_cut_factor_index,c(4)***/
+```
+
+### mh_cut_factor_index, imh_cut_factor_index and unadjusted_cut_factor_index
+
+These work in the same way as `m_cut_factor_index`, for Metropolis-Hastings, independent Metropolis-Hastings and unadjusted updates respectively. For an unadjusted update, cut factors are left out of its gradient and, like all factors in an unadjusted update, are not evaluated.
 
 ## User-defined Metropolis proposals
 
