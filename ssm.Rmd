@@ -4,7 +4,7 @@ This section describes how to specify a state-space model (SSM) in an ilike file
 
 To specify this model in an ilike file, we need to provide the following:
 
-- The prior on the initial state $x_0$. This can be provided using the methods described for providing a prior in section \@ref(models).
+- The prior on the initial state $x_0$. This can be provided using the methods described for providing a prior in section \@ref(models). The Kalman filter (`KF`) requires this to be a built-in Gaussian prior (`prior,ilike::norm` or `prior,ilike::mvnorm`).
 
 - The measurement model on $y_t \mid x_t$. This can be provided using the methods described for providing a likelihood in section \@ref(models). If multiple likelihoods are provided, the distribution of the observed variables in each likelihood will be assumed to be conditionally independent given $x_t$.
 
@@ -212,17 +212,15 @@ We may use an ilike function to specify the complete linear-Gaussian transition 
 
 #### Linear-Gaussian transition model `ilike::linear_gaussian_transition_model`
 
-Specifies the linear-Gaussian transition model.
+Specifies the linear-Gaussian transition model with constant matrices, in place of the four function types above, e.g. `/***linear_gaussian_transition_model,ilike::linear_gaussian_transition_model(x,0.9,0.5)***/`.
 
 Inputs:
 
-  1. string: The name of the observed transition variable
+  1. string: The name of the latent state variable $x$
   
-  2. string: The name of the latent state variable
+  2. matrix: The matrix $A$
   
-  3. matrix: The matrix $A$
-  
-  4. matrix: The covariance matrix $Q$
+  3. matrix: The covariance matrix $Q$
   
 ## Nonlinear-Gaussian transition model
 
@@ -283,7 +281,7 @@ C++ example:
 Parameters transform_state(const Parameters &xtminus1_and_theta)
 {
   arma::colvec noiseless_xt(1,1);
-  noiseless_xt[0] = exp(xtminus1_and_theta["x"][0) + xtminus1_and_theta["theta"][0];
+  noiseless_xt[0] = exp(xtminus1_and_theta["x"][0]) + xtminus1_and_theta["theta"][0];
   return Parameters("x", noiseless_xt);
 }
 ```
@@ -384,9 +382,9 @@ C++ example:
 Parameters simulate_state(RandomNumberGenerator &rng,
                           const Parameters &xtminus1_and_theta)
 {
-  arma::colvec xt(1,1);
-  noiseless_xt[0] = rnorm(rng,1,exp(xtminus1_and_theta["x"][0) + xtminus1_and_theta["theta"][0],1.0);
-  return Parameters("x", noiseless_xt);
+  arma::colvec xt(1);
+  xt[0] = rnorm(rng, exp(xtminus1_and_theta["x"][0]) + xtminus1_and_theta["theta"][0], 1.0);
+  return Parameters("x", xt);
 }
 ```
 
@@ -435,7 +433,7 @@ double log_transition_density(const Parameters &proposed_parameters,
 R example:
 
 ```{Rcpp,eval=FALSE}
-/***evaluate_log_transition_model,dnorm(parameters$x,exp(parameters$x)+parameters$theta,1,log=TRUE)***/
+/***evaluate_log_transition_model,dnorm(proposed_parameters$x,exp(parameters$x)+parameters$theta,1,log=TRUE)***/
 ```
 
 
@@ -678,7 +676,7 @@ R example:
 <!-- Parameters transform_state(const Parameters &xtminus1_and_theta) -->
 <!-- { -->
 <!--   arma::colvec noiseless_xt(1,1); -->
-<!--   noiseless_xt[0] = exp(xtminus1_and_theta["x"][0) + xtminus1_and_theta["theta"][0]; -->
+<!--   noiseless_xt[0] = exp(xtminus1_and_theta["x"][0]) + xtminus1_and_theta["theta"][0]; -->
 <!--   return Parameters("x", noiseless_xt); -->
 <!-- } -->
 <!-- ``` -->
@@ -754,17 +752,23 @@ The functions in this section allow the specification of a user-defined transiti
 
 ### simulate_transition proposal
 
-The `simulate_transition_proposal` function type simulates the latent state at time $t$ given the latent state at time $t-1$ and any parameters that the proposal relies on.
+The `simulate_transition_proposal` function type simulates the latent state at time $t$ given the latent state at time $t-1$ and any parameters that the proposal relies on. Unlike the transition model, the proposal is also given the data, so that it may use the measurement at time $t$ (for example to construct a guided proposal).
 
 Input: (C++ only) The random number generator.
 
   -- of type `RandomNumberGenerator &` in a C++ function
 
-Input: The latent state at time $t-1$ and any parameters that the proposal relies on.
+Input: The latent state at time $t-1$ and any parameters that the proposal relies on. These also contain the index variable of the SSM (the first argument of `ilike::ssm`, e.g. `i`), set to the index of the time $t$ being proposed, together with the time and time-difference variables.
 
   -- of type `const Parameters &` in a C++ function
   
   -- available as R list `parameters` in an R function
+
+Input: The data at time $t$: the measurement(s) of the time being proposed (e.g. `data["y"]` is $y_t$, not the whole series).
+
+  -- of type `const Data &` in a C++ function
+  
+  -- available as R list `data` in an R function
   
 Output: The latent state at time $t$.
 
@@ -777,11 +781,12 @@ C++ example:
 ```{Rcpp,eval=FALSE}
 /***simulate_transition_proposal***/
 Parameters simulate_state(RandomNumberGenerator &rng,
-                          const Parameters &xtminus1_and_theta)
+                          const Parameters &xtminus1_and_theta,
+                          const Data &data)
 {
-  arma::colvec xt(1,1);
-  noiseless_xt[0] = rnorm(rng,1,exp(xtminus1_and_theta["x"][0) + xtminus1_and_theta["theta"][0],1.0);
-  return Parameters("x", noiseless_xt);
+  arma::colvec xt(1);
+  xt[0] = rnorm(rng, exp(xtminus1_and_theta["x"][0]) + xtminus1_and_theta["theta"][0], 1.0);
+  return Parameters("x", xt);
 }
 ```
 
@@ -801,11 +806,17 @@ Input: The proposed latent state at time $t$ and any parameters that the proposa
   
   -- available as R list `proposed_parameters` in an R function
   
-Input: The latent state at time $t-1$ and any parameters that the proposal relies on.
+Input: The latent state at time $t-1$ and any parameters that the proposal relies on (including the index variable of the SSM, as for `simulate_transition_proposal`).
 
   -- of type `const Parameters &` in a C++ function
   
   -- available as R list `parameters` in an R function
+
+Input: The data at time $t$: the measurement(s) of the time being proposed (e.g. `data["y"]` is $y_t$, not the whole series).
+
+  -- of type `const Data &` in a C++ function
+  
+  -- available as R list `data` in an R function
   
 Output: The log transition density of the latent state at time $t$ given the latent state at time $t-1$. 
 
@@ -818,7 +829,8 @@ C++ example:
 ```{Rcpp,eval=FALSE}
 /***evaluate_log_transition_proposal***/
 double log_transition_density(const Parameters &proposed_parameters,
-                              const Parameters &parameters)
+                              const Parameters &parameters,
+                              const Data &data)
 {
   double x = proposed_parameters["x"][0];
   double xminus1 = parameters["x"][0];
@@ -830,7 +842,7 @@ double log_transition_density(const Parameters &proposed_parameters,
 R example:
 
 ```{Rcpp,eval=FALSE}
-/***evaluate_log_transition_proposal,dnorm(parameters$x,exp(parameters$x)+parameters$theta,1,log=TRUE)***/
+/***evaluate_log_transition_proposal,dnorm(proposed_parameters$x,exp(parameters$x)+parameters$theta,1,log=TRUE)***/
 ```
 
 

@@ -214,6 +214,8 @@ Inputs:
   2. numeric vector: the sequence of values for the target variable
   
   3. (optional) integer vector: the factor indices for the factors that are affected by changing the variable specified in the first argument (default is to reevaluate all factors whe the target changes)
+
+An important use is ABC-SMC [@DelMoral2012g]: the variable is the tolerance of an ABC likelihood (the tolerance variable named in `sbi_likelihood`, section \@ref(models)), and the sequence decreases to the final tolerance, e.g. `/***smc_sequence,ilike::parameter(epsilon,c(Inf,0.5))***/`. The sequence may start at `Inf`, where the ABC kernel is taken to be 1, so that the first target is the prior. The tolerance value given in `sbi_likelihood` is then not used. Each particle keeps its simulations from the model, which are reweighted (not re-simulated) when the tolerance changes; this makes it cheap to choose the tolerances adaptively with `adaptive_target` (below). See section \@ref(abc-smc-lv) for an example.
   
 #### Annealing `ilike::annealing`
 

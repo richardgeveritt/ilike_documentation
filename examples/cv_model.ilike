@@ -1,0 +1,68 @@
+// Constant velocity model (continuous white noise acceleration, unit time
+// steps): the state x_t = (position, velocity) evolves as
+//   x_t ~ N(A x_{t-1}, Q),  A = [1 dt; 0 1],  Q = [dt^3/3 dt^2/2; dt^2/2 dt],
+// and only the position is observed with unit noise variance:
+//   y_t ~ N(H x_t, R),  H = [1 0],  R = 1.
+// The prior on x_0 is N(0, 100 I). The data are the first 20 observations of
+// the constant_velocity_y data set in the ilike package (get_data() is in
+// cv_model.R).
+
+/***data,y=get_data()***/
+
+/***prior,ilike::mvnorm(x,p1,p2)***/
+
+/***linear_gaussian_transition_variable***/
+std::string transition_variable()
+{
+  return "x";
+}
+
+/***linear_gaussian_transition_matrix***/
+arma::mat transition_matrix(const Parameters &parameters)
+{
+  double dt = parameters["dt"][0];
+  arma::mat A(2, 2);
+  A(0, 0) = 1.0; A(0, 1) = dt;
+  A(1, 0) = 0.0; A(1, 1) = 1.0;
+  return A;
+}
+
+/***linear_gaussian_transition_covariance***/
+arma::mat transition_covariance(const Parameters &parameters)
+{
+  double dt = parameters["dt"][0];
+  arma::mat Q(2, 2);
+  Q(0, 0) = dt*dt*dt/3.0; Q(0, 1) = dt*dt/2.0;
+  Q(1, 0) = dt*dt/2.0;    Q(1, 1) = dt;
+  return Q;
+}
+
+/***linear_gaussian_data_variable***/
+std::string data_variable()
+{
+  return "y";
+}
+
+/***linear_gaussian_data_state_variable***/
+std::string state_variable()
+{
+  return "x";
+}
+
+/***linear_gaussian_data_matrix***/
+arma::mat data_matrix(const Parameters &parameters)
+{
+  arma::mat H(1, 2);
+  H(0, 0) = 1.0; H(0, 1) = 0.0;
+  return H;
+}
+
+/***linear_gaussian_data_covariance***/
+arma::mat data_covariance(const Parameters &parameters)
+{
+  arma::mat R(1, 1);
+  R(0, 0) = 1.0;
+  return R;
+}
+
+/***ssm,ilike::ssm(i,0,19,t,0,dt,1,1)***/

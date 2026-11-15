@@ -1,0 +1,13 @@
+// ABC-SMC: the tolerance epsilon decreases from infinity (the prior) to 0.5,
+// each tolerance chosen so that the conditional effective sample size is 0.9
+// of the particles. After each reweighting the particles are moved by five
+// iterations of ABC-MCMC (random walk on log_theta with covariance p3) at the
+// current tolerance.
+
+/***m_proposal,ilike::mvnorm_rw(log_theta,p3)***/
+
+/***mcmc_termination,ilike::iterations(5)***/
+
+/***smc_sequence,ilike::parameter(epsilon,c(Inf,0.5))***/
+
+/***adaptive_target,ilike::cess(0.9)***/

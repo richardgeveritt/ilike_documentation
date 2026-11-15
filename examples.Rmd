@@ -1,31 +1,304 @@
 # Examples {#examples}
 
+This chapter works through complete examples. Each uses ilike files from the `examples` directory of this book's source; the script `examples/run_examples.R` runs all of them and saves the output plotted here (the book does not run ilike itself). The code below assumes that the example files are in the working directory.
+
+```{r examples-setup, include=FALSE}
+library(ggplot2)
+example_file = function(name) readLines(file.path("examples", name))
+example_output = function(name) readRDS(file.path("examples", "output", name))
+```
+
 ## MCMC algorithms for sampling from a Gaussian {#mcmc-gaussian}
+
+We begin with a model whose posterior we know exactly: $n = 100$ observations $y_i \sim \mathcal{N}(\theta, 1)$ with prior $\theta \sim \mathcal{N}(0, 10^2)$, so that the posterior is Gaussian with variance $v = 1/(n + 10^{-2})$ and mean $v \sum_i y_i$. The data are the `gaussian` data set in the ilike package.
+
+The model file specifies the prior and likelihood in C++, together with their gradients (needed by the gradient-based proposals below). The data are loaded with an R function: the header `/***data,y=get_data()***/` calls `get_data()`, which is defined in `gaussian_model.R`. An R file with the same name as the ilike file is sourced automatically when the model is compiled.
+
+```{Rcpp, eval=FALSE, code=example_file("gaussian_model.ilike")}
+```
+
+```{r, eval=FALSE, code=example_file("gaussian_model.R")}
+```
+
+We compare three MCMC algorithms (chapter \@ref(mcmc)), each specified in a short file that is compiled together with the model: random walk Metropolis,
+
+```{Rcpp, eval=FALSE, code=example_file("gaussian_rwm.ilike")}
+```
+
+the Metropolis-adjusted Langevin algorithm,
+
+```{Rcpp, eval=FALSE, code=example_file("gaussian_langevin.ilike")}
+```
+
+and the Barker proposal [@livingstone2022barker].
+
+```{Rcpp, eval=FALSE, code=example_file("gaussian_barker.ilike")}
+```
+
+Each is run from the same starting point, $\theta = 2$, far in the tail of the posterior:
+
+```{r, eval=FALSE}
+library(ilike)
+for (algorithm in c("rwm", "langevin", "barker"))
+{
+  recipe = compile(c("gaussian_model.ilike", paste("gaussian_", algorithm, ".ilike", sep = "")))
+  MCMC(recipe, results_name = algorithm, initial_values = list(list(θ = 2)), seed = 1)
+}
+rwm = load_mcmc_output("rwm")
+```
+
+```{r, include=FALSE}
+gaussian_runs = do.call(rbind, lapply(c("rwm", "langevin", "barker"),
+                                      function(a) example_output(paste("gaussian_", a, ".rds", sep = ""))))
+gaussian_runs$Algorithm = factor(gaussian_runs$Algorithm, levels = c("rwm", "langevin", "barker"),
+                                 labels = c("Random walk", "Langevin", "Barker"))
+utils::data("gaussian", package = "ilike")
+posterior_variance = 1/(length(gaussian) + 1/100)
+posterior_mean = posterior_variance*sum(gaussian)
+```
+
+The output of each run is a data frame in the standard ilike format (chapter \@ref(output)), here with one row per iteration since $\theta$ is a scalar. The gradient-based proposals move towards the posterior in a few iterations, while the random walk takes longer:
+
+```{r gaussian-trace, fig.cap="The first 100 iterations of each algorithm, started at θ = 2.", fig.height=3}
+ggplot(subset(gaussian_runs, Iteration <= 100), aes(x = Iteration, y = Value)) +
+  geom_line() +
+  facet_wrap(~Algorithm) +
+  ylab("θ")
+```
+
+After discarding the first 1000 iterations, all three estimate the posterior well:
+
+```{r gaussian-density, fig.cap="Density estimates from each algorithm (iterations 1001-10000) and the exact posterior (dashed).", fig.height=3}
+ggplot(subset(gaussian_runs, Iteration > 1000), aes(x = Value, colour = Algorithm)) +
+  geom_density() +
+  stat_function(fun = dnorm, args = list(mean = posterior_mean, sd = sqrt(posterior_variance)),
+                colour = "black", linetype = "dashed") +
+  xlab("θ") + ylab("density")
+```
+
+```{r}
+burned_in = subset(gaussian_runs, Iteration > 1000)
+aggregate(Value ~ Algorithm, burned_in, function(v) c(mean = mean(v), sd = sd(v)))
+c(mean = posterior_mean, sd = sqrt(posterior_variance))
+```
+
+The output can also be plotted with the `ggsmc` package, using `mcmc = TRUE`:
+
+```{r gaussian-ggsmc, fig.cap="Histogram of the random walk Metropolis output, plotted with ggsmc.", fig.height=3, message=FALSE}
+rwm = example_output("gaussian_rwm.rds")
+ggsmc::plot_histogram(subset(rwm, Iteration > 1000), parameter = "θ", mcmc = TRUE)
+```
 
 ## Converting an MCMC into an SMC sampler {#smc-from-mcmc}
 
+An MCMC algorithm specified in an ilike file can be used directly as the move in an SMC sampler (chapter \@ref(smc)). Here we target the same posterior with SMC, annealing the likelihood from the prior (power 0) to the posterior (power 1). Adding three lines to the random walk file gives the SMC settings: the annealing sequence, a rule for choosing the next power adaptively (keeping the conditional effective sample size at 90% of the particles), and ten MCMC iterations at each step.
+
+```{Rcpp, eval=FALSE, code=example_file("gaussian_smc.ilike")}
+```
+
+```{r, eval=FALSE}
+recipe = compile(c("gaussian_model.ilike", "gaussian_smc.ilike"))
+log_evidence = SMC_with_MCMC(recipe, results_name = "smc", number_of_particles = 1000,
+                             smc_iterations_to_store = 1000, seed = 1)
+smc = load_smc_output("smc")
+```
+
+```{r, include=FALSE}
+smc_run = example_output("gaussian_smc.rds")
+smc = smc_run$output
+exact_log_evidence = sum(dnorm(gaussian, 0, 1, log = TRUE)) + 0.5*log(posterior_variance/100) +
+  0.5*posterior_mean^2/posterior_variance
+```
+
+Unlike MCMC, SMC also estimates the marginal likelihood (evidence). Here it is `r round(smc_run$log_evidence, 2)` on the log scale, compared with the exact value `r round(exact_log_evidence, 2)`. The powers were chosen by the algorithm:
+
+```{r}
+unique(smc$TargetParameters)
+```
+
+Each SMC iteration stores weighted particles; at each target we show the state of each particle after its last MCMC iteration. The particles move from the prior to the posterior as the power increases:
+
+```{r smc-density, fig.cap="Weighted density estimates of θ at the later SMC targets (labelled by the power).", fig.height=3}
+selected = smc[smc$Target %in% c(9, 11, 13, 15, max(smc$Target)), ]
+selected$Power = gsub("power=|;", "", selected$TargetParameters)
+selected$Power = factor(signif(as.numeric(selected$Power), 2))
+selected$Weight = ave(selected$LogWeight, selected$Target,
+                      FUN = function(w) exp(w - max(w))/sum(exp(w - max(w))))
+ggplot(selected, aes(x = Value, weight = Weight, colour = Power)) +
+  geom_density() +
+  coord_cartesian(xlim = c(-1.5, 1.5)) +
+  xlab("θ")
+```
+
 ## Filtering on a constant velocity model {#filtering_cv}
+
+The constant velocity model is a linear-Gaussian state-space model (chapter \@ref(ssm)) often used for tracking: the state is the position and velocity of an object, the velocity changes by random accelerations, and only the position is measured, with noise. We use the first 20 observations of the `constant_velocity_y` data set in the ilike package; the true states are in `constant_velocity_x`.
+
+```{Rcpp, eval=FALSE, code=example_file("cv_model.ilike")}
+```
+
+For a linear-Gaussian model the Kalman filter (section \@ref(inference-kf)) gives the exact likelihood and filtering distributions. The prior on the initial state is given as a built-in Gaussian, as the Kalman filter requires, with mean `p1` and covariance `p2` supplied through `model_parameter_list`.
+
+```{r, eval=FALSE}
+pl = list(c(0, 0), 100*diag(2))
+model = compile("cv_model.ilike", model_parameter_list = pl)
+KF(model, results_name = "cv_kf", model_parameter_list = pl)
+```
+
+The same file can be used with a particle filter (section \@ref(inference-pf)). By default the particles are moved with the transition model (a "bootstrap" filter). A better proposal uses the next measurement: for this model the optimal proposal $p(x_t \mid x_{t-1}, y_t)$ is Gaussian and available in closed form. It is given as a user-defined transition proposal, whose functions take the measurement at the time being proposed as their last argument:
+
+```{Rcpp, eval=FALSE, code=example_file("cv_guided_proposal.ilike")}
+```
+
+```{r, eval=FALSE}
+guided = compile(c("cv_model.ilike", "cv_guided_proposal.ilike"), model_parameter_list = pl)
+bootstrap_estimates = sapply(1:50, function(s)
+  PF(model, results_name = paste("cv_bootstrap", s, sep = "_"), model_parameter_list = pl,
+     number_of_particles = 100, seed = s))
+guided_estimates = sapply(1:50, function(s)
+  PF(guided, results_name = paste("cv_guided", s, sep = "_"), model_parameter_list = pl,
+     number_of_particles = 100, seed = s))
+```
+
+```{r, include=FALSE}
+cv = example_output("cv.rds")
+```
+
+```{r, include=FALSE}
+summarise_estimates = function(v) c(median = median(v), IQR = IQR(v), below_50 = sum(v < -50))
+bootstrap_summary = summarise_estimates(cv$bootstrap)
+guided_summary = summarise_estimates(cv$guided)
+```
+
+Both filters estimate the log-likelihood (exact value `r round(cv$kf, 2)`, from the Kalman filter) without bias. Over 50 runs with 100 particles, the medians are `r round(bootstrap_summary[["median"]], 2)` (bootstrap) and `r round(guided_summary[["median"]], 2)` (guided), with interquartile ranges `r round(bootstrap_summary[["IQR"]], 2)` and `r round(guided_summary[["IQR"]], 2)`; the bootstrap filter gives `r bootstrap_summary[["below_50"]]` estimates below $-50$ and the guided filter `r guided_summary[["below_50"]]`. Most of the variability comes from the first steps, when the particles' velocities are drawn from the diffuse prior, which no proposal for $x_t$ can correct.
+
+The difference between the proposals shows in the effective sample size (ESS) of the weights at each step, here with 1000 particles. The guided filter has the higher ESS at almost every step, but the gain is modest for this model, because the measurement noise is not small compared with the process noise; the optimal proposal helps most when the measurements are much more informative than the dynamics.
+
+```{r cv-ess, fig.cap="Effective sample size of the weights at each time step for the bootstrap and guided particle filters (1000 particles).", fig.height=3}
+cv$ess$Time = cv$ess$Target - 1
+ggplot(cv$ess, aes(x = Time, y = ISESS, colour = Filter)) +
+  geom_line() +
+  geom_point() +
+  ylab("ESS")
+```
+
+The filtering distribution of the position from a guided filter with 1000 particles follows the true position:
+
+```{r, eval=FALSE}
+PF(guided, results_name = "cv_pf", model_parameter_list = pl, number_of_particles = 1000,
+   smc_iterations_to_store = 21, seed = 1)
+pf = load_smc_output("cv_pf")
+```
+
+```{r cv-filter, fig.cap="Filtering mean of the position (line) with ±2 standard deviations (band), the true position (points) and the measurements (crosses).", fig.height=3}
+position = subset(cv$pf_output, Dimension == 1)
+position$Weight = ave(position$LogWeight, position$Target,
+                      FUN = function(w) exp(w - max(w))/sum(exp(w - max(w))))
+filter_summary = do.call(rbind, lapply(split(position, position$Target), function(o)
+  data.frame(Time = o$Target[1] - 1, Mean = sum(o$Weight*o$Value),
+             SD = sqrt(sum(o$Weight*(o$Value - sum(o$Weight*o$Value))^2)))))
+utils::data("constant_velocity_y", package = "ilike")
+truth = data.frame(Time = 0:19, Position = cv$truth[, 1], Measurement = constant_velocity_y[1:20])
+ggplot(filter_summary, aes(x = Time)) +
+  geom_ribbon(aes(ymin = Mean - 2*SD, ymax = Mean + 2*SD), alpha = 0.3) +
+  geom_line(aes(y = Mean)) +
+  geom_point(data = truth, aes(y = Position)) +
+  geom_point(data = truth, aes(y = Measurement), shape = 4) +
+  ylab("position")
+```
 
 ## MCMC on the Lotka-Volterra model {#mcmc-lv}
 
+The stochastic Lotka-Volterra model describes predator-prey dynamics as a Markov jump process: prey $X$ are born at rate $\theta_1 X$, predation converts a prey into a predator at rate $\theta_2 X Y$, and predators die at rate $\theta_3 Y$. Both species are observed at 16 times. The process is easy to simulate (Gillespie's algorithm) but its likelihood is not available, so we use approximate Bayesian computation (ABC, section \@ref(gaussian-abc)): the likelihood is replaced by an estimate obtained from simulations, comparing summary statistics of each simulation with those of the data using a Gaussian kernel with tolerance $\epsilon$.
+
+The model file contains the data, a uniform prior on $\log\theta \in (-6, 2)^3$, the simulator (written in C++), the summary statistics $\log(1 + X_t)$ and $\log(1 + Y_t)$, and the ABC likelihood, with the number of simulations per estimate (`p1`) and the tolerance (`p2`) supplied through `model_parameter_list`.
+
+```{Rcpp, eval=FALSE, code=example_file("lv_model.ilike")}
+```
+
+Using this likelihood estimate in place of the likelihood in random walk Metropolis gives a pseudo-marginal MCMC algorithm ("ABC-MCMC"), which targets the ABC posterior:
+
+```{Rcpp, eval=FALSE, code=example_file("lv_abc_mcmc.ilike")}
+```
+
+```{r, eval=FALSE}
+for (epsilon in c(1, 0.5))
+{
+  pl = list(10, epsilon, 0.01*diag(3))
+  recipe = compile(c("lv_model.ilike", "lv_abc_mcmc.ilike"), model_parameter_list = pl)
+  MCMC(recipe, results_name = paste("lv_abc_mcmc_", epsilon, sep = ""), model_parameter_list = pl,
+       initial_values = list(list(log_theta = log(c(1, 0.005, 0.6)))), seed = 1)
+}
+```
+
+```{r, include=FALSE}
+lv = example_output("lv_abc_mcmc.rds")
+lv_runs = do.call(rbind, lapply(lv, function(r) r$output))
+lv_runs = subset(lv_runs, Iteration > 5000)
+lv_runs$theta = exp(lv_runs$Value)
+lv_runs$Parameter = paste("θ", lv_runs$Dimension, sep = "")
+lv_runs$Tolerance = factor(lv_runs$Epsilon)
+acceptance = sapply(lv, function(r) { v = r$output$Value[r$output$Dimension == 1]; mean(diff(v) != 0) })
+```
+
+A smaller tolerance gives a closer approximation to the true posterior, at the cost of a lower acceptance rate (here `r round(100*acceptance[["1"]])`% of the stored (thinned) iterations differ from the previous one for $\epsilon = 1$, and `r round(100*acceptance[["0.5"]])`% for $\epsilon = 0.5$), so that more iterations are needed for the same accuracy.
+
+```{r lv-density, fig.cap="ABC posterior densities of the rates for two tolerances (50000 iterations, the first 5000 discarded).", fig.height=3}
+ggplot(lv_runs, aes(x = theta, colour = Tolerance)) +
+  geom_density() +
+  facet_wrap(~Parameter, scales = "free") +
+  xlab("rate")
+```
+
 ## ABC-SMC for the Lotka-Volterra model {#abc-smc-lv}
 
-<!-- You can label chapter and section titles using `{#label}` after them, e.g., we can reference Chapter \@ref(intro). If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \@ref(methods). -->
+ABC-MCMC requires the tolerance to be chosen in advance, and a small tolerance makes it hard to start the chain and slow to mix. ABC-SMC [@DelMoral2012g] instead moves a population of particles through a decreasing sequence of tolerances, from the prior ($\epsilon = \infty$) to the final value, using the ABC tolerance as the variable of the SMC sequence (chapter \@ref(smc)). Each particle keeps its simulations, so the likelihood estimate at a new tolerance is obtained by reweighting them, without new simulations; this makes it cheap to choose each tolerance adaptively, here so that the conditional effective sample size is 90% of the particles. After each reweighting, the particles are moved by ABC-MCMC at the current tolerance.
 
-<!-- Figures and tables with captions will be placed in `figure` and `table` environments, respectively. -->
+The model file is the one from section \@ref(mcmc-lv); the SMC settings are:
 
-<!-- ```{r nice-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'} -->
-<!-- par(mar = c(4, 4, .1, .1)) -->
-<!-- plot(pressure, type = 'b', pch = 19) -->
-<!-- ``` -->
+```{Rcpp, eval=FALSE, code=example_file("lv_abc_smc.ilike")}
+```
 
-<!-- Reference a figure by its code chunk label with the `fig:` prefix, e.g., see Figure \@ref(fig:nice-fig). Similarly, you can reference tables generated from `knitr::kable()`, e.g., see Table \@ref(tab:nice-tab). -->
+Because the tolerance variable `epsilon` is the variable of the SMC sequence, the SMC sets its value: the tolerance given in the model file (`p2`) is not used.
 
-<!-- ```{r nice-tab, tidy=FALSE} -->
-<!-- knitr::kable( -->
-<!--   head(iris, 20), caption = 'Here is a nice table!', -->
-<!--   booktabs = TRUE -->
-<!-- ) -->
-<!-- ``` -->
+```{r, eval=FALSE}
+pl = list(10, 0.5, 0.01*diag(3))
+recipe = compile(c("lv_model.ilike", "lv_abc_smc.ilike"), model_parameter_list = pl)
+log_evidence = SMC_with_MCMC(recipe, results_name = "lv_abc_smc", model_parameter_list = pl,
+                             number_of_particles = 1000, smc_iterations_to_store = 1000, seed = 1)
+lv_smc = load_smc_output("lv_abc_smc")
+```
 
-<!-- You can write citations, too. For example, we are using the **bookdown** package [@R-bookdown] in this sample book, which was built on top of R Markdown and **knitr** [@xie2015]. -->
+```{r, include=FALSE}
+lv_smc_run = example_output("lv_abc_smc.rds")
+lv_smc = lv_smc_run$output
+lv_smc$Tolerance = as.numeric(gsub("epsilon=|;", "", lv_smc$TargetParameters))
+lv_smc$Weight = ave(lv_smc$LogWeight, lv_smc$Target, lv_smc$Dimension,
+                    FUN = function(w) exp(w - max(w))/sum(exp(w - max(w))))
+```
+
+The algorithm chose `r length(unique(lv_smc$Target))` tolerances, decreasing quickly at first and more slowly as the ABC posterior concentrates:
+
+```{r lv-smc-tolerances, fig.cap="The tolerances chosen adaptively by ABC-SMC (log scale).", fig.height=3}
+tolerances = unique(lv_smc[, c("Target", "Tolerance")])
+ggplot(tolerances, aes(x = Target, y = Tolerance)) +
+  geom_line() +
+  geom_point() +
+  scale_y_log10() +
+  xlab("SMC iteration") + ylab("tolerance")
+```
+
+At the final tolerance, 0.5, the weighted particles give the same ABC posterior as the long ABC-MCMC run with $\epsilon = 0.5$ in section \@ref(mcmc-lv); ABC-SMC also estimates the evidence of the ABC approximation, here `r round(lv_smc_run$log_evidence, 2)` on the log scale.
+
+```{r lv-smc-density, fig.cap="ABC posterior densities of the rates at tolerance 0.5 from ABC-SMC (weighted particles at the final target) and from ABC-MCMC.", fig.height=3}
+final = subset(lv_smc, Target == max(Target))
+final = data.frame(theta = exp(final$Value), Parameter = paste("θ", final$Dimension, sep = ""),
+                   Weight = final$Weight, Algorithm = "ABC-SMC")
+mcmc_05 = subset(lv_runs, Tolerance == "0.5")
+mcmc_05 = data.frame(theta = mcmc_05$theta, Parameter = mcmc_05$Parameter,
+                     Weight = 1/sum(mcmc_05$Parameter == "θ1"), Algorithm = "ABC-MCMC")
+ggplot(rbind(final, mcmc_05), aes(x = theta, weight = Weight, colour = Algorithm)) +
+  geom_density() +
+  facet_wrap(~Parameter, scales = "free") +
+  xlab("rate")
+```

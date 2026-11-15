@@ -342,7 +342,7 @@ Inputs:
     
   2. matrix: the covariance $\Sigma$ of the multivariate normal distribution
   
-  3. numeric: the scaling factor $s^2$ of the covariance matrix
+  3. (optional) numeric: the scaling factor $s^2$ of the covariance matrix (default 1)
    
 #### Uniform random walk proposal `ilike::unif_rw`
 
@@ -707,7 +707,7 @@ Inputs:
     
   2. matrix: the covariance $\Sigma$ of the multivariate normal distribution
   
-  3. numeric: the scaling factor $s^2$ of the covariance matrix
+  3. (optional) numeric: the scaling factor $s^2$ of the covariance matrix (default 1)
    
 #### Uniform random walk proposal `ilike::unif_rw`
 
@@ -770,7 +770,7 @@ u_i\sim \mathcal{U}(0,1)
 $$
 
 $$
-c_i(\theta) = \nabla \log \pi(\theta) C^T
+c_i(\theta) = \left(\nabla \log \pi(\theta)^T C^T\right)_i
 $$
 
 $$
@@ -778,7 +778,7 @@ b_i = -1 + 2 \times I \left( u_i < 1/(1 + \exp(-z_i c_i(\theta) )) \right)
 $$
 
 $$
-\theta^* = \theta + b \odot z
+\theta^* = \theta + C^T (b \odot z)
 $$
 The presence of $\nabla \log \pi(\theta)$ in the proposal requires that the gradient of the log of each factor must be available. $s^2$ is scaling factor for the preconditioning matrix $\Sigma$.
 
@@ -907,7 +907,7 @@ Inputs:
     
   2. matrix: the covariance $\Sigma$ of the multivariate normal distribution
   
-  3. numeric: the scaling factor $s^2$ of the covariance matrix
+  3. (optional) numeric: the scaling factor $s^2$ of the covariance matrix (default 1)
    
 #### Uniform random walk proposal `ilike::unif_rw`
 
@@ -970,7 +970,7 @@ u_i\sim \mathcal{U}(0,1)
 $$
 
 $$
-c_i(\theta) = \nabla \log \pi(\theta) C^T
+c_i(\theta) = \left(\nabla \log \pi(\theta)^T C^T\right)_i
 $$
 
 $$
@@ -978,7 +978,7 @@ b_i = -1 + 2 \times I \left( u_i < 1/(1 + \exp(-z_i c_i(\theta) )) \right)
 $$
 
 $$
-\theta^* = \theta + b \odot z
+\theta^* = \theta + C^T (b \odot z)
 $$
 The presence of $\nabla \log \pi(\theta)$ in the proposal requires that the gradient of the log of each factor must be available. $s^2$ is scaling factor for the preconditioning matrix $\Sigma$.
 

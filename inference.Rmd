@@ -325,7 +325,7 @@ ilike contains a straightforward implementation of the KF^[This implementation i
 
 ### ilike recipe requirements
 
-The KF requires only the specification of a linear-Gaussian SSM, following section \@ref(ssm). The transition model must be specified using the method from section \@ref(linear-gaussian-transition-model), and the measurement model must be specified using the method from section \@ref(linear-gaussian-data-model).
+The KF requires only the specification of a linear-Gaussian SSM, following section \@ref(ssm). The transition model must be specified using the method from section \@ref(linear-gaussian-transition-model), and the measurement model must be specified using the method from section \@ref(linear-gaussian-data-model). The prior on the initial state $x_0$ must be Gaussian and given by a built-in prior: `prior,ilike::norm` for a one-dimensional state or `prior,ilike::mvnorm` (section \@ref(models)). It describes $x_0$ only; the dynamics are given entirely by the transition model.
 
 ## Ensemble Kalman filters {#inference-enkf}
 

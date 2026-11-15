@@ -1,0 +1,5 @@
+// Random walk Metropolis: θ* ~ N(θ, 0.2^2).
+
+/***m_proposal,ilike::norm_rw(θ,0.2)***/
+
+/***mcmc_termination,ilike::iterations(10000)***/

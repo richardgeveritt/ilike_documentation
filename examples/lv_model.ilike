@@ -1,0 +1,142 @@
+// Stochastic Lotka-Volterra predator-prey model (a Markov jump process with
+// prey birth, predation and predator death at rates θ1 X, θ2 X Y and θ3 Y),
+// observed exactly at 16 times, two time units apart, for both species.
+// The parameter is log_theta = log(θ), with a uniform prior on (-6, 2)^3.
+// The likelihood is intractable; it is replaced by an ABC likelihood with a
+// Gaussian kernel on the summary statistics log(1 + X) and log(1 + Y), using
+// p1 simulations per estimate and tolerance epsilon = p2.
+
+/***data***/
+Data data()
+{
+  arma::colvec X(16);
+  X[0] = 50;
+  X[1] = 145;
+  X[2] = 265;
+  X[3] = 64;
+  X[4] = 35;
+  X[5] = 52;
+  X[6] = 201;
+  X[7] = 305;
+  X[8] = 26;
+  X[9] = 19;
+  X[10] = 90;
+  X[11] = 334;
+  X[12] = 61;
+  X[13] = 15;
+  X[14] = 24;
+  X[15] = 145;
+  
+  arma::colvec Y(16);
+  Y[0] = 100;
+  Y[1] = 93;
+  Y[2] = 248;
+  Y[3] = 341;
+  Y[4] = 166;
+  Y[5] = 79;
+  Y[6] = 54;
+  Y[7] = 331;
+  Y[8] = 364;
+  Y[9] = 129;
+  Y[10] = 50;
+  Y[11] = 137;
+  Y[12] = 508;
+  Y[13] = 194;
+  Y[14] = 65;
+  Y[15] = 40;
+  
+  Data data;
+  data["X"] = X;
+  data["Y"] = Y;
+  return data;
+}
+
+/***evaluate_log_prior***/
+double evaluate_log_prior(const Parameters &parameters)
+{
+  arma::colvec log_theta = parameters["log_theta"];
+  arma::colvec lower(3); lower.fill(-6.0);
+  arma::colvec upper(3); upper.fill(2.0);
+  return dunif(log_theta, lower, upper);
+}
+
+/***simulate_prior***/
+Parameters simulate_prior(RandomNumberGenerator &rng)
+{
+  arma::colvec lower(3); lower.fill(-6.0);
+  arma::colvec upper(3); upper.fill(2.0);
+  return Parameters("log_theta", runif(rng, lower, upper));
+}
+
+// Simulate the jump process (Gillespie's algorithm) from (X, Y) at time t0
+// to time t0 + dt.
+arma::colvec my_stepLVc(RandomNumberGenerator &rng,
+                        double X,
+                        double Y,
+                        const arma::colvec &theta,
+                        double t0,
+                        double dt)
+{
+  double t = t0;
+  double termt = t + dt;
+  arma::colvec x(2);
+  x[0] = X;
+  x[1] = Y;
+  while (1==1)
+  {
+    double h1 = theta[0]*x[0];
+    double h2 = theta[1]*x[0]*x[1];
+    double h3 = theta[2]*x[1];
+    double h0 = h1 + h2 + h3;
+    if ((h0<1e-10)||(x[0]>=1000000))
+      t=1e99;
+    else
+      t+=rexp(rng,h0);
+    if (t>=termt)
+    {
+      return x;
+    }
+    double u = runif(rng);
+    if (u<h1/h0)
+      x[0]+=1.0;
+    else if (u<(h1+h2)/h0) {
+      x[0]-=1.0; x[1]+=1.0;
+    } else
+      x[1]-=1.0;
+  }
+}
+
+/***simulate_data_model***/
+Data simulate_data_model(RandomNumberGenerator &rng,
+                         const Parameters &parameters)
+{
+  arma::colvec theta = exp(parameters["log_theta"]);
+  arma::colvec X(16), Y(16);
+  X[0] = 50.0;
+  Y[0] = 100.0;
+  double t = 0.0;
+  double dt = 2.0;
+  for (size_t i = 1; i < 16; ++i)
+  {
+    arma::colvec next = my_stepLVc(rng, X[i-1], Y[i-1], theta, t, dt);
+    t = t + dt;
+    X[i] = next[0];
+    Y[i] = next[1];
+  }
+  Data output;
+  output["X"] = X;
+  output["Y"] = Y;
+  return output;
+}
+
+/***summary_statistics***/
+Data summary_statistics(const Data &data)
+{
+  arma::colvec X = data["X"];
+  arma::colvec Y = data["Y"];
+  return Data("s", arma::join_cols(log(X + 1.0), log(Y + 1.0)));
+}
+
+/***data_variable,"s"***/
+
+/***sbi_likelihood,ilike::gaussian_abc(p1,epsilon,p2)***/

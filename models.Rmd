@@ -661,7 +661,7 @@ We may use an ilike function to specify the complete linear-Gaussian data model.
 
 #### Linear-Gaussian data model `ilike::linear_gaussian_data_model`
 
-Specifies the linear-Gaussian data model.
+Specifies the linear-Gaussian data model with constant matrices, e.g. `/***linear_gaussian_data_model,ilike::linear_gaussian_data_model(y,x,1,1)***/`.
 
 Inputs:
 

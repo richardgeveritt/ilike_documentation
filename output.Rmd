@@ -96,7 +96,7 @@ plot_scatter(toy_model_rwm_ilike,
 ```{r}
 library(ggsmc)
 plot_time_series(toy_model_rwm_ilike,
-                 parameter = "θ",
+                 parameters = "θ",
                  mcmc = TRUE,
                  alpha = 0.01)
 ```

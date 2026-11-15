@@ -1,0 +1,41 @@
+// The optimal ("guided") transition proposal for the constant velocity model,
+// p(x_t | x_{t-1}, y_t), which for a linear-Gaussian model is
+//   N((I - K H) A x_{t-1} + K y_t, (I - K H) Q),  K = Q H' (H Q H' + R)^{-1}.
+// It uses the measurement y_t, so the functions take the data as an argument
+// (the data passed to them is the measurement at the time being proposed).
+// Use with cv_model.ilike (which defines the matrix functions used here).
+
+/***simulate_transition_proposal***/
+Parameters simulate_guided(RandomNumberGenerator &rng,
+                           const Parameters &parameters,
+                           const Data &data)
+{
+  arma::mat A = transition_matrix(parameters);
+  arma::mat Q = transition_covariance(parameters);
+  arma::mat H = data_matrix(parameters);
+  arma::mat R = data_covariance(parameters);
+  arma::mat K = Q*H.t()*arma::inv(H*Q*H.t() + R);
+  arma::mat IminusKH = arma::eye(2, 2) - K*H;
+  arma::colvec x = parameters["x"];
+  arma::colvec y = data["y"];
+  arma::colvec mean = IminusKH*A*x + K*y;
+  return Parameters("x", rmvnorm(rng, mean, IminusKH*Q));
+}
+
+/***evaluate_log_transition_proposal***/
+double evaluate_guided(const Parameters &proposed_parameters,
+                       const Parameters &parameters,
+                       const Data &data)
+{
+  arma::mat A = transition_matrix(parameters);
+  arma::mat Q = transition_covariance(parameters);
+  arma::mat H = data_matrix(parameters);
+  arma::mat R = data_covariance(parameters);
+  arma::mat K = Q*H.t()*arma::inv(H*Q*H.t() + R);
+  arma::mat IminusKH = arma::eye(2, 2) - K*H;
+  arma::colvec x = parameters["x"];
+  arma::colvec y = data["y"];
+  arma::colvec mean = IminusKH*A*x + K*y;
+  arma::colvec proposed_x = proposed_parameters["x"];
+  return dmvnorm(proposed_x, mean, IminusKH*Q);
+}

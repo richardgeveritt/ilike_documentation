@@ -1,0 +1,7 @@
+// ABC-MCMC (pseudo-marginal): random walk Metropolis on log_theta with
+// proposal covariance p3, each likelihood estimated afresh at the proposed
+// point from p1 simulations.
+
+/***m_proposal,ilike::mvnorm_rw(log_theta,p3)***/
+
+/***mcmc_termination,ilike::iterations(50000)***/
