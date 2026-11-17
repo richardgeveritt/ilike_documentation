@@ -216,7 +216,7 @@ Most of the specification of an MCMC algorithm in ilike is done through the rece
 
 `MCMC` does not return anything^[MCMC output does not provide any useful direct estimate of $Z$. So in order to be be consistent with other inference algorithms which return the an estimate of $Z$.], but writes output to the specified `results_name` directory. In addition to the arguments described in section \@ref(inference-arguments), `MCMC` takes the arguments:
 
-- `initial_values` (required) A list of lists containing the initial values for the chains. The length of the outer list should be equal to the number of chains; the inner list specifies the initial values of the parameters for each chain. For example, for a single chain on a model with parameters $\alpha$ and $\beta$, if we wanted the initial values to be 1 and 2 respectively, we would use
+- `initial_values` (optional) A list of lists containing the initial values for the chains. If it is not given, each of the `number_of_chains` chains starts at an independent draw from the recipe's importance proposal (the `is_proposal` blocks, section \@ref(smc)), or from the prior if the recipe has no importance proposal. Otherwise, the list gives the initial values directly. The length of the outer list should be equal to the number of chains; the inner list specifies the initial values of the parameters for each chain. For example, for a single chain on a model with parameters $\alpha$ and $\beta$, if we wanted the initial values to be 1 and 2 respectively, we would use
 
 ```{r}
 initial_values = list(list(α=1, β=2))
@@ -228,7 +228,7 @@ In the, relatively common, case where we would like to start multiple chains at 
 initial_values = replicate(3, list(α=1, β=2), simplify=FALSE)
 ```
 
-- `number_of_chains` (optional) The number of MCMC chains to run (default is 1). The number of chains needs to match the number of initial values provided.
+- `number_of_chains` (optional) The number of MCMC chains to run (default is 1). If initial values are given, the number of chains is the number of initial values.
 
 - `thin` (optional) Store only every `thin`th iteration of each chain (default is 1: every iteration is stored). There is no burn-in argument: discard the early iterations when analysing the output (section \@ref(mcmc-output)).
 

@@ -1191,8 +1191,36 @@ placed after the `adapt_m_proposal` block (or `mh_adaptor,ilike::averaged()` for
 
 - In `MCMC`, each chain adapts its own copy of the proposal, over the whole run. The adapted parameters are written to the output, and can be loaded with `load_mcmc_adaptation` (section \@ref(mcmc-output)).
 
-- In `SMC_with_MCMC`, the MCMC move at each SMC iteration starts from the proposal as specified, and adapts only during the chain run from each particle at that iteration (adapting the proposal from the whole population of particles is not yet available).
+- In `SMC_with_MCMC`, the MCMC move at each SMC iteration starts from the proposal as specified (or as set by an `smc_adaptor`, see below), and an `m_adaptor` or `mh_adaptor` adapts only during the chain run from each particle at that iteration.
 
 - A run with adapting moves is sequential, even if `parallel = TRUE` (a warning is given), and adapting moves cannot be used with waste-free SMC.
 
 - Since an adapting chain is not a Markov chain, discard its early iterations (burn-in) when analysing the output, as for any MCMC output.
+
+### Adapting proposals from the SMC particles {#smc-adaptor}
+
+In an SMC sampler (`SMC_with_MCMC`), or an ensemble Kalman method that uses MCMC moves, the whole population of particles is available at each iteration, and it provides a good estimate of the current target's covariance: a standard choice is a random walk with covariance $(2.38^2/d) \hat{\Sigma}_t$, where $\hat{\Sigma}_t$ is the weighted sample covariance of the particles (the rule of thumb for random walks, applied to the population). This adaptation does not affect the MCMC moves themselves (each move uses a fixed proposal), so it can be used with parallel runs and with waste-free SMC.
+
+It is specified by a block `smc_adaptor` placed after the proposal it adapts (an `m_proposal`, `mh_proposal`, `imh_proposal` or `unadjusted_proposal`), using the ilike function `ilike::gaussian`:
+
+```
+/***m_proposal,ilike::mvnorm_rw(θ,p1)***/
+
+/***smc_adaptor,ilike::gaussian(θ,2.38)***/
+```
+
+Before the particles are moved at each iteration, the proposal's covariance is set to the weighted sample covariance $\hat{\Sigma}_t$ of the particles (using their weights for the current target, before resampling), and:
+
+- for the mirror proposal and the independent normal proposals (`ilike::norm`, `ilike::mvnorm` in an `imh_proposal`), the mean (centre) of the proposal is set to the weighted mean of the particles, which gives an independent Metropolis-Hastings move whose proposal is fitted to the particles;
+- for `ilike::pc_rw`, the principal directions are the eigenvectors of $\hat{\Sigma}_t$;
+- if the constant $c$ is given, the scale of the proposal is set to $c^2/d$ ($c^2$ for `ilike::componentwise_rw` and `ilike::pc_rw`, which move one component or direction at a time). If $c$ is not given, the scale is not changed.
+
+If $\hat{\Sigma}_t$ is not positive definite (e.g. when only a few distinct particles remain), the proposal keeps its previous covariance. It applies to the proposals `ilike::norm_rw`, `ilike::mvnorm_rw`, `ilike::componentwise_rw`, `ilike::pc_rw`, `ilike::mirror`, `ilike::langevin`, `ilike::barker`, `ilike::norm` and `ilike::mvnorm`. An `smc_adaptor` and an `m_adaptor` (or `mh_adaptor`) can be used together: the former sets the proposal at each SMC iteration, and the latter adapts it further along each particle's chain.
+
+Inputs:
+
+  1. string: the variable
+  
+  2. (optional) numeric: the constant $c$ (no default: if omitted, the scale is left as it is)
+
+In tests on a correlated two-dimensional Gaussian target, starting from a badly scaled random walk or a poorly placed independent proposal, this adaptation reduced the standard deviation of the estimated log normalising constant by about 40% (and by half with waste-free SMC).
