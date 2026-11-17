@@ -1143,11 +1143,11 @@ Inputs:
 
   2. integer: The number of particles to use in the particle filter.
   
-  3. (optional) integer: The number of iterations output of the PF to store, counting from the final iteration backwards (default is `0`).
+  3. (optional) integer: The number of iterations output of the PF to store for each point at which the likelihood is estimated, counting from the final iteration backwards (default is `1`: the final points and weights; `0` stores nothing; a number at least as large as the number of time points stores every iteration together with the ancestor of each particle). The stored output is loaded with `load_smc_output(results_directory, nesting_level = 1, factor = k)`, where `k` is the number of the factor that is the algorithmic likelihood (factors are numbered in the order they appear in the file, starting at 1). In the result, `ExternalIndex` is the outer point (e.g. the importance point or MCMC iteration) and `LogWeight` is the outer point's normalised log weight plus the particle's normalised log weight within its filter, so the rows are a weighted sample from the joint posterior of the parameters and the states. With MCMC output, use `as.mcmc = TRUE`.
   
-  4. (optional) boolean: Whether to run the particle filter in parallel (default is `false`).
+  4. (optional) boolean: Whether to run the particle filter's particles in parallel (default is `false`). This parallelises *inside* each filter; it is used only when the outer algorithm runs sequentially (an outer algorithm run with `parallel = TRUE` runs its points in parallel instead, which usually gives the larger gain; see section \@ref(inference-arguments)).
   
-  5. (optional) integer: the grain size for parallelisation (default is `100000`; see [guidance here](https://oneapi-src.github.io/oneTBB/main/tbb_userguide/Controlling_Chunking_os.html))
+  5. (optional) integer: the number of particles moved and weighted together as one chunk (default is `64`). As for `PF` (section \@ref(inference-arguments)), each chunk has its own random number stream, so the results depend on this number but not on whether the filter runs in parallel.
   
 #### Ensemble Kalman filter `ilike::enkf`
 

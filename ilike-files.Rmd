@@ -241,6 +241,12 @@ Then, to subsequently access the vector in the `parameters` object:
 arma::colvec x = parameters["x"];
 ```
 
+This copies the vector. To use a variable without copying it, which matters when a function is called many times with a large variable (typically a large data set in a `Data` object), bind it to a constant reference instead (the reference can only be read; to change values, copy as above):
+
+```{Rcpp,eval=FALSE}
+const arma::mat &X = data["X"];
+```
+
 #### Copying
 
 ```{Rcpp,eval=FALSE}

@@ -103,11 +103,39 @@ The random number seed. If not provided, a random seed will be generated.
 
 ### `parallel` (optional)
 
-This argument is available for all Monte Carlo algorithms, with the parallelisation being performed across the Monte Carlo points (or chains, in the case of MCMC). If `TRUE`, the inference algorithm will be run in parallel. The default is `FALSE`.
+This argument is available for the Monte Carlo algorithms (`IS`, `MCMC`, `SMC_with_MCMC`, `PF`, and the ensemble Kalman methods). If `TRUE`, the points (or particles, or chains) are divided into chunks of `grain_size`, and the chunks are processed in parallel threads. The number of threads is set with `RcppParallel::setThreadOptions(numThreads = ...)` (by default, all available cores). The default is `FALSE`.
+
+For `IS`, `MCMC`, `SMC_with_MCMC` and `PF`, a parallel run gives *exactly* the same results as a sequential run with the same `seed` and `grain_size`: each chunk has its own random number stream, determined by the seed and the position of the chunk, so it does not matter which thread processes it, or in which order. This makes parallel runs reproducible.
+
+Parallel runs require:
+
+- a recipe whose functions are written in C++ or are ilike built-in functions (functions written in R, Python or Julia cannot be called from several threads at once);
+- for `SMC_with_MCMC`: exact or annealed factors, and an MCMC termination with a fixed number of iterations (`ilike::iterations`);
+- MCMC moves that do not adapt (section \@ref(adaptive-mcmc)).
+
+If these are not met, the run (or the part of it that cannot be done in parallel) is done sequentially, with a warning. Resampling and the writing of output are always sequential.
+
+When the likelihood is itself estimated by an algorithm (e.g. a particle filter inside particle marginal Metropolis-Hastings, see section \@ref(algorithmic_likelihood)), parallelism can be used in either of two places: the outer algorithm can run its points in parallel (each with its own inner filter), or the inner filter can run its particles in parallel (by setting its own `parallel` argument; see the particle filter's arguments in section \@ref(algorithmic_likelihood)). Running the outer algorithm in parallel usually gives the larger gain.
 
 ### `grain_size` (optional)
 
-This argument is available for all Monte Carlo algorithms. The grain size for parallelisation see [guidance here](https://oneapi-src.github.io/oneTBB/main/tbb_userguide/Controlling_Chunking_os.html)). The advice is to pick a large grain size (such as the default of `100000`), then to try reducing the grain size (maybe halve each time) to see whether the computational time increases or decreases. A higher grain size reduces the parallelism, but requires less overhead.
+This argument is available for the Monte Carlo algorithms. For `IS`, `MCMC`, `SMC_with_MCMC` and `PF`, it is the number of points (or particles, or chains) processed together as one chunk. The defaults are `256` for `IS` and `64` for `MCMC`, `SMC_with_MCMC` and `PF`.
+
+Since each chunk has its own random number stream (see `parallel`), results depend on both the `seed` and the `grain_size` (when there are more points than `grain_size`), but not on whether the run is parallel. Smaller chunks give more chunks to share between threads; larger chunks reduce the overhead of managing them. When the likelihood is estimated by an inner algorithm, larger chunks use more memory, since each point of a chunk keeps its inner particles until the chunk has been weighted. The defaults work well in most cases.
+
+For the ensemble Kalman methods (`EnKF`, `IENKI`), `grain_size` is the minimum chunk size used by the parallelisation library (default `100000`; see [guidance here](https://oneapi-src.github.io/oneTBB/main/tbb_userguide/Controlling_Chunking_os.html)).
+
+### `progress` (optional)
+
+If `TRUE`, a progress bar is shown while the algorithm runs. The default is `getOption("ilike.progress", interactive())`: a progress bar is shown in interactive sessions only. To switch progress bars off for a whole session, use `options(ilike.progress = FALSE)`.
+
+### `write_factor_output` (optional)
+
+If `TRUE` (the default), the output of each factor at each point is written along with the points: for example, the particles of a particle filter used to estimate the likelihood, which are needed to load nested output with `load_smc_output(..., nesting_level = 1)` (section \@ref(output)). If `FALSE`, only the points, their weights and the estimates of the normalising constant are written, which saves time and disk space.
+
+### Stopping a run
+
+A run can be stopped at any time in the usual way (pressing Esc in RStudio, or Ctrl-C in a terminal). ilike checks for an interrupt between chunks of points, between SMC iterations, and every 1024 iterations of a long MCMC chain, so a run stops shortly after the request (a parallel run stops when its current set of chunks is finished). The function then returns nothing; output already written to file remains. The next run works as normal.
 
 ## Importance sampling {#inference-is}
 
@@ -202,6 +230,12 @@ initial_values = replicate(3, list(α=1, β=2), simplify=FALSE)
 
 - `number_of_chains` (optional) The number of MCMC chains to run (default is 1). The number of chains needs to match the number of initial values provided.
 
+- `thin` (optional) Store only every `thin`th iteration of each chain (default is 1: every iteration is stored). There is no burn-in argument: discard the early iterations when analysing the output (section \@ref(mcmc-output)).
+
+- `check_factor_index` (optional) If `TRUE`, after every accepted update that has a factor index, re-evaluate the exact factors left out of the update and stop with an error if any changed value, that is, if one of them does not in fact cancel in the acceptance ratio (default `FALSE`; slower, intended for checking a model file; see section \@ref(mcmc)).
+
+MCMC moves can adapt their proposals as the chains run (adaptive MCMC): see section \@ref(adaptive-mcmc). Each chain then adapts its own proposal, and the adapted parameters can be loaded with `load_mcmc_adaptation` (section \@ref(mcmc-output)).
+
 ### ilike recipe requirements {#requirements-mcmc}
 
 To run an MCMC algorithm the user needs to provide the following in the recipe:
@@ -254,6 +288,16 @@ and also writes output to the specified `results_name` directory. In addition to
 - `smc_iterations_to_store` (optional) This argument provides the number of SMC iterations to store in the output, counting backwards (inclusive) from the final iteration. The default is to store the minimal number of iterations required to perform the SMC updates (which is 2 in the current version of ilike). If the user wishes to examine the entire SMC history, they should choose a number that is equal to or larger than $T+1$. If only points from the final target as required, and memory requirements are a concern due to the output only being written to file at the end of the run (see below), then the default values is recommended.
 
 - `write_to_file_at_each_iteration` (optional) This boolean argument allows the user to choose if the output will be written to the file at the end of every iteration (use TRUE, which is also the default), or if the output of each SMC iteration will be written to file between iterations (use FALSE).
+
+- `waste_free_chains` (optional) If greater than 0, run waste-free SMC [@dau2022waste] with this number of chains $M$ (see below). $M$ must divide `number_of_particles`. The default is 0: standard SMC.
+
+### Waste-free SMC {#waste-free-smc}
+
+In standard SMC, each of the $n$ particles is moved by an MCMC kernel, and only the final state of each MCMC chain is kept. Waste-free SMC [@dau2022waste] keeps every state instead. At each iteration, $M$ particles are resampled from the $n$ weighted particles, and each is used to start an MCMC chain of length $n/M$ (the resampled particle itself, followed by $n/M - 1$ MCMC moves). All $n$ states of the $M$ chains then form the next population of particles, which are reweighted for the next target as usual. With the same number of likelihood evaluations as standard SMC with one move per particle, the states that standard SMC would discard are used, and the length of the chains ($n/M$) replaces the number of MCMC iterations as the tuning parameter: longer chains (smaller $M$) suit targets on which the MCMC kernel mixes slowly. @dau2022waste suggest choosing $M$ so that $n/M$ is in the range of tens to hundreds.
+
+For example, with `number_of_particles = 10000` and `waste_free_chains = 100`, each iteration runs 100 chains of 100 states. When waste-free SMC is used, the number of MCMC moves is set by the chain length, whatever `mcmc_termination` says, and the estimate of the normalising constant is computed from all $n$ states.
+
+Waste-free SMC requires exact or annealed factors, an MCMC move that does not adapt, and `mcmc_termination` set to `ilike::iterations`.
 
 ### ilike recipe requirements {#requirements-smc}
 

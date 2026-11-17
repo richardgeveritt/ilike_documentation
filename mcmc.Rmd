@@ -373,6 +373,41 @@ Inputs:
     
   2. vector/matrix: a matrix $W$ of half-widths of the uniform distribution, which must have the same dimensionality as $\theta$
 
+#### Componentwise normal random walk proposal `ilike::componentwise_rw`
+
+Specifies a random-scan componentwise random walk over the given (vector) variable: at each iteration one component $k$ of $\theta$, chosen uniformly at random, is moved, and the others are left unchanged:
+
+$$
+\theta^*_k \sim \mathcal{N}(\theta_k, \lambda_k \Sigma_{kk}), \qquad \theta^*_j = \theta_j \quad (j \neq k).
+$$
+Each component has its own scale $\lambda_k$, all starting at $s^2$. This proposal is designed to be used with the adaptor `ilike::componentwise_am` (section \@ref(adaptive-mcmc)), which adapts each $\lambda_k$ separately. Only the diagonal of $\Sigma$ is used by the proposal itself (the adaptor estimates the whole covariance). It can be used only in `m_proposal`.
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+    
+  2. matrix: the covariance $\Sigma$
+  
+  3. (optional) numeric: the initial scale $s^2$ of every component (default 1)
+
+#### Principal components random walk proposal `ilike::pc_rw`
+
+Specifies a random walk along the principal directions of a covariance matrix $\Sigma$ [@andrieu2008tutorial, Algorithm 8]: at each iteration one of the first $m$ principal directions $w_l$ of $\Sigma$ (its eigenvectors, with eigenvalues $\rho_l$), chosen uniformly at random, is used, and
+$$
+\theta^* = \theta + z \, w_l, \qquad z \sim \mathcal{N}(0, \ell_l \rho_l),
+$$
+where each direction has its own scale $\ell_l$, all starting at $s^2$. Moving along principal directions moves strongly correlated variables together. This proposal is designed to be used with the adaptors `ilike::pc_am` or `ilike::online_pc_am` (section \@ref(adaptive-mcmc)), which learn the principal directions of the target's covariance and adapt each $\ell_l$. It can be used only in `m_proposal`.
+
+Inputs:
+
+  1. string: the variable for which the proposal is specified
+    
+  2. matrix: the covariance $\Sigma$ whose principal directions are used at the start
+  
+  3. (optional) numeric: the initial scale $s^2$ of every direction (default 1)
+  
+  4. (optional) integer: the number of principal directions $m$ used (default `0`, meaning all of them)
+
 #### Mirror proposal `ilike::mirror`
 
 Specifies a mirror proposal over the given variable, as described in @thawornwattana2018designing, where the proposed state $\theta^*$ is simulated using
@@ -386,7 +421,7 @@ Inputs:
 
   1. string: the variable for which the proposal is specified
     
-  2. numeric: the centre $\mu$ of the mirror proposal
+  2. vector: the centre $\mu$ of the mirror proposal
   
   3. matrix: the covariance $\Sigma$ of the multivariate normal distribution used in the proposal
   
@@ -803,7 +838,7 @@ Inputs:
 
   1. string: the variable for which the proposal is specified
     
-  2. numeric: the centre $\mu$ of the mirror proposal
+  2. vector: the centre $\mu$ of the mirror proposal
   
   3. matrix: the covariance $\Sigma$ of the multivariate normal distribution used in the proposal
   
@@ -1003,9 +1038,161 @@ Inputs:
 
   1. string: the variable for which the proposal is specified
     
-  2. numeric: the centre $\mu$ of the mirror proposal
+  2. vector: the centre $\mu$ of the mirror proposal
   
   3. matrix: the covariance $\Sigma$ of the multivariate normal distribution used in the proposal
   
   4. numeric: the scaling factor $s^2$ of the covariance matrix
   
+## Adaptive MCMC {#adaptive-mcmc}
+
+The efficiency of an MCMC algorithm depends on tuning its proposal: for example the covariance and scale of a random walk. Adaptive MCMC tunes the proposal while the chain runs, using the states the chain has visited. ilike follows the framework of @andrieu2008tutorial, in which each adapted parameter $\vartheta$ of the proposal is updated after every iteration by a stochastic approximation (Robbins-Monro) recursion
+$$
+\vartheta_{i+1} = \vartheta_i + \gamma_{i+1} H(\vartheta_i, \theta_i, \theta^*_{i+1}, \theta_{i+1}),
+$$
+where $\theta_i$ is the current state, $\theta^*_{i+1}$ the proposed state, $\theta_{i+1}$ the next state, and the gain $\gamma_n = C (n+1)^{-\kappa}$ decreases to zero ("vanishing adaptation"), which is what allows the chain to keep the target as its limiting distribution. The defaults are $C = 1$ and $\kappa = 0.6$ (any $\kappa \in (1/2, 1]$ is valid; $\kappa = 1$ makes the estimated mean and covariance below plain running averages).
+
+### Specifying an adaptor
+
+An adaptor is specified in a block placed after the proposal it adapts, named after the type of the proposal: `m_adaptor` for an `m_proposal` and `mh_adaptor` for an `mh_proposal`. For example
+
+```
+/***m_proposal,ilike::mvnorm_rw(θ,p1)***/
+
+/***m_adaptor,ilike::scaled_am(θ)***/
+```
+
+adapts the covariance and the scale of the random walk on `θ`, starting from the covariance `p1` given in `model_parameter_list` (section \@ref(inference-arguments)). In an MCMC made of several moves (section \@ref(mcmc)), each move can have its own adaptor, and each adapts only its own proposal. Adaptation is available for moves specified with `m_proposal` and `mh_proposal`.
+
+All adaptors take optional arguments after the first; as for all ilike functions, an optional argument can only be omitted if the arguments after it are omitted too. The arguments that appear in the descriptions below are:
+
+- `target` (numeric): the acceptance rate $\bar{\alpha}^*$ to aim for. The defaults are: 0.234 for normal random walks and for named proposal parameters, 0.44 for componentwise and principal components moves [@andrieu2008tutorial], 0.574 for Langevin, 0.4 for Barker [@livingstone2022barker], and for the mirror proposal a value depending on the dimension (see below).
+
+- `kappa` (numeric) and `C` (numeric): the gain $\gamma_n = C (n+1)^{-\kappa}$ (defaults 0.6 and 1). $C 2^{-\kappa}$ must be below 1.
+
+- `r` (integer): changing the covariance of a Gaussian proposal requires a Cholesky decomposition (whose cost grows as $d^3$ in the dimension $d$), so the proposal's covariance is replaced by the current estimate every $r$ iterations (default `0`, meaning every $d$ iterations); the estimate itself, and the scale, are updated every iteration.
+
+- `averaged`: the word `averaged` may be given as an extra argument to any adaptor, anywhere after the first argument, to use averaging (see below).
+
+### Adaptors for Gaussian proposals
+
+In what follows, $\mu_i$ and $\Sigma_i$ are estimates of the mean and covariance of the target, updated using
+$$
+\mu_{i+1} = \mu_i + \gamma_{i+1} (\theta_{i+1} - \mu_i), \qquad
+\Sigma_{i+1} = \Sigma_i + \gamma_{i+1} \left[(\theta_{i+1} - \mu_i)(\theta_{i+1} - \mu_i)^T - \Sigma_i\right],
+$$
+starting from $\mu_0 = \theta_0$ and $\Sigma_0$ the covariance given to the proposal; $\alpha_{i+1}$ is the acceptance probability of the proposed state $\theta^*_{i+1}$. The proposal's covariance is $\lambda \Sigma$, where $\lambda$ is a scale.
+
+#### Adaptive Metropolis with global scaling `ilike::scaled_am`
+
+The recommended adaptor for random walks [@andrieu2008tutorial, Algorithm 4]: $\mu$ and $\Sigma$ are estimated as above, and the scale is adapted so that the acceptance rate approaches $\bar{\alpha}^*$:
+$$
+\log \lambda_{i+1} = \log \lambda_i + \gamma_{i+1} (\alpha_{i+1} - \bar{\alpha}^*).
+$$
+Adapting the scale as well as the covariance helps a chain whose initial proposal is badly scaled to start exploring the target (with a poor scale, the chain learns very little about the target's covariance). Applies to `ilike::norm_rw`, `ilike::mvnorm_rw` and `ilike::mirror`.
+
+Inputs: (1) string: the variable; (2) (optional) `target`; (3) (optional) `kappa`; (4) (optional) `C`; (5) (optional) `r`.
+
+#### Adaptive Metropolis `ilike::am`
+
+The adaptive Metropolis algorithm of @haario2001adaptive [@andrieu2008tutorial, Algorithm 2]: $\mu$ and $\Sigma$ are estimated as above, and the scale is fixed at $\lambda = 2.38^2/d$, which is optimal for Gaussian targets when $\Sigma$ is the target's covariance. (For the mirror proposal, the scale given to the proposal is kept.) Applies to `ilike::norm_rw`, `ilike::mvnorm_rw` and `ilike::mirror`.
+
+Inputs: (1) string: the variable; (2) (optional) `kappa`; (3) (optional) `C`; (4) (optional) `r`.
+
+#### Rao-Blackwellised adaptive Metropolis `ilike::rb_am`
+
+As `ilike::am`, but with $\theta_{i+1}$ in the recursions replaced by its expectation over the accept/reject step, $\alpha_{i+1} \theta^*_{i+1} + (1 - \alpha_{i+1}) \theta_i$ [@andrieu2008tutorial, Algorithm 3]. This uses the information in rejected proposals too. Applies to `ilike::norm_rw`, `ilike::mvnorm_rw` and `ilike::mirror`.
+
+Inputs: (1) string: the variable; (2) (optional) `kappa`; (3) (optional) `C`; (4) (optional) `r`.
+
+#### Scale only `ilike::scale`
+
+Adapts only the scale $\lambda$, by the recursion of `ilike::scaled_am`, keeping the covariance given to the proposal. Applies to `ilike::norm_rw`, `ilike::mvnorm_rw`, `ilike::mirror`, `ilike::langevin` and `ilike::barker`.
+
+Inputs: (1) string: the variable; (2) (optional) `target`; (3) (optional) `kappa`; (4) (optional) `C`.
+
+#### Componentwise adaptive Metropolis `ilike::componentwise_am`
+
+For the proposal `ilike::componentwise_rw`, which moves one component $k$ at a time [@andrieu2008tutorial, Algorithm 5]: each component has its own scale, adapted only when that component is moved,
+$$
+\log \lambda^{(k)}_{i+1} = \log \lambda^{(k)}_i + \gamma_{i+1} (\alpha_{i+1} - \bar{\alpha}^*),
+$$
+with $\bar{\alpha}^* = 0.44$ by default, and $\mu$, $\Sigma$ estimated as above (the proposal uses the diagonal of $\Sigma$). This suits targets whose components have very different scales, and is robust when the initial proposal is poor.
+
+Inputs: (1) string: the variable; (2) (optional) `target`; (3) (optional) `kappa`; (4) (optional) `C`; (5) (optional) `r`.
+
+#### Principal components adaptive Metropolis `ilike::pc_am` and `ilike::online_pc_am`
+
+For the proposal `ilike::pc_rw`, which moves along one principal direction of the covariance at a time [@andrieu2008tutorial, Algorithm 8]: $\mu$ and $\Sigma$ are estimated as above, the principal directions $w_l$ and the variances $\rho_l$ along them are computed from $\Sigma$, and each direction's scale $\ell_l$ is adapted, when that direction is used, towards $\bar{\alpha}^* = 0.44$ (by default). The two adaptors differ in how the principal directions are found:
+
+- `ilike::pc_am` computes the eigenvectors of $\Sigma$ every $r$ iterations (default: every $d$ iterations).
+
+- `ilike::online_pc_am` performs one step of the online principal components recursion of @andrieu2008tutorial (section 5.3.2) every $r$ iterations (default: every iteration), which converges to the principal directions without an eigen-decomposition.
+
+Inputs: (1) string: the variable; (2) (optional) `target`; (3) (optional) `kappa`; (4) (optional) `C`; (5) (optional) `r`.
+
+#### Adaptation of the mirror proposal
+
+For `ilike::mirror`, the adaptors `ilike::scaled_am`, `ilike::am`, `ilike::rb_am` and `ilike::scale` also set the centre of the mirror to the running estimate $\mu$ of the target's mean (starting from the centre given), along with the covariance and the scale. The default target acceptance rate for the mirror proposal depends on the dimension $d$ of the variable. It was chosen by experiment: on Gaussian targets, with the mirror's centre and covariance equal to the target's mean and covariance (what adaptation converges to), the acceptance rate that maximised the effective sample size per iteration (the minimum over the functions $\theta_j$ and $\theta_j^2$, estimated with the `coda` and `mcmcse` packages) was
+
+| $d$ | 1 | 2 | 3 | 5 | 10 | 20 | 50 | 100 |
+|---|---|---|---|---|---|---|---|---|
+| acceptance rate | 0.50 | 0.42 | 0.36 | 0.33 | 0.26 | 0.25 | 0.23 | 0.23 |
+
+and ilike uses these values (interpolating between them, and 0.23 for $d > 100$). Being antithetic, the mirror proposal gives a very large effective sample size for the mean (often larger than the number of iterations), and it is functions such as $\theta_j^2$ that limit its efficiency.
+
+### Adapting named proposal parameters
+
+For a proposal written by the user (section \@ref(mcmc)), which uses proposal parameters given in `algorithm_parameter_list` (available in the proposal's functions as `proposal_parameters`), any named proposal parameter can be adapted. There are two ways to do this.
+
+#### By the acceptance rate `ilike::acceptance_rate`
+
+Adapts a named, positive proposal parameter $\vartheta$ (for example a standard deviation) so that the acceptance rate approaches $\bar{\alpha}^*$, on the log scale:
+$$
+\log \vartheta_{i+1} = \log \vartheta_i + \gamma_{i+1} (\alpha_{i+1} - \bar{\alpha}^*).
+$$
+For example, for a proposal that uses `proposal_parameters["sd"]`:
+
+```
+/***m_adaptor,ilike::acceptance_rate(sd,0.44)***/
+```
+
+Inputs: (1) string: the name of the proposal parameter; (2) (optional) `target`; (3) (optional) `kappa`; (4) (optional) `C`.
+
+#### By the user's function `adapt_m_proposal` and `adapt_mh_proposal`
+
+For full control, the user can write the function $H$ in the recursion above, in C++, in a block `adapt_m_proposal` (for an `m_proposal`) or `adapt_mh_proposal` (for an `mh_proposal`) placed after the proposal. It must have the arguments below and returns $H$ as a `Parameters` object: every proposal parameter named in $H$ is updated using $\vartheta_{i+1} = \vartheta_i + \gamma_{i+1} H$ (with the default gain).
+
+```
+/***adapt_m_proposal***/
+Parameters adapt(const Parameters &proposal_parameters,
+                 const Parameters &parameters,
+                 const Parameters &proposed_parameters,
+                 const Parameters &new_parameters,
+                 double acceptance_probability)
+{
+  return Parameters("sd", proposal_parameters["sd"]*(acceptance_probability - 0.44));
+}
+```
+
+Here `proposal_parameters` holds the current value $\vartheta_i$ of the proposal parameters, `parameters` the current state $\theta_i$, `proposed_parameters` the proposed state $\theta^*_{i+1}$, `new_parameters` the next state $\theta_{i+1}$ (which is either the current or the proposed state), and `acceptance_probability` is $\alpha_{i+1}$. This function must be written in C++.
+
+### Averaging
+
+With the option `averaged` (for example `ilike::scaled_am(θ,averaged)`), the recursions above run as described, but the proposal uses the averages of their iterates, $\bar{\vartheta}_n = \frac{1}{n+1} \sum_{i=0}^{n} \vartheta_i$ (scales are averaged on the log scale) [@polyak1992acceleration]. With a gain that decreases more slowly than $1/n$ (such as the default $\kappa = 0.6$), the average converges at the optimal rate, and it is much less noisy than the iterates themselves: in tests, the estimated covariance was within a few percent of the target's, where without averaging it could be 30% away. Since the average includes the early iterations, the acceptance rate can be slightly away from its target in short runs. For a user's adaptation function, averaging is requested with the block
+
+```
+/***m_adaptor,ilike::averaged()***/
+```
+
+placed after the `adapt_m_proposal` block (or `mh_adaptor,ilike::averaged()` for `adapt_mh_proposal`).
+
+### How adaptation is run
+
+- In `MCMC`, each chain adapts its own copy of the proposal, over the whole run. The adapted parameters are written to the output, and can be loaded with `load_mcmc_adaptation` (section \@ref(mcmc-output)).
+
+- In `SMC_with_MCMC`, the MCMC move at each SMC iteration starts from the proposal as specified, and adapts only during the chain run from each particle at that iteration (adapting the proposal from the whole population of particles is not yet available).
+
+- A run with adapting moves is sequential, even if `parallel = TRUE` (a warning is given), and adapting moves cannot be used with waste-free SMC.
+
+- Since an adapting chain is not a Markov chain, discard its early iterations (burn-in) when analysing the output, as for any MCMC output.

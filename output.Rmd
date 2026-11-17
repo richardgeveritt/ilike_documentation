@@ -154,6 +154,29 @@ toy_model_rwm_ggmcmc_burned_in <- toy_model_rwm_ggmcmc %>%
   filter(Iteration > 100)
 ```
 
+### Adaptation output {#adaptation-output}
+
+When MCMC moves adapt their proposals (section \@ref(adaptive-mcmc)), each chain also records its adapted parameters, which are loaded with
+
+```{r,eval=FALSE}
+adaptation = load_mcmc_adaptation(results_directory)
+```
+
+This returns a list of two data frames:
+
+- `trace`, with columns `Chain`, `Iteration`, `Parameter` and `Value`: at every stored iteration (so `thin` applies, and `Iteration` counts stored iterations, as in `load_mcmc_output`), the adapted scales and the running estimate of the target's mean. This is useful for checking that the adaptation has settled down, for example by plotting the scale against the iteration:
+
+```{r,eval=FALSE}
+library(ggplot2)
+ggplot(subset(adaptation$trace, Parameter == "θ.scale"),
+       aes(x = Iteration, y = Value, colour = factor(Chain))) +
+  geom_line() + scale_y_log10()
+```
+
+- `final`, with columns `Chain`, `Parameter` and `Value`: the adapted parameters at the end of each chain, which also include the estimated covariance of the target (its upper triangle, e.g. `θ.covariance[1,2]`), and, for the principal components adaptors, the eigenvalues and the principal directions.
+
+The parameter names are made of the variable's name and the parameter, for example `θ.scale`, `θ.mean[1]`, `θ.component_scale[2]` (componentwise adaptation), `θ.direction_scale[1]` (principal components) or `sd[1]` (a named proposal parameter); when the MCMC consists of several moves, they are prefixed by the move, e.g. `move2.θ.scale`. With averaging, the values reported are the averages, which are what the proposal uses.
+
 ## IS and SMC output {#is-smc-output}
 
 For loading the output of IS and SMC algorithms we use the function `load_smc_output`. We use the particle filter output from section \€ref(filtering_cv) as example output for this section.
