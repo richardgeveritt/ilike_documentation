@@ -127,6 +127,87 @@ cat(readLines("examples/language/regression.ilike"), sep = "\n")
 
 `mu[i]` is not a parameter: it is computed from `alpha`, `b` and the data whenever it is used, and is not part of the output. A deterministic node may be defined in a loop (its indices are the loop's indices, as in `mu[i]`), and may use other deterministic nodes.
 
+A deterministic node can also be computed by a C++ function, as a whole vector or matrix: `x <- cpp::f(a, b)` calls `arma::mat f(const arma::mat &a, const arma::mat &b)` with the values of its arguments (variables, data, constants or numbers; not other nodes, for now), and `x` can then be used whole (`y ~ abc_uniform(x, epsilon)`) or element by element (`x[i]`). It is written without an index and outside loops, and what it reads is its arguments, whole. Gradients through such a node are not available.
+
+### Simulators written as transformations of random inputs {#reparameterised-simulators}
+
+A simulator is often a deterministic function of the parameters and of some random inputs with a known distribution: $x = H(u, \theta)$ with $u \sim \varphi(u \mid \theta)$. Written this way, the random inputs are variables of the model, the simulator is a C++ node, and the observed data are related to the simulated data by an ABC kernel, written as their distribution:
+
+```
+data { ybar = [0.9] }
+model {
+  theta ~ norm(0, 3)
+  u ~ mvnorm([0, 0, 0, 0, 0], I5)          // phi(u): the simulator's random inputs
+  s <- cpp::summary_of(u, theta)           // s = H(u, theta): the simulated summary
+  ybar ~ abc_uniform(s, epsilon)           // the ABC kernel K_epsilon(ybar | s)
+}
+```
+
+- `abc_uniform(s, epsilon, scale = …, p = 2)`: $1/\mathrm{vol}$ inside the ball $\{\, \| (y - s)/\mathrm{scale} \|_p \leq \epsilon \,\}$ and 0 outside ($p = \infty$ gives the largest absolute difference);
+- `abc_gaussian(s, epsilon, scale = …)`: independent normal densities of $y - s$ with standard deviations $\epsilon \cdot \mathrm{scale}$.
+
+`scale` (a number, or one per element) is optional (default 1); these two arguments are named, unlike the arguments of the other distributions in statements. At `epsilon = Inf` the kernel is 1, so an SMC sampler can start from the prior predictive.
+
+The model is then an ordinary model in $(\theta, u)$, and can be run with MCMC (moves on $\theta$ and on $u$), or with SMC on the joint $(\theta, u)$ with the tolerance decreasing, `sequence = parameter(epsilon, [Inf, 4, 2, 1, 0.5])`. For the model above with $\epsilon = 0.5$, the posterior mean and standard deviation of $\theta$ were 0.882 and 0.530 from 100000 iterations of MCMC, and 0.883 and 0.540 from SMC with 2000 particles (log evidence −2.056), against the exact 0.873, 0.525 (and −2.077).
+
+#### Integrating the random inputs out {#integrate}
+
+Instead of inferring $u$ along with $\theta$, the random inputs can be integrated out, so that the algorithm works on $\theta$ alone with an estimate of the likelihood $\int p(y \mid \theta, u)\, \varphi(u \mid \theta)\, du$. This is one more statement in the model:
+
+```
+model {
+  theta ~ norm(0, 3)
+  integrate u with is(points = 200)
+  u ~ mvnorm([0, 0, 0, 0, 0], I5)
+  s <- cpp::summary_of(u, theta)
+  ybar ~ abc_uniform(s, 0.5)
+}
+```
+
+For each value of $\theta$, an importance sampler draws `points` values of $u$ from its distribution $\varphi(u \mid \theta)$ (which may depend on $\theta$) and averages the densities of the data that depend on $u$, directly or through nodes. Because the proposal is $u$'s own distribution, it cancels from the weights, which are the densities of the data. With an ABC kernel as the data's distribution, this average is the standard ABC estimate of the likelihood from `points` simulations. `abc(points = 200)` is another name for `is(points = 200)`.
+
+- The statement makes a factor named after the variable (`u` here), which holds the estimate. The data factors that depend on $u$, and $u$'s distribution, are inside it and are no longer factors of the model.
+- MCMC on $\theta$ is then pseudo-marginal: the estimate at the current $\theta$ is kept until a proposal is accepted. Importance sampling and SMC with annealing (`sequence = annealing(…)`) can also be used.
+- $u$ is not a parameter of the algorithm: a move on $u$ is an error, and so is a distribution of another parameter that depends on $u$.
+- With a decreasing tolerance (`sequence = parameter(epsilon, …)`, fixed or adaptive, with `ybar ~ abc_uniform(s, epsilon)`), SMC on $\theta$ is ABC-SMC [@DelMoral2012g; @kerama2022rare]: each particle keeps its own `points` draws of $u$, which are weighted again at each new tolerance, not drawn again; an MCMC move on $\theta$ brings new draws with it. Choosing the tolerances adaptively (`target = cess(0.9)`) is correct but slow for now, because each trial tolerance evaluates every kept draw again.
+
+When the data are high-dimensional or the tolerance small, few draws of $u$ from its distribution give simulations close to the data, and the importance sampler's estimate has a high variance. An SMC sampler over $u$ instead moves the draws towards the data through decreasing tolerances, with MCMC moves on $u$ (rare-event ABC, @prangle2018rare):
+
+```
+  integrate u with smc(particles = 100,
+                       move = metropolis_hastings(pcn(u, [0, 0, 0, 0, 0], I5, 0.8)),
+                       sequence = parameter(epsilon, [Inf, 2, 1, 0.5]),
+                       termination = iterations(3))
+```
+
+For each $\theta$ the sampler starts from `particles` draws of $u$ from its distribution, and at each tolerance of its `sequence` reweights them by the kernel, resamples, and moves them (here 3 MCMC iterations per step, `termination`); its estimate of the evidence is the factor's likelihood. The settings are those of an `smc` algorithm section (section \@ref(smc)): `move` (one setting per move), `sequence`, `termination`, `target` (an adaptive schedule, e.g. `target = cess(0.9)` with `sequence = parameter(epsilon, [Inf, 0.5])`) and `resampling`. `rare_event_abc(…)` is another name for `smc(…)`.
+
+Moves on $u$ suited to this:
+
+- `pcn(u, mean, cov, rho)`, the preconditioned Crank–Nicolson proposal $u^* = m + \rho (u - m) + \sqrt{1 - \rho^2}\, L \xi$ with $\mathrm{cov} = L L^\top$, for $u$ with a Gaussian distribution $N(m, \mathrm{cov})$ (used with `metropolis_hastings`). It leaves that distribution unchanged, so the acceptance probability depends only on the kernel, and does not fall as the dimension of $u$ grows;
+- a random walk scaled from the current population, `metropolis(mvnorm_rw(u, cov, 0.1), smc_adapt = gaussian(2.38))`.
+
+With MCMC on $\theta$ outside, this is rare-event ABC-MCMC.
+
+With SMC on $\theta$ outside and a decreasing tolerance (`sequence = parameter(epsilon, …)`, fixed or adaptive), this is rare-event ABC-SMC² [@kerama2022rare]: each $\theta$-particle has its own SMC on $u$, which follows the outer tolerances instead of having its own — so `smc(…)` is then written without `sequence`:
+
+```
+model {
+  theta ~ norm(0, 3)
+  integrate u with smc(particles = 50, move = metropolis(norm_rw(u, 0.5)), termination = iterations(3))
+  u ~ norm(theta, 1)
+  ybar ~ abc_uniform(u, epsilon)
+}
+algorithm smc {
+  move a = metropolis(norm_rw(theta, 1.5))
+  sequence = parameter(epsilon, [Inf, 0.5])
+  target = cess(0.9)
+  particles = 1000
+}
+```
+
+At each outer step, each particle's inner SMC reweights its points to the new tolerance (which gives the particle's weight), then resamples and moves them; an MCMC move on $\theta$ brings a new inner SMC run through the tolerances so far. Choosing the tolerances adaptively costs only reweightings of the inner points.
+
 ### How statements become factors {#statements-factors}
 
 The statements of a model are turned into factors as follows.
