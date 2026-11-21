@@ -264,6 +264,7 @@ cat(readLines("examples/language/user_functions.ilike"), sep = "\n")
 | `simulate` | (priors only) a draw from the prior | importance sampling and SMC with the prior as proposal; MCMC chains started from the prior |
 | `gradient` | the gradient of the log density | gradient-based proposals (`langevin`, `barker`) |
 | `second_gradient` | the matrix of second derivatives of the log density | methods that need it |
+| `maximum` | (likelihoods only) the log likelihood's largest value over the variables it does not receive (e.g. the state of a measurement model), at its data: `double f(const Parameters &parameters, const Data &data)` | early stopping of particle filters (chapter \@ref(mcmc)) |
 
 The functions needed depend on the algorithm. For example, importance sampling with the prior as proposal needs `simulate` for the prior, but not `log` (the prior cancels in the weights), while a Metropolis-Hastings move needs `log`. An algorithm that needs a function that has not been given stops with a message saying which.
 
