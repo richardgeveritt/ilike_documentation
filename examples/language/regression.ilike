@@ -1,0 +1,25 @@
+ilike 1.0
+// regression with a group effect: a deterministic node mu[i]
+
+data {
+  y = [1.2, 0.4, 2.2, 1.9, 3.1, 0.2]
+  x = [0.1, -0.5, 1.0, 0.7, 1.5, -1.0]
+  g = [1, 1, 2, 2, 3, 3]
+}
+
+model {
+  for (k in 1:3) alpha[k] ~ norm(0, 2)
+  b ~ norm(0, 1)
+  sigma ~ lnorm(0, 0.5)
+  for (i in 1:6) {
+    mu[i] <- alpha[g[i]] + b * x[i]
+    y[i] ~ norm(mu[i], sigma)
+  }
+}
+
+algorithm mcmc {
+  move m_alpha = metropolis(mvnorm_rw(alpha, diag(3), scale = 0.5), adapt = scaled_am(averaged))
+  move m_b = metropolis(norm_rw(b, 0.3))
+  move m_sigma = metropolis(norm_rw(sigma, 0.3))
+  termination = iterations(10000)
+}

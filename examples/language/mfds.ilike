@@ -1,0 +1,18 @@
+ilike 1.0
+// MFDS on a model with a positive rate: y_i ~ N(log(theta), 1) with a
+// log-normal prior, so MFDS moves log(theta), whose prior is Gaussian
+
+data {
+  y = [0.3, 1.4, 0.9]
+}
+
+model {
+  theta ~ lnorm(0, 1)
+  for (i in 1:3) y[i] ~ norm(log(theta), 1)
+}
+
+algorithm mfds {
+  ensemble_members = 2000
+  iterations = 15
+  shifter = stochastic()
+}

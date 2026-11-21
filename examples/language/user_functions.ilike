@@ -1,0 +1,43 @@
+ilike 1.0
+// a prior and a likelihood written in C++
+
+data {
+  x = [1.3, 0.2, 0.9]
+}
+
+model {
+  prior p = density(log = cpp::log_prior, simulate = cpp::simulate_prior)
+  factor lik = cpp::log_likelihood
+}
+
+cpp {
+double prior_mean = 0.0;
+double prior_sd = 10.0;
+
+double log_prior(const Parameters &parameters)
+{
+  return dnorm(parameters["theta"][0], prior_mean, prior_sd);
+}
+
+Parameters simulate_prior(RandomNumberGenerator &rng)
+{
+  return Parameters("theta", rnorm(rng, prior_mean, prior_sd));
+}
+
+double log_likelihood(const Parameters &parameters, const Data &data)
+{
+  const arma::mat &x = data["x"];
+  double theta = parameters["theta"][0];
+  double total = 0.0;
+  for (arma::uword i = 0; i < x.n_elem; ++i)
+    total += dnorm(x[i], theta, 1.0);
+  return total;
+}
+}
+
+algorithm mcmc {
+  move m = metropolis(norm_rw(theta, 1))
+  termination = iterations(10000)
+}
+
+algorithm is { }

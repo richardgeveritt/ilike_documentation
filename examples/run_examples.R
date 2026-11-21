@@ -21,8 +21,8 @@ if ("gaussian" %in% sections)
   timings = c()
   for (algorithm in c("rwm", "langevin", "barker"))
   {
-    recipe = compile(c("gaussian_model.ilike", paste("gaussian_", algorithm, ".ilike", sep = "")))
-    time = system.time(MCMC(recipe, results_name = algorithm, results_path = results,
+    recipe = compile("gaussian_model.ilike")
+    time = system.time(MCMC(recipe, algorithm = algorithm, results_name = algorithm, results_path = results,
                             initial_values = list(list(θ = 2)), seed = 1))[["elapsed"]]
     output = load_mcmc_output(file.path(results, algorithm))
     output$Algorithm = algorithm
@@ -34,8 +34,8 @@ if ("gaussian" %in% sections)
 
 if ("smc" %in% sections)
 {
-  recipe = compile(c("gaussian_model.ilike", "gaussian_smc.ilike"))
-  log_evidence = SMC_with_MCMC(recipe, results_name = "smc", results_path = results,
+  recipe = compile("gaussian_model.ilike")
+  log_evidence = SMC_with_MCMC(recipe, algorithm = "smc", results_name = "smc", results_path = results,
                                number_of_particles = 1000, smc_iterations_to_store = 1000, seed = 1)
   output = load_smc_output(file.path(results, "smc"))
   # keep the last MCMC iteration of each particle at each target
@@ -45,23 +45,23 @@ if ("smc" %in% sections)
 
 if ("cv" %in% sections)
 {
-  pl = list(c(0, 0), 100*diag(2))
-  model = compile("cv_model.ilike", model_parameter_list = pl)
-  guided = compile(c("cv_model.ilike", "cv_guided_proposal.ilike"), model_parameter_list = pl)
+  pl = list(prior_mean = c(0, 0), prior_covariance = 100*diag(2))
+  model = compile("cv_model.ilike")
 
-  kf = KF(model, results_name = "cv_kf", results_path = results, model_parameter_list = pl,
+  kf = KF(model, algorithm = "kf", results_name = "cv_kf", results_path = results, model_parameter_list = pl,
           kf_iterations_to_store = 21)
-  pf_estimates = function(recipe, name)
-    sapply(1:50, function(s) PF(recipe, results_name = paste(name, s, sep = "_"), results_path = results,
-                                 model_parameter_list = pl, number_of_particles = 100, seed = s))
-  bootstrap = pf_estimates(model, "cv_bootstrap")
-  guided_estimates = pf_estimates(guided, "cv_guided")
+  pf_estimates = function(algorithm)
+    sapply(1:50, function(s) PF(model, algorithm = algorithm, results_name = paste("cv", algorithm, s, sep = "_"),
+                                 results_path = results, model_parameter_list = pl, number_of_particles = 100,
+                                 seed = s))
+  bootstrap = pf_estimates("bootstrap")
+  guided_estimates = pf_estimates("guided")
 
-  pf = PF(guided, results_name = "cv_pf", results_path = results, model_parameter_list = pl,
+  pf = PF(model, algorithm = "guided", results_name = "cv_pf", results_path = results, model_parameter_list = pl,
           number_of_particles = 1000, smc_iterations_to_store = 21, seed = 1)
   output = load_smc_output(file.path(results, "cv_pf"))
-  PF(model, results_name = "cv_pf_bootstrap", results_path = results, model_parameter_list = pl,
-     number_of_particles = 1000, smc_iterations_to_store = 21, seed = 1)
+  PF(model, algorithm = "bootstrap", results_name = "cv_pf_bootstrap", results_path = results,
+     model_parameter_list = pl, number_of_particles = 1000, smc_iterations_to_store = 21, seed = 1)
   bootstrap_output = load_smc_output(file.path(results, "cv_pf_bootstrap"))
   ess = rbind(data.frame(Filter = "Bootstrap", unique(bootstrap_output[, c("Target", "ISESS")])),
               data.frame(Filter = "Guided", unique(output[, c("Target", "ISESS")])))
@@ -77,10 +77,10 @@ if ("lv_mcmc" %in% sections)
   lv = list()
   for (epsilon in c(1, 0.5))
   {
-    pl = list(10, epsilon, 0.01*diag(3))
-    recipe = compile(c("lv_model.ilike", "lv_abc_mcmc.ilike"), model_parameter_list = pl)
+    pl = list(number_of_simulations = 10, tolerance = epsilon, proposal_covariance = 0.01*diag(3))
+    recipe = compile("lv_model.ilike")
     name = paste("lv_abc_mcmc_", epsilon, sep = "")
-    time = system.time(MCMC(recipe, results_name = name, results_path = results, model_parameter_list = pl,
+    time = system.time(MCMC(recipe, algorithm = "abc_mcmc", results_name = name, results_path = results, model_parameter_list = pl,
                             initial_values = list(list(log_theta = log(c(1, 0.005, 0.6)))), seed = 1))[["elapsed"]]
     output = thin(load_mcmc_output(file.path(results, name)), 10)
     output$Epsilon = epsilon
@@ -91,10 +91,10 @@ if ("lv_mcmc" %in% sections)
 
 if ("lv_abc_smc" %in% sections)
 {
-  # (the tolerance in the model file, p2, is not used: the SMC sets epsilon)
-  pl = list(10, 0.5, 0.01*diag(3))
-  recipe = compile(c("lv_model.ilike", "lv_abc_smc.ilike"), model_parameter_list = pl)
-  time = system.time(log_evidence <- SMC_with_MCMC(recipe, results_name = "lv_abc_smc", results_path = results,
+  # (the tolerance constant is not used: the SMC sets epsilon)
+  pl = list(number_of_simulations = 10, proposal_covariance = 0.01*diag(3))
+  recipe = compile("lv_model.ilike")
+  time = system.time(log_evidence <- SMC_with_MCMC(recipe, algorithm = "abc_smc", results_name = "lv_abc_smc", results_path = results,
                                                    model_parameter_list = pl, number_of_particles = 1000,
                                                    smc_iterations_to_store = 1000, seed = 1))[["elapsed"]]
   output = load_smc_output(file.path(results, "lv_abc_smc"))

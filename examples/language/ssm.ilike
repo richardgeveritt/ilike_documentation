@@ -1,0 +1,26 @@
+ilike 1.0
+// a linear-Gaussian state-space model:
+// x_0 ~ N(0, 1), x_t ~ N(0.9 x_{t-1}, 0.5), y_t ~ N(x_t, 1), for t = 0, ..., 4
+
+data {
+  y = [0.5, 1.0, 0.2, -0.3, 0.8]
+}
+
+model {
+  x ~ norm(0, 1)
+  transition x = linear_gaussian(matrix = 0.9, covariance = 0.5)
+  factor obs = linear_gaussian(data = y, state = x, matrix = 1, covariance = 1)
+  time = ssm(index = i, first_index = 0, last_index = 4, time = t, initial_time = 0,
+             time_difference = dt, time_step = 1, predictions_per_update = 1)
+}
+
+algorithm kf { }
+
+algorithm pf {
+  particles = 1000
+}
+
+algorithm enkf {
+  ensemble_members = 1000
+  shifter = stochastic()
+}

@@ -1,23 +1,38 @@
+ilike 1.0
 // Constant velocity model (continuous white noise acceleration, unit time
 // steps): the state x_t = (position, velocity) evolves as
 //   x_t ~ N(A x_{t-1}, Q),  A = [1 dt; 0 1],  Q = [dt^3/3 dt^2/2; dt^2/2 dt],
 // and only the position is observed with unit noise variance:
 //   y_t ~ N(H x_t, R),  H = [1 0],  R = 1.
-// The prior on x_0 is N(0, 100 I). The data are the first 20 observations of
-// the constant_velocity_y data set in the ilike package (get_data() is in
-// cv_model.R).
+// The prior on x_0 is N(prior_mean, prior_covariance). The data are the first
+// 20 observations of the constant_velocity_y data set in the ilike package.
 
-/***data,y=get_data()***/
-
-/***prior,ilike::mvnorm(x,p1,p2)***/
-
-/***linear_gaussian_transition_variable***/
-std::string transition_variable()
-{
-  return "x";
+data {
+  y = r::get_data()
 }
 
-/***linear_gaussian_transition_matrix***/
+constants {
+  vector prior_mean
+  matrix prior_covariance
+}
+
+model {
+  x ~ mvnorm(prior_mean, prior_covariance)
+  transition x = linear_gaussian(matrix = cpp::transition_matrix, covariance = cpp::transition_covariance)
+  factor obs = linear_gaussian(data = y, state = x, matrix = cpp::data_matrix, covariance = cpp::data_covariance)
+  time = ssm(index = i, first_index = 0, last_index = 19, time = t, initial_time = 0,
+             time_difference = dt, time_step = 1, predictions_per_update = 1)
+}
+
+r {
+get_data = function()
+{
+  utils::data("constant_velocity_y", package = "ilike", envir = environment())
+  constant_velocity_y[1:20]
+}
+}
+
+cpp {
 arma::mat transition_matrix(const Parameters &parameters)
 {
   double dt = parameters["dt"][0];
@@ -27,7 +42,6 @@ arma::mat transition_matrix(const Parameters &parameters)
   return A;
 }
 
-/***linear_gaussian_transition_covariance***/
 arma::mat transition_covariance(const Parameters &parameters)
 {
   double dt = parameters["dt"][0];
@@ -37,19 +51,6 @@ arma::mat transition_covariance(const Parameters &parameters)
   return Q;
 }
 
-/***linear_gaussian_data_variable***/
-std::string data_variable()
-{
-  return "y";
-}
-
-/***linear_gaussian_data_state_variable***/
-std::string state_variable()
-{
-  return "x";
-}
-
-/***linear_gaussian_data_matrix***/
 arma::mat data_matrix(const Parameters &parameters)
 {
   arma::mat H(1, 2);
@@ -57,7 +58,6 @@ arma::mat data_matrix(const Parameters &parameters)
   return H;
 }
 
-/***linear_gaussian_data_covariance***/
 arma::mat data_covariance(const Parameters &parameters)
 {
   arma::mat R(1, 1);
@@ -65,4 +65,51 @@ arma::mat data_covariance(const Parameters &parameters)
   return R;
 }
 
-/***ssm,ilike::ssm(i,0,19,t,0,dt,1,1)***/
+// The optimal ("guided") transition proposal, p(x_t | x_{t-1}, y_t), which
+// for a linear-Gaussian model is
+//   N((I - K H) A x_{t-1} + K y_t, (I - K H) Q),  K = Q H' (H Q H' + R)^{-1}.
+// It uses the measurement y_t (the data passed to these functions is the
+// measurement at the time being proposed).
+Parameters simulate_guided(RandomNumberGenerator &rng,
+                           const Parameters &parameters,
+                           const Data &data)
+{
+  arma::mat A = transition_matrix(parameters);
+  arma::mat Q = transition_covariance(parameters);
+  arma::mat H = data_matrix(parameters);
+  arma::mat R = data_covariance(parameters);
+  arma::mat K = Q*H.t()*arma::inv(H*Q*H.t() + R);
+  arma::mat IminusKH = arma::eye(2, 2) - K*H;
+  arma::colvec x = parameters["x"];
+  arma::colvec y = data["y"];
+  arma::colvec mean = IminusKH*A*x + K*y;
+  return Parameters("x", rmvnorm(rng, mean, IminusKH*Q));
+}
+
+double evaluate_guided(const Parameters &proposed_parameters,
+                       const Parameters &parameters,
+                       const Data &data)
+{
+  arma::mat A = transition_matrix(parameters);
+  arma::mat Q = transition_covariance(parameters);
+  arma::mat H = data_matrix(parameters);
+  arma::mat R = data_covariance(parameters);
+  arma::mat K = Q*H.t()*arma::inv(H*Q*H.t() + R);
+  arma::mat IminusKH = arma::eye(2, 2) - K*H;
+  arma::colvec x = parameters["x"];
+  arma::colvec y = data["y"];
+  arma::colvec mean = IminusKH*A*x + K*y;
+  arma::colvec proposed_x = proposed_parameters["x"];
+  return dmvnorm(proposed_x, mean, IminusKH*Q);
+}
+}
+
+algorithm kf { }
+
+// the bootstrap particle filter: the transition model is the proposal
+algorithm bootstrap { }
+
+// the guided particle filter
+algorithm guided {
+  transition_proposal = density(simulate = cpp::simulate_guided, log = cpp::evaluate_guided)
+}

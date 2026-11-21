@@ -1,0 +1,28 @@
+ilike 1.0
+// y[i] ~ N(theta[1] + theta[2], 1) with a N(0, 100 I) prior on theta
+
+data {
+  y = r::get_data()
+}
+
+constants {
+  matrix proposal_covariance
+}
+
+model {
+  theta ~ mvnorm([0, 0], [[100, 0], [0, 100]])
+  for (i in 1:100) y[i] ~ norm(theta[1] + theta[2], 1)
+}
+
+r {
+get_data = function()
+{
+  set.seed(1)
+  rnorm(100)
+}
+}
+
+algorithm mcmc {
+  move m = metropolis(mvnorm_rw(theta, proposal_covariance))
+  termination = iterations(100000)
+}

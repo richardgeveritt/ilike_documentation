@@ -10,11 +10,11 @@ Example error:
 
 Possible cause:
 
-The compiled ilike model was expecting an R (or Python, or Julia) function naned `get_data` to be available to call, but it didn't find it.
+The compiled ilike model was expecting an R (or Python, or Julia) function named `get_data` to be available to call, but it didn't find it.
 
 Action:
 
-Provide the `get_data` function in a file with the same name as the ilike file (with the appropriate extension, i.e. `.R`, `.py` or `.jl`) in the same directory as the ilike file.
+Define the `get_data` function in an `r` (or `py`, `jl`) section of the ilike file, or in a file imported with `import "helpers.R" as helpers` (section \@ref(code-sections)). For a file in the earlier format (appendix \@ref(old-format)), the function goes in a file with the same name as the ilike file (with the extension `.R`, `.py` or `.jl`) in the same directory.
 
 ## Parameter index does not correspond to ... in the parameters file
 
@@ -41,9 +41,54 @@ Either:
 
 or:
 
-- the arguments supplied to the function are in a different order to that specified in the documentation. For example, the function type `evaluate_log_likelihood` requires the arguments in the order `Parameters`, then `Data`, but you may have supplied them in the reverse order.
+- the arguments supplied to the function are in a different order to that specified in the documentation. For example, a log likelihood requires the arguments in the order `Parameters`, then `Data` (section \@ref(signatures)), but you may have supplied them in the reverse order.
 
 Action:
 
 Check the order of your arguments, and ensure that the desired variable is correctly referred to in your function.
 
+## cpp::f (used as …): …
+
+Example error:
+
+`cpp::log_likelihood (used as evaluate_log_likelihood): it has arguments (const Parameters &parameters), but a evaluate_log_likelihood function must have arguments (const Parameters &parameters, const Data &data). …`
+
+Possible cause:
+
+The C++ function does not have the signature required by the place where it is used.
+
+Action:
+
+Change the function's arguments (and return type) to those in the message; section \@ref(signatures) lists the signature for each use.
+
+## cpp::f is not defined in a cpp section
+
+Possible cause:
+
+The file uses `cpp::f`, but no `cpp` section of the files being compiled defines a function called `f`; often a misspelt name, or a file left out of `compile()`.
+
+## The constant … is used in the model statements, so its value is needed when compiling
+
+Possible cause:
+
+A constant without a default is used in a model statement (or a move on elements, or a call to another language), whose code is generated when compiling.
+
+Action:
+
+Give the constant a default in the constants section, or give its value to `compile(…, model_parameter_list = list(name = value))` (section \@ref(constants)).
+
+## The constant … was fixed when the recipe was compiled
+
+Possible cause:
+
+The run gives a constant a value different from the one it had when the recipe was compiled, but the constant is used in model statements, moves on elements or calls to other languages, whose code was generated with the compiled value.
+
+Action:
+
+Compile again, giving the new value to `compile(…, model_parameter_list = list(name = value))`.
+
+## The recipe has several algorithms (…): choose one with algorithm = "..."
+
+Action:
+
+Give the name of the algorithm section to run: `MCMC(recipe, algorithm = "mcmc")` (section \@ref(algorithm-sections)).

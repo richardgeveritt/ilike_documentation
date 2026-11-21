@@ -2,6 +2,18 @@
 
 ## Known issues
 
+These are the main limitations of the current version of the ilike language and its implementation:
+
+- Names may contain `.` only in calls to R; Python's dotted names (`np.ones`) are called through a function defined in a `py` section. R's `[[ ]]` is not part of the language (use `$`, or a function in an `r` section).
+- The `parameters` section is read but not checked, and constrained parameters (`real<lower=0> sigma`) are not transformed.
+- Gradients of factors written as model statements are not available with respect to a covariance of `mvnorm` that is a parameter, and second derivatives are not generated.
+- Constants used in model statements, in moves on elements and in calls to other languages take their values when compiling (a run given a different value stops with a message).
+- The arguments of built-in functions are checked when an algorithm is set up, at the start of a run, rather than when compiling, and their errors do not give the position in the file.
+- A loop holds one move, and the proposals on elements are `norm_rw`, `unif_rw`, `flip` and `gibbs`.
+- `MFDS` needs a Gaussian (or log-normal, or transformed Gaussian) prior with fixed arguments, so it cannot be used with hierarchical priors, and a likelihood it can simulate (not `+=` terms, log densities written as functions, or state-space models).
+- The `hamiltonian` proposal and the `se` termination are registered but not written yet.
+- `convert_ilike_file()` cannot convert recipes with potential functions, proposal or ensemble Kalman transforms, or `enk_likelihood_index` blocks.
+
 ## Glaring omissions
 
 Parallel.
@@ -35,23 +47,3 @@ SMC^2 - not linked up
 efficiency - fewer factors
 
 link to other languages
-
-<!-- You can label chapter and section titles using `{#label}` after them, e.g., we can reference Chapter \@ref(intro). If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \@ref(methods). -->
-
-<!-- Figures and tables with captions will be placed in `figure` and `table` environments, respectively. -->
-
-<!-- ```{r nice-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'} -->
-<!-- par(mar = c(4, 4, .1, .1)) -->
-<!-- plot(pressure, type = 'b', pch = 19) -->
-<!-- ``` -->
-
-<!-- Reference a figure by its code chunk label with the `fig:` prefix, e.g., see Figure \@ref(fig:nice-fig). Similarly, you can reference tables generated from `knitr::kable()`, e.g., see Table \@ref(tab:nice-tab). -->
-
-<!-- ```{r nice-tab, tidy=FALSE} -->
-<!-- knitr::kable( -->
-<!--   head(iris, 20), caption = 'Here is a nice table!', -->
-<!--   booktabs = TRUE -->
-<!-- ) -->
-<!-- ``` -->
-
-<!-- You can write citations, too. For example, we are using the **bookdown** package [@R-bookdown] in this sample book, which was built on top of R Markdown and **knitr** [@xie2015]. -->

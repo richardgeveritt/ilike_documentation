@@ -6,44 +6,35 @@ This chapter works through complete examples. Each uses ilike files from the `ex
 library(ggplot2)
 example_file = function(name) readLines(file.path("examples", name))
 example_output = function(name) readRDS(file.path("examples", "output", name))
+show_file = function(name) cat(example_file(name), sep = "\n")
+# one algorithm section of a file, with the comment lines just above it
+show_algorithm = function(name, algorithm)
+{
+  lines = example_file(name)
+  start = grep(paste("^algorithm ", algorithm, " ", sep = ""), lines)
+  end = start - 1 + which(lines[start:length(lines)] == "}")[1]
+  while (start > 1 && grepl("^//", lines[start - 1])) start = start - 1
+  cat(lines[start:end], sep = "\n")
+}
 ```
 
 ## MCMC algorithms for sampling from a Gaussian {#mcmc-gaussian}
 
 We begin with a model whose posterior we know exactly: $n = 100$ observations $y_i \sim \mathcal{N}(\theta, 1)$ with prior $\theta \sim \mathcal{N}(0, 10^2)$, so that the posterior is Gaussian with variance $v = 1/(n + 10^{-2})$ and mean $v \sum_i y_i$. The data are the `gaussian` data set in the ilike package.
 
-The model file specifies the prior and likelihood in C++, together with their gradients (needed by the gradient-based proposals below). The data are loaded with an R function: the header `/***data,y=get_data()***/` calls `get_data()`, which is defined in `gaussian_model.R`. An R file with the same name as the ilike file is sourced automatically when the model is compiled.
+The file `gaussian_model.ilike` holds the model and four algorithms. The prior and likelihood are written in C++, together with their gradients, which the gradient-based proposals below need (written as model statements, the gradients would be generated: section \@ref(statement-gradients)). The data are loaded by the R function `get_data()`, defined in the file's `r` section.
 
-```{Rcpp, eval=FALSE, code=example_file("gaussian_model.ilike")}
+```{r, echo=FALSE, comment=""}
+show_file("gaussian_model.ilike")
 ```
 
-```{r, eval=FALSE, code=example_file("gaussian_model.R")}
-```
-
-We compare three MCMC algorithms (chapter \@ref(mcmc)), each specified in a short file that is compiled together with the model: random walk Metropolis,
-
-```{Rcpp, eval=FALSE, code=example_file("gaussian_rwm.ilike")}
-```
-
-the Metropolis-adjusted Langevin algorithm,
-
-```{Rcpp, eval=FALSE, code=example_file("gaussian_langevin.ilike")}
-```
-
-and the Barker proposal [@livingstone2022barker].
-
-```{Rcpp, eval=FALSE, code=example_file("gaussian_barker.ilike")}
-```
-
-Each is run from the same starting point, $\theta = 2$, far in the tail of the posterior:
+We compare three MCMC algorithms (chapter \@ref(mcmc)), the algorithm sections `rwm` (random walk Metropolis), `langevin` (the Metropolis-adjusted Langevin algorithm) and `barker` (the Barker proposal [@livingstone2022barker]). Each is run from the same starting point, $\theta = 2$, far in the tail of the posterior:
 
 ```{r, eval=FALSE}
 library(ilike)
+recipe = compile("gaussian_model.ilike")
 for (algorithm in c("rwm", "langevin", "barker"))
-{
-  recipe = compile(c("gaussian_model.ilike", paste("gaussian_", algorithm, ".ilike", sep = "")))
-  MCMC(recipe, results_name = algorithm, initial_values = list(list(θ = 2)), seed = 1)
-}
+  MCMC(recipe, algorithm = algorithm, results_name = algorithm, initial_values = list(list(θ = 2)), seed = 1)
 rwm = load_mcmc_output("rwm")
 ```
 
@@ -91,14 +82,14 @@ ggsmc::plot_histogram(subset(rwm, Iteration > 1000), parameter = "θ", mcmc = TR
 
 ## Converting an MCMC into an SMC sampler {#smc-from-mcmc}
 
-An MCMC algorithm specified in an ilike file can be used directly as the move in an SMC sampler (chapter \@ref(smc)). Here we target the same posterior with SMC, annealing the likelihood from the prior (power 0) to the posterior (power 1). Adding three lines to the random walk file gives the SMC settings: the annealing sequence, a rule for choosing the next power adaptively (keeping the conditional effective sample size at 90% of the particles), and ten MCMC iterations at each step.
+An MCMC move written in an ilike file can be used directly as the move in an SMC sampler (chapter \@ref(smc)). Here we target the same posterior with SMC, annealing the likelihood from the prior (power 0) to the posterior (power 1). The algorithm section `smc` has the move of `rwm`, with three settings added: the annealing sequence, a rule for choosing the next power adaptively (keeping the conditional effective sample size at 90% of the particles), and ten MCMC iterations at each step.
 
-```{Rcpp, eval=FALSE, code=example_file("gaussian_smc.ilike")}
+```{r, echo=FALSE, comment=""}
+show_algorithm("gaussian_model.ilike", "smc")
 ```
 
 ```{r, eval=FALSE}
-recipe = compile(c("gaussian_model.ilike", "gaussian_smc.ilike"))
-log_evidence = SMC_with_MCMC(recipe, results_name = "smc", number_of_particles = 1000,
+log_evidence = SMC_with_MCMC(recipe, algorithm = "smc", results_name = "smc", number_of_particles = 1000,
                              smc_iterations_to_store = 1000, seed = 1)
 smc = load_smc_output("smc")
 ```
@@ -119,7 +110,8 @@ unique(smc$TargetParameters)
 Each SMC iteration stores weighted particles; at each target we show the state of each particle after its last MCMC iteration. The particles move from the prior to the posterior as the power increases:
 
 ```{r smc-density, fig.cap="Weighted density estimates of θ at the later SMC targets (labelled by the power).", fig.height=3}
-selected = smc[smc$Target %in% c(9, 11, 13, 15, max(smc$Target)), ]
+later = sort(unique(smc$Target))
+selected = smc[smc$Target %in% tail(later, 5), ]
 selected$Power = gsub("power=|;", "", selected$TargetParameters)
 selected$Power = factor(signif(as.numeric(selected$Power), 2))
 selected$Weight = ave(selected$LogWeight, selected$Target,
@@ -134,30 +126,27 @@ ggplot(selected, aes(x = Value, weight = Weight, colour = Power)) +
 
 The constant velocity model is a linear-Gaussian state-space model (chapter \@ref(ssm)) often used for tracking: the state is the position and velocity of an object, the velocity changes by random accelerations, and only the position is measured, with noise. We use the first 20 observations of the `constant_velocity_y` data set in the ilike package; the true states are in `constant_velocity_x`.
 
-```{Rcpp, eval=FALSE, code=example_file("cv_model.ilike")}
+```{r, echo=FALSE, comment=""}
+show_file("cv_model.ilike")
 ```
 
-For a linear-Gaussian model the Kalman filter (section \@ref(inference-kf)) gives the exact likelihood and filtering distributions. The prior on the initial state is given as a built-in Gaussian, as the Kalman filter requires, with mean `p1` and covariance `p2` supplied through `model_parameter_list`.
+For a linear-Gaussian model the Kalman filter (section \@ref(inference-kf)) gives the exact likelihood and filtering distributions. The prior on the initial state is a simple Gaussian prior, as the Kalman filter requires, with its mean and covariance given by the constants `prior_mean` and `prior_covariance`.
 
 ```{r, eval=FALSE}
-pl = list(c(0, 0), 100*diag(2))
-model = compile("cv_model.ilike", model_parameter_list = pl)
-KF(model, results_name = "cv_kf", model_parameter_list = pl)
+pl = list(prior_mean = c(0, 0), prior_covariance = 100*diag(2))
+model = compile("cv_model.ilike")
+KF(model, algorithm = "kf", results_name = "cv_kf", model_parameter_list = pl)
 ```
 
-The same file can be used with a particle filter (section \@ref(inference-pf)). By default the particles are moved with the transition model (a "bootstrap" filter). A better proposal uses the next measurement: for this model the optimal proposal $p(x_t \mid x_{t-1}, y_t)$ is Gaussian and available in closed form. It is given as a user-defined transition proposal, whose functions take the measurement at the time being proposed as their last argument:
-
-```{Rcpp, eval=FALSE, code=example_file("cv_guided_proposal.ilike")}
-```
+The same file can be used with a particle filter (section \@ref(inference-pf)). In the algorithm section `bootstrap`, the particles are moved with the transition model (a "bootstrap" filter). A better proposal uses the next measurement: for this model the optimal proposal $p(x_t \mid x_{t-1}, y_t)$ is Gaussian and available in closed form. The algorithm section `guided` gives it as a transition proposal (section \@ref(transition-proposal)), whose functions take the measurement at the time being proposed as their last argument.
 
 ```{r, eval=FALSE}
-guided = compile(c("cv_model.ilike", "cv_guided_proposal.ilike"), model_parameter_list = pl)
 bootstrap_estimates = sapply(1:50, function(s)
-  PF(model, results_name = paste("cv_bootstrap", s, sep = "_"), model_parameter_list = pl,
-     number_of_particles = 100, seed = s))
+  PF(model, algorithm = "bootstrap", results_name = paste("cv_bootstrap", s, sep = "_"),
+     model_parameter_list = pl, number_of_particles = 100, seed = s))
 guided_estimates = sapply(1:50, function(s)
-  PF(guided, results_name = paste("cv_guided", s, sep = "_"), model_parameter_list = pl,
-     number_of_particles = 100, seed = s))
+  PF(model, algorithm = "guided", results_name = paste("cv_guided", s, sep = "_"),
+     model_parameter_list = pl, number_of_particles = 100, seed = s))
 ```
 
 ```{r, include=FALSE}
@@ -185,7 +174,7 @@ ggplot(cv$ess, aes(x = Time, y = ISESS, colour = Filter)) +
 The filtering distribution of the position from a guided filter with 1000 particles follows the true position:
 
 ```{r, eval=FALSE}
-PF(guided, results_name = "cv_pf", model_parameter_list = pl, number_of_particles = 1000,
+PF(model, algorithm = "guided", results_name = "cv_pf", model_parameter_list = pl, number_of_particles = 1000,
    smc_iterations_to_store = 21, seed = 1)
 pf = load_smc_output("cv_pf")
 ```
@@ -211,23 +200,21 @@ ggplot(filter_summary, aes(x = Time)) +
 
 The stochastic Lotka-Volterra model describes predator-prey dynamics as a Markov jump process: prey $X$ are born at rate $\theta_1 X$, predation converts a prey into a predator at rate $\theta_2 X Y$, and predators die at rate $\theta_3 Y$. Both species are observed at 16 times. The process is easy to simulate (Gillespie's algorithm) but its likelihood is not available, so we use approximate Bayesian computation (ABC, section \@ref(gaussian-abc)): the likelihood is replaced by an estimate obtained from simulations, comparing summary statistics of each simulation with those of the data using a Gaussian kernel with tolerance $\epsilon$.
 
-The model file contains the data, a uniform prior on $\log\theta \in (-6, 2)^3$, the simulator (written in C++), the summary statistics $\log(1 + X_t)$ and $\log(1 + Y_t)$, and the ABC likelihood, with the number of simulations per estimate (`p1`) and the tolerance (`p2`) supplied through `model_parameter_list`.
+The model file contains the data, a uniform prior on $\log\theta \in (-6, 2)^3$, the simulator (written in C++), the summary statistics $\log(1 + X_t)$ and $\log(1 + Y_t)$, and the ABC likelihood, with the number of simulations per estimate and the tolerance given by the constants `number_of_simulations` and `tolerance`.
 
-```{Rcpp, eval=FALSE, code=example_file("lv_model.ilike")}
+```{r, echo=FALSE, comment=""}
+show_file("lv_model.ilike")
 ```
 
-Using this likelihood estimate in place of the likelihood in random walk Metropolis gives a pseudo-marginal MCMC algorithm ("ABC-MCMC"), which targets the ABC posterior:
-
-```{Rcpp, eval=FALSE, code=example_file("lv_abc_mcmc.ilike")}
-```
+Using this likelihood estimate in place of the likelihood in random walk Metropolis (the algorithm section `abc_mcmc`) gives a pseudo-marginal MCMC algorithm ("ABC-MCMC"), which targets the ABC posterior:
 
 ```{r, eval=FALSE}
+recipe = compile("lv_model.ilike")
 for (epsilon in c(1, 0.5))
 {
-  pl = list(10, epsilon, 0.01*diag(3))
-  recipe = compile(c("lv_model.ilike", "lv_abc_mcmc.ilike"), model_parameter_list = pl)
-  MCMC(recipe, results_name = paste("lv_abc_mcmc_", epsilon, sep = ""), model_parameter_list = pl,
-       initial_values = list(list(log_theta = log(c(1, 0.005, 0.6)))), seed = 1)
+  pl = list(number_of_simulations = 10, tolerance = epsilon, proposal_covariance = 0.01*diag(3))
+  MCMC(recipe, algorithm = "abc_mcmc", results_name = paste("lv_abc_mcmc_", epsilon, sep = ""),
+       model_parameter_list = pl, initial_values = list(list(log_theta = log(c(1, 0.005, 0.6)))), seed = 1)
 }
 ```
 
@@ -254,17 +241,17 @@ ggplot(lv_runs, aes(x = theta, colour = Tolerance)) +
 
 ABC-MCMC requires the tolerance to be chosen in advance, and a small tolerance makes it hard to start the chain and slow to mix. ABC-SMC [@DelMoral2012g] instead moves a population of particles through a decreasing sequence of tolerances, from the prior ($\epsilon = \infty$) to the final value, using the ABC tolerance as the variable of the SMC sequence (chapter \@ref(smc)). Each particle keeps its simulations, so the likelihood estimate at a new tolerance is obtained by reweighting them, without new simulations; this makes it cheap to choose each tolerance adaptively, here so that the conditional effective sample size is 90% of the particles. After each reweighting, the particles are moved by ABC-MCMC at the current tolerance.
 
-The model file is the one from section \@ref(mcmc-lv); the SMC settings are:
+The model file is the one from section \@ref(mcmc-lv); the SMC settings are in its algorithm section `abc_smc`:
 
-```{Rcpp, eval=FALSE, code=example_file("lv_abc_smc.ilike")}
+```{r, echo=FALSE, comment=""}
+show_algorithm("lv_model.ilike", "abc_smc")
 ```
 
-Because the tolerance variable `epsilon` is the variable of the SMC sequence, the SMC sets its value: the tolerance given in the model file (`p2`) is not used.
+Because the tolerance variable `epsilon` is the variable of the SMC sequence, the SMC sets its value: the constant `tolerance` is not used.
 
 ```{r, eval=FALSE}
-pl = list(10, 0.5, 0.01*diag(3))
-recipe = compile(c("lv_model.ilike", "lv_abc_smc.ilike"), model_parameter_list = pl)
-log_evidence = SMC_with_MCMC(recipe, results_name = "lv_abc_smc", model_parameter_list = pl,
+pl = list(number_of_simulations = 10, proposal_covariance = 0.01*diag(3))
+log_evidence = SMC_with_MCMC(recipe, algorithm = "abc_smc", results_name = "lv_abc_smc", model_parameter_list = pl,
                              number_of_particles = 1000, smc_iterations_to_store = 1000, seed = 1)
 lv_smc = load_smc_output("lv_abc_smc")
 ```

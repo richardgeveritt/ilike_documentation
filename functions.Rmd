@@ -1,0 +1,1048 @@
+# Writing functions {#functions}
+
+Parts of a model or algorithm that are not built into ilike are written as functions: a likelihood that cannot be written as model statements, a simulator, a proposal. This chapter describes how to write them in C++ (sections \@ref(C) to \@ref(ilike-cpp-functions)), and in R, Python and Julia (section \@ref(functions-other-languages)).
+
+## C++ functions {#C}
+
+ilike inference will be most computationally efficient if the functions are written in C++ (or as model statements, which ilike turns into C++). The interface is designed with the aim that it is possible to use C++ functions for users with a range of different backgrounds: from those who know relatively little C++ (for whom R-like functions are provided to facilitate the process); to those who have an existing C++ code base that they would like to use to, for example, define a simulator-based model.
+
+C++ functions are written in a `cpp { }` section, and used elsewhere in the file as `cpp::name`. Here is a log likelihood, used as a factor:
+
+```
+model {
+  factor lik = cpp::log_likelihood
+}
+
+cpp {
+double log_likelihood(const Parameters &parameters, const Data &data)
+{
+  arma::colvec theta = parameters["theta"];
+  double y = data["y"][0];
+  return dnorm(y, theta[0] + theta[1], 1.0);
+}
+}
+```
+
+If you are not familiar with C++, I imagine the main thing that looks odd to you here is the "types", i.e. `double`, `Parameters` and `arma::colvec`. C++ is a typed language. In R we might write `x = 1` (or, preferably, `x <- 1`), and then R works out that the `1` that it will store in `x` is a numeric type. This is invisible from the user, until for example you want to use a function that needs to take, say, a data frame, and the variable is stored as a matrix (in which case `as.data.frame(...)` is handy). In C++, these types must be explicitly specified in the code. We would write, for example, `double x = 1.0;` to specify that `x` has the numeric type `double`. Note that C++ also requires a semi-colon at the end of each line.
+
+There are several points that are worth highlighting about this function:
+
+* The name of the function can be anything you like.
+
+* It is a standard C++ function: the `cpp` section is copied into a C++ file that is compiled with the headers of ilike and of the packages it uses (`Rcpp`, `RcppArmadillo`, `BH`, `dqrng`).
+
+* It has a return type (`double`) and arguments (`const Parameters &parameters, const Data &data`)^[If you are not familiar with C++, and you are not clear about what this means, don't worry about this just yet. This documentation should tell you most of what you need to know to get started. If you want to understand more, [this tutorial](https://cplusplus.com/doc/tutorial/functions/) is a reasonable starting point.] that are fixed by where the function is used: here, as the log density of a likelihood factor. If the function does not have this return type and these arguments (including the `const` and the `&`), compiling the file gives an error that says which signature was expected. The signature for each use is given in section \@ref(signatures).
+
+* The type `Parameters` is a class defined in the ilike package. It operates in a similar way to an R list, or a python dictionary: `parameters["theta"]` is the value of the parameter `theta`. There are more details about this in section \@ref(ilike-cpp-classes).
+
+* `arma::colvec` is a vector type found in the [armadillo](https://arma.sourceforge.net/docs.html) library. Any functions written to be compiled in ilike have access to this library courtesy of the R package `RcppArmadillo` [@eddelbuettel2014rcpparmadillo]. Each variable in a `Parameters` or `Data` object is stored as an armadillo matrix (`arma::mat`), so `parameters["theta"][0]` is its first element.
+
+* The function `dnorm` is a C++ function provided in the ilike package for use in ilike files (or for anyone writing `Rcpp` code). **Important note:** it returns the *log* of the normal density, as do all of ilike's density functions; it behaves like the R function of the same name with `log = TRUE`. More details about these functions can be found in section \@ref(ilike-cpp-functions).
+
+### Code shared between functions
+
+A `cpp` section may hold anything that C++ allows, not only the functions that ilike calls: global variables, helper functions, `#include` lines for header-only libraries. For example, a prior mean and standard deviation used by both the log density and the simulator of a prior can be written once:
+
+```
+cpp {
+double prior_mean = 0.0;
+double prior_sd = 10.0;
+
+double log_prior(const Parameters &parameters)
+{
+  return dnorm(parameters["theta"][0], prior_mean, prior_sd);
+}
+
+Parameters simulate_prior(RandomNumberGenerator &rng)
+{
+  return Parameters("theta", rnorm(rng, prior_mean, prior_sd));
+}
+}
+```
+
+Values that should change from run to run are better made constants (section \@ref(constants)) and passed to built-in functions, or written as model statements.
+
+### Calling a model compiled by BridgeStan {#bridgestan}
+
+A model written in Stan can be translated by `convert_stan_model()` (section \@ref(from-stan)); for a program it cannot translate, a `cpp` section can call the model compiled by [BridgeStan](https://roualdes.github.io/bridgestan/) instead. BridgeStan compiles a Stan program and its C interface into a shared library (`schools_model.so`, from `bridgestan::compile_model("schools.stan")` in R, or `make schools_model.so` in BridgeStan's folder) whose functions give the log density and its gradient on Stan's *unconstrained* scale. A C++ function can load the library when it is first called and use them, with nothing else needed from ilike (and no Stan installation when ilike itself is installed):
+
+```
+model {
+  prior stan = density(log = cpp::stan_log_density, gradient = cpp::stan_gradient)
+}
+
+algorithm mcmc {
+  move m = nuts(theta, step = 0.1, adapt = dual_averaging(until = iterations(1000)))
+  termination = iterations(3000)
+}
+
+cpp {
+#include <dlfcn.h>
+#include <limits>
+#include <string>
+
+// The C functions of a model compiled by BridgeStan. Check these
+// declarations against bridgestan.h (in BridgeStan's src folder) for the
+// version you use.
+typedef struct bs_model bs_model;
+typedef bs_model* (*bs_construct_t)(const char* data, unsigned int seed, char** error_msg);
+typedef int (*bs_param_unc_num_t)(const bs_model* m);
+typedef int (*bs_log_density_t)(const bs_model* m, bool propto, bool jacobian,
+                                const double* theta_unc, double* lp, char** error_msg);
+typedef int (*bs_log_density_gradient_t)(const bs_model* m, bool propto, bool jacobian,
+                                         const double* theta_unc, double* lp, double* grad,
+                                         char** error_msg);
+
+struct StanModel
+{
+  bs_model* model = nullptr;
+  bs_log_density_t log_density = nullptr;
+  bs_log_density_gradient_t log_density_gradient = nullptr;
+  int dimension = 0;
+
+  StanModel(const std::string &library, const std::string &data)
+  {
+    void* handle = dlopen(library.c_str(), RTLD_NOW | RTLD_LOCAL);
+    if (handle == nullptr)
+      Rcpp::stop("could not load " + library + ": " + dlerror());
+    auto construct = (bs_construct_t) dlsym(handle, "bs_model_construct");
+    auto unconstrained_size = (bs_param_unc_num_t) dlsym(handle, "bs_param_unc_num");
+    log_density = (bs_log_density_t) dlsym(handle, "bs_log_density");
+    log_density_gradient = (bs_log_density_gradient_t) dlsym(handle, "bs_log_density_gradient");
+    if (!construct || !unconstrained_size || !log_density || !log_density_gradient)
+      Rcpp::stop(library + " is not a library compiled by BridgeStan.");
+    char* error = nullptr;
+    model = construct(data.c_str(), 1234, &error);
+    if (model == nullptr)
+      Rcpp::stop(std::string("BridgeStan: ") + (error ? error : "the model could not be built"));
+    dimension = unconstrained_size(model);
+  }
+};
+
+// built once, at the first call (the data: a JSON file, or a JSON string)
+StanModel &stan_model()
+{
+  static StanModel model("/path/to/schools_model.so", "/path/to/schools.json");
+  return model;
+}
+
+double stan_log_density(const Parameters &parameters)
+{
+  StanModel &m = stan_model();
+  arma::colvec theta = parameters["theta"];
+  if ((int)theta.n_elem != m.dimension)
+    Rcpp::stop("theta must have " + std::to_string(m.dimension) + " elements.");
+  double lp;
+  char* error = nullptr;
+  // propto = false keeps the constants; jacobian = true gives the density of
+  // the unconstrained parameters, which the moves change
+  if (m.log_density(m.model, false, true, theta.memptr(), &lp, &error) != 0)
+    return -std::numeric_limits<double>::infinity(); // (density 0 here)
+  return lp;
+}
+
+arma::mat stan_gradient(const std::string &variable, const Parameters &parameters)
+{
+  StanModel &m = stan_model();
+  arma::colvec theta = parameters["theta"];
+  arma::colvec gradient(theta.n_elem);
+  double lp;
+  char* error = nullptr;
+  if (m.log_density_gradient(m.model, false, true, theta.memptr(), &lp, gradient.memptr(), &error) != 0)
+    gradient.fill(arma::datum::nan);
+  return gradient;
+}
+}
+```
+
+Some points about this:
+
+* The parameter `theta` is the vector of Stan's unconstrained parameters, in the order BridgeStan gives them (its length is `bs_param_unc_num`, eight schools' 10). The chain is stored on that scale; BridgeStan's `param_constrain` (in its R package, `model$param_constrain(theta)`) turns each stored point into the model's parameters.
+* Stan's log density holds the whole model (priors and likelihood), so it is written here as one factor, a prior written by the user with a log density and a gradient (the signatures of section \@ref(signatures)), and run by MCMC from initial values: `MCMC(compile("schools.ilike"), initial_values = list(list(theta = rep(0, 10))))`. Algorithms that simulate from the prior (importance sampling, SMC) need a prior that ilike can simulate from, so they need the model split into a prior and a likelihood, which a Stan program does not give.
+* `propto = false` keeps the normalising constants of Stan's distributions, but a Stan program may still have an improper prior or leave other constants out, so an evidence computed from it is only as meaningful as the program's density.
+* BridgeStan allocates the error messages it returns (`error`); a long-running program should free them with its `bs_free_error_msg`.
+* `dlopen` and `dlsym` are those of macOS and Linux; on Windows the same is done with `LoadLibrary` and `GetProcAddress` (from `<windows.h>`).
+* Use the function with `parallel = FALSE` unless BridgeStan's documentation for your version says that one model may be evaluated from several threads at once.
+
+### Signatures {#signatures}
+
+The signature of a C++ function depends on its use. In the table, `parameters` holds the parameters (or the current point, for a proposal), `proposed_parameters` a proposed point, `data` the data, and `rng` the random number generator, which must be used for all random numbers so that runs are reproducible from their seed.
+
+| Use | Written as | C++ signature |
+|---|---|---|
+| data | `data = cpp::f` | `Data f()` |
+| log prior | `prior p = cpp::f`, `density(log = cpp::f)` | `double f(const Parameters &parameters)` |
+| prior simulation | `density(simulate = cpp::f)` | `Parameters f(RandomNumberGenerator &rng)` |
+| gradient of the log prior | `density(gradient = cpp::f)` | `arma::mat f(const std::string &variable, const Parameters &parameters)` |
+| second derivatives of the log prior | `density(second_gradient = cpp::f)` | `arma::mat f(const std::string &variable1, const std::string &variable2, const Parameters &parameters)` |
+| log likelihood | `factor l = cpp::f`, `density(log = cpp::f)` | `double f(const Parameters &parameters, const Data &data)` |
+| gradient of the log likelihood | `density(gradient = cpp::f)` | `arma::mat f(const std::string &variable, const Parameters &parameters, const Data &data)` |
+| second derivatives of the log likelihood | `density(second_gradient = cpp::f)` | `arma::mat f(const std::string &variable1, const std::string &variable2, const Parameters &parameters, const Data &data)` |
+| simulator | `sbi(…, simulate = cpp::f)` | `Data f(RandomNumberGenerator &rng, const Parameters &parameters)` |
+| summary statistics | `sbi(…, summaries = cpp::f)` | `Data f(const Data &data)` |
+| Metropolis, MH or unadjusted proposal | `metropolis(cpp::f)`, `metropolis_hastings(cpp::f, …)` | `Parameters f(RandomNumberGenerator &rng, const Parameters &parameters)` |
+| log density of an MH proposal | `metropolis_hastings(…, log = cpp::f)` | `double f(const Parameters &proposed_parameters, const Parameters &parameters)` |
+| independent MH or importance proposal | `density(simulate = cpp::f)` | `Parameters f(RandomNumberGenerator &rng)` |
+| its log density | `density(log = cpp::f)` | `double f(const Parameters &proposed_parameters)` |
+| transition simulation | `transition x = density(simulate = cpp::f)` | `Parameters f(RandomNumberGenerator &rng, const Parameters &parameters)` |
+| transition log density | `density(log = cpp::f)` | `double f(const Parameters &proposed_parameters, const Parameters &parameters)` |
+| transition proposal simulation | `transition_proposal = density(simulate = cpp::f)` | `Parameters f(RandomNumberGenerator &rng, const Parameters &parameters, const Data &data)` |
+| transition proposal log density | `density(log = cpp::f)` | `double f(const Parameters &proposed_parameters, const Parameters &parameters, const Data &data)` |
+| function of a nonlinear Gaussian data model | `nonlinear_gaussian(function = cpp::f, …)` | `Data f(const Parameters &parameters)` |
+| function of a nonlinear Gaussian transition | `transition x = nonlinear_gaussian(function = cpp::f, …)` | `Parameters f(const Parameters &parameters)` |
+| matrix or covariance of a Gaussian model | `matrix = cpp::f`, `covariance = cpp::f` | `arma::mat f(const Parameters &parameters)` or `arma::mat f()` |
+| MCMC weights | `weights = cpp::f` | `NumericVector f()` |
+| adaptation of a proposal | `adapt = cpp::f` | `Parameters f(const Parameters &proposal_parameters, const Parameters &parameters, const Parameters &proposed_parameters, const Parameters &new_parameters, double acceptance_probability)` |
+
+A gradient function is called with the name of a variable, and returns the gradient of the log density with respect to that variable, with the variable's dimensions.
+
+## C++ classes {#ilike-cpp-classes}
+
+The ilike package contains one class `RandomNumberGenerator` used for generating random numbers, and two classes, `Parameters` and `Data`, which are used to pass parameters and data to and from the ilike inference engine. `RandomNumberGenerator` is a random number generator found in the `dqrng` R package [@dqrng], renamed in an attempt make it look less intimidating to the casual C++ user. For the remainder of the section, we focus on describing the `Parameters` class (`Data` has the same functionality). 
+
+The `Parameters` class can be thought of as being similar to an R list or python dictionary, where each element is indexed by a `std::string` key, and each element has the type `arma::mat` (a matrix, from the armadillo library). Full documentation for this class can be found in the [`Parameters` file](html/parameters_8h.html) in the [ilike cpp documentation](html/index.html). The file itself can be found in the package `inst/include` directory. Here we describe the most commonly used functions.
+
+### Constructors
+
+```{Rcpp,eval=FALSE}
+Parameters();
+```
+
+This constructs an empty Parameters object.
+
+
+```{Rcpp,eval=FALSE}
+Parameters(const std::string &variable_in,
+           double value_in);
+```
+
+This constructs a Parameters object with the given `double` stored in a $1\times 1$ dimensional `arma::mat` matrix, indexed by the key given by the `std::string`.
+
+```{Rcpp,eval=FALSE}
+Parameters(const std::string &variable_in,
+           const arma::mat &value_in);
+```
+
+This constructs a Parameters object with the given `arma::mat` stored in the Parameters object with index by the key given by the `std::string`. An `arma::colvec` can also be supplied as an argument to this function, with the armadillo library dealing with the conversion between the types.
+
+### Element access
+
+```{Rcpp,eval=FALSE}
+arma::mat& operator[](const std::string &variable);
+arma::mat operator[](const std::string &variable) const;
+```
+
+These functions allow: (a) the assignment to an existing `Parameters` object of a new `arma::mat`, indexed by the key given by the `std::string`; and (b) accessing in a `Parameters`object the `arma::mat`, indexed by the key given by the `std::string`.
+
+For example, to store a column vector with the key `"x"`:
+
+```{Rcpp,eval=FALSE}
+arma::colvec a_vector(2);
+a_vector[0] = 1.0;
+a_vector[1] = 4.0;
+Parameters parameters;
+parameters["x"] = a_vector;
+```
+
+Then, to subsequently access the vector in the `parameters` object:
+
+```{Rcpp,eval=FALSE}
+arma::colvec x = parameters["x"];
+```
+
+This copies the vector. To use a variable without copying it, which matters when a function is called many times with a large variable (typically a large data set in a `Data` object), bind it to a constant reference instead (the reference can only be read; to change values, copy as above):
+
+```{Rcpp,eval=FALSE}
+const arma::mat &X = data["X"];
+```
+
+### Copying
+
+```{Rcpp,eval=FALSE}
+Parameters(const Parameters &another);
+Parameters& operator=(const Parameters &another);
+```
+
+These functions allow a parameters object to be copied, using a copy constructor and an `operator=` respectively. Examples of each follow:
+
+```{Rcpp,eval=FALSE}
+// using a copy constructor to copy the object "parameters", which was defined in the previous code chunk
+Parameters copied_parameters(parameters);
+
+// using operator= to copy "parameters"
+Parameters another_copied_parameters = parameters;
+```
+
+### Combining
+
+```{Rcpp,eval=FALSE}
+Parameters merge(const Parameters &another) const;
+```
+
+This function combines two `Parameters` objects into one. Each element in the object taken as an argument is inserted only if its key is not equivalent to the key of any other element already in the container. For example:
+
+```{Rcpp,eval=FALSE}
+// make more vectors to store in a Parameters object
+arma::colvec b_vector(1);
+b_vector[0] = 5.0;
+
+arma::colvec c_vector(1);
+c_vector[0] = 12.0;
+
+// make another Parameters object that we will merge with the one we made above.
+Parameters more_parameters;
+more_parameters["x"] = b_vector;
+more_parameters["y"] = c_vector;
+
+// perform the merge
+// both parameters and more_parameters have the key "x",
+// so the "x" element from parameters,
+// and the "y" element from more_parameters are found in the result
+Parameters yet_more_parameters = parameters.merge(more_parameters);
+```
+
+### Printing
+
+```{Rcpp,eval=FALSE}
+std::ostream& operator<<(std::ostream& os, const Parameters &p);
+```
+
+This function prints a `Parameters` object to an output stream. For example, to print to console:
+
+```{Rcpp,eval=FALSE}
+std::cout << parameters;
+```
+
+## C++ functions provided by ilike {#ilike-cpp-functions}
+
+Functions from any C++ library may be used in the `cpp` sections of an ilike file, provided the functions being used are found in header files only. The `boost` library is particularly easy to use in this setting, since most of the `boost` header files are available directly through ilike's depdendece on the `BH` R package [@BH].
+
+ilike itself contains a number of C++ functions that might be useful. Most of these provide methods for simulating points from, or evaluating the density of. various commonly used distributions. The arguments taken bv these functions are chosen to be, where possible, roughly consistent with the corresponding functions in R. All functions involving the simulation of random points require a `RandomNumberGenerator` as their first argument (most provide an interface to the corresponding functions in `boost`). The use of a `RandomNumberGenerator` distinguishes these functions from [those found in Rcpp](https://teuder.github.io/rcpp4everyone_en/220_dpqr_functions.html). Use of the ilike functions is recommended in ilike files, to ensure correct handling of the random number streams in the ilike inference engine.
+
+Casual C++ users may not be familiar with the type `size_t`: this can be thought of as a non-negative integer.
+
+### hz test
+
+---
+
+```{Rcpp,eval=FALSE}
+double hz(const arma::mat &data_in)
+```
+
+Implements Henze-Zirkler’s test for multivariate linearity: a translation into C++ of the code found in the [MVN R package](https://CRAN.R-project.org/package=MVN) [@MVN].
+
+### log-sum-exp
+
+---
+
+```{Rcpp,eval=FALSE}
+double log_sum_exp(const arma::colvec &log_weights)
+```
+
+This function implements the [LogSumExp trick](https://en.wikipedia.org/wiki/LogSumExp) on the inputted vector.
+
+### Weighted mean and covariance
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::rowvec mean_wt(const arma::mat &x,
+                     const arma::colvec &wt);
+arma::mat cov_wt(const arma::mat &x,
+                 const arma::colvec &wt);
+```
+
+The functions compute the weighted (using weight `wt`) mean and covariance of the data found in the rows of `x`. The vector `wt` needs to be normalised.
+
+### Discrete distribution
+
+---
+
+```{Rcpp,eval=FALSE}
+size_t rdis(RandomNumberGenerator &rng,
+            const arma::colvec &probabilities);
+```
+
+Generates a random number from the discrete distribution taking values $[0,n)$, with probabilities given by the vector `probabilities`, and `n` being taken to be the length of this vector. The vector `probabilities` need not be normalised.
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::uvec multiple_rdis(RandomNumberGenerator &rng,
+                         size_t n,
+                         const arma::colvec &probabilities);
+```
+
+Generates `n` random numbers from the discrete distribution taking values $[0,n)$, with probabilities given by the vector `probabilities`, and `n` being taken to be the length of this vector. The vector `probabilities` need not be normalised.
+
+### Exponential distribution
+
+---
+
+```{Rcpp,eval=FALSE}
+double rexp(RandomNumberGenerator &rng,
+            double rate);
+```
+
+Generates a random number from the exponential distribution with rate `rate`.
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::colvec rexp(RandomNumberGenerator &rng,
+                  size_t n,
+                  double rate);
+```
+
+Generates `n` random numbers from the exponential distribution with rate `rate`.
+
+---
+
+```{Rcpp,eval=FALSE}
+double dexp(double x,
+            double rate);
+```
+
+Evaluates the log of the exponential density with rate `rate` at the point `x`.
+
+---
+
+```{Rcpp,eval=FALSE}
+double rtranslatedexp(RandomNumberGenerator &rng,
+                      double rate,
+                      double min);
+```
+
+Generates a random number from the translated (by `min`) exponential distribution with rate `rate`.
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::colvec rtranslatedexp(RandomNumberGenerator &rng,
+                            size_t n,
+                            double rate,
+                            double min);
+```
+
+Generates `n` random numbers from the translated (by `min`) exponential distribution with rate `rate`.
+
+---
+
+```{Rcpp,eval=FALSE}
+double dtranslatedexp(double x,
+                      double rate,
+                      double min);
+```
+
+Evaluates the log of the translated exponential (by `min`) density with rate `rate` at the point `x`.
+
+### Gamma distribution
+
+---
+
+```{Rcpp,eval=FALSE}
+double rgamma(RandomNumberGenerator &rng,
+              double shape,
+              double rate);
+```
+
+Generates a random number from the gamma distribution with shape `shape` and rate `rate`.
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::colvec rgamma(RandomNumberGenerator &rng,
+                    size_t n,
+                    double shape,
+                    double rate);
+---
+```  
+
+Generates `n` random numbers from the gamma distribution with shape `shape` and rate `rate`.
+
+```{Rcpp,eval=FALSE}
+double dgamma(double x,
+              double shape,
+              double rate);
+```
+
+Evaluates the log of the gamma density with shape `shape` and rate `rate` at the point `x`.
+
+### Log-normal and multivariate log-normal distribution
+
+---
+
+```{Rcpp,eval=FALSE}
+double rlnorm(RandomNumberGenerator &rng,
+              double meanlog,
+              double sdlog)
+{
+  boost::random::lognormal_distribution<double> my_gamma(meanlog, sdlog);
+  return my_gamma(rng);
+}
+```
+
+Generates a random number from the log-normal distribution with mean of the log of the variable `meanlog` and standard deviation of the log of the variable `sdlog`.
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::colvec rlnorm(RandomNumberGenerator &rng,
+                    size_t n,
+                    double meanlog,
+                    double sdlog);
+```
+
+Generates `n` random numbers from the log-normal distribution with mean of the log of the variable `meanlog` and standard deviation of the log of the variable `sdlog`.
+
+---
+
+```{Rcpp,eval=FALSE}
+double dlnorm(double x,
+              double meanlog,
+              double sdlog)
+{
+  if (sdlog<0)
+  {
+    return NAN;
+  }
+  if (sdlog==0)
+  {
+    if (x==meanlog)
+      return arma::datum::inf;
+    else
+      return -arma::datum::inf;
+  }
+  return - log(x) - log(sdlog) - 0.5*log(2.0*M_PI) - 0.5*pow((log(x)-meanlog)/sdlog,2.0);
+}
+```
+
+Evaluates the log of the log-normal density with mean of the log of the variable `meanlog` and standard deviation of the log of the variable `sdlog` at the point `x`.
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::colvec rmvlnorm(RandomNumberGenerator &rng,
+                             const arma::colvec &mulog,
+                             const arma::mat &Sigmalog);
+```
+
+Generates a random number from the multivariate log-normal distribution with mean of the log of the variable `meanlog` and covariance of the log of the variable `Sigmalog`.
+
+---
+
+```{Rcpp,eval=FALSE}
+double dmvlnorm(const arma::colvec &x,
+                       const arma::colvec &mulog,
+                       const arma::mat &Sigmalog)
+double dmvlnorm_using_precomp(const arma::colvec &x,
+                                     const arma::colvec &mulog,
+                                     const arma::mat &inv_Sigmalog,
+                                     double log_det)
+```
+
+Evaluates the log of the multivariate log-normal density with mean of the log of the variable `meanlog` and covariance of the log of the variable `Sigmalog` at the point `x`. The latter function does not require the covariance as an argument: instead it takes the inverse of the covariance `inv_Sigma` and the log of the determinant of the covariance (`log_det`). This is designed for cases where the density needs to be evaluated at a number of points using the same covariance; using this function avoids performing the most expensive parts of the computation more than once.
+
+### Normal/Gaussian and multivariate normal/Gaussian distribution
+
+---
+
+```{Rcpp,eval=FALSE}
+double rnorm(RandomNumberGenerator &rng);
+```
+
+Generates a random number from the standard normal distribution.
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::mat rnorm(RandomNumberGenerator &rng,
+                size_t n);
+```
+
+Generates `n` random numbers from the standard normal distribution.
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::mat rnorm(RandomNumberGenerator &rng,
+                std::pair<size_t,size_t> dimensions);
+```
+
+Generates a matrix (of dimension given by `dimensions`) of random numbers from the standard normal distribution.
+
+---
+
+```{Rcpp,eval=FALSE}
+double dnorm(double x);
+```
+
+Evaluates the log of the standard normal density at the point `x`.
+
+---
+
+```{Rcpp,eval=FALSE}
+double rnorm(RandomNumberGenerator &rng,
+             double mean,
+             double sd);
+```
+
+Generates a random number from the normal distribution with mean `mean` and standard deviation `sd`.
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::mat rnorm(RandomNumberGenerator &rng,
+                size_t n,
+                double mean,
+                double sd);
+```
+
+Generates `n` random numbers from the normal distribution with mean `mean` and standard deviation `sd`.
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::mat rnorm(RandomNumberGenerator &rng,
+                       std::pair<size_t,size_t> dimensions,
+                       double mean,
+                       double sd);
+```
+
+Generates a matrix (of dimension given by `dimensions`) of random numbers from the normal distribution with mean `mean` and standard deviation `sd`.
+
+---
+
+```{Rcpp,eval=FALSE}
+double dnorm(double x,
+             double mean,
+             double sd);
+```
+
+Evaluates the log of the normal density with mean `mean` and standard deviation `sd` at the point `x`.
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::colvec dnorm(const arma::colvec &x,
+                   double mean,
+                   double sd);
+arma::colvec dnorm(const arma::colvec &x,
+                   const arma::colvec &mean,
+                   double sd);
+arma::colvec dnorm(const arma::colvec &x,
+                   double mean,
+                   const arma::colvec &sd);
+arma::colvec dnorm(const arma::colvec &x,
+                   const arma::colvec &mean,
+                   const arma::colvec &sd);
+```
+
+Evaluates the log of the normal density with mean `mean` and standard deviation `sd` at the vector of points `x`, returning a vector. If `mean` and/or `sd` are a `double`, the same mean/sd is used for all dimensions; if a vector the corresponding entry in that vector is used for each dimension.
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::colvec rmvnorm(RandomNumberGenerator &rng,
+                     const arma::colvec &mu,
+                     const arma::mat &Sigma);
+```
+
+Generates a random vector from the multivariate normal distribution with mean `mu` and covariance `Sigma`.
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::mat rmvnorm(RandomNumberGenerator &rng,
+                  size_t n,
+                  const arma::colvec &mu,
+                  const arma::mat &Sigma);
+```
+
+Generates `n` random vectors from the multivariate normal distribution with mean `mu` and covariance `Sigma`, stored in a $d\times n$ matrix, where $d$ is the dimension of the multivariate Gaussian (determined by the size of the inputted mean and covariance).
+
+---
+
+```{Rcpp,eval=FALSE}
+double dmvnorm(const arma::colvec &x,
+               const arma::colvec &mu,
+               const arma::mat &Sigma);
+double dmvnorm_using_precomp(const arma::colvec &x,
+                             const arma::colvec &mu,
+                             const arma::mat &inv_Sigma,
+                             double log_det);
+```
+
+Evaluates the log of the multivariate normal density with mean `mu` and covariance `Sigma` at the vector `x`. The latter function does not require the covariance as an argument: instead it takes the inverse of the covariance `inv_Sigma` and the log of the determinant of the covariance (`log_det`). This is designed for cases where the density needs to be evaluated at a number of points using the same covariance; using this function avoids performing the most expensive parts of the computation more than once.
+
+### Truncated normal/Gaussian and trucated multivariate normal/Gaussian distributions
+
+---
+
+```{Rcpp,eval=FALSE}
+double rtnorm(RandomNumberGenerator &rng,
+              double min,
+              double max);
+```
+
+Generates a random number from the standard truncated normal distribution, with bounds given by `min` and `max` (using the technique from @robert1995simulation).
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::mat rtnorm(RandomNumberGenerator &rng,
+                 size_t n,
+                 double min,
+                 double max);
+```
+
+Generates `n` random numbers from the standard truncated normal distribution, with bounds given by `min` and `max` (using the technique from @robert1995simulation).
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::mat rtnorm(RandomNumberGenerator &rng,
+                 std::pair<size_t,size_t> dimensions,
+                 double min,
+                 double max);
+```
+
+Generates a matrix (of dimension given by `dimensions`) of random numbers from the standard truncated normal distribution, with bounds given by `min` and `max` (using the technique from @robert1995simulation).
+
+---
+
+```{Rcpp,eval=FALSE}
+double dtnorm(double x,
+              double min,
+              double max);
+```
+
+Evaluates the log of the standard truncated normal density, with bounds given by `min` and `max`, at the point `x`.
+
+---
+
+```{Rcpp,eval=FALSE}
+double rtnorm(RandomNumberGenerator &rng,
+              double mean,
+              double sd,
+              double min,
+              double max);
+```
+
+Generates a random number from the truncated normal distribution with mean `mean` and standard deviation `sd`, with bounds given by `min` and `max`.
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::mat rtnorm(RandomNumberGenerator &rng,
+                 size_t n,
+                 double mean,
+                 double sd,
+                 double min,
+                 double max);
+```
+
+Generates `n` random numbers from the truncated normal distribution with mean `mean` and standard deviation `sd`, with bounds given by `min` and `max`.
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::mat rtnorm(RandomNumberGenerator &rng,
+                 std::pair<size_t,size_t> dimensions,
+                 double mean,
+                 double sd,
+                 double min,
+                 double max);
+```
+
+Generates a matrix (of dimension given by `dimensions`) of random numbers from the truncated normal distribution with mean `mean` and standard deviation `sd`, with bounds given by `min` and `max`.
+
+---
+
+```{Rcpp,eval=FALSE}
+double dtnorm(double x,
+              double mean,
+              double sd,
+              double min,
+              double max);
+```
+
+Evaluates the log of the truncated normal density with mean `mean` and standard deviation `sd`, with bounds given by `min` and `max`, at the point `x`.
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::colvec dtnorm(const arma::colvec &x,
+                    double mean,
+                    double sd,
+                    double min,
+                    double max);
+```
+
+Evaluates the log of the truncated normal density with mean `mean` and standard deviation `sd`, with bounds given by `min` and `max`, at the vector of points `x`, returning a vector.
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::colvec rtmvnorm(RandomNumberGenerator &rng,
+                      const arma::colvec &mu,
+                      const arma::mat &Sigma,
+                      const arma::colvec &min,
+                      const arma::colvec &max);
+```
+
+Generates a random vector from the truncated multivariate normal distribution with mean `mu` and covariance `Sigma`, with bounds given by `min` and `max`. A simple rejection sampler is used for the implementation.
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::mat rtmvnorm(RandomNumberGenerator &rng,
+                   size_t n,
+                   const arma::colvec &mu,
+                   const arma::mat &Sigma,
+                   const arma::colvec &min,
+                   const arma::colvec &max);
+```
+
+Generates `n` random vectors from the truncated multivariate normal distribution with mean `mu` and covariance `Sigma`, with bounds given by `min` and `max`, stored in a $d\times n$ matrix, where $d$ is the dimension of the multivariate Gaussian (determined by the size of the inputted mean and covariance).
+
+### Poisson distribution
+
+---
+
+```{Rcpp,eval=FALSE}
+int rpois(RandomNumberGenerator &rng,
+          double rate);
+```
+
+Generates a random number from the Poisson distribution with rate `rate`.
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::colvec rpois(RandomNumberGenerator &rng,
+                   size_t n,
+                   double rate);
+```
+
+Generates `n` random numbers from the Poisson distribution with rate `rate`.
+
+---
+
+```{Rcpp,eval=FALSE}
+double dpois(double x,
+             double rate);
+```
+
+Evaluates the log of the Poisson mass function with rate `rate` at the point `x`.
+
+### Uniform distribution (continuous)
+
+---
+
+```{Rcpp,eval=FALSE}
+double runif(RandomNumberGenerator &rng);
+```
+
+Generates a random number from the uniform distribution between 0 and 1.
+
+---
+
+```{Rcpp,eval=FALSE}
+double runif(RandomNumberGenerator &rng,
+             double lower,
+             double upper);
+```
+
+Generates a random number from the uniform distribution between `lower` and `upper`.
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::mat runif(RandomNumberGenerator &rng,
+                const arma::mat &lower,
+                const arma::mat &upper);
+```
+
+Generates a matrix of random numbers, where the $(i,j)$th element is drawn from the uniform distribution between the $(i,j)$th element of `lower` and the $(i,j)$th element of `upper`.
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::rowvec multiple_runif(RandomNumberGenerator &rng,
+                            size_t n);
+```
+
+Generates `n` random numbers from the uniform distribution between 0 and 1, and stores them in a row vector.
+
+---
+
+```{Rcpp,eval=FALSE}
+arma::rowvec multiple_runif(RandomNumberGenerator &rng,
+                            size_t n,
+                            double lower,
+                            double upper);
+```
+
+Generates `n` random numbers from the uniform distribution between `lower` and `upper`, and stores them in a row vector.
+
+---
+
+```{Rcpp,eval=FALSE}
+double dunif(double x);
+```
+
+Evaluates the log of the uniform density between 0 and 1 at `x`.
+
+---
+
+```{Rcpp,eval=FALSE}
+double dunif(double x,
+             double lower,
+             double upper);
+```
+
+Evaluates the log of the uniform density between `lower` and `upper` at `x`.
+
+---
+
+```{Rcpp,eval=FALSE}
+double dunif(const arma::mat &x,
+             const arma::mat &lower,
+             const arma::mat &upper);
+```
+
+For the $(i,j)$th element of `x`, evaluate the log of the uniform density between the $(i,j)$th element of `lower` and the $(i,j)$th element of `upper`, then take the sum of the result (i.e. the product of independent uniform densities).
+
+## Functions in R, Python and Julia {#functions-other-languages}
+
+Functions written in R, Python or Julia can be used wherever a C++ function can. They are written in an <code>r { }</code>, `py { }` or `jl { }` section, or in a separate file imported with its language taken from its extension (`import "helpers.py" as helpers`), and used as `r::f`, `py::f`, `jl::f` (or `helpers::f`).
+
+They are called through R: R functions directly, Python functions through the `reticulate` package, and Julia functions through the `JuliaCall` package. So they are slower than C++ functions, by an amount that depends on how much work each call does: an exact likelihood that is cheap to evaluate in C++ will be much slower, while an ABC simulator that takes a long time per call may hardly be affected. Python and Julia have a larger overhead than R, since each call converts the data between R and the other language. Recipes that use functions in these languages cannot be run in parallel.
+
+### Calling a function
+
+There are two ways of using a function in another language.
+
+**Without arguments**: `r::f`. The function is called with the objects of its use, in their simplest form. A log prior is called as `f(parameters)`, a log likelihood as `f(parameters, data)`, the log density of an MH proposal as `f(proposed_parameters, parameters)`, and a function simulating the prior, or giving the data, as `f()`. The objects are R lists (dictionaries in Python, `Dict`s in Julia) of the variables: `parameters$theta` in R, `parameters["theta"]` in Python.
+
+**With arguments**: `r::f(arguments)`. The function is called with the arguments written in the call, which are written with ilike's names:
+
+- a bare name is a parameter (`theta`), unless it is a data variable or a constant, in which case its value is passed;
+- `data$y`, `parameters$theta` and `proposed_parameters$theta` are written as in R;
+- `parameters`, `data`, `proposed_parameters`, `proposal_parameters`, `variable`, `variable1` and `variable2` are the objects of the use, as in the table of section \@ref(signatures);
+- calls inside the arguments are calls in R: `r::dnorm(theta, 0, 10, log = TRUE)` evaluates `dnorm` in R; `r::list(theta = rnorm(1, 0, 10))` builds a list;
+- `3L` is an integer, as in R. Integers passed to Python and Julia functions must be written in this way (`py::my_rnorm(100L)`), since a Python or Julia function may treat `100` as a floating-point number.
+
+For example:
+
+```
+data {
+  x = r::c(1.3, 0.2, 0.9)
+}
+
+model {
+  prior p = density(log = r::dnorm(theta, 0, 10, log = TRUE),
+                    simulate = r::list(theta = rnorm(1, 0, 10)))
+  factor lik = r::log_likelihood(theta, x)
+}
+
+r {
+log_likelihood = function(theta, x) sum(dnorm(x, theta, 1, log = TRUE))
+}
+```
+
+A function that simulates (a prior, a proposal, a simulator) returns a named list of variables (a dictionary in Python, a `Dict` in Julia). Data given by a function in another language is either one variable (`y = r::f()`, where `f` returns a vector or matrix) or several (`data = r::f()`, where `f` returns a named list). In calls to R, names may contain `.` as in R (`r::read.csv("y.csv")$y`, `r::mean(y, na.rm = TRUE)`), and `$` after a call takes a member of its result.
+
+Constants used in the arguments of such calls must have values when the file is compiled: a default in the constants section, or a value given to `compile(model_parameter_list = list(…))`.
+
+### R packages
+
+If the R functions use other R packages, load the packages in the `r` section (e.g. `library(mvtnorm)`), and also list them in the `external_packages` argument of `compile`:
+
+```{r,eval=FALSE}
+recipe = compile("myfile.ilike", external_packages = c("mvtnorm", "gk"))
+```
+
+### Python
+
+Python functions are run through `reticulate`, which must be able to find a Python installation with the modules that the functions use (see the [reticulate documentation](https://rstudio.github.io/reticulate/articles/versions.html)). For example, with the file `helpers.py`:
+
+```{python,eval=FALSE}
+from scipy.stats import norm
+
+def my_log_llhd(parameters, data):
+  return sum(norm.logpdf(data["y"], parameters["mu"], 1.0))
+
+def my_rnorm(n):
+  return norm.rvs(size = n)
+```
+
+the ilike file
+
+```
+import "helpers.py" as helpers
+
+data {
+  y = helpers::my_rnorm(100L)
+}
+
+model {
+  mu ~ norm(0, 10)
+  factor lik = helpers::my_log_llhd(parameters, data)
+}
+```
+
+uses `my_rnorm` for the data and `my_log_llhd` for the likelihood.
+
+The `jax` library can be used to calculate gradients of Python functions. In the Python file:
+
+```{python,eval=FALSE}
+import numpy
+import jax.numpy as jnp
+from jax.scipy.stats import norm
+from jax import grad, jit
+
+def log_llhd_core(mu, y):
+  return jnp.sum(norm.logpdf(y, mu, 1.0))
+
+def my_log_llhd(parameters, data):
+  return float(log_llhd_core(parameters["mu"], data["y"]))
+
+def my_grad_log_llhd(variable, parameters, data):
+  return numpy.array(jit(grad(log_llhd_core, argnums = 0))(parameters["mu"], data["y"]))
+```
+
+and in the ilike file:
+
+```
+factor lik = density(log = helpers::my_log_llhd(parameters, data),
+                     gradient = helpers::my_grad_log_llhd(variable, parameters, data))
+```
+
+### Julia
+
+Julia functions are run through `JuliaCall`. The folder containing the Julia binary must be given when compiling, and the Julia packages that the functions use listed:
+
+```{r,eval=FALSE}
+recipe = compile("myfile.ilike",
+                 julia_bin_dir = "/path/to/julia/bin",
+                 julia_required_libraries = c("Distributions"))
+```
+
+For example, with a log-normal prior written in Julia:
+
+```
+model {
+  prior p = jl::my_dlnorm(tau, 1, 1)
+}
+
+jl {
+using Distributions
+function my_dlnorm(tau, m, s)
+  logpdf(LogNormal(log(m) - s^2/2, s), tau)
+end
+}
+```
+
+Calling Julia functions has an even larger overhead than calling Python functions, so they are best used only when necessary.

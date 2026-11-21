@@ -1,5 +1,0 @@
-// Barker proposal with preconditioning matrix 0.01 and scale s^2 = 1.
-
-/***mh_proposal,ilike::barker(θ,0.01,1)***/
-
-/***mcmc_termination,ilike::iterations(10000)***/

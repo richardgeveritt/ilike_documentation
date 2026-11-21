@@ -1,6 +1,0 @@
-// Metropolis-adjusted Langevin algorithm with preconditioning matrix 0.01 and
-// scale s^2 = 1: θ* ~ N(θ + 0.005 d/dθ log π(θ), 0.01).
-
-/***mh_proposal,ilike::langevin(θ,0.01,1)***/
-
-/***mcmc_termination,ilike::iterations(10000)***/

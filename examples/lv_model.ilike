@@ -1,13 +1,30 @@
+ilike 1.0
 // Stochastic Lotka-Volterra predator-prey model (a Markov jump process with
 // prey birth, predation and predator death at rates θ1 X, θ2 X Y and θ3 Y),
 // observed exactly at 16 times, two time units apart, for both species.
 // The parameter is log_theta = log(θ), with a uniform prior on (-6, 2)^3.
 // The likelihood is intractable; it is replaced by an ABC likelihood with a
 // Gaussian kernel on the summary statistics log(1 + X) and log(1 + Y), using
-// p1 simulations per estimate and tolerance epsilon = p2.
+// number_of_simulations simulations per estimate and tolerance epsilon.
 
-/***data***/
-Data data()
+constants {
+  int number_of_simulations = 10
+  real tolerance = 0.5
+  matrix proposal_covariance
+}
+
+data {
+  data = cpp::lv_data
+}
+
+model {
+  prior p = density(log = cpp::evaluate_log_prior, simulate = cpp::simulate_prior)
+  factor abc = sbi(gaussian_abc(number_of_simulations, epsilon, tolerance),
+                   simulate = cpp::simulate_data_model, data = s, summaries = cpp::summary_statistics)
+}
+
+cpp {
+Data lv_data()
 {
   arma::colvec X(16);
   X[0] = 50;
@@ -51,7 +68,6 @@ Data data()
   return data;
 }
 
-/***evaluate_log_prior***/
 double evaluate_log_prior(const Parameters &parameters)
 {
   arma::colvec log_theta = parameters["log_theta"];
@@ -60,7 +76,6 @@ double evaluate_log_prior(const Parameters &parameters)
   return dunif(log_theta, lower, upper);
 }
 
-/***simulate_prior***/
 Parameters simulate_prior(RandomNumberGenerator &rng)
 {
   arma::colvec lower(3); lower.fill(-6.0);
@@ -106,7 +121,6 @@ arma::colvec my_stepLVc(RandomNumberGenerator &rng,
   }
 }
 
-/***simulate_data_model***/
 Data simulate_data_model(RandomNumberGenerator &rng,
                          const Parameters &parameters)
 {
@@ -129,14 +143,29 @@ Data simulate_data_model(RandomNumberGenerator &rng,
   return output;
 }
 
-/***summary_statistics***/
 Data summary_statistics(const Data &data)
 {
   arma::colvec X = data["X"];
   arma::colvec Y = data["Y"];
   return Data("s", arma::join_cols(log(X + 1.0), log(Y + 1.0)));
 }
+}
 
-/***data_variable,"s"***/
+// ABC-MCMC (pseudo-marginal): random walk Metropolis on log_theta, each
+// likelihood estimated afresh at the proposed point
+algorithm abc_mcmc {
+  move m = metropolis(mvnorm_rw(log_theta, proposal_covariance))
+  termination = iterations(50000)
+}
 
-/***sbi_likelihood,ilike::gaussian_abc(p1,epsilon,p2)***/
+// ABC-SMC: the tolerance epsilon decreases from infinity (the prior) to 0.5,
+// each tolerance chosen so that the conditional effective sample size is 0.9
+// of the particles; after each reweighting the particles are moved by five
+// iterations of ABC-MCMC at the current tolerance (the tolerance constant is
+// then not used)
+algorithm abc_smc {
+  move = metropolis(mvnorm_rw(log_theta, proposal_covariance))
+  termination = iterations(5)
+  sequence = parameter(epsilon, [Inf, 0.5])
+  target = cess(0.9)
+}

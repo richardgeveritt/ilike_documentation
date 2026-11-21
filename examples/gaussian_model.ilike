@@ -1,27 +1,43 @@
+ilike 1.0
 // Unknown mean θ of Gaussian data with known standard deviation 1:
 // θ ~ N(0, 10^2), y_i | θ ~ N(θ, 1), i = 1, ..., 100.
-// The data are the "gaussian" data set from the ilike package, loaded by the
-// R function get_data() in gaussian_model.R (sourced automatically, since it
-// has the same name as this file).
+// The data are the "gaussian" data set from the ilike package. The prior and
+// likelihood are written in C++ with their gradients, which the Langevin and
+// Barker proposals need. The file has four algorithm sections.
 
+data {
+  y = r::get_data()
+}
+
+model {
+  prior p = density(log = cpp::log_prior, simulate = cpp::simulate_prior,
+                    gradient = cpp::gradient_log_prior)
+  factor lik = density(log = cpp::log_likelihood, gradient = cpp::gradient_log_likelihood)
+}
+
+r {
+get_data = function()
+{
+  utils::data("gaussian", package = "ilike", envir = environment())
+  gaussian
+}
+}
+
+cpp {
 double prior_mean = 0.0;
 double prior_sd = 10.0;
 
-/***data,y=get_data()***/
 
-/***evaluate_log_prior***/
 double log_prior(const Parameters &parameters)
 {
   return dnorm(parameters["θ"][0], prior_mean, prior_sd);
 }
 
-/***simulate_prior***/
 Parameters simulate_prior(RandomNumberGenerator &rng)
 {
   return Parameters("θ", rnorm(rng, prior_mean, prior_sd));
 }
 
-/***evaluate_gradient_log_prior***/
 arma::mat gradient_log_prior(const std::string &variable,
                              const Parameters &parameters)
 {
@@ -30,7 +46,6 @@ arma::mat gradient_log_prior(const std::string &variable,
   return gradient;
 }
 
-/***evaluate_log_likelihood***/
 double log_likelihood(const Parameters &parameters,
                       const Data &data)
 {
@@ -41,7 +56,6 @@ double log_likelihood(const Parameters &parameters,
   return result;
 }
 
-/***evaluate_gradient_log_likelihood***/
 arma::mat gradient_log_likelihood(const std::string &variable,
                                   const Parameters &parameters,
                                   const Data &data)
@@ -50,4 +64,35 @@ arma::mat gradient_log_likelihood(const std::string &variable,
   arma::mat gradient(1, 1);
   gradient(0, 0) = arma::sum(y - parameters["θ"][0]);
   return gradient;
+}
+}
+
+// random walk Metropolis: θ* ~ N(θ, 0.2^2)
+algorithm rwm {
+  move m = metropolis(norm_rw(θ, 0.2))
+  termination = iterations(10000)
+}
+
+// the Metropolis-adjusted Langevin algorithm with preconditioning matrix 0.01
+// and scale s^2 = 1: θ* ~ N(θ + 0.005 d/dθ log π(θ), 0.01)
+algorithm langevin {
+  move m = metropolis_hastings(langevin(θ, 0.01, 1))
+  termination = iterations(10000)
+}
+
+// the Barker proposal with preconditioning matrix 0.01 and scale s^2 = 1
+algorithm barker {
+  move m = metropolis_hastings(barker(θ, 0.01, 1))
+  termination = iterations(10000)
+}
+
+// SMC with MCMC moves: anneal the likelihood from the prior (power 0) to the
+// posterior (power 1), choosing each power to keep the conditional effective
+// sample size at 0.9 of the particles, and move the particles with ten
+// random walk Metropolis steps after each reweighting
+algorithm smc {
+  move = metropolis(norm_rw(θ, 0.2))
+  termination = iterations(10)
+  sequence = annealing(power, [0, 1])
+  target = cess(0.9)
 }

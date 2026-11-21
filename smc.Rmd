@@ -1,286 +1,116 @@
 # Importance sampling and sequential Monte Carlo {#smc}
 
-Importance sampling (IS) and sequential Monte Carlo (SMC) algorithms are mainly configured through the ilike file. Currently ilike includes: IS; SMC with MCMC moves; and particle filters (PFs). We now give an overview of what is required to configure these algorithms.
+Importance sampling (IS) and sequential Monte Carlo (SMC) algorithms are configured in an algorithm section of the ilike file. This chapter describes the settings that may be written there; running the algorithms is described in sections \@ref(inference-is) and \@ref(inference-smc).
 
-- IS (section \@ref(inference-is)). Only the specification of a model (as in section \@ref(models)) and a proposal distribution (described below). is required in order to use this approach
+- **IS** (section \@ref(inference-is)) needs a model (chapter \@ref(models)) and a proposal distribution (section \@ref(is-proposal)), which is the prior when none is given.
 
-- SMC sampler with MCMC moves (section \@ref(inference-smc)). In addition to a model, and a proposal (used to simulate points in the initial step of the algorithm) this requires the specification of a Markov chain Monte Carlo (MCMC) algorithm: for details on how to configure this, see section \@ref(mcmc). SMC also requires the specification of a sequence of distributions, and parameters related to resampling and adaptive methods, which we detail later in this section.
+- **An SMC sampler with MCMC moves** (section \@ref(inference-smc)) needs, in addition, MCMC moves (chapter \@ref(mcmc)) and a sequence of distributions (section \@ref(smc-sequence)), and may have settings for adaptive targets, resampling and stopping.
 
-- PF (section \@ref(inference-pf)). Again, a proposal is required to simulate points in the initial step of the algorithm. However, using a particle filter requires the specification of a state-space model, which requires additional function types to be defined in the ilike file, on top of those from \@ref(models). These are defined in section \@ref(ssm).
+- **A particle filter** (section \@ref(inference-pf)) needs a state-space model (chapter \@ref(ssm)), and may have an initial proposal and a transition proposal.
 
-This section describes how to provide the initial proposal distribution in sections \@ref(user-proposal) and \@ref(ilike-proposal). The following sections describe how to provide the remainder of the configuration for SMC algorithms.
+For example, an SMC sampler that moves from the prior to the posterior by annealing the likelihood, choosing the powers adaptively:
 
-One useful feature of the ilike package is that it is relatively easy to convert an MCMC move into an SMC sampler that uses this MCMC move. Examples of how to do this are given in section \@ref(smc-from-mcmc).
-
-
-## User-defined proposals {#user-proposal}
-
-The functions in this section allow the specification of a user-defined importance proposal. If a proposal is provided, and an importance sampling, particle filtering or sequential Monte Carlo inference algorithm is used, the proposal will be used to draw points in the first iteration of the algorithm. A custom importance sampling proposal requires the specification of two function types: `simulate_is_proposal` and `evaluate_log_is_proposal`.
-
-### simulate_is_proposal
-
-The `simulate_is_proposal` function type simulates an importance sampling proposal distribution. There are two optional arguments for this function type, allowing the proposal to depend on some parameters, or the observed data. If both arguments are provided, the `proposal_parameters` argument must appear directly before the `data` argument.
-
-Input: (C++ only) The random number generator.
-
-  -- of type `RandomNumberGenerator &` in a C++ function
-  
-Input: (optional) Any parameters the proposal relies on.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `proposal_parameters` in an R function
-  
-Input: (optional) Any data the proposal relies on.
-
-  -- of type `const Data &` in a C++ function
-  
-  -- available as R list `data` in an R function
-  
-Output: The proposed parameters.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- of type `list` in R
-  
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***simulate_is_proposal***/
-Parameters simulate_proposal(RandomNumberGenerator &rng,
-                              const Parameters &proposal_parameters)
-{
-  arma::colvec x(1,1);
-  x[0] = rnorm(rng, 0.0, proposal_parameters["theta"][0]]);
-  return Parameters("x", x);
+```
+algorithm smc {
+  move = metropolis(norm_rw(theta, 1), smc_adapt = gaussian(2.38))
+  termination = iterations(5)
+  sequence = annealing(power, [0, 1])
+  target = cess(0.9)
+  resampling = ess(0.5)
+  particles = 1000
 }
 ```
 
-R example:
+One useful feature of ilike is that an MCMC move written for MCMC can be used, unchanged, in an SMC sampler: an algorithm section for SMC can hold the same moves as one for MCMC, with the SMC settings added.
 
-```{Rcpp,eval=FALSE}
-/***simulate_is_proposal,x=rnorm(1,0,proposal_parameters$theta)***/
+## Importance proposal {#is-proposal}
+
+The proposal used to draw the points of importance sampling, or the particles at the first iteration of an SMC sampler or particle filter, is given by `proposal`:
+
+```
+proposal = norm(theta, 0, 3)
+proposal = density(simulate = cpp::draw, log = cpp::log_draw)
 ```
 
-### evaluate_log_is_proposal
+A built-in proposal is one of `norm(variable, mean, sd)`, `mvnorm(variable, mean, cov)`, `lnorm(variable, meanlog, sdlog)`, `mvlnorm(variable, meanlog, covlog)`, `gamma(variable, shape, rate)` and `tnorm(variable, mean, sd, lower, upper)`, with the parameterisations of R. A proposal written by the user needs a function simulating it, `Parameters f(RandomNumberGenerator &rng)` in C++, and its log density, `double f(const Parameters &proposed_parameters)` (chapter \@ref(functions)).
 
-The `evaluate_log_is_proposal` function type evaluates the log density of the importance sampling proposal distribution. As for `simulate_is_proposal`, there are two optional arguments for this function type, allowing the proposal to depend on some parameters, or the observed data. The arguments that are chosen must be specified in the order of the inputs listed below.
+Without a `proposal`, the prior is used, and then only simulation from the prior is needed (section \@ref(requirements-is)). MCMC chains started without initial values also start at draws from the proposal.
 
-Input: The proposed parameters.
+## Moves
 
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `proposed_parameters` in an R function
-  
-Input: (optional) Any parameters the proposal relies on.
+The MCMC moves of an SMC sampler are written as in chapter \@ref(mcmc). At each iteration, each particle is moved by running the MCMC for the number of iterations given by `termination = iterations(n)`. The option `smc_adapt` (section \@ref(smc-adaptor)) sets a move's proposal from the particles before each iteration.
 
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `proposal_parameters` in an R function
-  
-Input: (optional) Any data the proposal relies on.
-
-  -- of type `const Data &` in a C++ function
-  
-  -- available as R list `data` in an R function
-  
-Output: The log density of the proposed parameters under the proposal distribution.
-
-  -- of type `double` in a C++ function
-  
-  -- of type `numeric` in R
-  
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***evaluate_log_is_proposal***/
-double log_importance_density(const Parameters &proposed_parameters,
-                              const Parameters &proposal_parameters)
-{
-  double x = proposed_parameters["x"][0];
-  double theta = proposal_parameters["theta"][0];
-  return dnorm(x, 0.0, theta);
-}
-```
-
-R example:
-
-```{Rcpp,eval=FALSE}
-/***evaluate_log_is_proposal,dnorm(proposed_parameters$x,0,proposal_parameters$theta,log=TRUE)***/
-```
-
-## Built-in proposals {#ilike-proposal}
-
-### is_proposal
-
-The `is_proposal` function type allows the user to specify an importance proposal through an ilike function (e.g. `ilike::norm`). If a proposal is provided, and an importance sampling, particle filtering or sequential Monte Carlo inference algorithm is used, the proposal will be used to draw points in the first iteration of the algorithm.
-
-For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.
-
-Example of the use of one of these functions (`ilike::norm`) follows.
-
-```{Rcpp,eval=FALSE}
-/***is_proposal,ilike::norm(θ,0,1)***/
-```
-
-The following sections detail the available ilike functions.
-
-#### Normal proposal `ilike::norm`
-
-Specifies a normal proposal over the given variable, with the given parameters.
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-      
-  2. numeric: the mean of the normal distribution
-    
-  3. numeric: the standard deviation of the normal distribution
-  
-#### Multivariate normal proposal `ilike::mvnorm`
-
-Specifies a multivariate normal proposal over the given variable, with the given parameters.
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-      
-  2. numeric vector/matrix: the mean of the multivariate normal distribution
-    
-  3. matrix: the covariance of the multivariate normal distribution
-   
-#### Lognormal proposal `ilike::lnorm`
-    
-Specifies a lognormal proposal over the given variable, with the given parameters.
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-      
-  2. numeric: the mean of the log of the variable
-    
-  3. numeric: the standard deviation of the log of the variable
-    
-#### Multivariate lognormal proposal `ilike::mvlnorm`
-
-Specifies a multivariate loggnormal proposal over the given variable, with the given parameters.
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-      
-  2. numeric vector/matrix: the mean of the log of the variable
-    
-  3. matrix: the covariance of the log of the variable
-
-#### Gamma proposal `ilike::gamma`
-    
-Specifies a gamma proposal over the given variable, with the given parameters.
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-      
-  2. numeric: the shape of the gamma distribution
-    
-  3. numeric: the rate of the gamma distribution
-  
 ## SMC sequence {#smc-sequence}
 
-The `smc_sequence` function type allows the user to provide the details required for setting up the sequence of targets in the SMC algorithm. This function type does not govern the sequence of targets used in a particle filter, which is described in section \@ref(ssm).
+`sequence` gives the sequence of target distributions $\pi_0, \ldots, \pi_T$ of an SMC sampler. (The sequence of a particle filter is given by its state-space model, chapter \@ref(ssm).) There are three kinds of sequence.
 
-### smc_sequence
+### Annealing `annealing`
 
-#### Determined by a named parameter `ilike::parameter`
-
-This function allows the user to use any parameter to change the target across SMC iterations.
-
-For example, one could define a sequence of Gaussian distributions whose variance $\sigma^2_t$ depends on the iteration $t$ in the SMC. To use this approach, the user could use the variable `sigma2` to denote this variance. To define a sequence of distributions to target in the SMC the user could specify a prior as follows:
-
-```{Rcpp,eval=FALSE}
-/***evaluate_log_prior***/
-double prior_eval(const Parameters &parameters)
-{
-  return dnorm(0,parameters["sigma2"][0]);
-}
+```
+sequence = annealing(power, [0, 0.25, 0.5, 1])
 ```
 
-If the user wants to target a sequence of distributions with variance $\sigma^2_t = 1/t$ for $t=1:10$, the `ilike::parameter` function can be used, using the variable name `sigma2` and this sequence of values as arguments.
+The likelihood factors are raised to a power that changes along the schedule: target $t$ is $p(\theta) f(y \mid \theta)^{\phi_t}$, here with $\phi_t = 0, 0.25, 0.5, 1$. The first argument is the name given to the power, the second the schedule. The optional argument `factors = [names]` gives the factors that are raised to the power (default: all the likelihood factors). `tempering` is a synonym of `annealing`.
 
-Inputs:
+### A parameter of the target `parameter`
 
-  1. string: the variable for which the target is specified
-      
-  2. numeric vector: the sequence of values for the target variable
-  
-  3. (optional) integer vector: the factor indices for the factors that are affected by changing the variable specified in the first argument (default is to reevaluate all factors whe the target changes)
+```
+sequence = parameter(epsilon, [Inf, 1, 0.5, 0.1])
+```
 
-An important use is ABC-SMC [@DelMoral2012g]: the variable is the tolerance of an ABC likelihood (the tolerance variable named in `sbi_likelihood`, section \@ref(models)), and the sequence decreases to the final tolerance, e.g. `/***smc_sequence,ilike::parameter(epsilon,c(Inf,0.5))***/`. The sequence may start at `Inf`, where the ABC kernel is taken to be 1, so that the first target is the prior. The tolerance value given in `sbi_likelihood` is then not used. Each particle keeps its simulations from the model, which are reweighted (not re-simulated) when the tolerance changes; this makes it cheap to choose the tolerances adaptively with `adaptive_target` (below). See section \@ref(abc-smc-lv) for an example.
-  
-#### Annealing `ilike::annealing`
+Any parameter of the target can be changed across SMC iterations: here `epsilon`, which takes the values in the schedule in turn. The optional argument `factors = [names]` gives the factors that depend on the parameter (default: all), so that only they are evaluated again when it changes.
 
-This function allows the use of annealing to change the target distribution across SMC iterations. In target $t$ the chosen factors will be raised to a power that depends on $t$. The user specifies the variable name to assign to the power variable and the sequence of powers to use. `ilike::tempering` has precisely the same functionality.
+An important use is ABC-SMC [@DelMoral2012g]: the parameter is the tolerance of an ABC likelihood (its `tolerance_variable`, section \@ref(sbi)), and the sequence decreases to the final tolerance. The sequence may start at `Inf`, where the ABC kernel is taken to be 1, so that the first target is the prior. The tolerance value given in the ABC likelihood is then not used. Each particle keeps its simulations from the model, which are reweighted (not re-simulated) when the tolerance changes; this makes it cheap to choose the tolerances adaptively with `target` (below). For example:
 
-Inputs:
+```{r, echo=FALSE, comment=""}
+cat(readLines("examples/language/abc.ilike"), sep = "\n")
+```
 
-  1. string: the variable name that will be assigned to the annealing variable
-  
-  2. numeric vector: the sequence of temperatures to use in the annealing schedule
-  
-  3. (optional) integer vector: the factor indices for the factors that we wish to be raised to the provided temperature (default is to reevaluate all factors whe the target changes)
-  
+Section \@ref(abc-smc-lv) gives a larger example.
+
+The parameter can also be used by the user's own functions: for example, a prior written in C++ that reads `parameters["sigma2"]` gives a sequence of targets with `sequence = parameter(sigma2, [1, 0.5, 0.25])`.
+
+### Data tempering `data`
+
+```
+sequence = data(fraction, [0, 1])
+target = cess(0.9)
+```
+
+The data points enter the target along the sequence [@chopin2002sequential]: with $n$ data points and the fraction $\phi_t$ of the schedule written $n \phi_t = k + r$ ($k$ a whole number, $0 \leq r < 1$), target $t$ is the prior times the likelihood of the first $k$ data points times the likelihood of data point $k + 1$ raised to the power $r$. So each data point is annealed in as $\phi$ goes from $k/n$ to $(k + 1)/n$, and the target changes smoothly with $\phi$, which lets an adaptive target (`target = cess(...)`, below) choose the fractions. A data point is a term of a factor written as model statements: one value of the loop indices of a statement such as `for (i in 1:n) y[i] ~ norm(mu, 1)`. Moving to the next target costs only the evaluation of the data points that enter, at each particle; an MCMC move costs the evaluation of the data points in the target so far.
+
+The optional arguments are:
+
+- `factors = [names]`: the factors whose data points enter (default: all the likelihood factors). They must be written as model statements; a factor written as a function can read the fraction itself, through `sequence = parameter(fraction, ...)`.
+- `order = random` (the default) or `order = given`: the order in which the data points enter, a random order fixed by the seed, or the order of the statements' loops.
+- `anneal = false`: add whole data points ($\lceil n \phi_t \rceil$ of them) instead of annealing each in. The target then does not change between the fractions at which data points enter, so an adaptive target cannot choose between them: give a fixed schedule (for example `seq(0, 1, length.out = n + 1)`), without `target`.
+
+Gradient-based proposals cannot be used with data tempering yet (the gradients generated from model statements include every data point), and data tempering cannot be combined with another sequence.
+
 ## Adaptive target
 
-The `adaptive_target` function type allows the user to specify the method used to decide on the parameter giving, at each iteration, the next target distribution in the SMC algorithm. This function should be used in situations where the sequence of targets is governed by a single parameter: for example the temperature in the case of annealing or the tolerance in an approximate Bayesian computation algorithm. This function type implements a bisection algorithm for finding the target parameter that gives the desired value of the chosen criterion.
+`target` gives the method used to choose, at each iteration, the next value of the parameter of the sequence (the power, or the tolerance). A bisection finds the value, between the current value and the next value in the schedule, that gives the desired value of the criterion. Without `target`, the sampler moves directly to the next value in the schedule. So with an adaptive target, a short schedule such as `[0, 1]` is enough: the intermediate values are chosen as the sampler runs.
 
-- If the `adaptive_target` function type is not provided, the default is to move directly to the next target specified by the `smc_sequence` function type.
-
-- If the `adaptive_target` function type is provided, the bisection will likely find a value between the current target and the next values in the `smc_sequence` function type.
-
-### adaptive_target
-
-#### Conditional effective sample size `ilike::cess`
-
-Specifies that the next target should be chosen to achieve a given conditional effective sample size [@zhou2016toward].
-
-Inputs:
-
-  1. numeric: the target conditional effective sample size, expressed as a proportion of the total number of particles
-
-#### Effective sample size `ilike::ess`
-
-Specifies that the next target should be chosen to achieve a given effective sample size [@kong1994sequential]. As described in @zhou2016toward, the conditional effective sample size is a more appropriate criterion for adaptive SMC when resampling is not performed at every iteration.
-
-Inputs:
-
-  1. numeric: the target effective sample size, expressed as a proportion of the total number of particles
-
-## SMC termination
-
-The `smc_termination` function type allows the user to specify the method used to decide when to terminate the SMC algorithm. This function should be used in situations where the user wants to terminate the algorithm based on a criterion other than reaching the final target.
+- `cess(proportion)`: the next target is chosen so that the conditional effective sample size [@zhou2016toward] is the given proportion of the number of particles.
+- `ess(proportion)`: the next target is chosen so that the effective sample size [@kong1994sequential] is the given proportion of the number of particles. As described in @zhou2016toward, the conditional effective sample size is a more appropriate criterion for adaptive SMC when resampling is not performed at every iteration.
 
 ## Adaptive resampling
 
-The `adaptive_resampling` function type allows the user to specify the method used to decide when to resample in the SMC algorithm.
+`resampling` gives the method used to decide when to resample.
 
-### adaptive_resampling
+- `ess(proportion)`: resample when the effective sample size [@kong1994sequential] falls below the given proportion of the number of particles.
 
-#### Effective sample size `ilike::ess`
+Without `resampling`, the particles are resampled whenever the ESS falls below the number of particles.
 
-Specifies that resampling should occur when the effective sample size [@kong1994sequential] falls below a given threshold.
+## SMC termination
 
-Inputs:
+An SMC sampler stops when it reaches the last value of its sequence. `termination` can also stop it earlier:
 
-  1. numeric: the threshold for the effective sample size, expressed as a proportion of the total number of particles
+- `stable(threshold, consecutive)`: stop when the parameter of the sequence changes by at most `threshold` for `consecutive` iterations in a row. This is useful with an adaptive target: for example, in ABC-SMC with adaptive tolerances, it may become practically impossible to reduce the tolerance past a certain point.
+- `always()`: stop at the first check.
 
-### smc_termination
+An SMC algorithm section may thus have two `termination` settings: `iterations(n)` for the MCMC moves, and `stable(…)` for the sampler.
 
-#### Stability `ilike::stable`
+## Settings of the run
 
-This method can be used to terminate the SMC if the parameter that changes across SMC iterations stabilises: a situation that may be encountered when using an adaptive approach to setting this parameter. For example, when using an approximate Bayesian computation algorithm with an adaptive tolerance, it may become practically impossible to reduce the tolerance past a certain point. This method allows the user to specify the conditions under which the algorithm should terminate in these circumstances.
-
-Inputs:
-
-  1. numeric: the threshold for the stability of the parameter
-  
-  2. integer: the number of iterations over which the parameter must change less than or equal to this threshold before the algorithm is terminated
+The number of particles, and the other arguments of the R functions, may be written in the algorithm section, as described in section \@ref(settings-in-files): `particles = 1000`, `importance_points = 1000` (for `IS`), `iterations_to_store = 100`, `waste_free_chains = 20`.

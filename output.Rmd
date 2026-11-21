@@ -50,7 +50,7 @@ The data frame contains the following columns:
 
 - `ParameterName` is the name of the parameter;
 
-- `Dimension` is the dimension of the parameter (here 1 for $\theta_1$ and 2 for $\theta_2$);
+- `Dimension` is the dimension of the parameter (here 1 for $\theta_1$ and 2 for $\theta_2$); the elements of a matrix parameter are numbered column by column, as R stores a matrix (`matrix(values, nrow)` rebuilds it);
 
 - `Value` is the value of the given dimension of the parameter at the given iteration.
 

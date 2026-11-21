@@ -1,1049 +1,369 @@
 # Markov chain Monte Carlo {#mcmc}
 
-When a Markov chain Monte Carlo (MCMC) is used for inference, or an MCMC move is used in a sequential Monte Carlo (SMC) algorithm, most of the configuration of the algorithm must be done through an ilike file. This section describes how to specify the parts of the ilike file that must be provided to use MCMC - running the MCMC (or SMC) algorithm itself is described in section \@ref(inference-mcmc) (or \@ref(inference-smc) for SMC).
+When Markov chain Monte Carlo (MCMC) is used for inference, or MCMC moves are used in a sequential Monte Carlo (SMC) algorithm, the algorithm is described in an algorithm section of the ilike file. This chapter describes what may be written there for MCMC; running the algorithm is described in section \@ref(inference-mcmc) (or \@ref(inference-smc) for SMC).
 
-ilike currently supports four different types of MCMC updates:
+An MCMC algorithm section holds one or more *moves*, the order in which they are used, and when to stop:
 
-1. Metropolis updates, which require the use of symmetric proposal distribution;
-
-2. Independent Metropolis-Hastings updates, which require a proposal distribution that is independent of the current state of the Markov chain;
-
-3. Metropolis-Hastings updates, which require a proposal distribution (which need not be symmetric and can be dependent on the current state of the Markov chain);
-
-4. Unadjusted updates, which use only the specified proposal distribution to generate new states, i.e. there is no Metropolis-Hastings correction.
-
-Each of these types of updates require the specification of a proposal, and each type of update is specified by using different function types for the proposal: e.g. using the function type `mh_proposal` will result in using this proposal in a Metropolis-Hastings algorithm. If MCMC updates are provided (through specifying proposals), and a MCMC or SMC with MCMC moves is used for inference, the MCMC moves will be composed using these updates.
-
-Before describing the different types of proposals, we describe how to provide the compiler with the following details:
-
-1. The means by which the MCMC will be terminated (e.g. the number of iterations);
-
-2. How to compose the MCMC updates, via deterministic or stochastic sweeps;
-
-3. How to determine which factors are involved in the Metropolis-Hastings acceptance ratio.
-
-## MCMC termination
-
-The most common way to terminate a run of MCMC is after a pre-determined number of iterations. This is currently the only approach supported by ilike, and is set via the function type `mcmc_termination`.
-
-### mcmc_termination
-
-`mcmc_termination` allows the user to set the method for deciding when to terminate the MCMC, and the parameters for this method.
-
-#### Number of iterations `ilike::iterations`
-
-The MCMC will terminate after the specified number of iterations (one iteration means one sweep).
-
-Inputs:
-
-  1. integer: the number of iterations
-
-## MCMC sweeps
-
-ilike can compose the available MCMC updates into either a deterministic or a stochastic sweep. A deterministic sweep will use each type of update in turn, in the order in which the updates are provided in the ilike file. The updates will instead be chosen at random if the user provides the function type `mcmc_weights`^[Note that this results in one update being used per MCMC iteration, whereas the deterministic sweep will use *every* update in a sweep. Therefore when using the stochastic approach, one should use $L$ times the number of MCMC iterations, if there are $L$ updates provided.].
-
-### mcmc_weights
-
-`mcmc_weights`  allows the user to specify the probability of each type of update being used in the MCMC algorithm. The vector of probabilities need not be normalised, and the order of the vector must correspond to the order in which the proposals are provided in the ilike file. There are no inputs.
-
-Output: The probability of choosing each type of update.
-
-  -- of type `NumericVector` in a C++ function (this is a vector format from `Rcpp`)
-  
-  -- a vector in R.
-  
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***mcmc_weights***/
-NumericVector mcmc_weights()
-{
-  NumericVector weights = NumericVector::create(0.1,0.9); // example where two updates are provided
-  return weights;
+```
+algorithm mcmc {
+  move m_mu = metropolis(norm_rw(mu, 3))
+  move m_tau = metropolis(norm_rw(tau, 1), adapt = scale())
+  for (j in 1:J) move m_theta = metropolis(norm_rw(theta[j], 5))
+  termination = iterations(10000)
 }
 ```
 
-R example:
+Each iteration of the MCMC (a *sweep*) uses each move in turn. A move changes some of the parameters (here `mu`, `tau`, or each `theta[j]` in turn), keeping the others fixed: this is Metropolis-within-Gibbs.
 
-```{Rcpp,eval=FALSE}
-/***mcmc_weights,c(0.1,0.9)***/
+## Moves {#mcmc-moves}
+
+A move is written `move name = kind(proposal, options)`, where `name` is the move's name (used in `sweep`, section \@ref(mcmc-sweeps)). There are four kinds of move:
+
+| Move | Proposal | Acceptance |
+|---|---|---|
+| `metropolis(q)` | symmetric: $q(\theta^* \mid \theta) = q(\theta \mid \theta^*)$ | Metropolis: $\min\{1, \tilde{\pi}(\theta^*)/\tilde{\pi}(\theta)\}$ |
+| `metropolis_hastings(q)` | any proposal, which may depend on the current state | Metropolis-Hastings, with the proposal density |
+| `independent_mh(q)` | independent of the current state | Metropolis-Hastings, with the proposal density |
+| `unadjusted(q)` | any proposal | none: the proposed state is always accepted |
+
+An unadjusted move does not target $\pi$ exactly: it is used, for example, for the unadjusted Langevin algorithm, where the proposal alone approximately preserves $\pi$, and avoids evaluating the target. The options of a move, written after the proposal, are:
+
+| Option | Meaning | Section |
+|---|---|---|
+| `factors = [names]` | the factors used by the move | \@ref(selecting-factors) |
+| `cut_factors = [names]` | factors deliberately left out of the move | \@ref(selecting-factors) |
+| `adapt = adaptor` | adapt the proposal along the chain | \@ref(adaptive-mcmc) |
+| `smc_adapt = gaussian(c)` | in SMC, set the proposal from the particles | \@ref(smc-adaptor) |
+| `log = f` | the log density of a proposal written by the user | \@ref(user-proposals) |
+
+**Early rejection.** When the target has factors estimated from simulations that can wait (the estimate of a normalising constant, `normaliser = sav(...)`, section \@ref(unnormalised), and ABC likelihoods with a fixed tolerance and scale, section \@ref(sbi)), a Metropolis or Metropolis-Hastings move draws its uniform $u$ first, evaluates the other factors (priors, exact factors), and makes the simulations only if the proposal can still be accepted: if the acceptance ratio is already certain to be below $u$ (for example when the proposal is outside the prior's range), the proposal is rejected at once. An ABC likelihood also stops part-way: its estimate is the mean of $N$ kernel values, each at most the kernel's largest value, so after some of the simulations it is known how large the estimate can still become, and the simulations stop as soon as that is too small for the proposal to be accepted. For a uniform kernel with $N = 200$, this saved 9% of the simulations at an acceptance rate of 0.58 and 32% at 0.22. The decision is the one the full evaluation would give, so the chain is unchanged in distribution; only the simulations a rejected proposal would have made, and never used, are saved. (Adaptive moves, `adapt = …`, evaluate in full, since their adaptation uses the acceptance probability.)
+
+## Built-in proposals {#mcmc-proposals}
+
+The table shows the built-in proposals and the moves in which each can be used. The first argument of each is the variable that the proposal changes (or a list of variables, section \@ref(stacked-variables)); vector and matrix arguments may be written as numbers (`[[1, 0], [0, 1]]`, `diag(2)`) or be constants. A proposal whose parameters are numbers rather than vectors and matrices (`norm_rw(variable, sd)`, `unif_rw(variable, halfwidth)`, and the independent proposals `norm`, `lnorm` and `gamma`), or a random walk given a $1 \times 1$ covariance, can be used on a vector or matrix variable: it then moves each element independently, so `norm_rw(theta, 0.5)` is `mvnorm_rw(theta, 0.25 I)`. The other proposals need a mean, covariance or half-widths with one entry per element of the variable; otherwise the run stops with a message giving both sizes.
+
+| Proposal | `metropolis` | `metropolis_hastings` | `unadjusted` | `independent_mh` |
+|---|---|---|---|---|
+| `norm_rw(variable, sd)` | ✓ | ✓ | ✓ | |
+| `mvnorm_rw(variable, cov, scale = 1)` | ✓ | ✓ | ✓ | |
+| `unif_rw(variable, halfwidth)` | ✓ | ✓ | ✓ | |
+| `mvunif_rw(variable, halfwidth)` | ✓ | ✓ | ✓ | |
+| `tnorm_rw(variable, sd, lower = -Inf, upper = Inf)` | | ✓ | | |
+| `componentwise_rw(variable, cov, scale = 1)` | ✓ | | | |
+| `pc_rw(variable, cov, scale = 1, directions = 0)` | ✓ | | | |
+| `mirror(variable, mean, cov, scale)` | ✓ | ✓ | ✓ | |
+| `langevin(variable, cov, scale)` | | ✓ | ✓ | |
+| `barker(variable, cov, scale)` | | ✓ | ✓ | |
+| `hmc(variable, step, steps or length, mass)` | | ✓ | ✓ | |
+| `norm(variable, mean, sd)`, `mvnorm(variable, mean, cov)`, `lnorm(variable, meanlog, sdlog)`, `mvlnorm(variable, meanlog, covlog)`, `gamma(variable, shape, rate)`, `tnorm(variable, mean, sd, lower = -Inf, upper = Inf)` | | | | ✓ |
+
+### Moving several variables together {#stacked-variables}
+
+Every built-in proposal of a move can move several variables in one step: write a list of their names where the variable goes.
+
+```
+move m = metropolis(mvnorm_rw([a, v, c], Sigma))
 ```
 
-## Selecting factors
+The proposal acts on the column vector made of the variables' elements in the order written: here, with `a` and `c` scalars and `v` of length 2, the vector $(a, v_1, v_2, c)$, so `Sigma` is $4 \times 4$. A matrix variable contributes its elements column by column. The move is the same as one on a single vector variable holding these values: with the same seed, `mvnorm_rw([a, v, c], Sigma)` gives the same chain as `mvnorm_rw(theta, Sigma)` with `theta` $= (a, v_1, v_2, c)$. For `langevin` and `barker` the gradient is the gradient with respect to each variable, stacked in the same order. Adaptors (`adapt = …`, `smc_adapt = …`) work on the list as on one variable, with the conditional scaling described in section \@ref(adaptive-mcmc) taken given the variables outside the list. Lists are for the proposals of moves: the prior and the importance proposal of a variable are given for it alone.
 
-ilike does not know which factors of the model depend on which parameters, so by default every factor is used in every MCMC update. Each update can instead be told which factors to use, by giving one or both of the following function types *after* the associated proposal (factors are numbered from 1, in the order in which they appear in the ilike files):
+This is useful when a model has many separately named parameters: one joint move over all of them, instead of one move for each. With very many variables (hundreds), a model written with one vector variable is still faster, because each named variable is looked up by name each time the model or its gradient is evaluated (for a model of 500 scalar parameters, a joint random walk over them took about 2.8 times as long as over one vector of 500 elements, and a Langevin move 1.6 times). The gradients of all the variables in the list are computed together, in one pass over the model statements' terms.
 
-- a **factor index** (`m_factor_index`, `mh_factor_index`, `imh_factor_index`, `unadjusted_factor_index`): the factors used by the update (in its acceptance ratio, or for an unadjusted update, in its gradient);
+### Normal random walk `norm_rw`
 
-- a **cut factor index** (`m_cut_factor_index`, `mh_cut_factor_index`, `imh_cut_factor_index`, `unadjusted_cut_factor_index`): factors that depend on the parameters the update changes, but are deliberately left out of it.
+The proposed state $\theta^*$ is simulated using
+$$
+\theta^* \sim \mathcal{N}(\theta, \sigma^2),
+$$
+where `sd` is the standard deviation $\sigma$.
 
-For an update with an acceptance ratio, every factor is then in one of three groups:
-
-| Group | Given by | In the acceptance ratio | After the update is accepted |
-|---|---|---|---|
-| used | factor index (default: all factors not in the cut factor index) | yes | its new value is kept |
-| cut | cut factor index (default: none) | no | re-evaluated at the new parameters |
-| other | neither | no | kept unchanged |
-
-A factor may not be in both the factor index and the cut factor index of the same update.
-
-**Factors that cancel (Metropolis-within-Gibbs).** If an update changes only some of the parameters, factors that do not depend on those parameters cancel in the acceptance ratio, and leaving them out saves their evaluation. List the factors that *do* depend on the changed parameters in the factor index; the others are kept unchanged. This does not change the target distribution, but it is only correct if the omitted factors really do not depend on the changed parameters: ilike cannot check this in general (but see "Checking the factor indices" below). For a factor whose value is a random estimate (for example a likelihood estimated by a nested importance sampler or particle filter), the existing estimate is kept, as required for a valid pseudo-marginal update.
-
-For example, with independent parameters `theta1` (factors 1 and 2) and `theta2` (factors 3 and 4):
-
-```{Rcpp,eval=FALSE}
-/***m_proposal,ilike::norm_rw(theta1,1)***/
-/***m_factor_index,c(1,2)***/
-
-/***m_proposal,ilike::norm_rw(theta2,1)***/
-/***m_factor_index,c(3,4)***/
-```
-
-**Cutting feedback.** Sometimes a factor that does depend on the changed parameters should nevertheless be ignored when updating them, to stop information flowing from one part of the model to another (a "cut", as in the `cut` function of OpenBUGS). Put such factors in the cut factor index. For example, with nuisance parameters `phi` informed by data $Z$, and parameters of interest `theta` informed by data $Y$ whose model also involves `phi` (factors: 1 $p(\phi)$, 2 $p(Z \mid \phi)$, 3 $p(\theta)$, 4 $p(Y \mid \theta, \phi)$):
-
-```{Rcpp,eval=FALSE}
-/***m_proposal,ilike::norm_rw(phi,0.5)***/
-/***m_factor_index,c(1,2)***/
-/***m_cut_factor_index,c(4)***/
-
-/***m_proposal,ilike::norm_rw(theta,0.5)***/
-/***m_factor_index,c(3,4)***/
-```
-
-Here `phi` is updated using only $p(\phi) p(Z \mid \phi)$; $p(Y \mid \theta, \phi)$ is ignored when updating `phi`, but is re-evaluated after each accepted update of `phi`, so that the update of `theta` uses its correct value. Factor 3 does not depend on `phi` and cancels.
-
-This is the "naive cut algorithm" described by @plummer2015cuts. Its limiting distribution depends on how `theta` is updated: it is the cut distribution $p(\theta \mid Y, \phi)\, p(\phi \mid Z)$ only if `theta` is drawn exactly from $p(\theta \mid Y, \phi)$ at each iteration. With a Metropolis-Hastings update for `theta`, the chain converges to a distribution that depends on the proposal, and it may differ noticeably from the cut distribution.
-
-**Unadjusted updates.** An unadjusted update (see below) does not evaluate any factor: often the reason for using it is to avoid this, and the functions to evaluate the factors need not be supplied. Its factor index lists the factors whose gradient it uses. Because these factors are not evaluated, an unadjusted update can only be combined with updates whose factor index does not include the factors that the unadjusted update changes (its factor index and cut factor index); otherwise ilike stops with an error. For example, an unadjusted update of `theta1` using factors 1 and 2 can be combined with a Metropolis update of `theta2` using factors 3 and 4, but not with a Metropolis update that uses factor 1 or 2.
-
-**Checking the factor indices.** Setting `check_factor_index = TRUE` in `MCMC` or `SMC_with_MCMC` makes ilike re-evaluate, after every accepted update, each factor in the "other" group whose value is not a random estimate, and stop with an error if its value changed (that is, it depends on the changed parameters and so does not cancel). This is slower and is intended for checking a model file.
-
-Each type of MCMC update uses its own factor index and cut factor index function types: they all work in the same way as each other.
-
-### m_factor_index
-
-`m_factor_index` allows the user to specify which factors are involved in the acceptance ratio for a Metropolis algorithm. The vector of indices must correspond to the order in which the factors are provided in the ilike file. There are no inputs.
-
-Output: The indices of the factors involved in the acceptance ratio.
-
-  -- of type `NumericVector` in a C++ function (this is a vector format from `Rcpp`)
-  
-  -- a vector in R.
-  
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***m_factor_index***/
-NumericVector m_factor_index()
-{
-  NumericVector factor_index = NumericVector::create(1,3); // example where factors 1 and 3 are used
-  return factor_index;
-}
-```
-
-R example:
-
-```{Rcpp,eval=FALSE}
-/***m_factor_index,c(1,3)***/
-```
-
-### imh_factor_index
-
-`imh_factor_index` allows the user to specify which factors are involved in the acceptance ratio for a Metropolis-Hastings algorithm with a proposal that is independent of the current state of the chain. The vector of indices must correspond to the order in which the factors are provided in the ilike file. There are no inputs.
-
-Output: The indices of the factors involved in the acceptance ratio.
-
-  -- of type `NumericVector` in a C++ function (this is a vector format from `Rcpp`)
-  
-  -- a vector in R.
-  
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***imh_factor_index***/
-NumericVector imh_factor_index()
-{
-  NumericVector factor_index = NumericVector::create(1,3); // example where factors 1 and 3 are used
-  return factor_index;
-}
-```
-
-R example:
-
-```{Rcpp,eval=FALSE}
-/***imh_factor_index,c(1,3)***/
-```
-
-### mh_factor_index
-
-`mh_factor_index` allows the user to specify which factors are involved in the acceptance ratio for a Metropolis-Hastings algorithm. The vector of indices must correspond to the order in which the factors are provided in the ilike file. There are no inputs.
-
-Output: The indices of the factors involved in the acceptance ratio.
-
-  -- of type `NumericVector` in a C++ function (this is a vector format from `Rcpp`)
-  
-  -- a vector in R.
-  
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***mh_factor_index***/
-NumericVector mh_factor_index()
-{
-  NumericVector factor_index = NumericVector::create(1,3); // example where factors 1 and 3 are used
-  return factor_index;
-}
-```
-
-R example:
-
-```{Rcpp,eval=FALSE}
-/***mh_factor_index,c(1,3)***/
-```
-
-### unadjusted_factor_index
-
-`unadjusted_factor_index` allows the user to specify which factors are used (for their gradient) in an unadjusted update. The vector of indices must correspond to the order in which the factors are provided in the ilike file. There are no inputs. See "Unadjusted updates" above for which other updates it can be combined with.
-
-Output: The indices of the factors used by the update.
-
-  -- of type `NumericVector` in a C++ function (this is a vector format from `Rcpp`)
-  
-  -- a vector in R.
-
-R example:
-
-```{Rcpp,eval=FALSE}
-/***unadjusted_factor_index,c(1,2)***/
-```
-
-### m_cut_factor_index
-
-`m_cut_factor_index` allows the user to specify factors that depend on the parameters changed by a Metropolis update, but are deliberately left out of its acceptance ratio (see "Cutting feedback" above). These factors are re-evaluated after the update is accepted. A factor may not be in both `m_factor_index` and `m_cut_factor_index`. There are no inputs.
-
-Output: The indices of the cut factors.
-
-  -- of type `NumericVector` in a C++ function (this is a vector format from `Rcpp`)
-  
-  -- a vector in R.
-  
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***m_cut_factor_index***/
-NumericVector m_cut_factor_index()
-{
-  NumericVector factor_index = NumericVector::create(4); // example where factor 4 is cut
-  return factor_index;
-}
-```
-
-R example:
-
-```{Rcpp,eval=FALSE}
-/***m_cut_factor_index,c(4)***/
-```
-
-### mh_cut_factor_index, imh_cut_factor_index and unadjusted_cut_factor_index
-
-These work in the same way as `m_cut_factor_index`, for Metropolis-Hastings, independent Metropolis-Hastings and unadjusted updates respectively. For an unadjusted update, cut factors are left out of its gradient and, like all factors in an unadjusted update, are not evaluated.
-
-## User-defined Metropolis proposals
-
-The functions in this section allow the specification of a user-defined Metropolis proposal. For use in a Metropolis algorithm, the proposal must be symmetric. However, ilike does not currently use any tests to verify this condition: the responsibility lies with the user.  A custom Metropolis proposal requires the specification of one function type: `simulate_m_proposal`
-
-### simulate_m_proposal
-
-The `simulate_m_proposal` function type simulates a Metropolis proposal distribution. When providing a proposal that only moves some of the variables, there is no obligation on the user to set the values of the variables that are not being moved.
-
-There are two optional arguments for this function type, allowing the proposal to depend on some parameters, or the observed data. The arguments that are chosen must be specified in the order of the inputs listed below.
-
-Input: (C++ only) The random number generator.
-
-  -- of type `RandomNumberGenerator &` in a C++ function
-  
-Input: The current state of the MCMC chain.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `parameters` in an R function
-  
-Input: (optional) Any parameters the proposal relies on.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `proposal_parameters` in an R function
-  
-Input: (optional) The observed data.
-
-  -- of type `const Data &` in a C++ function
-  
-  -- available as R list `data` in an R function
-  
-Output: The proposed state of the MCMC chain.
-
-  -- of type `Parameters` in a C++ function
-  
-  -- a list in R.
-  
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***simulate_m_proposal***/
-Parameters simulate_m_proposal(RandomNumberGenerator &rng, const Parameters &parameters)
-{
-  arma::colvec x(1,1);
-  x[0] = rnorm(rng, parameters["x"][0], proposal_parameters["theta"][0]);
-  return Parameters("x", x);
-}
-```
-
-R example:
-
-```{Rcpp,eval=FALSE}
-/***simulate_mh_proposal,x=rnorm(1,parameters$x,proposal_parameters$theta)***/
-```
-
-## Built-in Metropolis proposals
-
-### m_proposal
-
-The `m_proposal` function type allows the user to specify a Metropolis proposal through an ilike function.
-
-For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.
-
-The following sections detail the available ilike functions.
-
-#### Normal random walk proposal `ilike::norm_rw`
-
-Specifies a normal random walk proposal over the given variable, where the proposed state $\theta^*$ is simulated using
+### Multivariate normal random walk `mvnorm_rw`
 
 $$
-\theta^* \sim \mathcal{N}(\theta, \sigma)
+\theta^* \sim \mathcal{MVN}(\theta, s^2 \Sigma),
 $$
+where `cov` is $\Sigma$ and `scale` is $s^2$ (default 1).
 
-Inputs:
+### Truncated normal random walk `tnorm_rw`
 
-  1. string: the variable for which the proposal is specified
-    
-  2. numeric: the standard deviation $\sigma$ of the normal distribution
-  
-#### Multivariate normal random walk proposal `ilike::mvnorm_rw`
+For a variable with limits (a probability, a bounded rate), `tnorm_rw(theta, sd, lower, upper)` moves each element to a draw from the normal distribution centred at its current value with standard deviation `sd`, truncated to `[lower, upper]` (either limit may be left out for no limit), so the proposal never leaves the limits and no proposal is wasted outside them. It is not symmetric: the probability the normal gives to `[lower, upper]` depends on the current value, so it is used in `metropolis_hastings`, whose ratio includes the proposal densities. For example, `move m = metropolis_hastings(tnorm_rw(p, 0.2, 0, 1))`. (Moving on a transformed scale, `transform = [logit(p)]`, section \@ref(move-transforms), is the other way to respect limits.)
 
-Specifies a multivariate random walk normal proposal over the given variable, where the proposed state $\theta^*$ is simulated using
+### Uniform random walks `unif_rw` and `mvunif_rw`
 
 $$
-\theta^* \sim \mathcal{MVN}(\theta, s^2 \Sigma)
+\theta^* \sim \mathcal{U}(\theta - w, \theta + w),
 $$
+where `halfwidth` is the half-width $w$: a number for `unif_rw`, and a vector or matrix with the dimensions of $\theta$ for `mvunif_rw` (each component has its own half-width).
 
-Inputs:
+### Componentwise normal random walk `componentwise_rw`
 
-  1. string: the variable for which the proposal is specified
-    
-  2. matrix: the covariance $\Sigma$ of the multivariate normal distribution
-  
-  3. (optional) numeric: the scaling factor $s^2$ of the covariance matrix (default 1)
-   
-#### Uniform random walk proposal `ilike::unif_rw`
-
-Specifies a uniform random walk proposal over the given variable, where the proposed state $\theta^*$ is simulated using
-
-$$
-\theta^* \sim \mathcal{U}(\theta - w, \theta + w)
-$$
-
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-    
-  2. numeric: the half-width $w$ of the uniform distribution
-  
-#### Multivariate uniform random walk proposal `ilike::mvunif_rw`
-
-Specifies a multivariate random walk normal proposal over the given variable, where proposed state $\theta^*$ is simulated using
-
-$$
-\theta^* \sim \mathcal{MVU}(\theta - W, \theta + W)
-$$
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-    
-  2. vector/matrix: a matrix $W$ of half-widths of the uniform distribution, which must have the same dimensionality as $\theta$
-
-#### Componentwise normal random walk proposal `ilike::componentwise_rw`
-
-Specifies a random-scan componentwise random walk over the given (vector) variable: at each iteration one component $k$ of $\theta$, chosen uniformly at random, is moved, and the others are left unchanged:
-
+A random-scan componentwise random walk over a vector variable: at each iteration one component $k$ of $\theta$, chosen uniformly at random, is moved, and the others are left unchanged:
 $$
 \theta^*_k \sim \mathcal{N}(\theta_k, \lambda_k \Sigma_{kk}), \qquad \theta^*_j = \theta_j \quad (j \neq k).
 $$
-Each component has its own scale $\lambda_k$, all starting at $s^2$. This proposal is designed to be used with the adaptor `ilike::componentwise_am` (section \@ref(adaptive-mcmc)), which adapts each $\lambda_k$ separately. Only the diagonal of $\Sigma$ is used by the proposal itself (the adaptor estimates the whole covariance). It can be used only in `m_proposal`.
+Each component has its own scale $\lambda_k$, all starting at $s^2$ (`scale`). This proposal is designed to be used with the adaptor `componentwise_am` (section \@ref(adaptive-mcmc)), which adapts each $\lambda_k$ separately. Only the diagonal of $\Sigma$ is used by the proposal itself (the adaptor estimates the whole covariance).
 
-Inputs:
+### Principal components random walk `pc_rw`
 
-  1. string: the variable for which the proposal is specified
-    
-  2. matrix: the covariance $\Sigma$
-  
-  3. (optional) numeric: the initial scale $s^2$ of every component (default 1)
-
-#### Principal components random walk proposal `ilike::pc_rw`
-
-Specifies a random walk along the principal directions of a covariance matrix $\Sigma$ [@andrieu2008tutorial, Algorithm 8]: at each iteration one of the first $m$ principal directions $w_l$ of $\Sigma$ (its eigenvectors, with eigenvalues $\rho_l$), chosen uniformly at random, is used, and
+A random walk along the principal directions of a covariance matrix $\Sigma$ [@andrieu2008tutorial, Algorithm 8]: at each iteration one of the first $m$ principal directions $w_l$ of $\Sigma$ (its eigenvectors, with eigenvalues $\rho_l$), chosen uniformly at random, is used, and
 $$
 \theta^* = \theta + z \, w_l, \qquad z \sim \mathcal{N}(0, \ell_l \rho_l),
 $$
-where each direction has its own scale $\ell_l$, all starting at $s^2$. Moving along principal directions moves strongly correlated variables together. This proposal is designed to be used with the adaptors `ilike::pc_am` or `ilike::online_pc_am` (section \@ref(adaptive-mcmc)), which learn the principal directions of the target's covariance and adapt each $\ell_l$. It can be used only in `m_proposal`.
+where each direction has its own scale $\ell_l$, all starting at $s^2$ (`scale`), and $m$ is `directions` (default `0`, meaning all of them). Moving along principal directions moves strongly correlated variables together. This proposal is designed to be used with the adaptors `pc_am` or `online_pc_am` (section \@ref(adaptive-mcmc)), which learn the principal directions of the target's covariance and adapt each $\ell_l$.
 
-Inputs:
+### Mirror proposal `mirror`
 
-  1. string: the variable for which the proposal is specified
-    
-  2. matrix: the covariance $\Sigma$ whose principal directions are used at the start
-  
-  3. (optional) numeric: the initial scale $s^2$ of every direction (default 1)
-  
-  4. (optional) integer: the number of principal directions $m$ used (default `0`, meaning all of them)
-
-#### Mirror proposal `ilike::mirror`
-
-Specifies a mirror proposal over the given variable, as described in @thawornwattana2018designing, where the proposed state $\theta^*$ is simulated using
-
+A mirror proposal, as described in @thawornwattana2018designing:
 $$
 \theta^* \sim \mathcal{MVN} (2 \mu - \theta, s^2 \Sigma),
 $$
-where $\mu$ is a centre (typically an estimate of the expectation of the target distribution) and $s^2$ is scaling factor for the covariance matrix $\Sigma$.
+where `mean` is the centre $\mu$ (typically an estimate of the expectation of the target distribution), `cov` is $\Sigma$ and `scale` is $s^2$.
 
-Inputs:
+### Langevin proposal `langevin`
 
-  1. string: the variable for which the proposal is specified
-    
-  2. vector: the centre $\mu$ of the mirror proposal
-  
-  3. matrix: the covariance $\Sigma$ of the multivariate normal distribution used in the proposal
-  
-  4. numeric: the scaling factor $s^2$ of the covariance matrix
-  
-## User-defined independent MH proposals
+$$
+\theta^* \sim \mathcal{MVN}\left(\theta + \frac{s^2}{2} \Sigma \nabla \log \pi(\theta), s^2 \Sigma\right),
+$$
+where `cov` is the preconditioning matrix $\Sigma$ and `scale` is $s^2$. The presence of $\nabla \log \pi(\theta)$ in the proposal requires that the gradient of the log of each factor used by the move is available (section \@ref(user-factors)). Used in `metropolis_hastings`, this is the Metropolis-adjusted Langevin algorithm (MALA); in `unadjusted`, the unadjusted Langevin algorithm.
 
-The functions in this section allow the specification of a user-defined independent Metropolis-Hastings (MH) proposal: a proposal which does not depend on the current state of the chain. A custom independent MH proposal requires the specification of two function types: `simulate_imh_proposal` and `evaluate_log_imh_proposal`.
+### Hamiltonian Monte Carlo `hmc`
 
-### simulate_imh_proposal
+Hamiltonian Monte Carlo [@neal2011mcmc] proposes a point far from the current one by following the dynamics of a particle with position $\theta$ and momentum $r$ under the potential $-\log \pi(\theta)$. Each proposal draws a new momentum $r \sim \mathcal{N}(0, M)$ and makes $L$ leapfrog steps of size $\epsilon$,
+$$
+r \leftarrow r + \tfrac{\epsilon}{2} \nabla \log \pi(\theta), \quad
+\theta \leftarrow \theta + \epsilon M^{-1} r, \quad
+r \leftarrow r + \tfrac{\epsilon}{2} \nabla \log \pi(\theta),
+$$
+and proposes the final $\theta^*$; in a `metropolis_hastings` move it is accepted with probability $\min\{1, \pi(\theta^*) e^{-K(r^*)} / (\pi(\theta) e^{-K(r)})\}$, $K(r) = \frac{1}{2} r^\top M^{-1} r$. In an `unadjusted` move every proposal is kept (no acceptance step, so the chain is only approximately right, more so for small $\epsilon$).
 
-The `simulate_imh_proposal` function type simulates an independent MH proposal distribution. When providing a proposal that only moves some of the variables, there is no obligation on the user to set the values of the variables that are not being moved.
+```
+move m = metropolis_hastings(hmc(theta, step = 0.2, steps = 10))
+move m = metropolis_hastings(hmc([a, b, theta], step = 0.5, length = 2.5, mass = Sigma), adapt = scaled_am())
+move m = unadjusted(hmc(theta, step = 0.05, steps = 10))
+```
 
-There are two optional arguments for this function type, allowing the proposal to depend on some parameters, or the observed data. The arguments that are chosen must be specified in the order of the inputs listed below.
+`step` is $\epsilon$; `steps` is $L$, or `length` gives $L = \max(1, \mathrm{round}(\text{length}/\epsilon))$ (give one of them); `mass` is the *inverse* mass matrix $M^{-1}$ (default the identity), which is best set to (an estimate of) the posterior covariance, like `cov` for `langevin`. The gradient is that of the factors in the move (section \@ref(statement-gradients)); every factor needs one. With one step, `hmc` is the Langevin proposal with `scale` $= \epsilon^2$. The adaptors `scale` (the step size, through $\epsilon^2$) and `scaled_am` (the step size and the mass matrix, as the covariance) apply, with the target acceptance rate 0.8 by default. Positive and bounded variables are moved on an unconstrained scale by default (`transform = auto`, section \@ref(move-transforms)). The number of steps is fixed; the No-U-Turn sampler (next section) chooses it.
 
-Input: (C++ only) The random number generator.
+### The No-U-Turn sampler `nuts`
 
-  -- of type `RandomNumberGenerator &` in a C++ function
-  
-Input: (optional) Any parameters the proposal relies on.
+The No-U-Turn sampler [@hoffman2014no] is HMC without a fixed number of steps. From the current point and a new momentum, it doubles a trajectory of leapfrog steps, each time forwards or backwards in time at random, until the trajectory starts to turn back on itself (a "U-turn"), and draws the next point among the states of the trajectory, so that the chain keeps the posterior. It is a move of its own (not a proposal in a Metropolis–Hastings move):
 
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `proposal_parameters` in an R function
-  
-Input: (optional) The observed data.
+```
+move m = nuts(theta, step = 0.2)
+move m = nuts([a, b, theta], step = 0.5, mass = Sigma, max_depth = 8, adapt = scale())
+```
 
-  -- of type `const Data &` in a C++ function
-  
-  -- available as R list `data` in an R function
-  
-Output: The proposed state of the MCMC chain.
+`step` is the leapfrog step size $\epsilon$ and `mass` the inverse mass matrix, as for `hmc`; the trajectory stops at a U-turn, at a divergence (the error in the Hamiltonian above 1000), or after `max_depth` doublings (default 10, so at most $2^{10} - 1 = 1023$ leapfrog steps). By default (`variant = stan`) the algorithm is Algorithm 3 of @hoffman2014no with the improvements made in Stan [@betancourt2017conceptual]: the next point is drawn from the trajectory with probabilities proportional to $e^{-H}$ (multinomial sampling, rather than uniformly among the states inside a slice), favouring at each doubling the new half of the trajectory, so that the chain moves further; the trajectory stops by a generalised U-turn criterion on the summed momenta, checked also across the join of each two halves; and the acceptance statistic is averaged over every state built. `variant = paper` is the paper's Algorithm 3 itself (slice sampling, and the U-turn criterion on the two ends, using the mass matrix). Both variants leave the posterior unchanged; Stan's tends to mix better on harder targets. `transform` (default `auto`), `factors`, `adapt` and `smc_adapt` are as for other moves; the adaptors `scale` and `scaled_am` adapt the step size (and the mass matrix) with the statistic of Algorithm 6 of @hoffman2014no (the average acceptance probability over the last doubling), towards 0.8 by default. To adapt the step size over a first part of the run and then keep it fixed, as @hoffman2014no do, use their dual averaging scheme, `adapt = dual_averaging(until = iterations(1000))` (for `nuts` and `hmc`). It starts from a step found by doubling or halving the given one until a single leapfrog step from the starting point has an acceptance probability near one half (their Algorithm 4; `find_step = false` starts from the step given instead), then adapts $\log \epsilon$ by dual averaging towards the target acceptance statistic (`target`, default 0.8; `gamma = 0.05`, `t0 = 10` and `kappa = 0.75` are their settings). The adapted steps themselves keep moving, but their average settles, so `dual_averaging` needs `until` (section \@ref(adaptation-until)): when adaptation stops, the step is fixed at that average for the rest of the run, which is then an ordinary Markov chain. The step and its average are in the adaptation output (`load_mcmc_adaptation`). To adapt throughout the run instead, use `scale()`, whose vanishing adaptation needs no stopping. With `mass = diagonal` or `mass = dense` (and `until = iterations(n)`), `dual_averaging` also estimates the inverse mass matrix (`mass` in `nuts` and `hmc`), in the windows Stan uses over the first `n` iterations: a first window (75 iterations when `n = 1000`) adapting the step only; then windows of 25, 50, 100, … iterations, after each of which the inverse mass matrix is set to the covariance of the chain over that window (on the scale the move uses, shrunk slightly towards a multiple of the identity) and the step is found again; and a last window (50 iterations) adapting the step for the final matrix. The final inverse mass matrix is in the adaptation output (`load_mcmc_adaptation(...)$final`: its diagonal for `diagonal`, its upper triangle for `dense`). On a target whose scales differ greatly this matters far more than the step: for a ten-dimensional normal with standard deviations from 0.01 to 10, `nuts` took about 800 leapfrog steps per iteration with the step adapted alone, 11 with `mass = diagonal` and 5 with `mass = dense`.
 
-  -- of type `Parameters` in a C++ function
-  
-  -- a list in R.
-  
-C++ example:
+At each stored iteration an MCMC run records, for each chain, the depth of the tree (the number of doublings), the number of leapfrog steps (the gradients computed), whether the trajectory diverged, and the acceptance statistic; `load_mcmc_diagnostics(results_name)` returns them, one row per stored iteration. A divergence means the leapfrog integrator broke down, usually where the posterior curves sharply (the neck of a funnel, for example): each transition still leaves the posterior unchanged, but the chain may rarely enter that region, so estimates can be biased. After the run, ilike warns if any transition after warm-up diverged (after the adaptors stop, with `until`; every transition when the step size is fixed, or when the adaptation never stops). The usual remedies are a smaller step (or a higher acceptance target for the adaptor), a transform, or a reparameterisation of the model. A tree depth often at `max_depth` points the other way: a step too small, or a mass matrix far from the posterior's scale. `metropolis_hastings(hmc(…))` records its own diagnostics in the same way: `leapfrog_steps`, `accept_stat`, `energy_error` (the change in the Hamiltonian, $H^* - H$, so that the acceptance probability is $\min(1, e^{-\text{energy error}})$) and `divergent` (an energy error above 1000), with the same warning. When `nuts` or `hmc` is one of several moves, each move's columns are prefixed with its position (`move1.tree_depth`, …); with random choice between the moves (`weights`), the columns of a move not chosen at an iteration are `NA`.
 
-```{Rcpp,eval=FALSE}
-/***simulate_imh_proposal***/
-Parameters simulate_imh_proposal(RandomNumberGenerator &rng, const Parameters &proposal_parameters)
+### Moving on a transformed scale {#move-transforms}
+
+A random walk on a positive or bounded parameter proposes values outside its range, which are rejected, and moves badly near the bounds; gradient-based moves (`langevin`, `barker`, `hmc`) need a target that is smooth on the whole real line. The argument `transform` of a move makes the proposal act on a transformed variable $z$ instead:
+
+```
+move m = metropolis(norm_rw(sigma, 0.5), transform = auto)
+move m = metropolis_hastings(langevin([sigma, p], Sigma, 0.3), transform = [log(sigma), logit(p)])
+move m = metropolis_hastings(hmc(theta, step = 0.1, steps = 10), transform = none)
+```
+
+| Transform | $z$ | for |
+|---|---|---|
+| `log(x)` | $\log x$ | $x > 0$ |
+| `lower(x, a)` | $\log(x - a)$ | $x > a$ |
+| `upper(x, b)` | $\log(b - x)$ | $x < b$ |
+| `logit(x)`, `logit(x, a, b)` | $\log\frac{x - a}{b - x}$ (default $a = 0$, $b = 1$) | $a < x < b$ |
+| `simplex(p)` | $K - 1$ values, by stick-breaking | a probability vector of length $K$ |
+| `cov(S)` | $p(p + 1)/2$ values: the Cholesky factor of $S$, with the logarithms of its diagonal | a $p \times p$ covariance matrix |
+| `corr(R)` | $p(p - 1)/2$ values: the canonical partial correlations of $R$, through $\tanh$ | a $p \times p$ correlation matrix |
+
+`transform = auto` chooses from each moved variable's distribution in the model section: `log` for `gamma`, `lnorm`, `exp`, `invgamma`, `chisq`, `weibull` and the half distributions; `logit` for `beta`; `simplex` for `dirichlet`, `cov` for `wishart` and `invwishart`, and `corr` for `lkj`; `logit(x, a, b)` for `unif(a, b)`, and `logit`, `lower` or `upper` for `tnorm` with bounds $a$, $b$ (the bounds must be numbers or constants); other variables are moved on their own scale. `transform = none` moves every variable on its own scale. The default is `auto` for `hmc` and `none` for the other proposals. The acceptance probability includes the Jacobian of the transformation, so the chain targets the posterior of the variables themselves (which is what the output holds); gradients are transformed exactly, including the derivative of the log Jacobian. The first four transformations apply element by element, and `simplex`, `cov` and `corr` to a whole vector or matrix (as Stan's transformations of the same names), whose number of values on the transformed scale is smaller: so `nuts` and `hmc` can move probability vectors, covariance matrices and correlation matrices (their gradients through these three use derivatives computed numerically, which affects only the efficiency of the moves, not their exactness). They apply to whole variables (also in lists of variables); they are not available for independent proposals, proposals written as functions, or moves on elements. In `SMC_with_MCMC`, `smc_adapt` estimates the population's covariance on the transformed scale. For `IENKI`, a transformation of the whole ensemble is given in the algorithm section (section \@ref(inference-enki)).
+
+### Barker proposal `barker`
+
+A Barker proposal, as described in @livingstone2022barker. Let $d$ be the dimension of $\theta$, $\mathbf{0}_d$ the zero vector in $\mathbb{R}^d$, $\mathbf{I}_d$ the $d \times d$ identity matrix, $\odot$ the Hadamard (element-wise) product, and $C = \mbox{chol}(s^2 \Sigma)$. Then
+$$
+z \sim \mathcal{MVN}(\mathbf{0}_d, \mathbf{I}_d),
+$$
+followed by, for $i=1:d$,
+$$
+u_i\sim \mathcal{U}(0,1), \qquad
+c_i(\theta) = \left(\nabla \log \pi(\theta)^T C^T\right)_i, \qquad
+b_i = -1 + 2 \times I \left( u_i < 1/(1 + \exp(-z_i c_i(\theta) )) \right),
+$$
+and
+$$
+\theta^* = \theta + C^T (b \odot z).
+$$
+As for `langevin`, the gradient of the log of each factor used by the move must be available.
+
+### Independent proposals
+
+In an `independent_mh` move, the proposal is a distribution that does not depend on the current state: `norm(variable, mean, sd)`, `mvnorm(variable, mean, cov)`, `lnorm(variable, meanlog, sdlog)`, `mvlnorm(variable, meanlog, covlog)`, `gamma(variable, shape, rate)` or `tnorm(variable, mean, sd, lower, upper)` (a normal truncated to `[lower, upper]`), with the parameterisations of R. For example, `move m = independent_mh(norm(theta, 0, 3))`.
+
+## Proposals written as functions {#user-proposals}
+
+A proposal can be written as a function, in C++ or another language (chapter \@ref(functions)):
+
+```
+move m1 = metropolis(cpp::step)                                    // a symmetric proposal
+move m2 = metropolis_hastings(cpp::step, log = cpp::log_step)      // with its log density
+move m3 = independent_mh(density(simulate = cpp::draw, log = cpp::log_draw))
+move m4 = unadjusted(cpp::step)
+```
+
+- In `metropolis` and `unadjusted` moves, only the function that simulates the proposal is needed: `Parameters f(RandomNumberGenerator &rng, const Parameters &parameters)` in C++, returning the proposed values of the variables it changes.
+- In `metropolis_hastings` moves, `log` gives the log density of the proposal, $\log q(\theta^* \mid \theta)$: `double f(const Parameters &proposed_parameters, const Parameters &parameters)`.
+- In `independent_mh` moves, `density(simulate = …, log = …)` gives a function simulating the proposal, `Parameters f(RandomNumberGenerator &rng)`, and its log density, `double f(const Parameters &proposed_parameters)`.
+
+These functions may also take the data (`const Data &data`, after the parameters) and *proposal parameters* (`const Parameters &proposal_parameters`, last), whose values are given by the `algorithm_parameter_list` argument of the inference function. For example, with
+
+```
+cpp {
+Parameters step(RandomNumberGenerator &rng, const Parameters &parameters,
+                const Parameters &proposal_parameters)
 {
-  arma::colvec x(1,1);
-  x[0] = rnorm(rng, 0, proposal_parameters["theta"][0]);
-  return Parameters("x", x);
+  return Parameters("theta", rnorm(rng, parameters["theta"][0], proposal_parameters["sd"][0]));
+}
+}
+
+algorithm mcmc {
+  move m = metropolis(cpp::step)
+  termination = iterations(10000)
 }
 ```
 
-R example:
+the standard deviation of the random walk is given at run time by `MCMC(recipe, algorithm_parameter_list = list(sd = 0.5))`. Proposal parameters can be adapted (section \@ref(adaptive-mcmc)).
 
-```{Rcpp,eval=FALSE}
-/***simulate_imh_proposal,x=rnorm(1,0,proposal_parameters$theta)***/
+## Moves on elements {#element-moves}
+
+A move written inside a loop is a *scan* over the elements of a variable: within each sweep, each element is updated in turn, with the other elements fixed. In the loops' order, with the last loop changing fastest:
+
+```
+for (j in 1:J) move m = metropolis(norm_rw(theta[j], 0.5))
+for (i in 1:n) for (j in 1:2) move m_x = metropolis(unif_rw(x[i, j], 1))
 ```
 
-### evaluate_log_imh_proposal
+The proposal of a move on elements is one of:
 
-The `evaluate_log_imh_proposal` function type evaluates the log density of the MH proposal distribution. As for `simulate_imh_proposal`, there are two optional arguments for this function type, allowing the proposal to depend on some parameters, or the observed data. The arguments that are chosen must be specified in the order of the inputs listed below.
+- `norm_rw(element, sd)`: a normal random walk on the element;
+- `unif_rw(element, halfwidth)`: a uniform random walk on the element;
+- `flip(element)`: for an element taking the values 0 and 1, proposes $1 - s$ (a symmetric proposal, so used in a `metropolis` move);
 
-Input: The proposed state of the MCMC chain.
+or the move is `gibbs(element)`, which draws the element from its full conditional distribution, among its possible values:
 
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `proposed_parameters` in an R function
-  
-Input: (optional) Any parameters the proposal relies on.
+```
+for (k in 1:K) move m = metropolis(flip(s[k]))
+for (k in 1:K) move m = gibbs(s[k])
+for (k in 1:K) move m = gibbs(z[k], values = [1, 2, 3])
+```
 
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `proposal_parameters` in an R function
-  
-Input: (optional) The observed data.
+`gibbs` evaluates the target at each possible value of the element and draws one value with probability proportional to the target. The possible values are `values = [...]`, or come from the element's prior: `bern` gives 0 and 1, and `binom(n, p)`, with `n` a number or a constant, gives $0, 1, \ldots, n$. Otherwise `values` must be given. `gibbs` needs factors that can be evaluated exactly.
 
-  -- of type `const Data &` in a C++ function
-  
-  -- available as R list `data` in an R function
-  
-Output: The log density of the proposal distribution.
+`gibbs` can also move a continuous element, or a scalar parameter (`move m = gibbs(mu)`), whose full conditional is normal. ilike checks this from the model statements when compiling: the variable's own distribution is `norm` (or `mvnorm`) with arguments that do not depend on it, and every other statement whose density depends on it is a `norm` whose mean is a sum of multiples of the variable (for example `a + b * mu`, also through deterministic nodes, with `a` and `b` not depending on `mu`) and whose standard deviation does not depend on it. This covers normal means with known variances, the group means and population mean of hierarchical normal models, and the latent states of an AR(1) model with known variance.
 
-  -- of type `double` in a C++ function
-  
-  -- a numeric in R.
-  
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***evaluate_log_imh_proposal***/
-double evaluate_log_imh_proposal(const Parameters &proposed_parameters, const Parameters &proposal_parameters)
-{
-  return dnorm(proposed_parameters["x"][0], 0, proposal_parameters["theta"][0]);
+```
+model {
+  mu ~ norm(0, 20)
+  for (j in 1:8) theta[j] ~ norm(mu, tau)
+  for (j in 1:8) y[j] ~ norm(theta[j], s[j])
+}
+algorithm mcmc {
+  for (j in 1:8) move g = gibbs(theta[j])
+  move m = gibbs(mu)
+  move t = metropolis(norm_rw(tau, 3))
 }
 ```
 
-R example:
+The log density of such a full conditional is a quadratic in the element, so ilike evaluates it (the terms that read the element only) at three values, finds the normal distribution's mean and variance from them, and draws from it. The draw is accepted with the Metropolis–Hastings ratio of that proposal, which is 1 up to rounding (so every draw is accepted, and the chain stays exact). In SMC the factors are those of the current tempered target, so the move draws from the tempered conditional. If the conditions do not hold (for example `y[i] ~ norm(exp(mu), 1)`, a standard deviation that depends on `mu`, or a factor not written as model statements that may depend on it), compiling stops with a message naming the statement; use a `metropolis` move instead. `move m = gibbs(beta)` on a whole vector draws the vector at once from its joint normal full conditional, under the same conditions on the statements (with `beta ~ mvnorm(…)` or independent `beta[k] ~ norm(…)`; means may combine several elements, as in a regression `y[i] ~ norm(X[i, 1] * beta[1] + X[i, 2] * beta[2], s)`). Its log density is $-\frac{1}{2} \beta^\top Q \beta + b^\top \beta + c$, whose gradient is linear in $\beta$: ilike takes the gradient (from the model statements) at the current point and at $d$ points one step along each axis, which gives the precision $Q$ and the mean, and draws from that normal (again accepted with probability 1 up to rounding). Drawing the block at once avoids the slow mixing of element-by-element updates when the coefficients are correlated a posteriori. Two more joint conjugate updates are available. `gibbs(p)` on a probability vector with `p ~ dirichlet(alpha)` and terms `categorical(p)` or `multinom(n, p)` (with `p` itself as the probabilities) draws `p` from its Dirichlet full conditional (`alpha` plus the counts); together with `gibbs(z[i])` on categorical elements `z[i] ~ categorical(p)` (whose categories `gibbs` enumerates) this gives the usual Gibbs sampler for mixture weights and allocations. `gibbs([mu, v])` on a mean and a variance, with `v ~ invgamma(a, b)`, `mu ~ norm(m0, c * sqrt(v))` and every other term reading them `norm(a + b * mu, c * sqrt(v))`, draws both at once from their normal-inverse-gamma full conditional (the variance from its inverse-gamma marginal, then the mean given it). As for the other conjugate updates, ilike fits the conditional's form from a few evaluations of the log density (K + 1 for a Dirichlet over K categories, 5 for the normal-inverse-gamma) and accepts the draw with a Metropolis–Hastings ratio of 1 up to rounding.
 
-```{Rcpp,eval=FALSE}
-/***evaluate_log_imh_proposal,dnorm(proposed_parameters$x,0,proposal_parameters$theta)***/
+`gibbs` also draws from conjugate gamma, inverse gamma and beta full conditionals. The variable's own distribution gives the family, and every other statement whose density depends on it must have that family's form:
+
+| Variable's distribution | Other statements reading `x` | Full conditional |
+|---|---|---|
+| `gamma(a, b)` (`x` a precision or a rate) | `norm(m, s)` or `lnorm(m, s)` with `s` = c / sqrt(x) (also `pow(x, -0.5)`, or through a deterministic node); `pois(c * x)`, `exp(c * x)`, `gamma(k, c * x)` | gamma |
+| `invgamma(a, b)` (`x` a variance) | `norm(m, s)` or `lnorm(m, s)` with `s` = c * sqrt(x); `pois(c / x)`, `exp(c / x)`, `gamma(k, c / x)` | inverse gamma |
+| `beta(a, b)` (`x` a probability) | `bern(x)`, `binom(n, x)` | beta |
+
+Here `c`, `m`, `k` and `n` may be data, constants or other parameters, but must not depend on `x`. For example, with `tau ~ gamma(2, 1)` and `y[i] ~ norm(mu, 1 / sqrt(tau))`, `move m = gibbs(tau)` draws the precision from its gamma conditional, and with `mu` moved by `gibbs(mu)` too this is the classic Gibbs sampler for a normal mean and precision. As for the normal case, ilike does not derive the conditional's parameters from the statements: the log full conditional is exactly $a \log x + b x$ (gamma), $a \log x + b / x$ (inverse gamma) or $a \log x + b \log(1 - x)$ (beta) plus a constant, so evaluating it at three values gives $a$ and $b$, and the draw is accepted with a Metropolis–Hastings ratio of 1 up to rounding. Tempered targets in SMC stay in the family, so the move draws from the tempered conditional there too.
+
+The ranges of the loops, the indices and the steps may use the loops' indices, numbers and constants; their values are taken when the file is compiled (section \@ref(constants)). A move on elements may have `factors = [...]` and `cut_factors = [...]`, as other moves.
+
+**Adaptation.** Each element has its own step, which can be adapted:
+
+```
+for (j in 1:J) move m = metropolis(norm_rw(theta[j], 1), adapt = scale(averaged), smc_adapt = gaussian(2.38))
 ```
 
-## Built-in independent MH proposals
+- `adapt = scale(target, kappa, C, averaged)` adapts each element's step along the chain to that element's own acceptance rate, $\log s_{n+1} = \log s_n + \gamma_{n+1}(\alpha_{n+1} - \bar{\alpha}^*)$, with the gain and averaging of section \@ref(adaptive-mcmc) and the target $\bar{\alpha}^* = 0.44$ by default (the optimal rate for one-dimensional random walks). Elements with very different spreads get very different steps; in a test with posterior standard deviations 0.1, 1 and 7, each element's acceptance rate settled at 0.44 with a step of about 2.4 standard deviations. The adapted steps are written to the adaptation output (`theta[j].scale`).
+- In SMC, `smc_adapt = gaussian(c)` sets each element's step, before the particles are moved, to $c$ times its *conditional* standard deviation given all the other parameters, $1/\sqrt{(\hat{\Sigma}^{-1})_{jj}}$, from the particles' weighted covariance $\hat{\Sigma}$ (section \@ref(smc-adaptor)); $c$ defaults to 2.38. A move on one element explores that element's conditional distribution, which is narrower than its marginal one when the elements are correlated.
 
-### imh_proposal
+`flip` and `gibbs` moves have no step, so they do not adapt.
 
-The `imh_proposal` function type allows the user to specify an independent Metropolis-Hastings proposal through an ilike function.
+**Cost.** With a model written as model statements (section \@ref(model-statements)), each update of an element changes the element in place and evaluates only the terms of the model that read it (section \@ref(plates)), so an update costs about the work of those terms. A scan over all the elements then costs about as much as one evaluation of the whole model. In a hierarchical model with 2000 group means and 20000 observations, an update of one group's mean takes about half a microsecond on a laptop. This makes element-wise Metropolis-within-Gibbs and single-site Gibbs sampling practical for models with many parameters.
 
-For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.
+## Sweeps {#mcmc-sweeps}
 
-The following sections detail the available ilike functions.
+By default, each iteration uses every move once, in the order in which the moves are written (a *deterministic sweep*; a scan of moves on elements counts as one move). The order can be given explicitly, by the moves' names:
 
-#### Normal proposal `ilike::norm`
-
-Specifies a normal proposal over the given variable, with the given parameters.
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-      
-  2. numeric: the mean of the normal distribution
-    
-  3. numeric: the standard deviation of the normal distribution
-  
-#### Multivariate normal proposal `ilike::mvnorm`
-
-Specifies a multivariate normal proposal over the given variable, with the given parameters.
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-      
-  2. numeric vector/matrix: the mean of the multivariate normal distribution
-    
-  3. matrix: the covariance of the multivariate normal distribution
-   
-#### Lognormal proposal `ilike::lnorm`
-    
-Specifies a lognormal proposal over the given variable, with the given parameters.
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-      
-  2. numeric: the mean of the log of the variable
-    
-  3. numeric: the standard deviation of the log of the variable
-    
-#### Multivariate lognormal proposal `ilike::mvlnorm`
-
-Specifies a multivariate loggnormal proposal over the given variable, with the given parameters.
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-      
-  2. numeric vector/matrix: the mean of the log of the variable
-    
-  3. matrix: the covariance of the log of the variable
-
-#### Gamma proposal `ilike::gamma`
-    
-Specifies a gamma proposal over the given variable, with the given parameters.
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-      
-  2. numeric: the shape of the gamma distribution
-    
-  3. numeric: the rate of the gamma distribution
-
-## User-defined MH proposals
-
-The functions in this section allow the specification of a user-defined Metropolis-Hastings (MH) proposal. A custom MH proposal requires the specification of two function types: `simulate_mh_proposal` and `evaluate_log_mh_proposal`.
-
-### simulate_mh_proposal
-
-The `simulate_mh_proposal` function type simulates an MH proposal distribution. When providing a proposal that only moves some of the variables, there is no obligation on the user to set the values of the variables that are not being moved.
-
-There are two optional arguments for this function type, allowing the proposal to depend on some parameters, or the observed data. The arguments that are chosen must be specified in the order of the inputs listed below.
-
-Input: (C++ only) The random number generator.
-
-  -- of type `RandomNumberGenerator &` in a C++ function
-  
-Input: The current state of the MCMC chain.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `parameters` in an R function
-  
-Input: (optional) Any parameters the proposal relies on.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `proposal_parameters` in an R function
-  
-Input: (optional) The observed data.
-
-  -- of type `const Data &` in a C++ function
-  
-  -- available as R list `data` in an R function
-  
-Output: The proposed parameters.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- of type `list` in R
-  
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***simulate_mh_proposal***/
-Parameters simulate_proposal(RandomNumberGenerator &rng,
-                             const Parameters &parameters,
-                             const Parameters &proposal_parameters)
-{
-  arma::colvec x(1,1);
-  x[0] = rnorm(rng, parameters["x"][0], proposal_parameters["theta"][0]);
-  return Parameters("x", x);
-}
+```
+sweep = deterministic(m_theta, m_mu, m_tau)
 ```
 
-R example:
+Alternatively, each iteration can use one move chosen at random (a *random sweep*), with the probabilities of the moves given by `weights`, in the order in which the moves are written:
 
-```{Rcpp,eval=FALSE}
-/***simulate_mh_proposal,x=rnorm(1,parameters$x,proposal_parameters$theta)***/
+```
+weights = [0.1, 0.9]
 ```
 
-### evaluate_log_mh_proposal
+The weights need not sum to 1. They can also be given by a function, `weights = cpp::f`, returning a `NumericVector`. Note that a random sweep uses one move per iteration, whereas a deterministic sweep uses *every* move in each iteration, so with $L$ moves a random sweep needs about $L$ times as many iterations.
 
-The `evaluate_log_mh_proposal` function type evaluates the log density of the MH proposal distribution. As for `simulate_mh_proposal`, there are two optional arguments for this function type, allowing the proposal to depend on some parameters, or the observed data. The arguments that are chosen must be specified in the order of the inputs listed below.
+## Termination {#mcmc-termination}
 
-Input: The proposed parameters.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `proposed_parameters` in an R function
-  
-Input: The current state of the MCMC chain.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `parameters` in an R function
-  
-Input: (optional) Any parameters the proposal relies on.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `proposal_parameters` in an R function
-  
-Input: (optional) Any data the proposal relies on.
-
-  -- of type `const Data &` in a C++ function
-  
-  -- available as R list `data` in an R function
-  
-Output: The log density of the proposed parameters under the proposal distribution.
-
-  -- of type `double` in a C++ function
-  
-  -- of type `numeric` in R
-  
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***evaluate_log_mh_proposal***/
-double log_mh_density(const Parameters &proposed_parameters,
-                      const Parameters &parameters,
-                      const Parameters &proposal_parameters)
-{
-  double proposed_x = proposed_parameters["x"][0];
-  double current_x = parameters["x"][0];
-  double theta = proposal_parameters["theta"][0];
-  return dnorm(proposed_x, current_x, theta);
-}
+```
+termination = iterations(10000)
 ```
 
-R example:
+stops the MCMC after the given number of iterations (one iteration is one sweep). This is currently the only way of stopping an MCMC chain. In an SMC algorithm (chapter \@ref(smc)), the same setting gives the number of MCMC iterations used to move the particles at each step of the SMC.
 
-```{Rcpp,eval=FALSE}
-/***evaluate_log_mh_proposal,dnorm(proposed_parameters$x,parameters$x,proposal_parameters$theta,log=TRUE)***/
+## Selecting factors {#selecting-factors}
+
+A move needs to evaluate only the factors that depend on the parameters it changes: the others cancel in the acceptance ratio. Each factor is in one of three groups for a move:
+
+| Group | Given by | In the acceptance ratio | After the move is accepted |
+|---|---|---|---|
+| used | `factors = [...]` (default: see below) | yes | its new value is kept |
+| cut | `cut_factors = [...]` (default: none) | no | re-evaluated at the new parameters |
+| other | neither | no | kept unchanged |
+
+Factors are named as described in chapter \@ref(models). A factor may not be both used and cut by the same move.
+
+**The default.** When `factors` is not given, a move with a built-in proposal uses the factors made from model statements that read the variables it changes, and every factor that is not made from model statements (since ilike cannot tell which parameters a user's function reads). A move with a proposal written by the user uses every factor. So, with model statements, factors rarely need to be listed.
+
+**Factors that cancel (Metropolis-within-Gibbs).** If a move changes only some of the parameters, factors that do not depend on those parameters cancel in the acceptance ratio, and leaving them out saves their evaluation. List the factors that *do* depend on the changed parameters in `factors`. This does not change the target distribution, but it is only correct if the factors left out really do not depend on the changed parameters: ilike cannot check this in general for factors written as functions (but see "Checking the factors" below). For a factor whose value is a random estimate (for example a likelihood estimated by a particle filter), the existing estimate is kept, as required for a valid pseudo-marginal move.
+
+For example, with independent parameters `theta1` (with factors `p1` and `lik1`) and `theta2` (with factors `p2` and `lik2`):
+
+```
+move m1 = metropolis(norm_rw(theta1, 1), factors = [p1, lik1])
+move m2 = metropolis(norm_rw(theta2, 1), factors = [p2, lik2])
 ```
 
-## Built-in MH proposals
+**Cutting feedback.** Sometimes a factor that does depend on the changed parameters should nevertheless be ignored when updating them, to stop information flowing from one part of the model to another (a "cut", as in the `cut` function of OpenBUGS). Put such factors in `cut_factors`. For example, with nuisance parameters `phi` informed by data $Z$, and parameters of interest `theta` informed by data $Y$ whose model also involves `phi` (factors: `p_phi` for $p(\phi)$, `lik_z` for $p(Z \mid \phi)$, `p_theta` for $p(\theta)$, `lik_y` for $p(Y \mid \theta, \phi)$):
 
-### mh_proposal
-
-The `mh_proposal` function type allows the user to specify a Metropolis-Hastings proposal through an ilike function.
-
-For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.
-
-The following sections detail the available ilike functions.
-
-#### Normal random walk proposal `ilike::norm_rw`
-
-Specifies a normal random walk proposal over the given variable, where the proposed state $\theta^*$ is simulated using
-
-$$
-\theta^* \sim \mathcal{N}(\theta, \sigma)
-$$
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-    
-  2. numeric: the standard deviation $\sigma$ of the normal distribution
-  
-#### Multivariate normal random walk proposal `ilike::mvnorm_rw`
-
-Specifies a multivariate random walk normal proposal over the given variable, where the proposed state $\theta^*$ is simulated using
-
-$$
-\theta^* \sim \mathcal{MVN}(\theta, s^2 \Sigma)
-$$
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-    
-  2. matrix: the covariance $\Sigma$ of the multivariate normal distribution
-  
-  3. (optional) numeric: the scaling factor $s^2$ of the covariance matrix (default 1)
-   
-#### Uniform random walk proposal `ilike::unif_rw`
-
-Specifies a uniform random walk proposal over the given variable, where the proposed state $\theta^*$ is simulated using
-
-$$
-\theta^* \sim \mathcal{U}(\theta - w, \theta + w)
-$$
-
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-    
-  2. numeric: the half-width $w$ of the uniform distribution
-  
-#### Multivariate uniform random walk proposal `ilike::mvunif_rw`
-
-Specifies a multivariate random walk normal proposal over the given variable, where proposed state $\theta^*$ is simulated using
-
-$$
-\theta^* \sim \mathcal{MVU}(\theta - W, \theta + W)
-$$
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-    
-  2. vector/matrix: a matrix $W$ of half-widths of the uniform distribution, which must have the same dimensionality as $\theta$
-
-#### Langevin proposal `ilike::langevin`
-    
-Specifies a Langevin proposal over the given variable, where the proposed state $\theta^*$ is simulated using
-
-$$
-\theta^* \sim \mathcal{MVN}(\theta + \frac{s^2}{2} \Sigma \nabla \log \pi(\theta), s^2 \Sigma)
-$$
-The presence of $\nabla \log \pi(\theta)$ in the proposal requires that the gradient of the log of each factor must be available. $s^2$ is scaling factor for the preconditioning matrix $\Sigma$.
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-      
-  2. matrix: the covariance $\Sigma$ of the multivariate normal distribution used in the proposal
-    
-  3. numeric: the scaling factor $s^2$ of the preconditioning matrix
-
-#### Barker proposal `ilike::barker`
-
-Specifies a Barker proposal over the given variable, as described in @livingstone2022barker, where the proposed state $\theta^*$ is simulated using the following procedure. For the following, let: $d$ be the dimension of $\theta$, $\mathbf{0}_d$ be the zero vector in $\mathbb{R}$; $\mathbf{I}_d$ be the identity covariance matrix in $\mathbb{R}^{d\times d}$; and let $\odot$ be the Hadamard (element-wise) product. Let $C = \mbox{chol}(s^2 \Sigma)$, then
-
-$$
-z \sim \mathcal{MVN}(\mathbf{0}_d, \mathbf{I}_d)
-$$
-
-followed by, for $i=1:d$
-
-$$
-u_i\sim \mathcal{U}(0,1)
-$$
-
-$$
-c_i(\theta) = \left(\nabla \log \pi(\theta)^T C^T\right)_i
-$$
-
-$$
-b_i = -1 + 2 \times I \left( u_i < 1/(1 + \exp(-z_i c_i(\theta) )) \right)
-$$
-
-$$
-\theta^* = \theta + C^T (b \odot z)
-$$
-The presence of $\nabla \log \pi(\theta)$ in the proposal requires that the gradient of the log of each factor must be available. $s^2$ is scaling factor for the preconditioning matrix $\Sigma$.
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-    
-  2. matrix: the covariance $\Sigma$ of the multivariate normal distribution used in the proposal
-  
-  3. numeric: the scaling factor $s^2$ of the preconditioning matrix
-  
-#### Mirror proposal `ilike::mirror`
-
-Specifies a mirror proposal over the given variable, as described in @thawornwattana2018designing, where the proposed state $\theta^*$ is simulated using
-
-$$
-\theta^* \sim \mathcal{MVN} (2 \mu - \theta, s^2 \Sigma),
-$$
-where $\mu$ is a centre (typically an estimate of the expectation of the target distribution) and $s^2$ is scaling factor for the covariance matrix $\Sigma$.
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-    
-  2. vector: the centre $\mu$ of the mirror proposal
-  
-  3. matrix: the covariance $\Sigma$ of the multivariate normal distribution used in the proposal
-  
-  4. numeric: the scaling factor $s^2$ of the covariance matrix
-
-
-## User-defined unadjusted proposals
-
-The functions in this section allow the specification of a user-defined proposal which will be used directly as an MCMC update. It is the user's responsibility to ensure that the proposal provided has the desired target distribution as its invariant distribution. A custom unadjusted proposal requires the specification of a single function type: `simulate_unadjusted_proposal`.
-
-### simulate_unadjusted_proposal
-
-The `simulate_unadjusted_proposal` function type simulates a proposal distribution which will be used directly as an MCMC update. When providing a proposal that only moves some of the variables, there is no obligation on the user to set the values of the variables that are not being moved.
-
-There are two optional arguments for this function type, allowing the proposal to depend on some parameters, or the observed data. The arguments that are chosen must be specified in the order of the inputs listed below.
-
-Input: (C++ only) The random number generator.
-
-  -- of type `RandomNumberGenerator &` in a C++ function
-  
-Input: The current state of the MCMC chain.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `parameters` in an R function
-  
-Input: (optional) Any parameters the proposal relies on.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `proposal_parameters` in an R function
-  
-Input: (optional) The observed data.
-
-  -- of type `const Data &` in a C++ function
-  
-  -- available as R list `data` in an R function
-  
-Output: The proposed parameters.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- of type `list` in R
-  
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***simulate_unadjusted_proposal***/
-Parameters simulate_langevin_proposal(RandomNumberGenerator &rng,
-                                      const Parameters &parameters,
-                                      const Parameters &proposal_parameters)
-{
-  double epsilon2 = proposal_parameters["epsilon2"][0];
-  arma::colvec x(1,1);
-  x[0] = rnorm(rng, parameters["x"][0] - (epsilon2/2.0)*parameters["x"][0], sqrt(epsilon2));
-  return Parameters("x", x);
-}
+```
+move m_phi = metropolis(norm_rw(phi, 0.5), factors = [p_phi, lik_z], cut_factors = [lik_y])
+move m_theta = metropolis(norm_rw(theta, 0.5), factors = [p_theta, lik_y])
 ```
 
-R example:
+Here `phi` is updated using only $p(\phi) p(Z \mid \phi)$; $p(Y \mid \theta, \phi)$ is ignored when updating `phi`, but is re-evaluated after each accepted update of `phi`, so that the update of `theta` uses its correct value. The factor `p_theta` does not depend on `phi` and cancels.
 
-```{Rcpp,eval=FALSE}
-/***simulate_unadjusted_proposal,x=rnorm(parameters$x - (proposal_parameters$epsilon2/2.0)*parameters$x, sqrt(proposal_parameters$epsilon2))***/
-```
+This is the "naive cut algorithm" described by @plummer2015cuts. Its limiting distribution depends on how `theta` is updated: it is the cut distribution $p(\theta \mid Y, \phi)\, p(\phi \mid Z)$ only if `theta` is drawn exactly from $p(\theta \mid Y, \phi)$ at each iteration. With a Metropolis-Hastings update for `theta`, the chain converges to a distribution that depends on the proposal, and it may differ noticeably from the cut distribution.
 
-## Built-in unadjusted proposals
+**Unadjusted moves.** An unadjusted move does not evaluate any factor: often the reason for using it is to avoid this, and the functions to evaluate the factors need not be supplied. Its `factors` lists the factors whose gradient it uses. Because these factors are not evaluated, an unadjusted move can only be combined with moves whose factors do not include the factors that the unadjusted move changes (its `factors` and `cut_factors`); otherwise ilike stops with an error.
 
-### unadjusted_proposal
+**Checking the factors.** Setting `check_factor_index = TRUE` in `MCMC` or `SMC_with_MCMC` makes ilike re-evaluate, after every accepted move, each factor in the "other" group whose value is not a random estimate, and stop with an error if its value changed (that is, it depends on the changed parameters and so does not cancel). This is slower and is intended for checking a model file.
 
-The `unadjusted_proposal` function type allows the user to specify a proposal that will be used directly as an MCMC update through using an ilike function. It is the user's responsibility to ensure that the proposal provided has the desired target distribution as its invariant distribution. Note that a number of the proposals provided will simulate a chain that does not have a limiting distribution. 
-
-For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.
-
-The following sections detail the available ilike functions.
-
-#### Normal random walk proposal `ilike::norm_rw`
-
-Specifies a normal random walk proposal over the given variable, where the proposed state $\theta^*$ is simulated using
-
-$$
-\theta^* \sim \mathcal{N}(\theta, \sigma)
-$$
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-    
-  2. numeric: the standard deviation $\sigma$ of the normal distribution
-  
-#### Multivariate normal random walk proposal `ilike::mvnorm_rw`
-
-Specifies a multivariate random walk normal proposal over the given variable, where the proposed state $\theta^*$ is simulated using
-
-$$
-\theta^* \sim \mathcal{MVN}(\theta, s^2 \Sigma)
-$$
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-    
-  2. matrix: the covariance $\Sigma$ of the multivariate normal distribution
-  
-  3. (optional) numeric: the scaling factor $s^2$ of the covariance matrix (default 1)
-   
-#### Uniform random walk proposal `ilike::unif_rw`
-
-Specifies a uniform random walk proposal over the given variable, where the proposed state $\theta^*$ is simulated using
-
-$$
-\theta^* \sim \mathcal{U}(\theta - w, \theta + w)
-$$
-
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-    
-  2. numeric: the half-width $w$ of the uniform distribution
-  
-#### Multivariate uniform random walk proposal `ilike::mvunif_rw`
-
-Specifies a multivariate random walk normal proposal over the given variable, where proposed state $\theta^*$ is simulated using
-
-$$
-\theta^* \sim \mathcal{MVU}(\theta - W, \theta + W)
-$$
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-    
-  2. vector/matrix: a matrix $W$ of half-widths of the uniform distribution, which must have the same dimensionality as $\theta$
-
-#### Langevin proposal `ilike::langevin`
-    
-Specifies a Langevin proposal over the given variable, where the proposed state $\theta^*$ is simulated using
-
-$$
-\theta^* \sim \mathcal{MVN}(\theta + \frac{s^2}{2} \Sigma \nabla \log \pi(\theta), s^2 \Sigma)
-$$
-The presence of $\nabla \log \pi(\theta)$ in the proposal requires that the gradient of the log of each factor must be available. $s^2$ is scaling factor for the preconditioning matrix $\Sigma$.
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-      
-  2. matrix: the covariance $\Sigma$ of the multivariate normal distribution used in the proposal
-    
-  3. numeric: the scaling factor $s^2$ of the preconditioning matrix
-
-#### Barker proposal `ilike::barker`
-
-Specifies a Barker proposal over the given variable, as described in @livingstone2022barker, where the proposed state $\theta^*$ is simulated using the following procedure. For the following, let: $d$ be the dimension of $\theta$, $\mathbf{0}_d$ be the zero vector in $\mathbb{R}$; $\mathbf{I}_d$ be the identity covariance matrix in $\mathbb{R}^{d\times d}$; and let $\odot$ be the Hadamard (element-wise) product. Let $C = \mbox{chol}(s^2 \Sigma)$, then
-
-$$
-z \sim \mathcal{MVN}(\mathbf{0}_d, \mathbf{I}_d)
-$$
-
-followed by, for $i=1:d$
-
-$$
-u_i\sim \mathcal{U}(0,1)
-$$
-
-$$
-c_i(\theta) = \left(\nabla \log \pi(\theta)^T C^T\right)_i
-$$
-
-$$
-b_i = -1 + 2 \times I \left( u_i < 1/(1 + \exp(-z_i c_i(\theta) )) \right)
-$$
-
-$$
-\theta^* = \theta + C^T (b \odot z)
-$$
-The presence of $\nabla \log \pi(\theta)$ in the proposal requires that the gradient of the log of each factor must be available. $s^2$ is scaling factor for the preconditioning matrix $\Sigma$.
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-    
-  2. matrix: the covariance $\Sigma$ of the multivariate normal distribution used in the proposal
-  
-  3. numeric: the scaling factor $s^2$ of the preconditioning matrix
-  
-#### Mirror proposal `ilike::mirror`
-
-Specifies a mirror proposal over the given variable, as described in @thawornwattana2018designing, where the proposed state $\theta^*$ is simulated using
-
-$$
-\theta^* \sim \mathcal{MVN} (2 \mu - \theta, s^2 \Sigma),
-$$
-where $\mu$ is a centre (typically an estimate of the expectation of the target distribution) and $s^2$ is scaling factor for the covariance matrix $\Sigma$.
-
-Inputs:
-
-  1. string: the variable for which the proposal is specified
-    
-  2. vector: the centre $\mu$ of the mirror proposal
-  
-  3. matrix: the covariance $\Sigma$ of the multivariate normal distribution used in the proposal
-  
-  4. numeric: the scaling factor $s^2$ of the covariance matrix
-  
 ## Adaptive MCMC {#adaptive-mcmc}
 
 The efficiency of an MCMC algorithm depends on tuning its proposal: for example the covariance and scale of a random walk. Adaptive MCMC tunes the proposal while the chain runs, using the states the chain has visited. ilike follows the framework of @andrieu2008tutorial, in which each adapted parameter $\vartheta$ of the proposal is updated after every iteration by a stochastic approximation (Robbins-Monro) recursion
@@ -1054,25 +374,22 @@ where $\theta_i$ is the current state, $\theta^*_{i+1}$ the proposed state, $\th
 
 ### Specifying an adaptor
 
-An adaptor is specified in a block placed after the proposal it adapts, named after the type of the proposal: `m_adaptor` for an `m_proposal` and `mh_adaptor` for an `mh_proposal`. For example
+An adaptor is given by the option `adapt` of a move:
 
 ```
-/***m_proposal,ilike::mvnorm_rw(θ,p1)***/
-
-/***m_adaptor,ilike::scaled_am(θ)***/
+move m = metropolis(mvnorm_rw(theta, Sigma0), adapt = scaled_am(averaged))
 ```
 
-adapts the covariance and the scale of the random walk on `θ`, starting from the covariance `p1` given in `model_parameter_list` (section \@ref(inference-arguments)). In an MCMC made of several moves (section \@ref(mcmc)), each move can have its own adaptor, and each adapts only its own proposal. Adaptation is available for moves specified with `m_proposal` and `mh_proposal`.
+adapts the covariance and the scale of the random walk on `theta`, starting from the covariance `Sigma0` (a constant). The adaptor's variable is the proposal's, so it need not be written. In an MCMC made of several moves, each move can have its own adaptor, and each adapts only its own proposal. Adaptation is available for `metropolis` and `metropolis_hastings` moves.
 
-All adaptors take optional arguments after the first; as for all ilike functions, an optional argument can only be omitted if the arguments after it are omitted too. The arguments that appear in the descriptions below are:
+The adaptors take the optional arguments:
 
-- `target` (numeric): the acceptance rate $\bar{\alpha}^*$ to aim for. The defaults are: 0.234 for normal random walks and for named proposal parameters, 0.44 for componentwise and principal components moves [@andrieu2008tutorial], 0.574 for Langevin, 0.4 for Barker [@livingstone2022barker], and for the mirror proposal a value depending on the dimension (see below).
+- `target`: the acceptance rate $\bar{\alpha}^*$ to aim for. The defaults are: 0.234 for normal random walks and for named proposal parameters, 0.44 for componentwise and principal components moves [@andrieu2008tutorial], 0.574 for Langevin, 0.4 for Barker [@livingstone2022barker], and for the mirror proposal a value depending on the dimension (see below).
+- `kappa` and `C`: the gain $\gamma_n = C (n+1)^{-\kappa}$ (defaults 0.6 and 1). $C 2^{-\kappa}$ must be below 1.
+- `refresh`: changing the covariance of a Gaussian proposal requires a Cholesky decomposition (whose cost grows as $d^3$ in the dimension $d$), so the proposal's covariance is replaced by the current estimate every `refresh` iterations (default `0`, meaning every $d$ iterations); the estimate itself, and the scale, are updated every iteration.
+- `averaged`: a flag, to use averaging (section \@ref(averaging)).
 
-- `kappa` (numeric) and `C` (numeric): the gain $\gamma_n = C (n+1)^{-\kappa}$ (defaults 0.6 and 1). $C 2^{-\kappa}$ must be below 1.
-
-- `r` (integer): changing the covariance of a Gaussian proposal requires a Cholesky decomposition (whose cost grows as $d^3$ in the dimension $d$), so the proposal's covariance is replaced by the current estimate every $r$ iterations (default `0`, meaning every $d$ iterations); the estimate itself, and the scale, are updated every iteration.
-
-- `averaged`: the word `averaged` may be given as an extra argument to any adaptor, anywhere after the first argument, to use averaging (see below).
+For example, `adapt = scaled_am(target = 0.3, kappa = 0.7, averaged)`.
 
 ### Adaptors for Gaussian proposals
 
@@ -1083,57 +400,38 @@ $$
 $$
 starting from $\mu_0 = \theta_0$ and $\Sigma_0$ the covariance given to the proposal; $\alpha_{i+1}$ is the acceptance probability of the proposed state $\theta^*_{i+1}$. The proposal's covariance is $\lambda \Sigma$, where $\lambda$ is a scale.
 
-#### Adaptive Metropolis with global scaling `ilike::scaled_am`
+**A move on part of the parameters.** When the move changes one variable $x$ and the model has other parameters $r$, which the move keeps fixed, the move explores the conditional distribution of $x$ given $r$. The right covariance is then the conditional one, $\Sigma_{x \mid r} = \Sigma_{xx} - \Sigma_{xr} \Sigma_{rr}^{-1} \Sigma_{rx}$, which is smaller than $\Sigma_{xx}$ when $x$ and $r$ are correlated. So the adaptors estimate the mean and covariance of *all* the parameters by the recursion above, and the proposal's covariance is the conditional covariance of $x$ (and, for the mirror proposal, its centre is the conditional mean $\mu_x + \Sigma_{xr}\Sigma_{rr}^{-1}(r - \mu_r)$ at the current values of $r$). When the estimate of the covariance is singular (early in the chain, or with more parameters than iterations so far), it is shrunk towards its diagonal by the Ledoit-Wolf estimator [@ledoit2004well], with the intensity of @schafer2005shrinkage computed for the recursion's weights. Since this needs a solve with the covariance of $r$, the conditional covariance is formed every $D$ iterations by default, $D$ the number of parameters (`refresh` changes it). A move on all the parameters is unchanged. The adaptation output gives the conditional covariance used (`conditional_covariance[i,j]`) along with the moved variable's marginal covariance.
 
-The recommended adaptor for random walks [@andrieu2008tutorial, Algorithm 4]: $\mu$ and $\Sigma$ are estimated as above, and the scale is adapted so that the acceptance rate approaches $\bar{\alpha}^*$:
+| Adaptor | What it adapts | Proposals |
+|---|---|---|
+| `scaled_am` | $\mu$, $\Sigma$ and $\lambda$ | `norm_rw`, `mvnorm_rw`, `mirror` |
+| `am` | $\mu$ and $\Sigma$, with $\lambda = 2.38^2/d$ | `norm_rw`, `mvnorm_rw`, `mirror` |
+| `rb_am` | as `am`, Rao-Blackwellised | `norm_rw`, `mvnorm_rw`, `mirror` |
+| `scale` | $\lambda$ only | `norm_rw`, `mvnorm_rw`, `mirror`, `langevin`, `barker` |
+| `componentwise_am` | a scale for each component | `componentwise_rw` |
+| `pc_am`, `online_pc_am` | principal directions and their scales | `pc_rw` |
+
+**`scaled_am`: adaptive Metropolis with global scaling.** The recommended adaptor for random walks [@andrieu2008tutorial, Algorithm 4]: $\mu$ and $\Sigma$ are estimated as above, and the scale is adapted so that the acceptance rate approaches $\bar{\alpha}^*$:
 $$
 \log \lambda_{i+1} = \log \lambda_i + \gamma_{i+1} (\alpha_{i+1} - \bar{\alpha}^*).
 $$
-Adapting the scale as well as the covariance helps a chain whose initial proposal is badly scaled to start exploring the target (with a poor scale, the chain learns very little about the target's covariance). Applies to `ilike::norm_rw`, `ilike::mvnorm_rw` and `ilike::mirror`.
+Adapting the scale as well as the covariance helps a chain whose initial proposal is badly scaled to start exploring the target (with a poor scale, the chain learns very little about the target's covariance). Arguments: `target`, `kappa`, `C`, `refresh`, `averaged`.
 
-Inputs: (1) string: the variable; (2) (optional) `target`; (3) (optional) `kappa`; (4) (optional) `C`; (5) (optional) `r`.
+**`am`: adaptive Metropolis.** The adaptive Metropolis algorithm of @haario2001adaptive [@andrieu2008tutorial, Algorithm 2]: $\mu$ and $\Sigma$ are estimated as above, and the scale is fixed at $\lambda = 2.38^2/d$, which is optimal for Gaussian targets when $\Sigma$ is the target's covariance. (For the mirror proposal, the scale given to the proposal is kept.) Arguments: `kappa`, `C`, `refresh`, `averaged`.
 
-#### Adaptive Metropolis `ilike::am`
+**`rb_am`: Rao-Blackwellised adaptive Metropolis.** As `am`, but with $\theta_{i+1}$ in the recursions replaced by its expectation over the accept/reject step, $\alpha_{i+1} \theta^*_{i+1} + (1 - \alpha_{i+1}) \theta_i$ [@andrieu2008tutorial, Algorithm 3]. This uses the information in rejected proposals too. Arguments: `kappa`, `C`, `refresh`, `averaged`.
 
-The adaptive Metropolis algorithm of @haario2001adaptive [@andrieu2008tutorial, Algorithm 2]: $\mu$ and $\Sigma$ are estimated as above, and the scale is fixed at $\lambda = 2.38^2/d$, which is optimal for Gaussian targets when $\Sigma$ is the target's covariance. (For the mirror proposal, the scale given to the proposal is kept.) Applies to `ilike::norm_rw`, `ilike::mvnorm_rw` and `ilike::mirror`.
+**`scale`: scale only.** Adapts only the scale $\lambda$, by the recursion of `scaled_am`, keeping the covariance given to the proposal. Arguments: `target`, `kappa`, `C`, `averaged`.
 
-Inputs: (1) string: the variable; (2) (optional) `kappa`; (3) (optional) `C`; (4) (optional) `r`.
-
-#### Rao-Blackwellised adaptive Metropolis `ilike::rb_am`
-
-As `ilike::am`, but with $\theta_{i+1}$ in the recursions replaced by its expectation over the accept/reject step, $\alpha_{i+1} \theta^*_{i+1} + (1 - \alpha_{i+1}) \theta_i$ [@andrieu2008tutorial, Algorithm 3]. This uses the information in rejected proposals too. Applies to `ilike::norm_rw`, `ilike::mvnorm_rw` and `ilike::mirror`.
-
-Inputs: (1) string: the variable; (2) (optional) `kappa`; (3) (optional) `C`; (4) (optional) `r`.
-
-#### Scale only `ilike::scale`
-
-Adapts only the scale $\lambda$, by the recursion of `ilike::scaled_am`, keeping the covariance given to the proposal. Applies to `ilike::norm_rw`, `ilike::mvnorm_rw`, `ilike::mirror`, `ilike::langevin` and `ilike::barker`.
-
-Inputs: (1) string: the variable; (2) (optional) `target`; (3) (optional) `kappa`; (4) (optional) `C`.
-
-#### Componentwise adaptive Metropolis `ilike::componentwise_am`
-
-For the proposal `ilike::componentwise_rw`, which moves one component $k$ at a time [@andrieu2008tutorial, Algorithm 5]: each component has its own scale, adapted only when that component is moved,
+**`componentwise_am`: componentwise adaptive Metropolis.** For the proposal `componentwise_rw`, which moves one component $k$ at a time [@andrieu2008tutorial, Algorithm 5]: each component has its own scale, adapted only when that component is moved,
 $$
 \log \lambda^{(k)}_{i+1} = \log \lambda^{(k)}_i + \gamma_{i+1} (\alpha_{i+1} - \bar{\alpha}^*),
 $$
-with $\bar{\alpha}^* = 0.44$ by default, and $\mu$, $\Sigma$ estimated as above (the proposal uses the diagonal of $\Sigma$). This suits targets whose components have very different scales, and is robust when the initial proposal is poor.
+with $\bar{\alpha}^* = 0.44$ by default, and $\mu$, $\Sigma$ estimated as above (the proposal uses the diagonal of $\Sigma$). This suits targets whose components have very different scales, and is robust when the initial proposal is poor. Arguments: `target`, `kappa`, `C`, `refresh`, `averaged`.
 
-Inputs: (1) string: the variable; (2) (optional) `target`; (3) (optional) `kappa`; (4) (optional) `C`; (5) (optional) `r`.
+**`pc_am` and `online_pc_am`: principal components adaptive Metropolis.** For the proposal `pc_rw`, which moves along one principal direction of the covariance at a time [@andrieu2008tutorial, Algorithm 8]: $\mu$ and $\Sigma$ are estimated as above, the principal directions $w_l$ and the variances $\rho_l$ along them are computed from $\Sigma$, and each direction's scale $\ell_l$ is adapted, when that direction is used, towards $\bar{\alpha}^* = 0.44$ (by default). The two adaptors differ in how the principal directions are found: `pc_am` computes the eigenvectors of $\Sigma$ every `refresh` iterations (default: every $d$ iterations); `online_pc_am` performs one step of the online principal components recursion of @andrieu2008tutorial (section 5.3.2) every `refresh` iterations (default: every iteration), which converges to the principal directions without an eigen-decomposition. Arguments: `target`, `kappa`, `C`, `refresh`, `averaged`.
 
-#### Principal components adaptive Metropolis `ilike::pc_am` and `ilike::online_pc_am`
-
-For the proposal `ilike::pc_rw`, which moves along one principal direction of the covariance at a time [@andrieu2008tutorial, Algorithm 8]: $\mu$ and $\Sigma$ are estimated as above, the principal directions $w_l$ and the variances $\rho_l$ along them are computed from $\Sigma$, and each direction's scale $\ell_l$ is adapted, when that direction is used, towards $\bar{\alpha}^* = 0.44$ (by default). The two adaptors differ in how the principal directions are found:
-
-- `ilike::pc_am` computes the eigenvectors of $\Sigma$ every $r$ iterations (default: every $d$ iterations).
-
-- `ilike::online_pc_am` performs one step of the online principal components recursion of @andrieu2008tutorial (section 5.3.2) every $r$ iterations (default: every iteration), which converges to the principal directions without an eigen-decomposition.
-
-Inputs: (1) string: the variable; (2) (optional) `target`; (3) (optional) `kappa`; (4) (optional) `C`; (5) (optional) `r`.
-
-#### Adaptation of the mirror proposal
-
-For `ilike::mirror`, the adaptors `ilike::scaled_am`, `ilike::am`, `ilike::rb_am` and `ilike::scale` also set the centre of the mirror to the running estimate $\mu$ of the target's mean (starting from the centre given), along with the covariance and the scale. The default target acceptance rate for the mirror proposal depends on the dimension $d$ of the variable. It was chosen by experiment: on Gaussian targets, with the mirror's centre and covariance equal to the target's mean and covariance (what adaptation converges to), the acceptance rate that maximised the effective sample size per iteration (the minimum over the functions $\theta_j$ and $\theta_j^2$, estimated with the `coda` and `mcmcse` packages) was
+**Adaptation of the mirror proposal.** For `mirror`, the adaptors `scaled_am`, `am`, `rb_am` and `scale` also set the centre of the mirror to the running estimate $\mu$ of the target's mean (starting from the centre given), along with the covariance and the scale. The default target acceptance rate for the mirror proposal depends on the dimension $d$ of the variable. It was chosen by experiment: on Gaussian targets, with the mirror's centre and covariance equal to the target's mean and covariance (what adaptation converges to), the acceptance rate that maximised the effective sample size per iteration (the minimum over the functions $\theta_j$ and $\theta_j^2$, estimated with the `coda` and `mcmcse` packages) was
 
 | $d$ | 1 | 2 | 3 | 5 | 10 | 20 | 50 | 100 |
 |---|---|---|---|---|---|---|---|---|
@@ -1141,30 +439,24 @@ For `ilike::mirror`, the adaptors `ilike::scaled_am`, `ilike::am`, `ilike::rb_am
 
 and ilike uses these values (interpolating between them, and 0.23 for $d > 100$). Being antithetic, the mirror proposal gives a very large effective sample size for the mean (often larger than the number of iterations), and it is functions such as $\theta_j^2$ that limit its efficiency.
 
-### Adapting named proposal parameters
+### Adapting proposal parameters
 
-For a proposal written by the user (section \@ref(mcmc)), which uses proposal parameters given in `algorithm_parameter_list` (available in the proposal's functions as `proposal_parameters`), any named proposal parameter can be adapted. There are two ways to do this.
+For a proposal written by the user that uses proposal parameters (section \@ref(user-proposals)), any named proposal parameter can be adapted. There are two ways to do this.
 
-#### By the acceptance rate `ilike::acceptance_rate`
-
-Adapts a named, positive proposal parameter $\vartheta$ (for example a standard deviation) so that the acceptance rate approaches $\bar{\alpha}^*$, on the log scale:
+**By the acceptance rate, `acceptance_rate(parameter, target, kappa, C, averaged)`.** Adapts a named, positive proposal parameter $\vartheta$ (for example a standard deviation) so that the acceptance rate approaches $\bar{\alpha}^*$, on the log scale:
 $$
 \log \vartheta_{i+1} = \log \vartheta_i + \gamma_{i+1} (\alpha_{i+1} - \bar{\alpha}^*).
 $$
-For example, for a proposal that uses `proposal_parameters["sd"]`:
+For example, for the proposal of section \@ref(user-proposals), which uses `proposal_parameters["sd"]`:
 
 ```
-/***m_adaptor,ilike::acceptance_rate(sd,0.44)***/
+move m = metropolis(cpp::step, adapt = acceptance_rate(sd, 0.44))
 ```
 
-Inputs: (1) string: the name of the proposal parameter; (2) (optional) `target`; (3) (optional) `kappa`; (4) (optional) `C`.
-
-#### By the user's function `adapt_m_proposal` and `adapt_mh_proposal`
-
-For full control, the user can write the function $H$ in the recursion above, in C++, in a block `adapt_m_proposal` (for an `m_proposal`) or `adapt_mh_proposal` (for an `mh_proposal`) placed after the proposal. It must have the arguments below and returns $H$ as a `Parameters` object: every proposal parameter named in $H$ is updated using $\vartheta_{i+1} = \vartheta_i + \gamma_{i+1} H$ (with the default gain).
+**By the user's function.** For full control, the user can write the function $H$ in the recursion above, in C++, and give it as the adaptor (`adapt = cpp::adapt`). It returns $H$ as a `Parameters` object: every proposal parameter named in $H$ is updated using $\vartheta_{i+1} = \vartheta_i + \gamma_{i+1} H$ (with the default gain).
 
 ```
-/***adapt_m_proposal***/
+cpp {
 Parameters adapt(const Parameters &proposal_parameters,
                  const Parameters &parameters,
                  const Parameters &proposed_parameters,
@@ -1173,54 +465,89 @@ Parameters adapt(const Parameters &proposal_parameters,
 {
   return Parameters("sd", proposal_parameters["sd"]*(acceptance_probability - 0.44));
 }
+}
 ```
 
-Here `proposal_parameters` holds the current value $\vartheta_i$ of the proposal parameters, `parameters` the current state $\theta_i$, `proposed_parameters` the proposed state $\theta^*_{i+1}$, `new_parameters` the next state $\theta_{i+1}$ (which is either the current or the proposed state), and `acceptance_probability` is $\alpha_{i+1}$. This function must be written in C++.
+Here `proposal_parameters` holds the current value $\vartheta_i$ of the proposal parameters, `parameters` the current state $\theta_i$, `proposed_parameters` the proposed state $\theta^*_{i+1}$, `new_parameters` the next state $\theta_{i+1}$ (which is either the current or the proposed state), and `acceptance_probability` is $\alpha_{i+1}$. This function must be written in C++. For averaging, write `adapt = averaged(cpp::adapt)`.
 
-### Averaging
+### Averaging {#averaging}
 
-With the option `averaged` (for example `ilike::scaled_am(θ,averaged)`), the recursions above run as described, but the proposal uses the averages of their iterates, $\bar{\vartheta}_n = \frac{1}{n+1} \sum_{i=0}^{n} \vartheta_i$ (scales are averaged on the log scale) [@polyak1992acceleration]. With a gain that decreases more slowly than $1/n$ (such as the default $\kappa = 0.6$), the average converges at the optimal rate, and it is much less noisy than the iterates themselves: in tests, the estimated covariance was within a few percent of the target's, where without averaging it could be 30% away. Since the average includes the early iterations, the acceptance rate can be slightly away from its target in short runs. For a user's adaptation function, averaging is requested with the block
-
-```
-/***m_adaptor,ilike::averaged()***/
-```
-
-placed after the `adapt_m_proposal` block (or `mh_adaptor,ilike::averaged()` for `adapt_mh_proposal`).
+With the flag `averaged` (for example `adapt = scaled_am(averaged)`), the recursions above run as described, but the proposal uses the averages of their iterates, $\bar{\vartheta}_n = \frac{1}{n+1} \sum_{i=0}^{n} \vartheta_i$ (scales are averaged on the log scale) [@polyak1992acceleration]. With a gain that decreases more slowly than $1/n$ (such as the default $\kappa = 0.6$), the average converges at the optimal rate, and it is much less noisy than the iterates themselves: in tests, the estimated covariance was within a few percent of the target's, where without averaging it could be 30% away. Since the average includes the early iterations, the acceptance rate can be slightly away from its target in short runs.
 
 ### How adaptation is run
 
-- In `MCMC`, each chain adapts its own copy of the proposal, over the whole run. The adapted parameters are written to the output, and can be loaded with `load_mcmc_adaptation` (section \@ref(mcmc-output)).
+- In `MCMC`, each chain adapts its own copy of the proposal, over the whole run unless `until` says when to stop (below). The adapted parameters are written to the output, and can be loaded with `load_mcmc_adaptation` (section \@ref(mcmc-output)).
 
-- In `SMC_with_MCMC`, the MCMC move at each SMC iteration starts from the proposal as specified (or as set by an `smc_adaptor`, see below), and an `m_adaptor` or `mh_adaptor` adapts only during the chain run from each particle at that iteration.
+- In `SMC_with_MCMC`, the MCMC move at each SMC iteration starts from the proposal as specified (or as set by `smc_adapt`, see below), and `adapt` adapts only during the chain run from each particle at that iteration.
 
 - A run with adapting moves is sequential, even if `parallel = TRUE` (a warning is given), and adapting moves cannot be used with waste-free SMC.
 
 - Since an adapting chain is not a Markov chain, discard its early iterations (burn-in) when analysing the output, as for any MCMC output.
 
+### Stopping adaptation {#adaptation-until}
+
+By default an adaptor adapts over the whole run, with a gain that decreases to zero. The argument `until` of a built-in adaptor gives a criterion for stopping instead:
+
+```
+move m = metropolis(mvnorm_rw([a, b], Sigma0), adapt = scaled_am(until = iterations(2000)))
+move m = metropolis(mvnorm_rw([a, b], Sigma0), adapt = scaled_am(until = stable(0.01, 200)))
+for (j in 1:J) move m = metropolis(norm_rw(theta[j], 1), adapt = scale(until = acceptance(0.05, 200)))
+```
+
+After the criterion holds, the adaptor stops and the proposal keeps the parameters it has then (the averages, with `averaged`). From that point the chain is an ordinary Markov chain with a fixed proposal, started from where the adaptation stopped, so it targets the posterior whatever the criterion (and the iterations before are valid under vanishing adaptation, as without `until`). The criteria are:
+
+| Criterion | Stops when |
+|---|---|
+| `iterations(n)` | `n` adaptation steps have been made |
+| `stable(tolerance, window, watch, change)` | over the last `window` steps, the watched quantities have changed by at most `tolerance` (each value in the window compared with the current one) |
+| `acceptance(tolerance, window)` | the average acceptance probability over the last `window` steps is within `tolerance` of the adaptor's target (not for `am` and `rb_am`, which have none) |
+| `all(c1, c2, …)`, `any(c1, c2, …)` | all, or any, of the criteria inside hold |
+
+For `stable`, `watch` gives what is watched: `default` (the quantities the adaptor adapts: the scale, the component scales and the covariance, as it has them), `scale`, `covariance` (summarised by the geometric mean of its eigenvalues, $|\Sigma|^{1/d}$, and its mean variance, $\mathrm{tr}(\Sigma)/d$), `covariance_elements` (every element), `mean`, `component_scales`, or a list of these (`watch = [scale, mean]`); `change` is `relative` (the default: the change divided by the current value) or `absolute`. The defaults are `stable(0.01, 100)` and `acceptance(0.05, 100)`. With a decreasing gain the adapted quantities keep moving a little, by about the gain at each step, so a small tolerance over a short window can take a long time to hold; `any(iterations(n), …)` puts a bound on it. The adaptation output gives, for each adaptor with `until`, the step at which it stopped (`….adaptation_stopped_at`, 0 if it did not).
+
 ### Adapting proposals from the SMC particles {#smc-adaptor}
 
-In an SMC sampler (`SMC_with_MCMC`), or an ensemble Kalman method that uses MCMC moves, the whole population of particles is available at each iteration, and it provides a good estimate of the current target's covariance: a standard choice is a random walk with covariance $(2.38^2/d) \hat{\Sigma}_t$, where $\hat{\Sigma}_t$ is the weighted sample covariance of the particles (the rule of thumb for random walks, applied to the population). This adaptation does not affect the MCMC moves themselves (each move uses a fixed proposal), so it can be used with parallel runs and with waste-free SMC.
-
-It is specified by a block `smc_adaptor` placed after the proposal it adapts (an `m_proposal`, `mh_proposal`, `imh_proposal` or `unadjusted_proposal`), using the ilike function `ilike::gaussian`:
+In an SMC sampler (`SMC_with_MCMC`), the whole population of particles is available at each iteration, and it provides a good estimate of the current target's covariance: a standard choice is a random walk with covariance $(2.38^2/d) \hat{\Sigma}_t$, where $\hat{\Sigma}_t$ is the weighted sample covariance of the particles (the rule of thumb for random walks, applied to the population). This adaptation does not affect the MCMC moves themselves (each move uses a fixed proposal), so it can be used with parallel runs and with waste-free SMC. It is given by the option `smc_adapt` of a move with a built-in proposal:
 
 ```
-/***m_proposal,ilike::mvnorm_rw(θ,p1)***/
-
-/***smc_adaptor,ilike::gaussian(θ,2.38)***/
+move = metropolis(mvnorm_rw(theta, Sigma0), smc_adapt = gaussian(2.38))
 ```
 
-Before the particles are moved at each iteration, the proposal's covariance is set to the weighted sample covariance $\hat{\Sigma}_t$ of the particles (using their weights for the current target, before resampling), and:
+Before the particles are moved at each iteration, the proposal's covariance is set to the weighted sample covariance $\hat{\Sigma}_t$ of the particles (using their weights for the current target, before resampling) — for a move on one variable among several, the conditional covariance of that variable given all the other parameters, from the weighted covariance of all of them, as in section \@ref(adaptive-mcmc) — and:
 
-- for the mirror proposal and the independent normal proposals (`ilike::norm`, `ilike::mvnorm` in an `imh_proposal`), the mean (centre) of the proposal is set to the weighted mean of the particles, which gives an independent Metropolis-Hastings move whose proposal is fitted to the particles;
-- for `ilike::pc_rw`, the principal directions are the eigenvectors of $\hat{\Sigma}_t$;
-- if the constant $c$ is given, the scale of the proposal is set to $c^2/d$ ($c^2$ for `ilike::componentwise_rw` and `ilike::pc_rw`, which move one component or direction at a time). If $c$ is not given, the scale is not changed.
+- for the mirror proposal and the independent normal proposals (`norm`, `mvnorm` in an `independent_mh` move), the mean (centre) of the proposal is set to the weighted mean of the particles, which gives an independent Metropolis-Hastings move whose proposal is fitted to the particles;
+- for `pc_rw`, the principal directions are the eigenvectors of $\hat{\Sigma}_t$;
+- if the constant $c$ is given (`gaussian(c)`), the scale of the proposal is set to $c^2/d$ ($c^2$ for `componentwise_rw` and `pc_rw`, which move one component or direction at a time). If $c$ is not given (`gaussian()`), the scale is not changed.
 
-If $\hat{\Sigma}_t$ is not positive definite (e.g. when only a few distinct particles remain), the proposal keeps its previous covariance. It applies to the proposals `ilike::norm_rw`, `ilike::mvnorm_rw`, `ilike::componentwise_rw`, `ilike::pc_rw`, `ilike::mirror`, `ilike::langevin`, `ilike::barker`, `ilike::norm` and `ilike::mvnorm`. An `smc_adaptor` and an `m_adaptor` (or `mh_adaptor`) can be used together: the former sets the proposal at each SMC iteration, and the latter adapts it further along each particle's chain.
-
-Inputs:
-
-  1. string: the variable
-  
-  2. (optional) numeric: the constant $c$ (no default: if omitted, the scale is left as it is)
+If $\hat{\Sigma}_t$ is not positive definite (e.g. with fewer particles than parameters, or when only a few distinct particles remain), it is shrunk towards its diagonal (Ledoit-Wolf, with the effective sample size of the weights); parameters that all particles share are left out. If it still cannot be used, the proposal keeps its previous covariance. It applies to the proposals `norm_rw`, `mvnorm_rw`, `componentwise_rw`, `pc_rw`, `mirror`, `langevin`, `barker`, `norm` and `mvnorm`. `smc_adapt` and `adapt` can be used together: the former sets the proposal at each SMC iteration, and the latter adapts it further along each particle's chain.
 
 In tests on a correlated two-dimensional Gaussian target, starting from a badly scaled random walk or a poorly placed independent proposal, this adaptation reduced the standard deviation of the estimated log normalising constant by about 40% (and by half with waste-free SMC).
+
+### Tuning moves from how far the particles jump {#esjd}
+
+`gaussian(c)` sets the proposal from the particles' spread, but the best scale of a step, or the best step size and number of leapfrog steps of HMC, also depend on the target's shape. `smc_adapt = esjd(…)` learns them from the moves themselves [@fearnhead2013adaptive; @buchholz2021adaptive]: each particle moves with its own tuning values, and after the move each particle's values are scored by how far they make the particle jump: at each iteration of its chain, the squared distance from the current point $x$ to the proposed point $\tilde{x}$ times the probability of accepting it, $\alpha(x, \tilde{x}) \|\tilde{x} - x\|^2_M$ (the expected jump, the accept/reject decision averaged out), and $\Lambda_i$ is its mean over the chain, divided by the number of leapfrog steps for `hmc` (the cost of a step). The metric $M$ is the inverse of the particles' variances (or covariance, `metric = "full"`). For `nuts`, which has no single proposed point, $\Lambda_i$ is the squared distance the particle actually moved over its chain. Before the next move, the values are drawn again from the scored ones with weights $a + \Lambda_i$ (`a = 0` by default), each perturbed slightly (a step multiplied by $e^{0.05 Z}$, $Z \sim \mathcal{N}(0, 1)$, `perturb` giving the 0.05; a number of steps moved by $-1$, $0$ or $+1$), and given to the particles in a random order. Maximising the expected squared jump distance minimises the lag-one autocorrelation of the moves, so the values drift towards those that mix well, and keep adapting along the sequence of targets.
+
+```
+move m = metropolis(mvnorm_rw(theta, Sigma0), smc_adapt = [gaussian(), esjd(scale = [0.1, 3])])
+move m = metropolis_hastings(hmc(theta, step = 0.1, steps = 5), smc_adapt = esjd(step = [0.01, 1], steps = [1, 20]))
+move m = nuts(theta, step = 0.1, smc_adapt = esjd(step = [0.01, 1]))
+```
+
+| Proposal | Tuned | Meaning |
+|---|---|---|
+| `norm_rw`, `mvnorm_rw`, `langevin` | `scale = [lower, upper]` | a multiplier of the step's standard deviation |
+| `hmc` | `step = […]`, `steps = […]` | the leapfrog step size and number of steps (`steps` fixed if not given) |
+| `nuts` | `step = […]` | the leapfrog step size |
+
+The first values are drawn uniformly from the ranges given; a range with equal ends fixes the value. Several adaptors on one move are applied in order: `[gaussian(), esjd(…)]` first sets the covariance from the particles (and keeps the scale), then each particle's multiplier acts on it. The values are summarised at each step (mean, standard deviation and quantiles over the particles) and loaded with `load_smc_tuning(results_name)`. In a test tempering a standard normal to a shifted, correlated normal in ten dimensions, a random walk's multiplier settled at about 0.76, close to the optimal $2.38/\sqrt{10} \approx 0.75$, and the evidence was estimated correctly with `mvnorm_rw`, `hmc` and `nuts`. Since the values at one step depend on the particles of earlier ones, the estimates are those of an adaptive SMC sampler (consistent as the number of particles grows). `esjd` is not available with waste-free SMC, nor for factors that the SMC moves cannot handle in chunks. On moves on elements (`for (k in 1:K) move m = metropolis(norm_rw(theta[k], s), smc_adapt = esjd(scale = [0.1, 10]))`, also `unif_rw`), each particle has one multiplier of every element's step, tuned from the expected squared jumps of all its element steps.
+
+For `hmc`, `smc_adapt = pretune(max_steps = 100, target = 0.9)` uses instead the pre-tuning scheme of @buchholz2021adaptive. Before each move, every particle makes a trial HMC move with a step drawn uniformly from $(0, \epsilon^\star]$ and a number of leapfrog steps drawn uniformly from $1, \ldots, L_{\max}$; the trial moves are then discarded, keeping only their energy errors $\Delta E$ and their scores (as above, $\min(1, e^{\Delta E}) \|\tilde{x} - x\|^2_M / L$). The real move's step and number of steps for each particle are drawn from the trial pairs in proportion to their scores; $\epsilon^\star$ for the next move is set by a median regression of $|\Delta E|$ on $\epsilon^2$ so that the predicted acceptance rate is `target`; and $L_{\max}$ grows by `steps_change` (default 5) when more than a share `raise_share` (0.5) of the chosen numbers of steps are above `raise_above` (0.8) times $L_{\max}$, and shrinks by `steps_change` when more than `lower_share` (0.9) are below `lower_below` (0.5) times $L_{\max}$ (`steps_change = 0` keeps it fixed). The first $\epsilon^\star$ is `max_step` (default twice the step given to `hmc`). Pre-tuning costs one extra HMC trajectory per particle at each step, but adjusts at once when the best tuning changes along the sequence of targets. `step_max` and `steps_max` in `load_smc_tuning` give $\epsilon^\star$ and $L_{\max}$.
+
+The proposal itself can be chosen in the same way [@fearnhead2013adaptive]: `metropolis_hastings(choose([q1, q2, …], cost = […], change = 0.1, smc_adapt = […]))` gives each particle one of the proposals `q1, q2, …` for its whole move, so each particle's move is an ordinary Metropolis–Hastings move with its proposal and the targets are unchanged. After the move each particle's choice is scored by its expected squared jump divided by the proposal's cost (by default 1 for a random walk, 2 for `langevin` and `barker`, which also compute a gradient, and the number of leapfrog steps plus one for `hmc`; `cost` sets them), the choices are resampled with those weights, and each moves to another proposal with probability `change`. Each proposal may have its own adaptor, listed in `smc_adapt` (`none` for none), which learns only from the particles that used that proposal:
+
+```
+move m = metropolis_hastings(choose([mvnorm_rw(theta, Sigma0, 1), hmc(theta, step = 0.1, steps = 10)],
+                                    smc_adapt = [esjd(scale = [0.1, 3]), none]))
+```
+
+`load_smc_tuning` gives the share of the particles using each proposal at each step (`kernel1.share`, …), with a row per step for each adaptor (the column `tuner` numbers them). In the ten-dimensional test, `hmc` (cost 11) took over 80% of the particles from a tuned random walk. `choose` is for `SMC_with_MCMC`: in `MCMC` there are no particles to learn from, and it is refused.

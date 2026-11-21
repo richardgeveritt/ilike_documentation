@@ -1,0 +1,19 @@
+ilike 1.0
+// particle marginal Metropolis-Hastings: the likelihood of a is estimated by
+// a particle filter on the state-space model in ssm_inner.ilike
+
+import "ssm_inner.ilike" as inner
+
+data {
+  y = [0.5, 1.0, 0.2, -0.3, 0.8]
+}
+
+model {
+  a ~ unif(0, 1)
+  factor filter = pf(inner)        // particles = 500, from inner's algorithm section
+}
+
+algorithm mcmc {
+  move m = metropolis(norm_rw(a, 0.2))
+  termination = iterations(2000)
+}

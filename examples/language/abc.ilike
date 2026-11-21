@@ -1,0 +1,45 @@
+ilike 1.0
+// ABC with a uniform kernel on the Euclidean distance between summaries,
+// by ABC-MCMC and by ABC-SMC with adaptive tolerances
+
+data {
+  y = [1.3, 0.2, 0.9, 1.7, 0.4]
+}
+
+model {
+  theta ~ norm(0, 3)
+  factor sim = sbi(euclidean_uniform_abc(number_of_points = 50, tolerance_variable = epsilon,
+                                         tolerance = 0.5),
+                   simulate = cpp::simulate_y, data = y, summaries = cpp::summaries)
+}
+
+cpp {
+Data simulate_y(RandomNumberGenerator &rng, const Parameters &parameters)
+{
+  arma::colvec y(5);
+  for (arma::uword i = 0; i < 5; ++i)
+    y[i] = rnorm(rng, parameters["theta"][0], 1.0);
+  return Data("y", y);
+}
+
+Data summaries(const Data &data)
+{
+  arma::colvec s(1);
+  s[0] = arma::mean(arma::vectorise(data["y"]));
+  return Data("y", s);
+}
+}
+
+algorithm mcmc {
+  move m = metropolis(norm_rw(theta, 0.5))
+  termination = iterations(10000)
+}
+
+algorithm abc_smc {
+  move = metropolis(norm_rw(theta, 0.5), smc_adapt = gaussian(2.38))
+  termination = iterations(5)                     // MCMC iterations per SMC step
+  sequence = parameter(epsilon, [Inf, 0.05])      // tolerances, from Inf (the prior) to 0.05
+  target = ess(0.5)                               // the next tolerance: ESS half the particles
+  termination = stable(0.01, 3)                   // stop when the tolerance stops falling
+  particles = 1000
+}

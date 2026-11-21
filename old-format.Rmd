@@ -1,0 +1,82 @@
+# (APPENDIX) Appendix {-}
+
+# The earlier format of ilike files {#old-format}
+
+Before the ilike language, ilike files were C++ source files in which each function had a header, enclosed in `/***` and `***/`, naming its *function type*. For example, the model of section \@ref(toy-example) was written
+
+```
+/***data,y=get_data()***/
+
+/***evaluate_log_prior***/
+double prior_eval(const Parameters &parameters)
+{
+  arma::colvec θ = parameters["θ"];
+  return dnorm(θ[0],0.0,10.0) + dnorm(θ[1],0.0,10.0);
+}
+
+/***evaluate_log_likelihood***/
+double llhd(const Parameters &parameters,
+            const Data &data)
+{
+  arma::colvec θ = parameters["θ"];
+  double y = data["y"];
+  return sum(dnorm(y,θ[0]+θ[1],1.0));
+}
+
+/***m_proposal,ilike::mvnorm_rw(θ,p1)***/
+
+/***mcmc_termination,ilike::iterations(100000)***/
+```
+
+where `get_data` was an R function in a file with the same name and the extension `.R`, and `p1` the first element of an unnamed `model_parameter_list`. Functions were grouped into *blocks* (a prior from its `evaluate_log_prior` and `simulate_prior` functions, say), either automatically or by lines `//#` ending each block, and factors were referred to by number.
+
+This format is **deprecated**. `compile()` still reads files in it, recognising them by their `/***…***/` headers, and prints once per session that the format is deprecated. New files should be written in the ilike language.
+
+## Converting a file {#converting}
+
+`convert_ilike_file()` rewrites a recipe written in the earlier format as one file in the ilike language:
+
+```{r,eval=FALSE}
+convert_ilike_file("toy_model_rwm.ilike", "toy_model_rwm_new.ilike")
+```
+
+Its arguments are the file or files of the recipe, as they would be given to `compile()`; the file to write; and `overwrite` (if `TRUE`, an existing output file is replaced). The files are read as `compile()` reads them, so blocks are grouped and numbered in the same way. Then:
+
+- factors are named: a built-in prior by its variable, other factors `f1`, `f2`, … by their number;
+- the run-time constants `p1`, `p2`, … become constants of those names, and an unnamed `model_parameter_list` is still matched to them in order;
+- all moves and settings go into one algorithm section called `main`;
+- R expressions become calls in the language (`r::f(…)`, or `py::`/`jl::` for functions in the recipe's Python or Julia file, which is copied next to the output and imported); an expression that the language cannot read directly becomes an R function in an `r` section;
+- the inner file of an algorithmic likelihood (`ilike::pf("inner.ilike", …)`) is converted too, into the folder of the output, and imported.
+
+Recipes with potential functions, proposal transforms, EnK transforms or `enk_likelihood_index` blocks cannot be converted yet.
+
+## From blocks to statements {#blocks-to-statements}
+
+The table gives the statement in the ilike language for each kind of block.
+
+| Earlier format | ilike language |
+|---|---|
+| `/***prior,ilike::norm(theta,0,1)***/` | `model { theta ~ norm(0, 1) }` |
+| `/***evaluate_log_prior***/` and `/***simulate_prior***/` (C++) | `prior p = density(log = cpp::f, simulate = cpp::g)`, with the functions in a `cpp` section |
+| `/***evaluate_log_likelihood***/` | `factor lik = cpp::f` |
+| `/***evaluate_gradient_log_likelihood***/` | `factor lik = density(log = cpp::f, gradient = cpp::g)` |
+| `/***data***/` (C++) | `data { data = cpp::f }` |
+| `/***data,y=c(1,2)***/` | `data { y = [1, 2] }` |
+| `/***simulate_data_model***/`, `/***data_variable***/`, `/***summary_statistics***/`, `/***sbi_likelihood,ilike::sl(100)***/` | `factor sim = sbi(sl(100), simulate = cpp::f, data = y, summaries = cpp::g)` |
+| `/***linear_gaussian_data_model,…***/` and its matrix and covariance functions | `factor obs = linear_gaussian(data = y, state = x, matrix = …, covariance = …)` |
+| `/***algorithmic_likelihood,ilike::pf("inner.ilike",500)***/` | `import "inner.ilike" as inner` and `factor filter = pf(inner, 500)` |
+| `/***m_proposal,ilike::norm_rw(theta,1)***/` | `move m = metropolis(norm_rw(theta, 1))` |
+| `/***mh_proposal,…***/`, `/***imh_proposal,…***/`, `/***unadjusted_proposal,…***/` | `metropolis_hastings(…)`, `independent_mh(…)`, `unadjusted(…)` |
+| `/***simulate_mh_proposal***/` and `/***evaluate_log_mh_proposal***/` | `metropolis_hastings(cpp::f, log = cpp::g)` |
+| `/***m_adaptor,…***/` | `adapt = …` in the move |
+| `/***m_factor_index***/` returning `{1, 3}` | `factors = [f1, f3]` in the move |
+| `/***m_cut_factor_index***/` | `cut_factors = […]` in the move |
+| `/***smc_adaptor,…***/` | `smc_adapt = …` in the move |
+| `/***mcmc_termination,ilike::iterations(1000)***/` | `termination = iterations(1000)` |
+| `/***mcmc_weights,c(0.3,0.7)***/` | `weights = [0.3, 0.7]` |
+| `/***is_proposal,…***/` | `proposal = …` |
+| `/***smc_sequence,ilike::annealing(power,c(0,1))***/` | `sequence = annealing(power, [0, 1])` |
+| `/***adaptive_target,…***/`, `/***adaptive_resampling,…***/`, `/***smc_termination,…***/` | `target = …`, `resampling = …`, `termination = …` |
+| `/***enk_sequence,…***/`, `/***enk_shifter,…***/` | `sequence = …`, `shifter = …` |
+| transition model and `ssm` blocks | `transition x = …` and `time = ssm(…)` (chapter \@ref(ssm)) |
+| `p1`, `p2`, … | named constants (section \@ref(constants)) |

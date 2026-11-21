@@ -1,0 +1,53 @@
+ilike 1.0
+// the model of ssm.ilike, with the transition written in C++ and a particle
+// filter whose proposal uses the measurement at the time being proposed
+
+data {
+  y = [0.5, 1.0, 0.2, -0.3, 0.8]
+}
+
+model {
+  x ~ norm(0, 1)
+  transition x = density(simulate = cpp::simulate_state, log = cpp::log_transition)
+  factor obs = linear_gaussian(data = y, state = x, matrix = 1, covariance = 1)
+  time = ssm(index = i, first_index = 0, last_index = 4, time = t, initial_time = 0,
+             time_difference = dt, time_step = 1, predictions_per_update = 1)
+}
+
+algorithm bootstrap {
+  particles = 1000
+}
+
+algorithm guided {
+  transition_proposal = density(simulate = cpp::simulate_guided, log = cpp::log_guided)
+  particles = 1000
+}
+
+cpp {
+// the transition: x_t ~ N(0.9 x_{t-1}, 0.5)
+Parameters simulate_state(RandomNumberGenerator &rng, const Parameters &parameters)
+{
+  return Parameters("x", rnorm(rng, 0.9*parameters["x"][0], sqrt(0.5)));
+}
+
+double log_transition(const Parameters &proposed_parameters, const Parameters &parameters)
+{
+  return dnorm(proposed_parameters["x"][0], 0.9*parameters["x"][0], sqrt(0.5));
+}
+
+// the optimal proposal for this model: x_t given x_{t-1} and y_t
+// is N(m, v), with v = 1 / (1/0.5 + 1/1) and m = v (0.9 x_{t-1} / 0.5 + y_t / 1)
+Parameters simulate_guided(RandomNumberGenerator &rng, const Parameters &parameters, const Data &data)
+{
+  double v = 1.0/(1.0/0.5 + 1.0);
+  double m = v*(0.9*parameters["x"][0]/0.5 + data["y"][0]);
+  return Parameters("x", rnorm(rng, m, sqrt(v)));
+}
+
+double log_guided(const Parameters &proposed_parameters, const Parameters &parameters, const Data &data)
+{
+  double v = 1.0/(1.0/0.5 + 1.0);
+  double m = v*(0.9*parameters["x"][0]/0.5 + data["y"][0]);
+  return dnorm(proposed_parameters["x"][0], m, sqrt(v));
+}
+}

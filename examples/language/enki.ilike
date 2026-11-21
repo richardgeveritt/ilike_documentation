@@ -1,0 +1,17 @@
+ilike 1.0
+// iterative ensemble Kalman inversion: theta ~ N(0, 1), y = 1 ~ N(theta, 1)
+
+data {
+  y = 1
+}
+
+model {
+  theta ~ norm(0, 1)
+  factor obs = linear_gaussian(data = y, state = theta, matrix = 1, covariance = 1)
+}
+
+algorithm enki {
+  sequence = annealing(power, [0, 0.25, 0.5, 1])
+  shifter = stochastic()
+  ensemble_members = 4000
+}

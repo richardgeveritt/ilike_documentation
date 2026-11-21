@@ -1,8 +1,8 @@
 # Models {#models}
 
-The section describes how to specify a model in an ilike file. A model is specified through factors, the product of which defines a (possibly unnormalised) joint distribution^[The compiler makes no checks as to whether the factors provided define a valid joint distribution: responsibility for this is left to the user.]. In most situations we envisage users will be using ilike to perform inference conditional on observed data: in these cases the use must specify a function for ilike to load the data.
+This chapter describes how to write a model in the `model` section of an ilike file. A model is a set of *factors*, the product of which defines a (possibly unnormalised) joint distribution^[The compiler makes no checks as to whether the factors provided define a valid joint distribution: responsibility for this is left to the user.]. In most situations we envisage users will be using ilike to perform inference conditional on observed data, given in the `data` section (section \@ref(data)).
 
-Factors can either be of the type **prior** or **likelihood**.
+Factors are either **priors** or **likelihoods**.
 
 - A prior factor is any distribution that does not depend on observed data. Conditional distributions where none of the variables are observed would fall under this category.
 
@@ -13,919 +13,359 @@ To illustrate the distinction, consider a hierarchical model of the form
 $$
 p(\phi) f(\theta \mid \phi) g(y \mid \theta).
 $$
-If we wish to perform inference on $\theta$ and $\phi$ given observed $y$, then $p(\phi)$ and $f(\theta \mid \phi)$ would be specified as prior factors, and $g(y \mid \theta)$ would be specified as a likelihood factor. If, for whatever reason, we wished to construct, say, an MCMC algorithm for simulating from the joint distribution on $\phi$, $\theta$ and $y$, then all three could be specified as "priors".
+If we wish to perform inference on $\theta$ and $\phi$ given observed $y$, then $p(\phi)$ and $f(\theta \mid \phi)$ are prior factors, and $g(y \mid \theta)$ is a likelihood factor. The distinction matters to the algorithms: the prior can be simulated from, to start an MCMC chain or as the proposal of importance sampling, and in SMC with annealing the likelihood is raised to a power while the prior is not.
 
-The specification of a state-space model, which involves a time index $t$ and requires the specification of a transition model, is not described in this section: these details can be found in section \@ref(ssm).
+There are several ways of writing factors, and they can be mixed in one model:
 
-There are two ways of specifying priors: through user-defined functions, or through simple built-in "ilike" functions. For a likelihood, the specification through user-defined functions closely follows the analogous way of specifying a prior. The built-in choices of likelihood can be categorised as follows:
+- **model statements**, which describe the model in the way it would be written mathematically, as in BUGS, JAGS or Stan: `theta ~ norm(0, 1)`, `for (i in 1:n) y[i] ~ norm(mu, sigma)`. ilike turns them into C++ code when the file is compiled (section \@ref(model-statements));
+- **functions** written by the user, in C++, R, Python or Julia, for the log density of a prior or a likelihood, and, where needed, for simulating from the prior and for gradients (section \@ref(user-factors));
+- **Gaussian data models**, given by matrices or functions (section \@ref(gaussian-data-models));
+- **simulation-based likelihoods**, for models given by a simulator: approximate Bayesian computation and synthetic likelihood (section \@ref(sbi));
+- **algorithmic likelihoods**, where the likelihood is estimated by running an algorithm, such as a particle filter, on another model (section \@ref(algorithmic-likelihood)).
 
-- linear and non-linear Gaussian models, covering the special case of measurements with Gaussian noise;
+State-space models, which involve a time index and a transition model, are described in chapter \@ref(ssm).
 
-- simulation-based likelihoods, allowing the use of data models that are specified in the form of a simulator;
+**Factor names.** Every factor has a name, used to refer to it elsewhere (for example, to say which factors an MCMC move needs to evaluate: section \@ref(selecting-factors)). The name is given in the statement (`factor lik = …`), or comes from the statement's variable (the factor of `y[i] ~ …` is called `y`), as described below.
 
-- algorithmic likelihoods, where the likelihood is given by an algorithm such as a particle filter.
+## Model statements {#model-statements}
 
-Recall that every entry in an ilike file has a "function type". This section details every function type that may be used to specify a model: each subsubsection (e.g. 3.1.1) is named after a function type. For user-defined function types we detail the input and output arguments of the function, and give an example of its use. The specification of each function type is described in both C++ and R. Python and Julia function are both called from R - see section \@ref(ilike-files) - so do not require further description). For built-in (ilike) function types, we detail each available built-in function in subsubsubsections (e.g. 3.2.1.1).
+The eight schools model [@gelman2013bayesian] shows the main kinds of statement:
 
-The order in which the factors are provided in the ilike file does not matter, but the compiler will allocate a number to each in the order they are provided, starting from 1. Some parts of the algorithm specification (e.g. specifying which factors must be evaluated in a Metropolis-Hastings update) require the user to refer to factors by their number, so the user may wish to use comments in the ilike file (through the C++ commenting style, i.e. `//` or `/* */`) to keep track of the factor numbers.
+```{r, echo=FALSE, comment=""}
+cat(readLines("examples/language/schools.ilike"), sep = "\n")
+```
 
-## Data
+### Statements and loops
 
-### data
+A model statement is one of:
 
-The `data` function type returns observed data. There are no input arguments.
+- `target ~ distribution(arguments)`: the target has the given distribution. The target is a name (`mu`) or an element of a vector or matrix (`theta[j]`, `x[i, j]`). Elements are numbered from 1, as in R, and at most two indices may be used.
+- `target <- expression`: a *deterministic node*, a value computed from other values (section \@ref(deterministic-nodes)).
+- `factor name += expression`: a term added to the log of the factor `name` (section \@ref(factor-terms)).
 
-Output: The observed data.
+Statements may be put inside loops, `for (i in a:b) statement`, or, for several statements, `for (i in a:b) { statements }`. Loops may be nested:
 
-  -- of class `Data` in a C++ function
-  
-  -- an R list in R, where at present the interface restricts the user to a single vector/matrix of data, which is indexed by a string provided by the user to the left of an `=` sign in the function header.
-  
-C++ example:
+```
+for (i in 1:n)
+  for (j in 1:m)
+    y[i, j] ~ norm(mu[j], sigma)
+```
 
-```{Rcpp,eval=FALSE}
-/***data***/
-Data set_data()
-{
-  arma::colvec y(2,1);
-  y[0] = 1.0;
-  y[1] = 2.0;
-  return Data("y", y);
+The bounds of a loop may be numbers, constants, or expressions of them (`for (k in 1:(K - 1))`).
+
+**Names.** A name in a statement is one of: a loop index; a constant (section \@ref(constants)); a data variable (section \@ref(data)); a deterministic node; or, otherwise, a parameter. So in the schools model, `y` and `s` are data, `J` is a constant, `j` is a loop index, and `mu`, `tau` and `theta` are parameters. A parameter that has no `~` statement in the file is still a parameter: its prior must then be given in another way, by a `prior` statement (section \@ref(user-factors)) or in another file.
+
+Data may be used as indices: in `mu[i] <- alpha[g[i]] + b * x[i]`, the vector `g` of data gives the group of observation `i`.
+
+### Distributions {#statement-distributions}
+
+The distributions of model statements are named as in R, without the `d`, `r`, `p` or `q` prefix, and take their arguments in R's parameterisation, in order and without names. Note in particular that `norm` takes a standard deviation, not a precision as in BUGS and JAGS.
+
+| Distribution | Density | Parameters |
+|---|---|---|
+| `norm(mean, sd)` | normal | mean, standard deviation |
+| `lnorm(meanlog, sdlog)` | log-normal | mean and standard deviation of the log |
+| `gamma(shape, rate)` | gamma | shape, rate |
+| `exp(rate)` | exponential | rate |
+| `unif(lower, upper)` | uniform | lower and upper limits |
+| `tnorm(mean, sd, lower, upper)` | truncated normal | mean and standard deviation of the normal, limits |
+| `beta(a, b)` | beta | the two shape parameters |
+| `invgamma(shape, scale)` | inverse gamma: $1/x \sim$ `gamma(shape, scale)` | shape, scale |
+| `t(df, location, scale)` | Student t | degrees of freedom, location, scale |
+| `cauchy(location, scale)` | Cauchy | location, scale |
+| `halfnorm(scale)` | half-normal: $\lvert x \rvert$ for $x \sim$ `norm(0, scale)` | scale (the normal's standard deviation) |
+| `halfcauchy(scale)` | half-Cauchy | scale |
+| `halft(df, scale)` | half-t | degrees of freedom, scale |
+| `vonmises(mu, kappa)` | von Mises (on the circle) | mean direction, concentration |
+| `chisq(df)` | chi-squared | degrees of freedom |
+| `weibull(shape, scale)` | Weibull | shape, scale (as R's `dweibull`) |
+| `laplace(location, scale)` | Laplace (double exponential) | location, scale $b$ (density $e^{-\lvert x - m \rvert/b}/(2b)$) |
+| `logis(location, scale)` | logistic | location, scale (as R's `dlogis`) |
+| `mvnorm(mean, covariance)` | multivariate normal | mean vector, covariance matrix |
+| `mvt(df, location, scale)` | multivariate t | degrees of freedom, location vector, scale matrix |
+| `dirichlet(alpha)` | Dirichlet (a probability vector) | vector of concentrations |
+| `wishart(df, S)` | Wishart (a covariance matrix) | degrees of freedom, scale matrix (mean df × S) |
+| `invwishart(df, S)` | inverse Wishart | degrees of freedom, scale matrix (mean S/(df − p − 1)) |
+| `lkj(eta)`, `lkj(eta, d)` | LKJ (a correlation matrix) | shape (1: uniform over correlation matrices); the dimension, if the statements do not show it |
+| `pois(lambda)` | Poisson | mean |
+| `bern(p)` | Bernoulli | probability of 1 |
+| `binom(n, p)` | binomial | number of trials, probability of success |
+| `negbinom(size, prob)` | negative binomial | as R's `dnbinom`: the number of failures before `size` successes |
+| `geom(prob)` | geometric | as R's `dgeom`: the number of failures before the first success |
+| `categorical(p)` | categorical (1, …, K) | vector of probabilities (summing to 1) |
+| `multinom(n, p)` | multinomial (a vector of counts) | number of trials, vector of probabilities |
+
+R has no inverse gamma, half or location–scale t distributions; for these, ilike follows the usual conventions: the density of `invgamma(a, b)` is $b^a x^{-a-1} e^{-b/x} / \Gamma(a)$; `t(df, m, s)` is $m + s T$ with $T$ a standard t on `df` degrees of freedom (R's `dt` is the case $m = 0$, $s = 1$); and the half distributions are those of $\lvert x \rvert$ for the zero-centred distribution, on $x \geq 0$. The half distributions and `cauchy` are common priors for scale parameters in hierarchical models, `t` for robust regression.
+
+`mvnorm`, `mvt`, `dirichlet` and `multinom` apply to a whole vector, and `wishart`, `invwishart` and `lkj` to a whole matrix, written without an index (`beta ~ mvnorm(m, S)`, `Sigma ~ invwishart(5, S0)`); their vector and matrix arguments are variables, constants or numbers. A parameter with `negbinom`, `geom`, `categorical` or `multinom` is discrete (`categorical` elements can be moved by `gibbs`, which uses the K categories). Moves on a Dirichlet, Wishart, inverse Wishart or LKJ parameter must respect its constraints (the simplex, positive definiteness, a unit diagonal): `nuts` and `hmc` move them on an unconstrained scale (the transforms `simplex`, `cov` and `corr`, chosen automatically, section \@ref(move-transforms)), `gibbs` draws a Dirichlet parameter where it applies, and a random walk that leaves the constraints is simply rejected. The gradients of the Wishart, inverse Wishart and LKJ densities with respect to their arguments (as opposed to the matrix itself) are not available. Each of these distributions can be used for data and for parameters; a parameter with `pois`, `bern` or `binom` is discrete, and is moved by the moves of section \@ref(element-moves).
+
+### Expressions in statements
+
+The arguments of distributions, and the right-hand sides of `<-` and `+=`, are expressions that may use `+`, `-`, `*`, `/`, `^` (powers), brackets, indexing, and the functions
+
+`exp`, `log`, `sqrt`, `abs`, `pow`, `inv_logit` (or `ilogit`), `logit`, `lgamma`, `log1p`, `expm1`, `sin`, `cos`, `tanh`, `min`, `max`, and the indicators `equals(a, b)` (1 if $a = b$, otherwise 0) and `step(x)` (1 if $x \geq 0$, otherwise 0), as in BUGS; the indicators are constant almost everywhere, so they add nothing to gradients.
+
+Calls to functions in other languages are not allowed in statements: a likelihood that needs such a call is written as a function (section \@ref(user-factors)).
+
+A sum over an index set is written `sum(k in a:b, expression)`, with `k` an index local to the sum (a name not used for a loop index, data, a constant or a node) and `a`, `b` known from the data and the enclosing loops. This is what models with neighbours need: with neighbour lists given as data (`nb[i, k]` the k-th neighbour of site i, `nn[i]` their number, the rows padded with any value beyond `nn[i]`), a proper conditional autoregressive (CAR) model on a lattice, $x \sim \mathcal{N}(0, \sigma^2 (D - \rho W)^{-1})$, is
+
+```
+for (i in 1:n) {
+  factor car += -0.5 / pow(sigma, 2) * (nn[i] * pow(x[i], 2) - rho * x[i] * sum(k in 1:nn[i], x[nb[i, k]]))
 }
 ```
 
-R example:
+(with $\rho$ and $\sigma$ fixed; when they are parameters, the normalising constant $\frac{1}{2}\log\det(D - \rho W) - n \log \sigma$ is needed too, and since $\det(D - \rho W) = \prod_i n_i \prod_k (1 - \rho \lambda_k)$ with $\lambda_k$ the eigenvalues of $D^{-1/2} W D^{-1/2}$, computed once and given as data, it is `factor car_constant += 0.5 * sum(k in 1:n, log(nn[k])) + 0.5 * sum(k in 1:n, log(1 - rho * lambda[k])) - n * log(sigma)` plus $-\frac{n}{2}\log 2\pi$), an Ising model with spins $s_i \in \{0, 1\}$ is `factor ising += beta / 2 * (2 * s[i] - 1) * sum(k in 1:nn[i], 2 * s[nb[i, k]] - 1)` (each edge counted from both ends), and a Potts model with colours $x_i \in \{1, \ldots, q\}$ is `x[i] ~ categorical(p)` with `factor potts += beta / 2 * sum(k in 1:nn[i], equals(x[i], x[nb[i, k]]))`, moved by `gibbs(x[j])`. Plates know which elements each term of a sum reads, so a move on one site recomputes only the terms of that site and its neighbours (section \@ref(plates)): for the CAR model above with moves on each site, a sweep costs time proportional to the number of sites (about 0.4 µs per site). A stochastic block model is written with data-indexed indices that read parameters, `A[m] ~ bern(B[z[e1[m]], z[e2[m]]])` for the pairs (e1[m], e2[m]), and `gibbs` moves on the block labels `z[j] ~ categorical(p)`.
 
-```{Rcpp,eval=FALSE}
-/***data,y=c(1,2)***/
+### Deterministic nodes {#deterministic-nodes}
+
+A statement `target <- expression` defines a value computed from other values, to be used in other statements. In a regression with a group effect:
+
+```{r, echo=FALSE, comment=""}
+cat(readLines("examples/language/regression.ilike"), sep = "\n")
 ```
 
-## User-defined prior
+`mu[i]` is not a parameter: it is computed from `alpha`, `b` and the data whenever it is used, and is not part of the output. A deterministic node may be defined in a loop (its indices are the loop's indices, as in `mu[i]`), and may use other deterministic nodes.
 
-A user-defined prior is specified through some combination of function types (e.g. `evaluate_log_prior`, `simulate_prior`). The user only needs to specify the function types required by the algorithm they wish to use. For example:
+### How statements become factors {#statements-factors}
 
-  -- `evaluate_log_prior` for Metropolis-Hastings where the prior needs to be evaluated in the acceptance ratio;
-  
-  -- `simulate_prior` for importance sampling where the prior is used as the proposal, and the prior cancels and does not need to be evaluated in the weight update;
-  
-  -- `evaluate_gradient_log_prior` for an unadjusted Langevin MCMC which requires the gradient of the prior to make moves.
+The statements of a model are turned into factors as follows.
 
-We now describe the available function types.
+- **Each data variable** with `~` statements becomes one likelihood factor, named after the variable: in the schools model, the factor `y` is the sum, over `j`, of the log densities of `y[j]`.
+- **All the `~` statements on parameters** together become one prior factor, called `model_prior`. ilike generates a function that simulates from this prior, drawing the parameters in an order in which each is drawn after the parameters its distribution depends on (in the schools model, `mu` and `tau` before the `theta[j]`). So importance sampling, SMC and MCMC chains started from the prior work with nothing else written. A prior in which parameters depend on each other in a cycle is an error.
+- **Each name of `factor name += …` terms** becomes one likelihood factor of that name (section \@ref(factor-terms)).
+- The sizes of parameter vectors and matrices are read from the loops of their `~` statements.
 
-### evaluate_log_prior
+Two restrictions follow from the prior being simulated before any data are seen. The arguments of a prior, the bounds of its loops and the deterministic nodes it uses may use constants and data written in the file, but not data given by a function (section \@ref(data)). And constants used in statements take their values when the file is compiled (section \@ref(constants)).
 
-The `evaluate_log_prior` function type calculates the log prior density of the parameters.
+A model whose `~` statements are all simple priors with numbers as arguments, such as
 
-Input: The point at which the log of the prior is to be evaluated.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `parameters` in an R function
-
-Output: The log prior density of the parameters.
-
-  -- of type `double` in a C++ function
-  
-  -- of type `numeric` in R.
-  
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***evaluate_log_prior***/
-double prior_eval(const Parameters &parameters)
-{
-  return dnorm(parameters["θ"][0]);
+```
+model {
+  theta ~ norm(0, 1)
+  factor lik = cpp::log_likelihood
 }
 ```
 
-R example:
+does not need generated code: each such prior is a separate factor, named after its variable (`theta`). These simple priors may also use the distributions `mvlnorm(meanlog, covlog)` (multivariate log-normal) and arguments given by name (`theta ~ norm(mean = 0, sd = 1)`), and their arguments may be constants that take their values when the algorithm is run.
 
-```{Rcpp,eval=FALSE}
-/***evaluate_log_prior,dnorm(parameters$θ,log=TRUE)***/
+### Discrete parameters {#discrete-parameters}
+
+Parameters may have discrete distributions: `bern`, `binom` and `pois`. For example, nine spins $s_k \in \{0, 1\}$ with independent Bernoulli priors are written
+
+```
+for (k in 1:9) s[k] ~ bern(0.3)
 ```
 
-### simulate_prior
+Their prior is simulated as for any other prior. In MCMC they are moved by the moves on elements of section \@ref(element-moves): `metropolis(flip(s[k]))`, which proposes to change $s_k$ to $1 - s_k$, or `gibbs(s[k])`, which draws $s_k$ from its full conditional distribution.
 
-The `simulate_prior` function type samples from the prior distribution.
+### Terms of a named factor {#factor-terms}
 
-Input: (C++ only) The random number generator.
+Some models have terms in their log target that are not the density of an observed variable: an interaction between neighbouring sites, a smoothing penalty, a soft constraint. Such a term is written `factor name += expression`, which adds `expression` to the log of the factor `name`. All the terms with one name, in loops or not, make one likelihood factor. (In Stan, this is written `target += expression`.)
 
-  -- of type `RandomNumberGenerator &` in a C++ function
+For example, an Ising model on a $3 \times 3$ grid, with spins $\sigma_k = 2 s_k - 1 \in \{-1, 1\}$ and the potential $\beta \sigma_a \sigma_b$ on each of the 12 edges $(a, b)$ of the grid, is
 
-Output: The simulated value.
+```{r, echo=FALSE, comment=""}
+cat(readLines("examples/language/ising.ilike"), sep = "\n")
+```
 
-  -- of class `Parameters` in a C++ function
-  
-  -- an R list in R, where at present the interface restricts the user to a single vector/matrix of data, which is indexed by a string provided by the user to the left of an `=` sign in the function header.
-  
-C++ example:
+The target is proportional to $\prod_k 0.3^{s_k} 0.7^{1 - s_k} \exp\left(\sum_e \beta \sigma_{a_e} \sigma_{b_e}\right)$. Similarly, a Gaussian smoothing penalty between neighbouring means, $-\frac{\tau}{2} \sum_k (\theta_{k+1} - \theta_k)^2$, is
 
-```{Rcpp,eval=FALSE}
-/***simulate_prior***/
-Parameters prior_sim(RandomNumberGenerator &rng)
-{
-  return Parameters("θ",rnorm(rng));
+```
+for (k in 1:(K - 1)) factor smooth += -0.5 * tau * (theta[k + 1] - theta[k])^2
+```
+
+The terms make a likelihood factor, not part of the prior, because such terms cannot in general be simulated from: the prior stays the part that ilike can simulate, and in SMC with annealing the terms are raised to a power along with the likelihood. The name of the factor must not be a data variable, a constant, or a variable of the other statements.
+
+### Unnormalised distributions: Ising and Potts fields {#unnormalised}
+
+An Ising or Potts field is a distribution whose normalising constant is not known: $p(x \mid \beta) = \gamma(x \mid \beta) / Z(\beta)$. It is written as one statement, whether the field is observed (data) or latent (a parameter, for example observed with noise):
+
+```
+x ~ ising(beta, nb, nn)        // x[i] in {0, 1}, spins 2 x[i] - 1
+x ~ potts(beta, q, nb, nn)     // x[i] in {1, ..., q}
+```
+
+with the neighbour lists given as data, as in section \@ref(model-statements) (`nb[i, k]` the k-th neighbour of site i, `nn[i]` their number). The Ising density is proportional to $\exp\left(\frac{\beta}{2} \sum_i \sigma_i \sum_{k} \sigma_{\mathrm{nb}_{ik}}\right)$ with $\sigma_i = 2 x_i - 1$, and the Potts density to $\exp\left(\frac{\beta}{2} \sum_i \sum_k 1[x_i = x_{\mathrm{nb}_{ik}}]\right)$ (each edge counted from both ends). The number of sites is the length of `nn` when it is given as values; otherwise it is given as `n = …`. `q` is a whole number known when compiling; `beta` may be any expression.
+
+ilike writes the statement as its *base measure* (each `x[i] ~ bern(0.5)`, or categorical with equal probabilities) and its *potential*, a factor of terms named `x_potential`. So moves on single sites (`for (j in 1:n) move m = gibbs(x[j])`) recompute only the neighbouring terms; the prior's simulation draws the base measure; and SMC with annealing (which raises `x_potential` to the power along with the likelihood, unless `factors = [...]` says otherwise) starts from the base measure. For example, a Potts field observed with noise,
+
+```
+model {
+  x ~ potts(0.6, 3, nb, nn)
+  for (i in 1:n) y[i] ~ norm(x[i], 1)
 }
 ```
 
-R example:
+has its states inferred by Gibbs moves on the sites, or by SMC from the base measure. The evidence such an SMC estimates is that of the unnormalised prior, base measure times the exponential of the potential: $Z(\beta)$ is not part of it.
 
-```{Rcpp,eval=FALSE}
-/***simulate_prior,θ=rnorm(1)***/
+$Z(\beta)$ is not known, so it must cancel. It does in every acceptance ratio and weight in which $\beta$ does not change: moves on the states, and on parameters other than $\beta$. Without more, a move that changes $\beta$ (or another parameter on which the normalising constant depends) is refused when compiling, and importance sampling and SMC are refused when $\beta$ varies between particles.
+
+**Inferring $\beta$.** Inferring the parameter of an unnormalised distribution is a *doubly intractable* problem. The single auxiliary variable method [@moller2006efficient] and its multiple-point version [@murray2006mcmc] estimate $1/Z(\beta)$: with $u_1, \ldots, u_M$ drawn from the distribution at $\beta$,
+$$\frac{1}{M} \sum_{m=1}^M \frac{\gamma(u_m \mid \hat\beta)}{\gamma(u_m \mid \beta)}$$
+has expectation $Z(\hat\beta)/Z(\beta)$, an unbiased estimate of $1/Z(\beta)$ up to the constant $Z(\hat\beta)$, which cancels in every acceptance ratio. It is asked for in the statement:
+
+```
+beta ~ unif(0, 1)
+x ~ ising(beta, nb, nn, normaliser = sav(points = 5, at = 0.3))
 ```
 
-### evaluate_gradient_log_prior
+This adds a factor `x_normaliser` holding the estimate; its draws are kept with the state, as for any estimated likelihood (pseudo-marginal MCMC), so moves on $\beta$ (and importance sampling and SMC) target the right posterior, while moves on the states of a latent field do not evaluate it. `points` is $M$ (default 1); `at` is $\hat\beta$, which should be near the values of $\beta$ the posterior favours (a pseudo-likelihood estimate, for example): the further it is, the more variable the estimate and the lower the acceptance rate. The draws are exact for `ising` (coupling from the past, `simulate = exact`, the default), which makes the method exact; for `potts`, and if asked for with `simulate = sweeps(m)`, they are made by $m$ heat-bath sweeps from the base measure, which makes them, and the posterior, approximate (`compile` says so). Exact draws need $\beta \geq 0$ (a negative value has density 0) and take much longer as $\beta$ grows beyond the critical value, where `simulate = sweeps(m)` is the practical choice. The draws are made only for proposals that can still be accepted: a Metropolis-Hastings move evaluates the prior and the other exact factors first, and rejects a proposal they already rule out (for example outside the prior's range) without drawing (early rejection, chapter \@ref(mcmc)). For a $4 \times 4$ Ising field observed directly, with a uniform prior on $\beta$, the posterior mean and standard deviation of $\beta$ from 20000 iterations were 0.369 and 0.167 with $M = 1$ (acceptance rate 0.41), and 0.366 and 0.170 with $M = 5$ (acceptance rate 0.52), against the exact 0.365 and 0.168. The exchange algorithm and ABC are planned.
 
-The `evaluate_gradient_log_prior` function type gives the differential of the log prior density of the parameters.
+### Efficiency {#plates}
 
-Input: The variable with respect to which we wish to find the gradient.
+Factors made from model statements are evaluated term by term: ilike keeps the value of each term (each statement, for each value of its loop indices), together with the elements of the parameters each term reads. When an MCMC move changes some elements, only the terms that read them are evaluated again. This matters most for moves on single elements (section \@ref(element-moves)): in a hierarchical model with 2000 groups and 20000 observations, a move on one group's mean costs about the ten terms that read it, not the 22000 terms of the model.
 
-  -- of type `const std::string &` in a C++ function
-  
-  -- available an R string `variable` in an R function
+In the same way, a move evaluates only the factors that may read the variables it changes: the factors made from statements that read them, and every factor that is not made from model statements (since ilike cannot tell what a user's function reads). The factors of a move can also be given explicitly (section \@ref(selecting-factors)).
 
-Input: The point at which the gradient of the log prior is to be evaluated.
+### Terms written in C++ {#cpp-terms}
 
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `parameters` in an R function
-  
-Output: The gradient of the log prior density of the parameters.
+A term whose log density is awkward to write as an expression can be written as a C++ function (section \@ref(C)) and still be kept term by term. The term is `factor name += cpp::f(indices..., reads = [...])`: `f` is called with the parameters, the data and the indices, and returns the log of the term; `reads` lists the parameters the term reads, each a variable (all of it) or an element, with indices that may use the loop indices and the data. For example, the likelihood of a hierarchical model, $y_i \sim \mathcal{N}(\mu_{g_i}, \sigma^2)$, can be written
 
-  -- of type `arma::mat` in a C++ function
-  
-  -- of type `matrix` in R.
-  
-C++ example:
+```
+model {
+  for (j in 1:3) mu[j] ~ norm(0, 2)
+  sigma ~ halfnorm(1)
+  for (i in 1:6) factor lik += cpp::term(i, reads = [mu[group[i]], sigma])
+}
 
-```{Rcpp,eval=FALSE}
-/***evaluate_gradient_log_prior***/
-arma::mat prior_gradient_eval(const std::string &variable,
-                              const Parameters &parameters)
+cpp {
+double term(const Parameters &parameters, const Data &data, int i)
 {
-  if (variable=="θ")
-  {
-    arma::mat grad(1,1);
-    grad(0,0) = -parameters["θ"][0];
-    return grad;
-  }
-  else
-  {
-    Rcpp::stop("Unknown variable in prior gradient.");
-  }
+  int g = (int)data["group"][i - 1];
+  return dnorm(data["y"][i - 1], parameters["mu"][g - 1], parameters["sigma"][0]);
+}
 }
 ```
 
-R example:
+The indices are passed as `int`, with the values they have in the file (from 1). Since ilike cannot read the function, it relies on the declaration: a move on `mu[2]` evaluates again only the terms that declare they read `mu[2]`. A term that reads an element it does not declare is therefore not evaluated again when that element changes, and the run targets the wrong distribution; running with `check_factor_index = TRUE` (section \@ref(selecting-factors)) finds such a term, by re-evaluating the terms left out of each move. A factor with a term written in C++ has no gradient: gradient-based proposals for the variables it reads are refused.
 
-```{Rcpp,eval=FALSE}
-/***evaluate_gradient_log_prior,if (variable=="θ") {-parameters$θ} else {stop("Unknown variable in prior gradient.")}***/
+### Gradients {#statement-gradients}
+
+Factors made from model statements provide the gradient of their log density, so gradient-based proposals (`langevin`, `barker`, chapter \@ref(mcmc)) can be used with them. The gradient is computed from code that ilike generates when compiling, term by term: each term's log density is differentiated with respect to its arguments (closed forms for each distribution), and the chain rule is applied through the expressions and deterministic nodes down to the elements of the parameters the term reads. Its cost is a small multiple of one evaluation of the factor, as with reverse-mode automatic differentiation, without recording the computation. When a proposal moves several variables together (section \@ref(stacked-variables)), each factor computes the gradients of all of them in the same pass over its terms. Gradients from factors written as statements and from factors written as functions (with their own `gradient`, which may use any automatic differentiation in Python, Julia or R) are added.
+
+Some derivatives do not exist or are not available: the targets of discrete distributions (`pois`, `bern`, `binom`) have none; an index that reads a parameter contributes nothing through the index (the density is piecewise constant in it); `abs`, `min` and `max` use one-sided derivatives; and the gradient with respect to a covariance of `mvnorm` that is a parameter is not available yet (a run that needs it stops with a message). The values of the constants used in statements are fixed when compiling (section \@ref(constants)).
+
+## Priors and likelihoods written as functions {#user-factors}
+
+A prior or likelihood that is not easily written as statements is written as a function, in a `cpp` section (or in R, Python or Julia), and named in a `prior` or `factor` statement:
+
+```{r, echo=FALSE, comment=""}
+cat(readLines("examples/language/user_functions.ilike"), sep = "\n")
 ```
 
-### evaluate_second_gradient_log_prior
+- `factor name = f` gives a likelihood factor whose log density is the function `f`.
+- `prior name = f` gives a prior factor whose log density is `f`.
+- `density(…)` gives the other functions of the factor, by name:
 
-The `evaluate_gradient_log_prior` function type gives the second differential of the log prior density of the parameters.
+| Argument | Function | Used by |
+|---|---|---|
+| `log` | the log density | most algorithms |
+| `simulate` | (priors only) a draw from the prior | importance sampling and SMC with the prior as proposal; MCMC chains started from the prior |
+| `gradient` | the gradient of the log density | gradient-based proposals (`langevin`, `barker`) |
+| `second_gradient` | the matrix of second derivatives of the log density | methods that need it |
 
-Input: The first variable with respect to which we wish to find the gradient.
+The functions needed depend on the algorithm. For example, importance sampling with the prior as proposal needs `simulate` for the prior, but not `log` (the prior cancels in the weights), while a Metropolis-Hastings move needs `log`. An algorithm that needs a function that has not been given stops with a message saying which.
 
-  -- of type `const std::string &` in a C++ function
-  
-  -- available an R string `variable1` in an R function
-  
-Input: The second variable with respect to which we wish to find the gradient.
+**Generated gradients.** Instead of writing the gradient, `gradient = autodiff` asks ilike to generate it from the log density, in any language: `factor lik = density(log = cpp::log_lik, gradient = autodiff)`. How it is computed depends on how the log density is written.
 
-  -- of type `const std::string &` in a C++ function
-  
-  -- available an R string `variable2` in an R function
+A log density written in C++ as a *template on the number type* gets an exact gradient, by automatic differentiation:
 
-Input: The point at which the gradient of the log prior is to be evaluated.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `parameters` in an R function
-  
-Output: The Hessian of the log prior density, evaluated at the given point.
-
-  -- of type `arma::mat` in a C++ function
-  
-  -- of type `matrix` in R
-  
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***evaluate_second_gradient_log_prior***/
-arma::mat prior_gradient_eval(const std::string &variable1,
-                              const std::string &variable2,
-                              const Parameters &parameters)
-{
-  if ((variable1=="θ") && (variable2=="θ"))
-  {
-    arma::mat grad(1,1);
-    grad(0,0) = -1.0;
-    return grad;
-  }
-  else
-  {
-    Rcpp::stop("Unknown variable in prior second gradient.");
-  }
-}
 ```
-
-R example:
-
-```{Rcpp,eval=FALSE}
-/***evaluate_second_gradient_log_prior,if ((variable1=="θ") && (variable2=="θ")) {-1} else {stop("Unknown variable in prior second gradient.")}***/
-```
-
-## Built-in prior {#ilike-prior}
-
-### prior
-
-The `prior` function type allows the user to specify the prior through an ilike function (e.g. `ilike::norm`). For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.
-
-Example of the use of one of these functions (`ilike::norm`) follows.
-
-```{Rcpp,eval=FALSE}
-/***prior,ilike::norm(θ,0,1)***/
-```
-
-The following sections detail the available ilike functions.
-
-#### Normal prior `ilike::norm`
-
-Specifies a normal prior over the given variable, with the given parameters.
-
-Inputs:
-
-  1. string: the variable for which the prior is specified
-      
-  2. numeric: the mean of the normal distribution
-    
-  3. numeric: the standard deviation of the normal distribution
-  
-#### Multivariate normal prior `ilike::mvnorm`
-
-Specifies a multivariate normal prior over the given variable, with the given parameters.
-
-Inputs:
-
-  1. string: the variable for which the prior is specified
-      
-  2. numeric vector/matrix: the mean of the multivariate normal distribution
-    
-  3. matrix: the covariance of the multivariate normal distribution
-   
-#### Lognormal prior `ilike::lnorm`
-    
-Specifies a lognormal prior over the given variable, with the given parameters.
-
-Inputs:
-
-  1. string: the variable for which the prior is specified
-      
-  2. numeric: the mean of the log of the variable
-    
-  3. numeric: the standard deviation of the log of the variable
-    
-#### Multivariate lognormal prior `ilike::mvlnorm`
-
-Specifies a multivariate loggnormal prior over the given variable, with the given parameters.
-
-Inputs:
-
-  1. string: the variable for which the prior is specified
-      
-  2. numeric vector/matrix: the mean of the log of the variable
-    
-  3. matrix: the covariance of the log of the variable
-
-#### Gamma prior `ilike::gamma`
-    
-Specifies a gamma prior over the given variable, with the given parameters.
-
-Inputs:
-
-  1. string: the variable for which the prior is specified
-      
-  2. numeric: the shape of the gamma distribution
-    
-  3. numeric: the rate of the gamma distribution
-
-## User-defined likelihood
-
-The functions in this section allow the specification of a user-defined likelihood. Only the functions required by the chosen inference algorithm need be specified.
-
-### evaluate_log_likelihood
-
-The `evaluate_log_likelihood` function type calculates the log likelihood of the parameters.
-
-Input: The point at which the log likelihood is to be evaluated.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `parameters` in an R function
-  
- Input: The observed data for which the log likelihood is to be evaluated.
-
-  -- of type `const Data &` in a C++ function
-  
-  -- available as R list `data` in an R function
-
-Output: The log likelihood of the parameters using the observed data.
-
-  -- of type `double` in a C++ function
-  
-  -- of type `numeric` in R.
-  
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***evaluate_log_likelihood***/
-double likelihood_eval(const Parameters &parameters,
-                       const Data &data)
-{
-  double y = data["y"];
-  return sum(dnorm(y,parameters["θ"][0],1.0));
-}
-```
-
-R example:
-
-```{Rcpp,eval=FALSE}
-/***evaluate_log_likelihood,sum(dnorm(data$y,parameters$θ,1.0,log=TRUE))***/
-```
-
-### evaluate_gradient_log_likelihood
-
-The `evaluate_gradient_log_likelihood` function type calculates the gradient of the log likelihood of the parameters.
-
-Input: The variable with respect to which we wish to find the gradient.
-
-  -- of type `const std::string &` in a C++ function
-  
-  -- available an R string `variable` in an R function
-  
-Input: The point at which the gradient of the log likelihood is to be evaluated.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `parameters` in an R function
-  
-Input: The observed data for which the gradient of the log likelihood is to be evaluated.
-
-  -- of type `const Data &` in a C++ function
-  
-  -- available as R list `data` in an R function
-
-Output: The gradient of the log likelihood of the parameters.
-
-  -- of type `arma::mat` in a C++ function
-  
-  -- of type `matrix` in R.
-  
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***evaluate_gradient_log_likelihood***/
-arma::mat likelihood_gradient_eval(const std::string &variable,
-                                   const Parameters &parameters,
-                                   const Data &data)
-{
-  if (variable=="θ")
-  {
-    arma::colvec y = data["y"];
-    arma::mat grad(1,1);
-    grad(0,0) = arma::sum((y-parameters["θ"][0])/1.0);
-    return grad;
-  }
-  else
-  {
-    Rcpp::stop("Unknown variable in likelihood gradient.");
-  }
-}
-```
-
-R example:
-
-```{Rcpp,eval=FALSE}
-/***evaluate_gradient_log_likelihood,if (variable=="θ") {sum((data$y-parameters$θ)/1.0)} else {stop("Unknown variable in likelihood gradient.")}***/
-```
-
-### evaluate_second_gradient_log_likelihood
-
-The `evaluate_gradient_log_prior` function type gives the second differential of the log likelihood of the parameters.
-
-Input: The first variable with respect to which we wish to find the gradient.
-
-  -- of type `const std::string &` in a C++ function
-  
-  -- available an R string `variable1` in an R function
-  
-Input: The second variable with respect to which we wish to find the gradient.
-
-  -- of type `const std::string &` in a C++ function
-  
-  -- available an R string `variable2` in an R function
-  
-Input: The point at which the gradient of the log prior is to be evaluated.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `parameters` in an R function
-  
-Output: The Hessian of the log likelihood, evaluated at the given point.
-
-  -- of type `arma::mat` in a C++ function
-  
-  -- of type `matrix` in R.
-
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***evaluate_second_gradient_log_likelihood***/
-arma::mat likelihood_hessian_eval(const std::string &variable1,
-                                  const std::string &variable2,
-                                  const Parameters &parameters,
-                                  const Data &data)
-{
-  if (variable1=="θ" && variable2=="θ")
-  {
-    arma::mat hess(1,1);
-    hess(0,0) = -data["y"].size()/1.0;
-    return hess;
-  }
-  else
-  {
-    Rcpp::stop("Unknown variable in likelihood hessian.");
-  }
-}
-```
-
-R example:
-
-```{Rcpp,eval=FALSE}
-/***evaluate_second_gradient_log_likelihood,if (variable1=="θ" && variable2=="θ") {-length(data$y)/1.0} else {stop("Unknown variable in likelihood hessian.")}***/
-```
-
-## Linear-Gaussian model {#linear-gaussian-data-model}
-
-A commonly-used class of model is one where data $y$ arises from a linear function of some latent state, plus some Gaussian noise, i.e.
-
-$$
-y \sim \mathcal{MVN}(H x, R)
-(\#eq:lgdm)
-$$
-where $H$ is a matrix and $R$ is a covariance matrix. The linear-Gaussian data model subtype allows the specification of such model, through providing the variable names ($y$ and $x$ here) and the values for $H$ and $R$. Note that, using this block subtype, it would be possible to specify a model for a number of independent observations from a Gaussian distribution. However, this would be an inefficient way of specifying this model since it would require the user to supply a large diagonal covariance matrix. Such a model would be more effectively specified via the exact_likelihood block sutype.
-
-There are two ways of specifying a linear-Gaussian data model:
-
-1. Through the function types `linear_gaussian_data_variable` (specifying the name of the $y$ variable), `linear_gaussian_data_state_variable` (specifying the name of the $x$ variable), `linear_gaussian_data_matrix` (specifying the $A$ matrix), and `linear_gaussian_data_covariance` (specifying the name of the $\Sigma$ matrix), The user needs to provide **all** of these functions in order to fully specify the model.
-
-2. Through the function type `linear_gaussian_data_model`, which allows the user to specify the complete model through an ilike function.
-
-We now detail the function types.
-
-### linear_gaussian_data_variable
-
-Specifies the name of the observed data variable in the linear-Gaussian data model. There are no input arguments.
-
-Output: The name of the variable used as $y$ in equation \@ref(eq:lgdm).
-
-  -- of type `const std::string &` in a C++ function
-  
-  -- a string in R.
-
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***linear_gaussian_data_variable***/
-std::string set_data_variable()
-{
-  return "y";
-}
-```
-
-R example:
-
-```{Rcpp,eval=FALSE}
-/***linear_gaussian_data_variable,"y"***/
-```
-
-### linear_gaussian_data_state_variable
-
-Specifies the name of the latent state variable in the linear-Gaussian data model. There are no input arguments.
-
-Output: The name of the variable used as $x$ in equation \@ref(eq:lgdm).
-
-  -- of type `const std::string &` in a C++ function
-  
-  -- a string in R.
-  
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***linear_gaussian_data_state_variable***/
-std::string set_state_variable()
-{
-  return "x";
-}
-```
-
-R example:
-
-```{Rcpp,eval=FALSE}
-/***linear_gaussian_data_state_variable,"x"***/
-```
-
-### linear_gaussian_data_matrix
-
-Specifies the matrix $A$ in the linear-Gaussian data model.
-
-Input (optional): Parameters that the matrix relies on, to allow the specification of a parameter-dependent matrix.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `parameters` in an R function
-
-Output: The matrix $A$ in equation \@ref(eq:lgdm).
-
-  -- of type `arma::mat` in a C++ function
-  
-  -- a matrix in R.
-  
-C++ examples:
-
-```{Rcpp,eval=FALSE}
-/***linear_gaussian_data_matrix***/
-arma::mat set_matrix()
-{
-  arma::mat A(2,2);
-  A(0,0) = 1.0;
-  A(0,1) = 0.0;
-  A(1,0) = 0.0;
-  A(1,1) = 1.0;
-  return A;
-}
-```
-
-or
-
-```{Rcpp,eval=FALSE}
-/***linear_gaussian_data_matrix***/
-arma::mat set_matrix(const Parameters &parameters)
-{
-  double scale = parameters["scale"][0];
-  arma::mat A(2,2);
-  A(0,0) = scale;
-  A(0,1) = 0.0;
-  A(1,0) = 0.0;
-  A(1,1) = scale;
-  return A;
-}
-```
-
-R example:
-
-```{Rcpp,eval=FALSE}
-/***linear_gaussian_data_matrix,diag(2)***/
-```
-
-or
-
-```{Rcpp,eval=FALSE}
-/***linear_gaussian_data_matrix,parameters$scale*diag(2)***/
-```
-
-### linear_gaussian_data_covariance
-
-Specifies the covariance matrix $R$ in the linear-Gaussian data model.
-
-Input (optional): Parameters that the matrix relies on, to allow the specification of a parameter-dependent matrix.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `parameters` in an R function
-  
-Output: The covariance matrix $R$ in equation \@ref(eq:lgdm).
-
-  -- of type `arma::mat` in a C++ function
-  
-  -- a matrix in R
- 
-C++ examples:
-
-```{Rcpp,eval=FALSE}
-/***linear_gaussian_data_covariance***/
-arma::mat set_covariance()
-{
-  arma::mat R(2,2);
-  R(0,0) = 1.0;
-  R(0,1) = 0.0;
-  R(1,0) = 0.0;
-  R(1,1) = 1.0;
-  return R;
-}
-```
-
-or
-
-```{Rcpp,eval=FALSE}
-/***linear_gaussian_data_covariance***/
-arma::mat set_covariance(const Parameters &parameters)
-{
-  double scale = parameters["scale"][0];
-  arma::mat R(2,2);
-  R(0,0) = scale;
-  R(0,1) = 0.0;
-  R(1,0) = 0.0;
-  R(1,1) = scale;
-  return R;
-}
-```
- 
-R examples:
-
-```{Rcpp,eval=FALSE}
-/***linear_gaussian_data_covariance,diag(2)***/
-```
-
-or
-
-```{Rcpp,eval=FALSE}
-/***linear_gaussian_data_covariance,parameters$scale*diag(2)***/
-```
-
-### linear_gaussian_data_model
-
-We may use an ilike function to specify the complete linear-Gaussian data model.
-
-#### Linear-Gaussian data model `ilike::linear_gaussian_data_model`
-
-Specifies the linear-Gaussian data model with constant matrices, e.g. `/***linear_gaussian_data_model,ilike::linear_gaussian_data_model(y,x,1,1)***/`.
-
-Inputs:
-
-  1. string: The name of the observed data variable
-  
-  2. string: The name of the latent state variable
-  
-  3. matrix: The matrix $A$
-  
-  4. matrix: The covariance matrix $R$
-  
-## Nonlinear-Gaussian model {#nonlinear-gaussian-data-model}
-
-The nonlinear-Gaussian data model subtype may be used to specify a model where data $y$ arises from a nonlinear function of some latent state, plus some Gaussian noise, i.e.
-
-$$
-y \sim \mathcal{N}(g(x), R)
-(\#eq:nlgdm)
-$$
-where $g$ is a function and $R$ is a covariance matrix. To specify the model we need to provide the variable name ($y$), the function $g$ and the matrix $R$. To do this the user must provide three function types, respectively: `nonlinear_gaussian_data_variable`, `nonlinear_gaussian_data_function` and `nonlinear_gaussian_data_covariance`.
-
-### nonlinear_gaussian_data_variable
-
-Specifies the name of the observed data variable. There are no input arguments.
-
-Output: The name of the observed data variable.
-
-  -- of type `const std::string &` in a C++ function
-  
-  -- a string in R.
-
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***nonlinear_gaussian_data_variable***/
-std::string set_variable()
-{
-  return "y";
-}
-```
-
-R example:
-
-```{Rcpp,eval=FALSE}
-/***nonlinear_gaussian_data_variable,"y"***/
-```
-
-### nonlinear_gaussian_data_function
-
-Specifies the function $g$ in the nonlinear-Gaussian data model.
-
-Input: The state $x$ and any parameters that the function relies on (the latter may be included to allow the specification of a parameter-dependent function)
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `parameters` in an R function
-  
-Output: The output of the function $g$ in equation \@ref(eq:nlgdm).
-
-  -- of type `const Data &` in a C++ function
-  
-  -- a list in R.
-
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***nonlinear_gaussian_data_function***/
-Data transform_into_data_space(const Parameters &x_and_theta)
-{
-  arma::colvec noiseless_y(1,1);
-  noiseless_y[0] = exp(x_and_theta["x"][0) + x_and_theta["theta"][0];
-  return Data("y", noiseless_y);
-}
-```
-
-R example:
-
-```{Rcpp,eval=FALSE}
-/***nonlinear_gaussian_data_function,y=exp(parameters$x)+parameters$theta***/
-```
-
-### nonlinear_gaussian_data_covariance
-
-Specifies the covariance matrix $R$ in the nonlinear-Gaussian data model.
-
-Input (optional): Parameters that the matrix relies on, to allow the specification of a parameter-dependent matrix.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `parameters` in an R function
-  
-Output: The covariance matrix $R$ in equation \@ref(eq:nlgdm).
-
-  -- of type `arma::mat` in a C++ function
-  
-  -- a matrix in R.
-  
-C++ examples:
-
-```{Rcpp,eval=FALSE}
-/***nonlinear_gaussian_data_covariance***/
-arma::mat set_covariance()
-{
-  arma::mat R(2,2);
-  R(0,0) = 1.0;
-  R(0,1) = 0.0;
-  R(1,0) = 0.0;
-  R(1,1) = 1.0;
-  return R;
-}
-```
-
-or
-
-```{Rcpp,eval=FALSE}
-/***nonlinear_gaussian_data_covariance***/
-arma::mat set_covariance(const Parameters &parameters)
-{
-  double scale = parameters["scale"][0];
-  arma::mat R(2,2);
-  R(0,0) = scale;
-  R(0,1) = 0.0;
-  R(1,0) = 0.0;
-  R(1,1) = scale;
-  return R;
-}
-```
- 
-R examples:
-
-```{Rcpp,eval=FALSE}
-/***nonlinear_gaussian_data_covariance,diag(2)***/
-```
-
-or
-
-```{Rcpp,eval=FALSE}
-/***nonlinear_gaussian_data_covariance,parameters$scale*diag(2)***/
-```
-
-## Simulation-based likelihood
-
-The functions in this section allow the specification of a likelihood through a function that simulates a data generating process, for example through approximate Bayesian computation. There are three function types that are required to be specified for all simulation-based likelihoods:
-
-- `simulate_data_model`, which simulates the data generating process.
-
-- `data_variable`, which specifies the variable or variables in the simulation that we wish to treat as observed for the purposes of constructing a likelihood based on the simulation.
-
-- `sbi_likelihood`, which uses an ilike function to define the desired simulation-based likelihood.
-
-It is also possible to reduce the observed data to summary statistcs (though the use of the `summary_statistics` function type) for use in the simulation-based likelihood.
-
-### simulate_data_model
-
-The `simulate_data_model` function type simulates the data generating process.
-
-Input: (C++ only) The random number generator to be used in the simulation.
-
-  -- of type `RandomNumberGenerator &` in a C++ function
-
-Input: The parameters at which to simulate the data.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `parameters` in an R function
-
-Output: The simulated data.
-
-  -- of class `Data` in a C++ function
-  
-  -- an R list in R, where at present the interface restricts the user to a single vector/matrix of data, which is indexed by a string provided by the user to the left of an `=` sign in the function header.
-  
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***simulate_data_model***/
-Data simulate_data_model(RandomNumberGenerator &rng,
-                         const Parameters &parameters)
-{
-  arma::colvec y = rnorm(rng,100,parameters["θ"][0],1.0);
-  return Data("y", y);
-}
-```
-
-R example:
-
-```{Rcpp,eval=FALSE}
-/***simulate_data_model,y=rnorm(100,parameters$θ,1)***/
-```
-
-### data_variable
-
-The `data_variable` function type specifies the variable or variables in the simulation that we wish to treat as observed for the purposes of constructing a likelihood based on the simulation. If summary statistics are being used, this should be the variables used in the summary statistics, rather than those in the data. There are no input arguments.
-
-Output: The variable or variables in the simulation that we wish to treat as observed for the purposes of constructing a likelihood based on the simulation. To specify multiple output variables they must be separated by a semi-colon (with no spaces).
-
-  -- of type `const std::string &` in a C++ function
-  
-  -- a string in R.
-  
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***data_variable***/
-std::string a_variable()
-{
-  return "y"; // could be "y;z" for variables y and z
-}
-```
-
-R example:
-
-```{Rcpp,eval=FALSE}
-/***data_variable,"y"***/
-```
-
-### summary_statistics
-
-The `summary_statistics` function type reduces the observed data to summary statistics for use in the simulation-based likelihood. The inclusion of this function type is optional: if it is included, then inference using the simulation-based likelihood will be conditional only on the summary statistics of the data, rather than the full data. If the argument is omitted, the simulation-based likelihood will use the full data.
-
-Input: Simulated/observed data.
-
-  -- of type `const Data &` in a C++ function
-  
-  -- available as R list `data` in an R function
-  
-Output: The summary statistics of the data.
-
-  -- of type `const Data &` in a C++ function
-  
-  -- available as R list `data` in an R function
-  
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***summary_statistics***/
-Data summary_statistics(const Data &data)
+cpp {
+template <class T>
+T log_lik(const ParametersT<T> &parameters, const Data &data)
 {
   arma::colvec y = data["y"];
-  return Data("y_mean", arma::mean(y));
+  T m = parameters["theta"][0];
+  T s = exp(parameters["theta"][1]);
+  T out = 0;
+  for (size_t i = 0; i < y.n_elem; ++i)
+    out += dnorm(y(i), m, s);
+  return out;
+}
 }
 ```
 
-R example:
+It is written as a function with `Parameters` would be, with `T` in place of `double` for every number that depends on the parameters (a prior takes `const ParametersT<T> &parameters` only). ilike compiles it several times. With `T = double`, `parameters["theta"]` is the matrix in the `Parameters`, so the log density costs what it would cost written with `Parameters`. For the gradient, it is compiled with two other number types:
 
-```{Rcpp,eval=FALSE}
-/***summary_statistics,y_mean=mean(data$y)***/
+- *forward mode*, `T = Dual`, a number that carries a derivative along with its value: the function is evaluated once for each element of the variable, giving that element's derivative, so the gradient costs about one to two evaluations of the log density per element;
+- *reverse mode*, `T = Var`, a number whose operations are recorded: the function is evaluated once, recording each operation with its partial derivatives, and one pass back over the record gives the derivatives with respect to every element at once. The gradient's cost does not grow with the number of elements, but each operation costs more (about 5 ns more, for recording it and passing back through it).
+
+Both are exact. By default the gradient uses forward mode for a variable of fewer than 10 elements and reverse mode otherwise (the two took the same time with 10 elements in the example below); `autodiff(forward)` and `autodiff(reverse)` choose one. Inside such a function, the elements of a parameter are read one at a time (`parameters["theta"][k]`, `parameters["theta"](i, j)`, with `n_elem`, `n_rows` and `n_cols`), since Armadillo's matrices cannot hold these numbers. The operators, comparisons (which compare values), `exp`, `log`, `sqrt`, `pow`, `log1p`, `expm1`, `sin`, `cos`, `tan`, `sinh`, `cosh`, `tanh`, `atan`, `abs`, `lgamma`, and the log densities `dnorm`, `dlnorm`, `dexp`, `dgamma`, `dpois`, `dunif` work for them.
+
+Any other log density, in C++ written with `Parameters` or in R, Python or Julia, is differentiated by central differences, each element of the variable moved by $h = \epsilon^{1/3} \max(1, |x|)$ (with $\epsilon$ the machine precision, the step that balances the error of the formula against rounding). This costs two evaluations of the log density per element and is accurate to about $10^{-8}$ relative; `compile` says so with a message. `autodiff(finite_difference)` asks for central differences in every case (`autodiff(forward)` and `autodiff(reverse)` stop if the log density is not a template). A Metropolis-Hastings move with a gradient-based proposal (`metropolis_hastings(langevin(…))`) stays exact with a gradient by finite differences, since its acceptance ratio uses the proposal it actually made, whatever gradient was used to make it; only its efficiency could depend on the gradient's accuracy. Unadjusted moves, whose results are biased by any error in the gradient, refuse it.
+
+**When generated gradients pay off.** Accuracy is rarely the issue (an error of $10^{-8}$ in the gradient changes a Langevin proposal by a negligible fraction of its step); cost is. Forward mode and finite differences evaluate the log density once or twice *per element* of the variable, so a gradient of $d$ elements costs about $d$ to $2d$ evaluations. A gradient-based move needs fewer iterations than a random walk for the same precision (the theory for simple targets: of order $d^{1/3}$ against $d$), but not $d$ times fewer, so with these gradients it beats a random walk only for a few parameters. Reverse mode's cost does not grow with $d$, but its larger cost per operation is paid on every operation. For example, for a Bayesian logistic regression with 500 observations, preconditioned by the Laplace approximation and with the optimal step sizes, the effective sample size per second of `metropolis_hastings(langevin(…))`, relative to `metropolis(mvnorm_rw(…))`, was
+
+| $d$ | finite differences | forward mode | reverse mode | model statements | gradient written in C++ |
+|---|---|---|---|---|---|
+| 2 | 1.0 | 1.3 | 0.4 | 0.7 | 2.5 |
+| 10 | 0.5 | 0.6 | 0.6 | 1.2 | 3.7 |
+| 50 | 0.4 | 0.4 | 1.3 | 3.6 | 8.8 |
+
+Per iteration, Langevin moves were 4.5, 9 and 33 times as efficient as the random walk, whatever the gradient. A gradient computed at a small multiple of the cost of one evaluation, whatever $d$, keeps that advantage: one written by the user, one generated from model statements (section \@ref(statement-gradients), whose generated code here took 2.5 to 3.5 times as long as the user's vectorised C++), or reverse mode (here 6.5 times as long, since this log density is mostly multiplications and additions, each of which is recorded). So the order of preference for a model with many parameters is: a gradient written by hand, then model statements, then a template with reverse mode; finite differences and forward mode are for few parameters, for checking, and (forward and reverse mode) for methods that need an exact gradient (unadjusted moves).
+
+**Checking a gradient.** `check_gradient(recipe, parameters)` compares the gradient of the log target at a point, whether written, generated from model statements or by `gradient = autodiff`, with central differences of the log target, element by element; `index` restricts the check to some factors (numbered from 1), and `variables` to some variables. It returns a data frame with the two values and their relative difference for each element; differences of about $10^{-6}$ or less are within what finite differences can resolve.
+
+The arguments and return type of each function are fixed: the log density of a prior is `double f(const Parameters &parameters)`, the log density of a likelihood is `double f(const Parameters &parameters, const Data &data)`, and so on. Chapter \@ref(functions) gives the signature of each function, and describes the classes `Parameters` and `Data`. **Important note:** all the density functions provided by ilike for use in C++ (`dnorm`, `dunif`, …) return the *log* of the density, unlike their R namesakes.
+
+The same model, with the functions written in R:
+
+```{r, echo=FALSE, comment=""}
+cat(readLines("examples/language/r_functions.ilike"), sep = "\n")
 ```
 
-### sbi_likelihood
+Section \@ref(functions-other-languages) describes how functions in R, Python and Julia are called.
 
-The `sbi_likelihood` function type uses an ilike function to define the desired simulation-based likelihood. For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.
+## Gaussian data models {#gaussian-data-models}
 
-Example of the use of one of these functions (`ilike::sl`) follows.
+A likelihood in which the data are a linear or nonlinear function of the parameters plus Gaussian noise can be given directly:
 
-```{Rcpp,eval=FALSE}
-/***sbi_likelihood,ilike::sl(50)***/
+```
+factor obs = linear_gaussian(data = y, state = x, matrix = H, covariance = R)
+factor obs = nonlinear_gaussian(data = y, function = cpp::h, covariance = R)
 ```
 
-All of these methods use simulations from the data generating process (DGP) to construct an approximate likelihood from data $y_{\mbox{obs}}$. $s_{\mbox{obs}}$ is used to denote the result of applying the `summary_statistic` function to $y_{\mbox{obs}}$. Let $y^{1:M}$ be $M$ draws from the DGP $f(\cdot \mid \theta)$ for parameter $\theta$ and let $s^{1:M}$ be the result of applying the `summary_statistic` function to each corresponding simulation. Suppose that each summary statistic lies in $\mathbb{R}^{d_s}$: this vector is the result of stacking the summary statistics named in the `data_variable` function type.
+- `linear_gaussian`:
+$$
+y \sim \mathcal{MVN}(H x, R),
+(\#eq:lgdm)
+$$
+where `data` is the data variable $y$, `state` the parameter $x$ (or a list of parameters, `[x1, x2]`, stacked), `matrix` the matrix $H$ and `covariance` the matrix $R$.
+- `nonlinear_gaussian`:
+$$
+y \sim \mathcal{MVN}(h(x), R),
+(\#eq:nlgdm)
+$$
+where `function` is a function $h$ taking the parameters and returning the predicted data (`Data f(const Parameters &parameters)` in C++).
 
-The available ilike functions are detailed in the following sections.
+The matrices may be numbers (`matrix = 1`, `covariance = [[1, 0], [0, 2]]`) or functions returning a matrix, which may depend on the parameters (`arma::mat f(const Parameters &parameters)` in C++). The arguments may also be given in order: `linear_gaussian(y, x, 1, 1)`.
 
-#### Synthetic likelihood `ilike::sl` {#sl}
+These factors can be evaluated exactly, and are also what the Kalman filter and ensemble Kalman filter use: they are mostly used as the observation model of a state-space model (chapter \@ref(ssm)).
+
+## Simulation-based likelihoods {#sbi}
+
+Some models are given by a simulator: a function that, given the parameters, simulates data, but whose likelihood cannot be evaluated. A simulation-based likelihood approximates the likelihood using simulations from the model:
+
+```
+factor sim = sbi(method, simulate = cpp::simulate_y, data = y, summaries = cpp::summaries)
+```
+
+- `method` is one of the methods below, e.g. `sl(100)` (synthetic likelihood with 100 simulations). Without a method, `sbi(simulate = …, data = …)` is the simulator alone: it is used by `MFDS` (section \@ref(inference-mfds)), which uses the simulator directly, and other algorithms stop with a message asking for a method.
+- `simulate` is the simulator: `Data f(RandomNumberGenerator &rng, const Parameters &parameters)` in C++.
+- `data` is the data variable that the simulator's output is compared with (or a list of variables, `[y, z]`).
+- `summaries` (optional) reduces the data, observed and simulated, to summary statistics: `Data f(const Data &data)` in C++. If it is given, inference is conditional on the summary statistics of the data, and `data` names the variables of the summaries; otherwise the full data are used.
+
+An example, with ABC:
+
+```{r, echo=FALSE, comment=""}
+cat(readLines("examples/language/abc.ilike"), sep = "\n")
+```
+
+All of these methods use simulations from the data generating process (DGP) to construct an approximate likelihood from data $y_{\mbox{obs}}$. $s_{\mbox{obs}}$ is used to denote the result of applying the `summaries` function to $y_{\mbox{obs}}$. Let $y^{1:M}$ be $M$ draws from the DGP $f(\cdot \mid \theta)$ for parameter $\theta$ and let $s^{1:M}$ be the result of applying the `summaries` function to each corresponding simulation. Suppose that each summary statistic lies in $\mathbb{R}^{d_s}$: this vector is the result of stacking the variables named in `data`.
+
+### Synthetic likelihood `sl` {#sl}
 
 Specifies a synthetic likelihood (SL), as described in @wood2010statistical and @price2018bayesian. The synthetic likelihood $l(s_{\mbox{obs}} \mid \theta)$ is given by
 
@@ -938,21 +378,19 @@ $$
 (\#eq:slmusigma)
 $$ @price2018bayesian describes an extended version of this approach, which uses an unbiased estimate of the Gaussian distribution in equation \@ref(eq:sl), also based on $\hat{\mu}$ and $\hat{\Sigma}$ from equation \@ref(eq:slmusigma).
 
-Inputs:
+`sl(number_of_points, unbiased = FALSE, store_output = FALSE, parallel = FALSE, grain_size = 100000)`
 
-  1. integer: the number of simulations $M$ to use in the synthetic likelihood
-  
-  2. (optional) boolean: whether to use the unbiased version of synthetic likelihood described in @price2018bayesian (default is `false`)
-  
-  3. (optional) boolean: whether to store the output of the model simulations (default is `false`)
-  
-  4. (optional) boolean: whether to run the simulations in parallel (default is `false`)
-  
-  5. (optional) integer: the grain size for parallelisation (default is `100000`; see [guidance here](https://oneapi-src.github.io/oneTBB/main/tbb_userguide/Controlling_Chunking_os.html))
-  
-#### ABC (uniform kernel; Euclidean distance) `ilike::euclidean_uniform_abc`
+| Argument | Meaning |
+|---|---|
+| `number_of_points` | the number of simulations $M$ |
+| `unbiased` | whether to use the unbiased version of @price2018bayesian |
+| `store_output` | whether to store the simulations |
+| `parallel` | whether to run the simulations in parallel |
+| `grain_size` | the grain size for parallelisation (see [guidance here](https://oneapi-src.github.io/oneTBB/main/tbb_userguide/Controlling_Chunking_os.html)) |
 
-Specifies an approximate Bayesian computation (ABC), using a uniform kernel and Euclidean distance metric, as described in @sisson2018handbook. The `euclidean_uniform_abc` likelihood $l(s_{\mbox{obs}} \mid \theta)$ is given, for tolerance level $\epsilon$, by
+### ABC with a uniform kernel and Euclidean distance `euclidean_uniform_abc`
+
+Specifies an approximate Bayesian computation (ABC) likelihood, using a uniform kernel and Euclidean distance metric, as described in @sisson2018handbook. The likelihood $l(s_{\mbox{obs}} \mid \theta)$ is given, for tolerance level $\epsilon$, by
 
 $$
 l(s_{\mbox{obs}} \mid \theta) = \frac{1}{M}\sum_{j=1}^{M}K_{\epsilon}\left(s_{\text{obs}}\mid s^{j}\right)
@@ -962,83 +400,46 @@ $$
 K_{\epsilon}\left(s_{\text{obs}}\mid s^{j}\right) = \begin{cases} 1/c & \text{if } d( s_{\mbox{obs}} - s^{j} ) \leq \epsilon \\ 0 & \text{otherwise} \end{cases},
 $$
 for
-
 $$
 c = \frac{2^{d_s}\Gamma\left(\frac{1}{2}+1\right)^{d_s}}{\Gamma\left(\frac{d_s}{2}+1\right)}\epsilon^{d_s}\sum_{i=1}^{d_s}\sigma_{i}
 $$
 where
-
 $$
-d(s_{\text{obs}},s)=\left(\sum_{i=1}^{d_{s}}\left(\frac{s_{\text{obs},i}-s_{i}}{\sigma_{i}}\right)^{2}\right)^{1/2}
+d(s_{\text{obs}},s)=\left(\sum_{i=1}^{d_{s}}\left(\frac{s_{\text{obs},i}-s_{i}}{\sigma_{i}}\right)^{2}\right)^{1/2}.
 $$
 
-Here $\sigma_i$ is a scaling used for the $i$th dimension of $s$. The value of $c$ is here to ensure that the uniform kernel is normalised, and uses the [formula for volume of a $d_s$-dimensional ball](https://www.johndcook.com/blog/2010/07/02/volumes-of-generalized-unit-balls/).
+Here $\sigma_i$ is a scaling used for the $i$th dimension of $s$. The value of $c$ ensures that the uniform kernel is normalised, and uses the [formula for volume of a $d_s$-dimensional ball](https://www.johndcook.com/blog/2010/07/02/volumes-of-generalized-unit-balls/).
 
-Inputs:
+`euclidean_uniform_abc(number_of_points, tolerance_variable, tolerance, store_output = FALSE, scale_variable, scale, parallel = FALSE, grain_size = 100000)`
 
-  1. integer: the number of simulations $M$ to use in the ABC
-  
-  2. string: the name of the tolerance variable in the ABC
-  
-  3. numeric: the tolerance level for the ABC
-  
-  4. (optional) boolean: whether to store the output of the model simulations (default is `false`)
-  
-  5. (optional) string: the name of the variable that stores the scaling $\sigma_i$ of the data/summaries in the ABC (default is `""` - in this case the scale will be `1` for every dimension)
-  
-  6. (optional) numeric vector: the scaling of the data/summary in the ABC, which must be of the same dimension as the data/summary This is only used if the scale variable (argument 5) is set.
-  
-  7. (optional) boolean: whether to run the simulations in parallel (default is `false`)
-  
-  8. (optional) integer: the grain size for parallelisation (default is `100000`; see [guidance here](https://oneapi-src.github.io/oneTBB/main/tbb_userguide/Controlling_Chunking_os.html))
+| Argument | Meaning |
+|---|---|
+| `number_of_points` | the number of simulations $M$ |
+| `tolerance_variable` | a name for the tolerance (e.g. `epsilon`), by which an SMC sequence can change it (section \@ref(smc-sequence)) |
+| `tolerance` | the tolerance $\epsilon$ |
+| `store_output` | whether to store the simulations |
+| `scale_variable` | a name for the scaling $\sigma$ (if not given, $\sigma_i = 1$ for every dimension) |
+| `scale` | the scaling $\sigma$: a vector with one entry per dimension of the summaries (used only if `scale_variable` is given) |
+| `parallel`, `grain_size` | as for `sl` |
 
-#### ABC (uniform kernel; $L^p$ distance) `ilike::lp_uniform_abc`
+### ABC with a uniform kernel and $L^p$ distance `lp_uniform_abc`
 
-Specified an approximate Bayesian computation (ABC) likelihood, using a uniform kernel and the $L^p$ distance metric. The `lp_uniform_abc` likelihood $l(y \mid \theta)$ is given, for tolerance level $\epsilon$, by
-
-$$
-l(s_{\mbox{obs}} \mid \theta) = \frac{1}{M}\sum_{j=1}^{M}K_{\epsilon}\left(s_{\text{obs}}\mid s^{j}\right)
-$$
-where
-$$
-K_{\epsilon}\left(s_{\text{obs}}\mid s^{j}\right) = \begin{cases} 1/c & \text{if } d( s_{\mbox{obs}} - s^{j} ) \leq \epsilon \\ 0 & \text{otherwise} \end{cases},
-$$
-for
-
-$$
-c = \frac{2^{d_s}\Gamma\left(\frac{1}{p}+1\right)^{d_s}}{\Gamma\left(\frac{d_s}{p}+1\right)}\epsilon^{d_s}\sum_{j=1}^{d_s}\sigma_{i}
-$$
-where
+As `euclidean_uniform_abc`, with the $L^p$ distance
 
 $$
 d(s_{\text{obs}},s)=\left(\sum_{i=1}^{d_{s}}\left(\frac{s_{\text{obs},i}-s_{i}}{\sigma_{i}}\right)^{p}\right)^{1/p}
 $$
+and the normalising constant
+$$
+c = \frac{2^{d_s}\Gamma\left(\frac{1}{p}+1\right)^{d_s}}{\Gamma\left(\frac{d_s}{p}+1\right)}\epsilon^{d_s}\sum_{j=1}^{d_s}\sigma_{i},
+$$
+using the [formula for volume of a $d_s$-dimensional ball in $L^p$ space](https://www.johndcook.com/blog/2010/07/02/volumes-of-generalized-unit-balls/).
 
-Here $\sigma_i$ is a scaling used for the $i$th dimension of $s$. The value of $c$ is here to ensure that the uniform kernel is normalised, and uses the [formula for volume of a $d_s$-dimensional ball in $L^p$ space](https://www.johndcook.com/blog/2010/07/02/volumes-of-generalized-unit-balls/).
+`lp_uniform_abc(number_of_points, tolerance_variable, tolerance, p, store_output = FALSE, scale_variable, scale, parallel = FALSE, grain_size = 100000)`, with the arguments of `euclidean_uniform_abc` and `p`, the power of the distance.
 
-Inputs:
+### ABC with a Gaussian kernel `gaussian_abc` {#gaussian-abc}
 
-  1. integer: the number of simulations $M$ to use in the ABC
-  
-  2. string: the name of the tolerance variable in the ABC
-  
-  3. numeric: the tolerance level for the ABC
-  
-  4. numeric: the value of $p$ for the $L^p$ distance metric
-  
-  5. (optional) boolean: whether to store the output of the model simulations (default is `false`)
-  
-  6. (optional) string: the name of the variable that stores the scaling $\sigma_i$ of the data/summaries in the ABC (default is `""` - in this case the scale will be `1` for every dimension)
-  
-  7. (optional) numeric vector: the scaling of the data/summary in the ABC, which must be of the same dimension as the data/summary This is only used if the scale variable (argument 6) is set.
-  
-  8. (optional) boolean: whether to run the simulations in parallel (default is `false`)
-  
-  9. (optional) integer: the grain size for parallelisation (default is `100000`; see [guidance here](https://oneapi-src.github.io/oneTBB/main/tbb_userguide/Controlling_Chunking_os.html))
-
-#### ABC (Gaussian kernel) `ilike::gaussian_abc` {#gaussian-abc}
-
-Specifies an approximate Bayesian computation (ABC) likelihood, using a Gaussian kernel. The `gaussian_abc` likelihood $l(s_{\mbox{obs}} \mid \theta)$ is given, for tolerance level $\epsilon$, by
+Specifies an approximate Bayesian computation (ABC) likelihood, using a Gaussian kernel. The likelihood $l(s_{\mbox{obs}} \mid \theta)$ is given, for tolerance level $\epsilon$, by
 
 $$
 l(s_{\mbox{obs}} \mid \theta) = \frac{1}{M}\sum_{j=1}^{M}K_{\epsilon}\left(s_{\text{obs}}\mid s^{j}\right)
@@ -1049,126 +450,81 @@ K_{\epsilon}\left(s_{\text{obs}}\mid s^{j}\right) = \left(2\pi\epsilon\right)^{-
 $$
 Here $\sigma_i$ is a scaling used for the $i$th dimension of $s$.
 
-Inputs:
+`gaussian_abc(number_of_points, tolerance_variable, tolerance, store_output = FALSE, scale_variable, scale, parallel = FALSE, grain_size = 100000)`, with the arguments of `euclidean_uniform_abc`.
 
-  1. integer: the number of simulations $M$ to use in the ABC
-  
-  2. string: the name of the tolerance variable in the ABC
-  
-  3. numeric: the tolerance level for the ABC
-  
-  4. (optional) boolean: whether to store the output of the model simulations (default is `false`)
-  
-  5. (optional) string: the name of the variable that stores the scaling $\sigma_i$ of the data/summaries in the ABC (default is `""` - in this case the scale will be `1` for every dimension)
-  
-  6. (optional) numeric vector: the scaling of the data/summary in the ABC, which must be of the same dimension as the data/summary This is only used if the scale variable (argument 5) is set.
-  
-  7. (optional) boolean: whether to run the simulations in parallel (default is `false`)
-  
-  8. (optional) integer: the grain size for parallelisation (default is `100000`; see [guidance here](https://oneapi-src.github.io/oneTBB/main/tbb_userguide/Controlling_Chunking_os.html))
-  
-<!-- #### IEnKI-ABC `ilike::ienki_abc` -->
+## Algorithmic likelihoods {#algorithmic-likelihood}
 
-<!-- Specifies an approximate Bayesian computation (ABC) likelihood, estimating using iterative ensemble Kalman inversion (IEnKI), as described in @everitt2024ensemble. This approach uses an alternative estimator for the ABC likelihood using the Gaussian kernel, with tolerance $\epsilon$, described in section \@ref(gaussian-abc). IEnKI uses an ensemble of points to simulate from a sequence of $0:T$ distributions using a decreasing sequence of tolerances $\infty = \epsilon_0 > .... > \epsilon_T = \epsilon$. The 0th distrbution is $f_s( s \mid \theta)$ (corresponding to the case where $\epsilon=\infty$), where $f_s$ is the distribution resulting from the data generating process $f( \cdot \mid \theta)$ and the summary statistic transformation. The $t$th distribution for $t>0$ is $f_s( s \mid \theta) K_{\epsilon_t}\left(s_{\text{obs}}\mid s\right)$. The estimator of the normalising constant of the final target distribution, constructed using the ensemble at each step of the IEnKI, is an estimator of the ABC likelihood. This estimator is biased in general, but is likely to have significantly lower variance than that from standard ABC. When the final $\epsilon$ is taken to be zero, and $T=1$, the estimator is the same as that used in synthetic likelihood (section \@ref(sl)). Full details can be found in @everitt2024ensemble. -->
+For some models, the likelihood can be computed or estimated by running an algorithm. For example, the marginal likelihood of the parameters of a state-space model may be estimated by a particle filter. Such a likelihood is written as a factor that runs a filter on a model in another ilike file, imported by name (section \@ref(import)):
 
-<!-- Inputs: -->
+```{r, echo=FALSE, comment=""}
+cat(readLines("examples/language/pmmh.ilike"), sep = "\n")
+```
 
-<!--   1. integer: the number of ensemble members $M$ to use in the IEnKI-ABC -->
+where `ssm_inner.ilike` is
 
-<!--   2. integer: the estimator type constructed from the IEnKI output. The meaning of each of the four options below is given in the paper @everitt2024ensemble. The options are: -->
+```{r, echo=FALSE, comment=""}
+cat(readLines("examples/language/ssm_inner.ilike"), sep = "\n")
+```
 
-<!--   - `1` (recommended): the "direct" estimator -->
+The inner file's model uses the outer file's parameters (here `a`) and data (here `y`). Run with MCMC, this is particle marginal Metropolis-Hastings [@andrieu2010particle].
 
-<!--   - `2`: the "unbiased" estimator, using the approach analogous to the unbiased method in @price2018bayesian -->
+**Settings.** The settings of the filter (such as the number of particles) are taken from the inner file's algorithm section, the same settings that would be used to run the filter on that file from R (`PF("ssm_inner.ilike", …)`). Settings given in the call override them: `pf(inner, particles = 1000)`. If the inner file has several algorithm sections, `algorithm = "name"` in the call chooses one. Settings have the same names in the call, in the inner file's algorithm section and in the R function (without its `number_of_` prefix), as described in section \@ref(settings-in-files).
 
-<!--   - `3`: the path sampling estimator -->
+### Particle filter `pf`
 
-<!--   - `4`: the alternative path sampling estimator from @friel2014improving -->
+The particle filter is a recursive algorithm that estimates the state of a general state-space model and, in this context, gives an unbiased estimate of the marginal likelihood of the parameters of the model (section \@ref(inference-pf)).
 
-<!--   3. string: the name of the tolerance variable in the ABC -->
+`pf(model, particles, iterations_to_store = 1, parallel = FALSE, grain_size = 64)`
 
-<!--   4. numeric: the tolerance level for the ABC -->
+| Argument | Meaning |
+|---|---|
+| `model` | the imported file that holds the state-space model (chapter \@ref(ssm)) |
+| `particles` | the number of particles |
+| `iterations_to_store` | the number of iterations of output of each filter to store, counting from the final iteration backwards: `1` (the default) stores the final particles and weights; `0` stores nothing; a number at least as large as the number of time points stores every iteration, with the ancestor of each particle |
+| `parallel` | whether to run the filter's particles in parallel. This parallelises *inside* each filter, and is used only when the outer algorithm runs sequentially (an outer algorithm run with `parallel = TRUE` runs its points in parallel instead, which usually gives the larger gain; see section \@ref(inference-arguments)) |
+| `grain_size` | the number of particles moved and weighted together as one chunk. As for `PF` (section \@ref(inference-arguments)), each chunk has its own random number stream, so the results depend on this number but not on whether the filter runs in parallel |
 
-<!--   5. string: the shifter used in the IEnKI (the method for moving the ensemble at each iteration). The options are: -->
+The stored output is loaded with `load_smc_output(results_directory, nesting_level = 1, factor = k)`, where `k` is the position of the algorithmic likelihood among the model's factors, counting from 1 in the order they appear in the model section. In the result, `ExternalIndex` is the outer point (e.g. the importance point or MCMC iteration) and `LogWeight` is the outer point's normalised log weight plus the particle's normalised log weight within its filter, so the rows are a weighted sample from the joint posterior of the parameters and the states. With MCMC output, use `as.mcmc = TRUE`.
 
-<!--   - `stochastic` (recommended): the stochastic shifter -->
+### Kalman filter `kf`
 
-<!--   - `sqrt`: the square root shifter -->
+The Kalman filter (KF) computes the exact marginal likelihood of the parameters of a linear-Gaussian state-space model (section \@ref(inference-kf)).
 
-<!--   - `adjustment`: the adjustment shifter -->
+`kf(model, iterations_to_store = 0)`, where `model` is the imported file holding a linear-Gaussian state-space model and `iterations_to_store` the number of iterations of output to store, counting from the final iteration backwards.
 
-<!--   6. integer: the number of targets $T$ used in the IEnKI -->
+### Ensemble Kalman filter `enkf`
 
-<!--   7. (optional) numeric: the significance level for the significance test used in determining when to use the target skipping approach proposed in @everitt2024ensemble (default is `1`, which results in skipping no targets; `0.1` recommended when using the stochastic shifter) -->
+The ensemble Kalman filter (EnKF) estimates the marginal likelihood of the parameters of a state-space model with Gaussian observations (section \@ref(inference-enkf)).
 
-<!--   8. (optional) integer: the number of iterations of output of each run of the IEnKI to store, counting from the final iteration backwards (default is `0`) -->
+`enkf(model, ensemble_members, shifter, iterations_to_store = 0, parallel = FALSE, grain_size = 100000)`
 
-<!--   9. (optional) string: the name of the variable that stores the scaling $\sigma_i$ of the data/summaries in the ABC (default is `""` - in this case the scale will be `1` for every dimension) -->
+| Argument | Meaning |
+|---|---|
+| `model` | the imported file holding the state-space model |
+| `ensemble_members` | the number of ensemble members |
+| `shifter` | the method for moving the ensemble at each iteration: `"stochastic"`, `"sqrt"` (square root) or `"adjustment"` |
+| `iterations_to_store` | the number of iterations of output to store, counting from the final iteration backwards |
+| `parallel`, `grain_size` | whether to run in parallel, and the grain size |
 
-<!--   10. (optional) numeric vector: the scaling of the data/summary in the ABC, which must be of the same dimension as the data/summary This is only used if the scale variable (argument 5) is set. -->
+## Models written in Stan {#from-stan}
 
-<!--   11. (optional) boolean: whether to perform the IEnKI on the summary statistic space (default is `true`; `false` is largely untested) -->
+`convert_stan_model()` translates a Stan program into the ilike language, with the data written into a data section, so that the model can be run by any of ilike's algorithms (and edited, for example to use `gibbs` moves or other priors):
 
-<!--   12. (optional) boolean: whether to run the simulations in parallel (default is `false`) -->
+```r
+convert_stan_model("schools.stan", data = list(J = 8, y = y, sigma = sigma), output = "schools.ilike")
+```
 
-<!--   13. (optional) integer: the grain size for parallelisation (default is `100000`; see [guidance here](https://oneapi-src.github.io/oneTBB/main/tbb_userguide/Controlling_Chunking_os.html)) -->
+The translation covers the data, transformed data, parameters, transformed parameters and model blocks: declarations (with lower and upper bounds, and arrays), `for` loops, assignments (which become deterministic nodes), sampling statements, including vectorised ones (which become loops over the elements) and truncation `T[a, b]` for `normal`, and `target +=` with a log density function (`target += normal_lpdf(y | mu, sigma)`) or an expression. Matrix–vector products `X * beta` are written out as sums, which needs the number of columns of `X` from the data. Most of Stan's distributions are translated to their counterparts (section \@ref(statement-distributions)), including `poisson_log`, `bernoulli_logit`, `binomial_logit` and both parameterisations of the negative binomial.
 
-## Algorithmic likelihood
+ilike's priors must be proper, and its densities are normalised, so constraints on parameters become the supports of their priors: `real<lower=0> tau;` with `tau ~ cauchy(0, 5)` becomes `tau ~ halfcauchy(5)`, a bounded `normal` becomes `tnorm`, a parameter with both bounds and no prior gets the uniform distribution between them, a simplex the uniform Dirichlet and a correlation matrix `lkj(1)`. A parameter with no proper prior (Stan's implicit flat prior), a prior on a constrained range with no counterpart (a `cauchy(1, 2)` on a positive parameter), user-defined functions, `if` and `while` statements, slices, and functions such as `sum` and `dot_product` are refused with a message naming the statement. The generated quantities block is left out. The converted file ends with an algorithm section running `nuts` on all the parameters, with the step adapted by dual averaging over the first 1000 iterations; for the eight schools model it gives the posterior means of `mu` and `tau` (4.4 and 3.6) that Stan gives.
 
-For some models, the likelihood can be computed or estimated by running an algorithm. For example, the marginal likelihood of a state-space model may be estimated using a particle filter. To specify such a likelihood, the user must provide a function type `algorithmic_likelihood`, then use an ilike function to specify the type of likelihood.
+## Models written in BUGS, JAGS or NIMBLE {#from-bugs}
 
-### algorithmic_likelihood
+`convert_bugs_model()` translates a model written in the BUGS language (WinBUGS, OpenBUGS, JAGS) or in NIMBLE's dialect into the ilike language. The model may be a file, a character string, or an R expression (as returned by `nimbleCode()` or `quote()`); the data given are written into a data section and tell which variables are data, the others being parameters:
 
-The likelihood function type allows the user to specify the likelihood through an ilike function. For all ilike functions we give the required arguments, stating their required type (using R types). Recall that the input arguments must be specified in the correct order. Some functions have optional arguments, which can only be omitted if arguments following them are also omitted.
+```r
+convert_bugs_model("regression.bug", data = list(N = 4, y = y, x = x), output = "regression.ilike")
+convert_bugs_model(code, data = c(constants, data), dialect = "nimble", output = "model.ilike")
+```
 
-The available ilike functions are detailed in the following sections.
-
-#### Kalman filter `ilike::kf`
-
-The Kalman filter (KF) is a recursive algorithm that estimates the state of a linear Gaussian state-space model and, in this context, can be used to calculate the marginal likelihood of parameters of the model. The arguments required for this ilike function follow as closely as possible those required for running a KF from the ilike R package as described in section \@ref(kf).
-
-Inputs:
-
-  1. string: The name of an ilike file (with extension) that contains the specification of a linear-Gaussian state-space model, as described in section \@ref(ssm). A full description of what is required in the file is given in section \@ref(inference-kf).
-  
-  2. (optional) integer: The number of iterations output of the KF to store, counting from the final iteration backwards (default is `0`)
-  
-#### Particle filter `ilike::pf`
-
-The particle filter is a recursive algorithm that estimates the state of a general state-space model and, in this context, can be used to estimate the marginal likelihood of parameters of the model. The arguments required for this ilike function follow as closely as possible those required for running a PF from the ilike R package as described in section \@ref(inference-pf).
-
-Inputs:
-
-  1. string: The name of an ilike file (with extension) that contains the specification of a general state-space model, as described in section \@ref(ssm). A full description of what is required in the file is given in section \@ref(inference-pf).
-
-  2. integer: The number of particles to use in the particle filter.
-  
-  3. (optional) integer: The number of iterations output of the PF to store for each point at which the likelihood is estimated, counting from the final iteration backwards (default is `1`: the final points and weights; `0` stores nothing; a number at least as large as the number of time points stores every iteration together with the ancestor of each particle). The stored output is loaded with `load_smc_output(results_directory, nesting_level = 1, factor = k)`, where `k` is the number of the factor that is the algorithmic likelihood (factors are numbered in the order they appear in the file, starting at 1). In the result, `ExternalIndex` is the outer point (e.g. the importance point or MCMC iteration) and `LogWeight` is the outer point's normalised log weight plus the particle's normalised log weight within its filter, so the rows are a weighted sample from the joint posterior of the parameters and the states. With MCMC output, use `as.mcmc = TRUE`.
-  
-  4. (optional) boolean: Whether to run the particle filter's particles in parallel (default is `false`). This parallelises *inside* each filter; it is used only when the outer algorithm runs sequentially (an outer algorithm run with `parallel = TRUE` runs its points in parallel instead, which usually gives the larger gain; see section \@ref(inference-arguments)).
-  
-  5. (optional) integer: the number of particles moved and weighted together as one chunk (default is `64`). As for `PF` (section \@ref(inference-arguments)), each chunk has its own random number stream, so the results depend on this number but not on whether the filter runs in parallel.
-  
-#### Ensemble Kalman filter `ilike::enkf`
-
-The ensemble Kalman filter (EnKF) is a recursive algorithm that estimates the state of a general state-space model and, in this context, can be used to estimate the marginal likelihood of parameters of the model. The arguments required for this ilike function follow as closely as possible those required for running an EnKF from the ilike R package as described in section \@ref(inference-enkf).
-
-Inputs:
-
-  1. string: The name of an ilike file (with extension) that contains the specification of a general state-space model, as described in section \@ref(ssm). A full description of what is required in the file is given in section \@ref(inference-enkf).
-
-  2. integer: The number of ensemble members to use in the EnKF.
-  
-  3. string: The name of the shifter to use in the EnKF (the method for moving the ensemble at each iteration). The options are:
-  
-  - `stochastic`: the stochastic shifter
-  
-  - `sqrt`: the square root shifter
-  
-  - `adjustment`: the adjustment shifter
-  
-  4. (optional) integer: The number of iterations output of the EnKF to store, counting from the final iteration backwards (default is `0`).
-  
-  5. (optional) boolean: Whether to run the EnKF in parallel (default is `false`).
-  
-  6. (optional) integer: the grain size for parallelisation (default is `100000`; see [guidance here](https://oneapi-src.github.io/oneTBB/main/tbb_userguide/Controlling_Chunking_os.html))
+BUGS's parameterisations become ilike's: `dnorm(mu, tau)` with a precision becomes `norm(mu, 1/sqrt(tau))`, `dbin(p, n)` becomes `binom(n, p)`, `dweib(v, lambda)` becomes `weibull(v, pow(lambda, -1/v))`, `ddexp` and `dlogis` take a scale rather than a rate, and so on; with `dialect = "nimble"`, NIMBLE's named alternatives (`dnorm(mu, sd = s)`, `var =`, `dgamma(a, scale = b)`, `dweib(k, scale = s)`, …) are read as such. Deterministic relations become deterministic nodes, with `logit(p[i]) <- …` and `log(lambda[i]) <- …` inverted; `inprod` and `sum` over vectors whose lengths are known from the data are written out; `T(a, b)` (or `I(a, b)`) on `dnorm` becomes `tnorm`. Precision matrices of `dmnorm`, `dmt` and `dwish` must be data: they are inverted when converting, into new data called `name_inverse`, since ilike's statements take covariance matrices. Missing values in the data (partly observed variables), censoring (`dinterval`), other truncations, precision matrices that are parameters, and functions such as `step` and `equals` are refused with a message.

@@ -1,0 +1,244 @@
+# ilike files {#ilike-files}
+
+An ilike file holds everything needed to run an inference algorithm: the data, the statistical model (priors and likelihoods), and the settings of the algorithms. This chapter describes how an ilike file is laid out, the rules for writing one, and how to compile it. The model itself is the subject of chapters \@ref(models) and \@ref(ssm), and the algorithm settings of chapters \@ref(inference) to \@ref(smc). If the description here seems a bit dry, head over to section \@ref(toy-example) or chapter \@ref(examples) to see some worked examples first, and come back to this chapter if you need clarification on anything.
+
+ilike files are written in the **ilike language**, a small language for describing models and algorithms. It is a *specification* language: it describes what the model is, and leaves the computation to the ilike engine (written in C++). Parts of the model that are not easily written as statements, such as a simulator, can be written as functions in C++, R, Python or Julia, in the same file or in another one.
+
+## File structure {#file-structure}
+
+An ilike file begins with a version line, and then holds any number of *sections*:
+
+```
+ilike 1.0                                   // the version line: the first line that is not a comment
+
+import "ssm.ilike" as inner                 // another ilike file, used by name
+import "helpers.R" as helpers               // a file of functions in another language
+
+constants { ... }                           // values given when the file is used, by name
+data { ... }                                // the data
+parameters { ... }                          // declarations of the parameters (optional)
+model { ... }                               // the target: priors and likelihood factors
+cpp { ... }                                 // C++ code; also r { }, py { } and jl { }
+algorithm mcmc { ... }                      // the settings of an algorithm, by name; any number
+```
+
+Each section is a keyword followed by braces. The sections may appear in any order, and more than once (a file may have several `cpp { }` sections, for example): their meaning never depends on their order. Only the sections that are needed are written: a file used only for MCMC needs a `model` section and an `algorithm` section, and perhaps a `data` section.
+
+Several files can be compiled together, as in `compile(c("model.ilike", "mcmc.ilike"))`. Their sections are merged, as if they were written in one file, so a model can be kept in one file and the algorithms in another. Two definitions of the same name (two factors called `lik`, say) are an error.
+
+## The rules of the language {#lexical}
+
+- **Comments** run from `//` to the end of the line, or between `/*` and `*/`.
+- **Names** are made of letters, digits and `_`, and begin with a letter or `_`. Unlike in R, `.` is not allowed in names (it is not allowed in C++ or Python), except in calls to R functions, where R's names are used as they are (`r::read.csv`, `na.rm = TRUE`). Letters from other alphabets, such as `θ`, may be used.
+- **Numbers** are written as in R: `1`, `-2.5`, `1e-3`, `Inf`, `NaN`. Logical values are `TRUE` and `FALSE` (or `true` and `false`).
+- **Strings** are written in double quotes: `"stochastic"`.
+- **Vectors and matrices** are written in square brackets: `[0, 0.25, 0.5, 1]` is a vector, and `[[1, 0.5], [0.5, 2]]` is a matrix, written row by row (here a $2 \times 2$ matrix).
+- **Statements** end at the end of a line, or at `;`. A statement continues on the next line when the line ends with `,`, `(`, `[`, an operator, or inside brackets, so long statements can be split as in R.
+- **Namespaces**: a function written in another language is used with a prefix that names the language: `cpp::f`, `r::f`, `py::f`, `jl::f`. The prefix of an imported file is the name it was imported as (`inner::x`, `helpers::f`). The functions built into ilike (`norm`, `metropolis`, `iterations`, …) need no prefix; `ilike::norm` may be written for `norm`.
+
+### Expressions {#expressions}
+
+The values given to the arguments of built-in functions and to settings are *expressions*:
+
+- numbers, strings, vectors and matrices, as above;
+- names: of constants, data variables, parameters, or functions in other languages;
+- calls: `norm_rw(theta, 0.5)`. Arguments may be given in order, or by name as in R (`norm_rw(theta, sd = 0.5)`); arguments given by name come first, and the arguments given in order fill the remaining ones, in order. A bare name that is a flag means that the flag is set: `scaled_am(averaged)` is `scaled_am(averaged = TRUE)`;
+- arithmetic, with `+`, `-`, `*`, `/` and `^`, on numbers and constants (evaluated when the recipe is built, e.g. `scale = 2.38^2 / d`);
+- the helpers `seq(from, to, length = n)`, `rep(x, n)`, `diag(n)` (an $n \times n$ identity matrix) and `diag(v)` (a diagonal matrix with the vector `v` on its diagonal).
+
+Outside model statements, arithmetic on parameters is not allowed: there, an expression gives the value of a setting, which must be known before the algorithm runs. Model statements (section \@ref(model-statements)) have arithmetic on parameters, many mathematical functions, and loops.
+
+## Constants {#constants}
+
+Constants are values that are given when the file is used, by name. They replace numbers that would otherwise be written in the file, so that one file can be run with different values (different prior parameters, proposal scales or numbers of iterations, for example).
+
+```
+constants {
+  matrix Sigma0
+  real   prior_sd = 10
+  int    n_iter = 10000
+}
+```
+
+Each constant has a type: `real`, `int`, `logical`, `string`, `vector` or `matrix` (or `vector[d]` and `matrix[r, c]`, with sizes). A constant may have a default value, written after `=`. A constant without a default must be given when the file is used. Constants are given by name in the argument `model_parameter_list` of the inference functions and of `compile()`:
+
+```{r,eval=FALSE}
+MCMC(recipe, model_parameter_list = list(Sigma0 = diag(2), n_iter = 50000))
+```
+
+A constant can be used wherever a number could be written: in the arguments of built-in functions (`norm_rw(theta, step)`), in settings (`termination = iterations(n_iter)`), and in model statements.
+
+**When the value of a constant is used.** Constants in settings and in the arguments of built-in functions take their values when the algorithm is run, so a compiled recipe can be run with different values. Model statements, functions in other languages called with constants as arguments, and moves on elements (section \@ref(element-moves)) are turned into code when the file is compiled, so the constants they use take their values *when compiling*: from the default in the constants section, or from `compile(…, model_parameter_list = list(…))`. To change such a value, compile again with the new value; a run given a different value for such a constant stops with a message saying so.
+
+## Data {#data}
+
+The data section gives the data, by name. Data may be written in the file:
+
+```
+data {
+  y = [28, 8, -3, 7, -1, 1, 18, 12]
+  X = [[1, 0.5], [1, 1.2], [1, -0.3]]
+  z = 2.5
+}
+```
+
+or given by a function in another language:
+
+```
+data {
+  y = r::read.csv("y.csv")$y           // an R expression giving one variable
+  x = py::load_x()                     // a Python function giving one variable
+}
+```
+
+As in R, `$` after a call takes a member of its result.
+
+A C++ function returning several variables at once (a `Data` object, chapter \@ref(functions)) is written `data = cpp::get_data`:
+
+```
+data {
+  data = cpp::get_data
+}
+
+cpp {
+Data get_data()
+{
+  Data data;
+  data["y"] = arma::colvec({1.2, 0.4, 2.2});
+  data["x"] = arma::colvec({0.1, -0.5, 1.0});
+  return data;
+}
+}
+```
+
+Data variables are vectors or matrices (a single number is a $1 \times 1$ matrix). In model statements, `y[i]` is the $i$th element of a vector and `X[i, j]` the element in row $i$ and column $j$ of a matrix, numbered from 1.
+
+A name in a data section can also be *declared*, without a value: `vector y` declares that `y` is data provided elsewhere (by a function returning several variables, or by another file). Declaring a variable tells the compiler that the name `y` in model statements and in calls to other languages is data, not a parameter.
+
+## Parameters {#parameters-section}
+
+The parameters section is optional. It declares the parameters, with their types:
+
+```
+parameters {
+  real theta
+  vector[2] beta
+  real<lower=0> sigma
+  any tree                     // an opaque value, passed untouched to the user's C++ functions
+}
+```
+
+A parameter does not need to be declared: any name in the model statements that is not a loop index, a constant, a data variable or a deterministic node (section \@ref(model-statements)) is a parameter, and the sizes of parameter vectors are read from the model statements. At present the declarations document the file, and are not checked; checks against them (and transformations of constrained parameters such as `sigma`) are planned. Parameters of the type `any` hold values of a type defined by the user (a tree, a graph, …), which only the user's C++ functions read.
+
+## The model section {#model-section-overview}
+
+The model section describes the target distribution: the priors and the likelihood. Each statement in it defines a *factor* of the target, and the target is the product of the factors:
+
+```
+model {
+  theta ~ norm(0, 1)                                    // a built-in prior on theta
+  for (i in 1:n) y[i] ~ norm(theta, 1)                  // a likelihood, as model statements
+  prior p = density(log = cpp::log_prior,               // a prior written in C++
+                    simulate = cpp::simulate_prior)
+  factor lik = cpp::log_likelihood                      // a likelihood written in C++
+  factor sim = sbi(sl(100), simulate = cpp::simulate_y, data = y)   // a simulation-based likelihood
+  factor filter = pf(inner)                             // the likelihood estimated by a particle filter
+}
+```
+
+Chapter \@ref(models) describes each kind of statement, and chapter \@ref(ssm) the statements of state-space models.
+
+## Code in other languages {#code-sections}
+
+C++ code is written in a `cpp { }` section. It is copied into the C++ file that is compiled, so it may hold functions, global variables, `#include` lines and anything else C++ allows. A function `f` defined in a `cpp` section is used in the rest of the file as `cpp::f`:
+
+```
+model {
+  factor lik = cpp::log_likelihood
+}
+
+cpp {
+double log_likelihood(const Parameters &parameters, const Data &data)
+{
+  return dnorm(data["y"][0], parameters["theta"][0], 1.0);
+}
+}
+```
+
+The arguments and return type of a C++ function are fixed by where it is used: a log likelihood takes the parameters and the data and returns a `double`. The compiler checks this and, if the function has the wrong signature, says which signature was expected. Chapter \@ref(functions) lists the signature for each use, and the C++ classes and functions that ilike provides.
+
+Code in R, Python and Julia is written in <code>r { }</code>, `py { }` and `jl { }` sections, and its functions used as `r::f`, `py::f` and `jl::f`. A file of functions can be imported instead, with its language taken from its extension:
+
+```
+import "helpers.py" as helpers      // then helpers::f, a Python function
+```
+
+Functions in R, Python and Julia can be used wherever a C++ function can, and section \@ref(functions-other-languages) describes how they are called. They are slower than C++ functions, and cannot be used in parallel runs.
+
+## Importing ilike files {#import}
+
+```
+import "inner.ilike" as inner
+```
+
+makes the file `inner.ilike` available under the name `inner`. The path is relative to the file that imports it. An imported ilike file is used by an algorithmic likelihood: `factor filter = pf(inner)` estimates the likelihood by running a particle filter on the model in `inner.ilike` (section \@ref(algorithmic-likelihood)).
+
+## Algorithm sections {#algorithm-sections}
+
+An algorithm section holds the settings of one inference algorithm, and has a name:
+
+```
+algorithm mcmc_rw {
+  move m1 = metropolis(mvnorm_rw(beta, Sigma0), adapt = scaled_am(averaged))
+  move m2 = metropolis(norm_rw(theta, 0.1))
+  termination = iterations(n_iter)
+}
+
+algorithm smc {
+  move = metropolis(norm_rw(theta, 1))
+  sequence = annealing(power, [0, 0.25, 0.5, 1])
+  resampling = ess(0.5)
+  particles = 1000
+}
+```
+
+A file may have several algorithm sections. The one to run is chosen by name when the algorithm is run (`MCMC(recipe, algorithm = "mcmc_rw")`); the name may be left out when the files have one algorithm section. The settings of MCMC are described in chapter \@ref(mcmc), and those of importance sampling and SMC in chapter \@ref(smc).
+
+Settings that are arguments of the R functions, such as the number of particles or chains, may also be written in an algorithm section (`particles = 1000`, `chains = 4`). Such a setting has the same name in the file as in the R function, without its `number_of_` prefix (`number_of_particles` in R, `particles` in the file); an argument given in the R call overrides the file's setting. Section \@ref(settings-in-files) gives the details.
+
+## Compiling an ilike file {#compiling}
+
+To compile the ilike file `myfile.ilike`, we call
+
+```{r,eval=FALSE}
+library(ilike)
+recipe = compile("myfile.ilike")
+```
+
+The resulting R object `recipe` is a list that contains all of the information in the ilike file, and is used as input to the inference algorithms. The inference functions also accept file names directly (`MCMC("myfile.ilike", …)`), in which case they compile the files first.
+
+The arguments of `compile` are:
+
+- `filenames`: the ilike file, or a vector of files to compile together.
+- `model_parameter_list` (optional): values of constants, by name, for the constants whose values are needed when compiling (section \@ref(constants)).
+- `external_packages` (optional): the R packages that the R functions in the file use.
+- `julia_bin_dir`, `julia_required_libraries` (optional): the folder holding the Julia binary, and the Julia packages that the Julia functions use (section \@ref(functions-other-languages)).
+- `keep_temporary_recipe_code` (optional): if `TRUE`, the generated C++ file is kept, and its name printed.
+
+Compiling turns the model statements into C++, adds the code of the `cpp` sections, and compiles the result with Rcpp. This takes a few seconds. Compiled files are kept in a cache (in R's user cache folder, `tools::R_user_dir("ilike", "cache")`), keyed on the generated code, so compiling a file that has not changed is quick.
+
+The remainder of this section gives some information about what the compiler does. This is probably not of any great interest to most users, and can be skipped. The file is read into a syntax tree, which is turned into a *recipe*: an R list with an entry for each factor, move and setting, in which each function is a compiled C++ function stored as an `Rcpp::XPtr` [@eddelbuettel2011rcpp]. When an algorithm is run, this list is passed to the ilike engine (written in C++), and the user's functions are called through these pointers.
+
+## Errors {#errors}
+
+Errors found when compiling a file are reported with the file name, the line and the column, followed by a description of the problem. For example, a call with no closing bracket gives
+
+```
+model.ilike:4:1: expected "," or ")", found "}".
+```
+
+The arguments of built-in functions are checked when the algorithm is set up, at the start of a run, and an error names the function and its arguments. For example, a misspelt argument name gives
+
+```
+ilike::norm_rw (m_proposal): no argument called sdd (it takes ilike::norm_rw(variable, sd)).
+```

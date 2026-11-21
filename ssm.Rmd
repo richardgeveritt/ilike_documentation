@@ -1,848 +1,111 @@
 # State-space models {#ssm}
 
-This section describes how to specify a state-space model (SSM) in an ilike file. Here we reintroduce the concept, following the description in section \@ref(inference-pf). An SSM describes the evolution of an indirectly observed latent "state" variable over time. We denote the state at time $t$ as $x_t$ and the observation at time $t$ as $y_t$. A Markov assumption is made on the state, so that the distribution of $x_t$ depends only on $x_{t-1}$. A further conditional independence assumption is made that $y_t$ is conditionally independent of all other variables in the system given $x_t$. The distribution of $x_t$ given $x_{t-1}$ is known as the transition/dynamic model, with the distribution of $y_t$ given $x_t$ being known as the measurement/observation model. The specification of a joint distribution over variables $x_{0:T}$ and $y_{0:T}$, for some final time $T$ is completed by a prior on $x_0$, the initial state.
+This chapter describes how to write a state-space model (SSM) in an ilike file. Here we reintroduce the concept, following the description in section \@ref(inference-pf). An SSM describes the evolution of an indirectly observed latent "state" variable over time. We denote the state at time $t$ as $x_t$ and the observation at time $t$ as $y_t$. A Markov assumption is made on the state, so that the distribution of $x_t$ depends only on $x_{t-1}$. A further conditional independence assumption is made that $y_t$ is conditionally independent of all other variables in the system given $x_t$. The distribution of $x_t$ given $x_{t-1}$ is known as the transition/dynamic model, with the distribution of $y_t$ given $x_t$ being known as the measurement/observation model. The specification of a joint distribution over variables $x_{0:T}$ and $y_{0:T}$, for some final time $T$, is completed by a prior on $x_0$, the initial state.
 
-To specify this model in an ilike file, we need to provide the following:
+Several different types of inference tasks are specific to SSMs: e.g. filtering, smoothing and prediction of the latent state. ilike currently supports filtering, by Kalman filters (`KF`), particle filters (`PF`) and ensemble Kalman filters (`EnKF`), and the estimate of the marginal likelihood that a filter gives can be used as the likelihood of the model's parameters (section \@ref(algorithmic-likelihood)).
 
-- The prior on the initial state $x_0$. This can be provided using the methods described for providing a prior in section \@ref(models). The Kalman filter (`KF`) requires this to be a built-in Gaussian prior (`prior,ilike::norm` or `prior,ilike::mvnorm`).
+## Writing a state-space model
 
-- The measurement model on $y_t \mid x_t$. This can be provided using the methods described for providing a likelihood in section \@ref(models). If multiple likelihoods are provided, the distribution of the observed variables in each likelihood will be assumed to be conditionally independent given $x_t$.
+An SSM is written in the model section with four kinds of statement:
 
-- The transition model on $x_t \mid x_{t-1}$. This can be provided using the methods described in this section.
+```{r, echo=FALSE, comment=""}
+cat(readLines("examples/language/ssm.ilike"), sep = "\n")
+```
 
-Several different types of inference tasks are specific to SSMs: e.g. filtering, smoothing and prediction of the latent state. ilike currently only supports filtering, including Kalman, particle and ensemble Kalman filtering. In order to use these algorithms on real data, sometimes additional details are required, such as the sampling frequency of the data. These details must be provided through the `ssm` function type, which we describe in this section.
+- **The prior on the initial state** $x_0$ is a prior, written as in chapter \@ref(models): here `x ~ norm(0, 1)`. The Kalman filter requires it to be a simple Gaussian prior (`x ~ norm(…)` or `x ~ mvnorm(…)`).
+- **The transition model** $x_t \mid x_{t-1}$ is written `transition x = …`, where `x` is the state (section \@ref(transition-models)).
+- **The measurement model** $y_t \mid x_t$ is a likelihood factor, written as in chapter \@ref(models). If several likelihood factors are given, the observed variables in each are assumed to be conditionally independent given $x_t$. The Kalman and ensemble Kalman filters require Gaussian data models (section \@ref(gaussian-data-models)).
+- **The time index** is written `time = ssm(…)` (section \@ref(time-index)).
 
-To use a particle filter, the user also needs to provide a transition proposal, for propagating the set of particles at each iteration. If this is not provided, the transition model will be used as the proposal, yielding the bootstrap filter of @gordon1993novel. A description of how to provide the transition proposal is provided after the sections on transition models.
+The data are given in the data section, with one row per time: the measurement at index $t$ is row $t$ of each data variable, counting from 0 (so, with `first_index = 0`, the first row is the measurement at time 0). A vector of data is one measurement per time; a matrix has one row per time and one column for each dimension of the measurement.
 
-## State-space supporting detail
+With these, the file can be run with any of the filters, each in its own algorithm section:
 
-This section describes how to provide the supporting detail to "wrap" a SSM for use in a filtering or smoothing algorithm.
+```{r,eval=FALSE}
+recipe = compile("ssm.ilike")
+KF(recipe, algorithm = "kf", results_name = "kf")
+PF(recipe, algorithm = "pf", results_name = "pf", seed = 1)
+EnKF(recipe, algorithm = "enkf", results_name = "enkf", seed = 1)
+```
 
-### ssm
+Each returns the log of the estimated (for the KF, exact) marginal likelihood $\log p(y_{0:T})$.
 
-The `ssm` function type is used to wrap a SSM, providing the information required to link it to data and use it in a filtering or smoothing algorithm.
+## The time index {#time-index}
 
-#### SSM wrapper `ilike::ssm`
+`time = ssm(…)` gives the index of the SSM and how it relates to the times of the data:
 
-This function is used for, amongst other things, to setup variables that refer to the index and time stamp of the state. This can then be used as part of a transition model for example - to set up a model that has a time-dependent transition kernel.
+`ssm(index, first_index, last_index, time, initial_time, time_difference, time_step, predictions_per_update)`
 
-Inputs:
+| Argument | Meaning |
+|---|---|
+| `index` | a name for the variable that indexes the SSM, i.e the $t$ in $x_t$ |
+| `first_index` | the first index, i.e. the $0$ in $x_0$ |
+| `last_index` | the last index, i.e. the $T$ in $x_T$ |
+| `time` | a name for the variable holding the time of each observation. This need not be the same as the index: this is useful if the sampling frequency of the data is not 1 |
+| `initial_time` | the time of the first observation |
+| `time_difference` | a name for the variable holding the time difference between observations |
+| `time_step` | the time step between states of the SSM |
+| `predictions_per_update` | the number of times the transition model is used between observations (more than 1 when, for example, the transition model is an SDE solver with a small time step) |
 
-  1. string: the name of the variable that indexes the SSM, i.e the $t$ in the $x_t$ from above
-  
-  2. integer: the first index in the SSM, i.e. the $0$ in the $x_0$ from above
-  
-  3. integer: the last index in the SSM, i.e. the $T$ in the $x_T$ from above
-  
-  4. string: the name of the variable that corresponds to the time stamps in the observed data. This need not be the same as the variable that indexes the SSM: this may be useful if the sampling frequency of the data is not 1
-  
-  5. numeric: the time of the first observation
-  
-  6. string: the name of the variable that corresponds to the time difference between observations (again, this may be useful if the sampling frequency is not 1)
-  
-  7. numeric: the time step between states in the SSM
-  
-  8. integer: the number of times to use the transition model between observations (you may wish this to be greater than 1 when the transition model is an SDE solver with a small time step)
+The arguments may also be given in order: `time = ssm(i, 0, 4, t, 0, dt, 1, 1)`. The variables named by `index`, `time` and `time_difference` are passed to the transition model and the transition proposal with the parameters (`parameters["i"]` in C++), set for the time being proposed, so that the transition can depend on time.
 
-## Linear-Gaussian transition model {#linear-gaussian-transition-model}
+## Transition models {#transition-models}
 
-The linear-Gaussian transition model subtype may be used to specify a transition model in a state-space model that consists of a linear function of the state, plus some Gaussian noise, i.e.
+### Linear-Gaussian transition
 
+```
+transition x = linear_gaussian(matrix = A, covariance = Q)
+```
+
+gives the transition
 $$
-x_t \sim \mathcal{N}(A x_{t-1}, Q)
+x_t \sim \mathcal{N}(A x_{t-1}, Q),
 (\#eq:lgtm)
 $$
-where $A$ is a matrix and $Q$ is a covariance matrix. To specify the model we need to provide the state name ($x$ here), the matrix $A$ and the matrix $Q$.
+where $A$ is a matrix and $Q$ is a covariance matrix. Each may be numbers (`matrix = 0.9`, `covariance = [[0.5, 0], [0, 0.5]]`) or a function returning a matrix, which may depend on the parameters (`arma::mat f(const Parameters &parameters)` in C++; see the example in section \@ref(algorithmic-likelihood)). The arguments may also be given in order: `linear_gaussian(0.9, 0.5)`. The Kalman filter requires a linear-Gaussian transition.
 
-There are two ways of specifying a linear-Gaussian data model:
+### Nonlinear-Gaussian transition
 
-1. Through the function types `linear_gaussian_transition_variable` (specifying the name of the $x$ variable), `linear_gaussian_transition_matrix` (specifying the $A$ matrix), and `linear_gaussian_transition_covariance` (specifying the name of the $Q$ matrix), The user needs to provide **all** of these functions in order to fully specify the model.
-
-2. Through the function type `linear_gaussian_transition_model`, which allows the user to specify the complete model through an ilike function.
-
-We now detail the function types.
-
-### linear_gaussian_transition_variable
-
-Specifies the name of the observed transition variable in the linear-Gaussian transition model. There are no input arguments.
-
-Output: The name of the variable used as $x$ in equation \@ref(eq:lgtm).
-
-  -- of type `const std::string &` in a C++ function
-  
-  -- a string in R.
-
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***linear_gaussian_transition_variable***/
-std::string set_transition_variable()
-{
-  return "x";
-}
+```
+transition x = nonlinear_gaussian(function = cpp::f, covariance = Q)
 ```
 
-R example:
-
-```{Rcpp,eval=FALSE}
-/***linear_gaussian_transition_variable,"x"***/
-```
-
-### linear_gaussian_transition_matrix
-
-Specifies the matrix $A$ in the linear-Gaussian transition model.
-
-Input (optional): Parameters that the matrix relies on, to allow the specification of a parameter-dependent matrix.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `parameters` in an R function
-
-Output: The matrix $A$ in equation \@ref(eq:lgtm).
-
-  -- of type `arma::mat` in a C++ function
-  
-  -- a matrix in R.
-  
-C++ examples:
-
-```{Rcpp,eval=FALSE}
-/***linear_gaussian_transition_matrix***/
-arma::mat set_matrix()
-{
-  arma::mat A(2,2);
-  A(0,0) = 1.0;
-  A(0,1) = 0.0;
-  A(1,0) = 0.0;
-  A(1,1) = 1.0;
-  return A;
-}
-```
-
-or
-
-```{Rcpp,eval=FALSE}
-/***linear_gaussian_transition_matrix***/
-arma::mat set_matrix(const Parameters &parameters)
-{
-  double scale = parameters["scale"][0];
-  arma::mat A(2,2);
-  A(0,0) = scale;
-  A(0,1) = 0.0;
-  A(1,0) = 0.0;
-  A(1,1) = scale;
-  return A;
-}
-```
-
-R example:
-
-```{Rcpp,eval=FALSE}
-/***linear_gaussian_transition_matrix,diag(2)***/
-```
-
-or
-
-```{Rcpp,eval=FALSE}
-/***linear_gaussian_transition_matrix,parameters$scale*diag(2)***/
-```
-
-### linear_gaussian_transition_covariance
-
-Specifies the covariance matrix $Q$ in the linear-Gaussian transition model.
-
-Input (optional): Parameters that the matrix relies on, to allow the specification of a parameter-dependent matrix.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `parameters` in an R function
-  
-Output: The covariance matrix $Q$ in equation \@ref(eq:lgtm).
-
-  -- of type `arma::mat` in a C++ function
-  
-  -- a matrix in R
- 
-C++ examples:
-
-```{Rcpp,eval=FALSE}
-/***linear_gaussian_transition_covariance***/
-arma::mat set_covariance()
-{
-  arma::mat Q(2,2);
-  Q(0,0) = 1.0;
-  Q(0,1) = 0.0;
-  Q(1,0) = 0.0;
-  Q(1,1) = 1.0;
-  return Q;
-}
-```
-
-or
-
-```{Rcpp,eval=FALSE}
-/***linear_gaussian_transition_covariance***/
-arma::mat set_covariance(const Parameters &parameters)
-{
-  double scale = parameters["scale"][0];
-  arma::mat Q(2,2);
-  Q(0,0) = scale;
-  Q(0,1) = 0.0;
-  Q(1,0) = 0.0;
-  Q(1,1) = scale;
-  return Q;
-}
-```
- 
-R examples:
-
-```{Rcpp,eval=FALSE}
-/***linear_gaussian_transition_covariance,diag(2)***/
-```
-
-or
-
-```{Rcpp,eval=FALSE}
-/***linear_gaussian_transition_covariance,parameters$scale*diag(2)***/
-```
-
-### linear_gaussian_transition_model
-
-We may use an ilike function to specify the complete linear-Gaussian transition model.
-
-#### Linear-Gaussian transition model `ilike::linear_gaussian_transition_model`
-
-Specifies the linear-Gaussian transition model with constant matrices, in place of the four function types above, e.g. `/***linear_gaussian_transition_model,ilike::linear_gaussian_transition_model(x,0.9,0.5)***/`.
-
-Inputs:
-
-  1. string: The name of the latent state variable $x$
-  
-  2. matrix: The matrix $A$
-  
-  3. matrix: The covariance matrix $Q$
-  
-## Nonlinear-Gaussian transition model
-
-The nonlinear-Gaussian transition model subtype may be used to specify a model where the state $x_t$ has a Gaussian distribution where the mean depends nonlinearly on $x_{t-1}$, plus some Gaussian noise, i.e.
-
+gives the transition
 $$
-x_t \sim \mathcal{N}(g(x_{t-1}), Q)
-(\#eq:nlgtm)
+x_t \sim \mathcal{N}(f(x_{t-1}), Q),
 $$
-where $g$ is a function and $Q$ is a covariance matrix. To specify the model we need to provide the variable name ($x$), the function $g$ and the matrix $Q$. To do this the user must provide three function types, respectively: `nonlinear_gaussian_transition_variable`, `nonlinear_gaussian_transition_function` and `nonlinear_gaussian_transition_covariance`.
+where $f$ is a function of the state (and parameters) returning the predicted state: `Parameters f(const Parameters &parameters)` in C++. The covariance is given as for the linear-Gaussian transition.
 
-### nonlinear_gaussian_transition_variable
+### A built-in random walk
 
-Specifies the name of the observed transition variable. There are no input arguments.
-
-Output: The name of the observed transition variable.
-
-  -- of type `const std::string &` in a C++ function
-  
-  -- a string in R.
-
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***nonlinear_gaussian_transition_variable***/
-std::string set_variable()
-{
-  return "x";
-}
+```
+transition x = norm_rw(x, 0.5)
 ```
 
-R example:
+gives a random walk on the state, using one of the random walks of section \@ref(mcmc-proposals) (`norm_rw`, `mvnorm_rw`, `unif_rw`, `mvunif_rw`); the state may be left out (`norm_rw(0.5)`).
 
-```{Rcpp,eval=FALSE}
-/***nonlinear_gaussian_transition_variable,"x"***/
+### A transition written as functions
+
+```
+transition x = density(simulate = cpp::simulate_state, log = cpp::log_transition)
 ```
 
-### nonlinear_gaussian_transition_function
+gives a transition written by the user:
 
-Specifies the function $g$ in the nonlinear-Gaussian transition model.
+- `simulate` simulates the state at time $t$ given the state at time $t-1$ and any parameters that the model relies on: `Parameters f(RandomNumberGenerator &rng, const Parameters &parameters)` in C++, where `parameters` holds $x_{t-1}$ and the parameters, and the function returns $x_t$;
+- `log` evaluates the log transition density: `double f(const Parameters &proposed_parameters, const Parameters &parameters)`, with $x_t$ in `proposed_parameters` and $x_{t-1}$ in `parameters`.
 
-Input: The state $x$ and any parameters that the function relies on (the latter may be included to allow the specification of a parameter-dependent function)
+Only the functions required by the chosen inference algorithm need be given: for example, the bootstrap particle filter does not evaluate the density of the transition model, so `log` may be left out.
 
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `parameters` in an R function
-  
-Output: The output of the function $g$ in equation \@ref(eq:nlgtm).
+## Transition proposals {#transition-proposal}
 
-  -- of type `const Parameters &` in a C++ function
-  
-  -- a list in R.
+A particle filter moves its particles from time $t-1$ to time $t$ using a *transition proposal*. If none is given, the transition model is used as the proposal, yielding the bootstrap filter of @gordon1993novel. A proposal that also uses the measurement at time $t$ (a "guided" proposal) can give a much better estimate of the likelihood. It is given in the algorithm section, by `transition_proposal`:
 
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***nonlinear_gaussian_transition_function***/
-Parameters transform_state(const Parameters &xtminus1_and_theta)
-{
-  arma::colvec noiseless_xt(1,1);
-  noiseless_xt[0] = exp(xtminus1_and_theta["x"][0]) + xtminus1_and_theta["theta"][0];
-  return Parameters("x", noiseless_xt);
-}
+```{r, echo=FALSE, comment=""}
+cat(readLines("examples/language/ssm_guided.ilike"), sep = "\n")
 ```
 
-R example:
+- `simulate` simulates the state at time $t$: `Parameters f(RandomNumberGenerator &rng, const Parameters &parameters, const Data &data)` in C++, where `parameters` holds $x_{t-1}$ and the parameters, including the index variable of the SSM (here `i`), set to the index of the time $t$ being proposed, together with the time and time-difference variables; and `data` holds the data at time $t$: the measurement(s) of the time being proposed (`data["y"]` is $y_t$, not the whole series).
+- `log` evaluates the log density of the proposal: `double f(const Parameters &proposed_parameters, const Parameters &parameters, const Data &data)`.
 
-```{Rcpp,eval=FALSE}
-/***nonlinear_gaussian_transition_function,x=exp(parameters$x)+parameters$theta***/
-```
-
-### nonlinear_gaussian_transition_covariance
-
-Specifies the covariance matrix $Q$ in the nonlinear-Gaussian transition model.
-
-Input (optional): Parameters that the matrix relies on, to allow the specification of a parameter-dependent matrix.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `parameters` in an R function
-  
-Output: The covariance matrix $Q$ in equation \@ref(eq:nlgtm).
-
-  -- of type `arma::mat` in a C++ function
-  
-  -- a matrix in R.
-  
-C++ examples:
-
-```{Rcpp,eval=FALSE}
-/***nonlinear_gaussian_transition_covariance***/
-arma::mat set_covariance()
-{
-  arma::mat Q(2,2);
-  Q(0,0) = 1.0;
-  Q(0,1) = 0.0;
-  Q(1,0) = 0.0;
-  Q(1,1) = 1.0;
-  return Q;
-}
-```
-
-or
-
-```{Rcpp,eval=FALSE}
-/***nonlinear_gaussian_transition_covariance***/
-arma::mat set_covariance(const Parameters &parameters)
-{
-  double scale = parameters["scale"][0];
-  arma::mat Q(2,2);
-  Q,0) = scale;
-  Q(0,1) = 0.0;
-  Q(1,0) = 0.0;
-  Q(1,1) = scale;
-  return Q;
-}
-```
- 
-R examples:
-
-```{Rcpp,eval=FALSE}
-/***nonlinear_gaussian_transition_covariance,diag(2)***/
-```
-
-or
-
-```{Rcpp,eval=FALSE}
-/***nonlinear_gaussian_transition_covariance,parameters$scale*diag(2)***/
-```
-
-## User-defined transition model
-
-The functions in this section allow the specification of a user-defined transition model. The two possible function types are `simulate_transition_model` and `evaluate_log_transition_model`. Only the functions required by the chosen inference algorithm need be specified: for example, bootstrap particle filter does not need to evaluate the density of the transition model, so this function type does not need to be provided.
-
-### simulate_transition model
-
-The `simulate_transition_model` function type simulates the latent state at time $t$ given the latent state at time $t-1$ and any parameters that the model relies on.
-
-Input: (C++ only) The random number generator.
-
-  -- of type `RandomNumberGenerator &` in a C++ function
-
-Input: The latent state at time $t-1$ and any parameters that the model relies on.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `parameters` in an R function
-  
-Output: The latent state at time $t$.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- of type `list` in R
-  
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***simulate_transition_model***/
-Parameters simulate_state(RandomNumberGenerator &rng,
-                          const Parameters &xtminus1_and_theta)
-{
-  arma::colvec xt(1);
-  xt[0] = rnorm(rng, exp(xtminus1_and_theta["x"][0]) + xtminus1_and_theta["theta"][0], 1.0);
-  return Parameters("x", xt);
-}
-```
-
-R example:
-
-```{Rcpp,eval=FALSE}
-/***simulate_transition_model,x=rnorm(1,exp(parameters$x)+parameters$theta,1)***/
-```
-
-### evaluate_log_transition_model
-
-The `evaluate_log_transition_model` function type evaluates the log transition density of the latent state at time $t$ given the latent state at time $t-1$ and any parameters that the model relies on.
-
-Input: The proposed latent state at time $t$ and any parameters that the model relies on.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `proposed_parameters` in an R function
-  
-Input: The latent state at time $t-1$ and any parameters that the model relies on.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `parameters` in an R function
-  
-Output: The log transition density of the latent state at time $t$ given the latent state at time $t-1$. 
-
-  -- of type `double` in a C++ function
-  
-  -- of type `numeric` in R
-  
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***evaluate_log_transition_model***/
-double log_transition_density(const Parameters &proposed_parameters,
-                              const Parameters &parameters)
-{
-  double x = proposed_parameters["x"][0];
-  double xminus1 = parameters["x"][0];
-  double theta = parameters["theta"][0];
-  return dnorm(x, exp(xminus1) + theta, 1.0);
-}
-```
-
-R example:
-
-```{Rcpp,eval=FALSE}
-/***evaluate_log_transition_model,dnorm(proposed_parameters$x,exp(parameters$x)+parameters$theta,1,log=TRUE)***/
-```
-
-
-<!-- ## Linear-Gaussian transition proposal -->
-
-<!-- The linear-Gaussian transition proposal subtype may be used to specify a transition proposal for a particle filter that consists of a linear function of the state, plus some Gaussian noise, i.e. -->
-
-<!-- $$ -->
-<!-- x_t \sim \mathcal{N}(A x_{t-1}, Q) -->
-<!-- (\#eq:lgtm) -->
-<!-- $$ -->
-<!-- where $A$ is a matrix and $Q$ is a covariance matrix. To specify the proposal we need to provide the state name ($x$ here), the matrix $A$ and the matrix $Q$. -->
-
-<!-- There are two ways of specifying a linear-Gaussian data proposal: -->
-
-<!-- 1. Through the function types `linear_gaussian_transition_variable` (specifying the name of the $x$ variable), `linear_gaussian_transition_matrix` (specifying the $A$ matrix), and `linear_gaussian_transition_covariance` (specifying the name of the $Q$ matrix), The user needs to provide **all** of these functions in order to fully specify the proposal. -->
-
-<!-- 2. Through the function type `linear_gaussian_transition_proposal`, which allows the user to specify the complete proposal through an ilike function. -->
-
-<!-- We now detail the function types. -->
-
-<!-- ### linear_gaussian_transition_variable -->
-
-<!-- Specifies the name of the observed transition variable in the linear-Gaussian transition proposal. There are no input arguments. -->
-
-<!-- Output: The name of the variable used as $x$ in equation \@ref(eq:lgtm). -->
-
-<!--   -- of type `const std::string &` in a C++ function -->
-
-<!--   -- a string in R. -->
-
-<!-- C++ example: -->
-
-<!-- ```{Rcpp,eval=FALSE} -->
-<!-- /***linear_gaussian_transition_variable***/ -->
-<!-- std::string set_transition_variable() -->
-<!-- { -->
-<!--   return "x"; -->
-<!-- } -->
-<!-- ``` -->
-
-<!-- R example: -->
-
-<!-- ```{Rcpp,eval=FALSE} -->
-<!-- /***linear_gaussian_transition_variable,"x"***/ -->
-<!-- ``` -->
-
-<!-- ### linear_gaussian_transition_matrix -->
-
-<!-- Specifies the matrix $A$ in the linear-Gaussian transition proposal. -->
-
-<!-- Input (optional): Parameters that the matrix relies on, to allow the specification of a parameter-dependent matrix. -->
-
-<!--   -- of type `const Parameters &` in a C++ function -->
-
-<!--   -- available as R list `parameters` in an R function -->
-
-<!-- Output: The matrix $A$ in equation \@ref(eq:lgtm). -->
-
-<!--   -- of type `arma::mat` in a C++ function -->
-
-<!--   -- a matrix in R. -->
-
-<!-- C++ examples: -->
-
-<!-- ```{Rcpp,eval=FALSE} -->
-<!-- /***linear_gaussian_transition_matrix***/ -->
-<!-- arma::mat set_matrix() -->
-<!-- { -->
-<!--   arma::mat A(2,2); -->
-<!--   A(0,0) = 1.0; -->
-<!--   A(0,1) = 0.0; -->
-<!--   A(1,0) = 0.0; -->
-<!--   A(1,1) = 1.0; -->
-<!--   return A; -->
-<!-- } -->
-<!-- ``` -->
-
-<!-- or -->
-
-<!-- ```{Rcpp,eval=FALSE} -->
-<!-- /***linear_gaussian_transition_matrix***/ -->
-<!-- arma::mat set_matrix(const Parameters &parameters) -->
-<!-- { -->
-<!--   double scale = parameters["scale"][0]; -->
-<!--   arma::mat A(2,2); -->
-<!--   A(0,0) = scale; -->
-<!--   A(0,1) = 0.0; -->
-<!--   A(1,0) = 0.0; -->
-<!--   A(1,1) = scale; -->
-<!--   return A; -->
-<!-- } -->
-<!-- ``` -->
-
-<!-- R example: -->
-
-<!-- ```{Rcpp,eval=FALSE} -->
-<!-- /***linear_gaussian_transition_matrix,diag(2)***/ -->
-<!-- ``` -->
-
-<!-- or -->
-
-<!-- ```{Rcpp,eval=FALSE} -->
-<!-- /***linear_gaussian_transition_matrix,parameters$scale*diag(2)***/ -->
-<!-- ``` -->
-
-<!-- ### linear_gaussian_transition_covariance -->
-
-<!-- Specifies the covariance matrix $Q$ in the linear-Gaussian transition proposal. -->
-
-<!-- Input (optional): Parameters that the matrix relies on, to allow the specification of a parameter-dependent matrix. -->
-
-<!--   -- of type `const Parameters &` in a C++ function -->
-
-<!--   -- available as R list `parameters` in an R function -->
-
-<!-- Output: The covariance matrix $Q$ in equation \@ref(eq:lgtm). -->
-
-<!--   -- of type `arma::mat` in a C++ function -->
-
-<!--   -- a matrix in R -->
-
-<!-- C++ examples: -->
-
-<!-- ```{Rcpp,eval=FALSE} -->
-<!-- /***linear_gaussian_transition_covariance***/ -->
-<!-- arma::mat set_covariance() -->
-<!-- { -->
-<!--   arma::mat Q(2,2); -->
-<!--   Q(0,0) = 1.0; -->
-<!--   Q(0,1) = 0.0; -->
-<!--   Q(1,0) = 0.0; -->
-<!--   Q(1,1) = 1.0; -->
-<!--   return Q; -->
-<!-- } -->
-<!-- ``` -->
-
-<!-- or -->
-
-<!-- ```{Rcpp,eval=FALSE} -->
-<!-- /***linear_gaussian_transition_covariance***/ -->
-<!-- arma::mat set_covariance(const Parameters &parameters) -->
-<!-- { -->
-<!--   double scale = parameters["scale"][0]; -->
-<!--   arma::mat Q(2,2); -->
-<!--   Q(0,0) = scale; -->
-<!--   Q(0,1) = 0.0; -->
-<!--   Q(1,0) = 0.0; -->
-<!--   Q(1,1) = scale; -->
-<!--   return Q; -->
-<!-- } -->
-<!-- ``` -->
-
-<!-- R examples: -->
-
-<!-- ```{Rcpp,eval=FALSE} -->
-<!-- /***linear_gaussian_transition_covariance,diag(2)***/ -->
-<!-- ``` -->
-
-<!-- or -->
-
-<!-- ```{Rcpp,eval=FALSE} -->
-<!-- /***linear_gaussian_transition_covariance,parameters$scale*diag(2)***/ -->
-<!-- ``` -->
-
-<!-- ### linear_gaussian_transition_proposal -->
-
-<!-- We may use an ilike function to specify the complete linear-Gaussian transition proposal. -->
-
-<!-- #### Linear-Gaussian transition proposal `ilike::linear_gaussian_transition_proposal` -->
-
-<!-- Specifies the linear-Gaussian transition proposal. -->
-
-<!-- Inputs: -->
-
-<!--   1. string: The name of the observed transition variable -->
-
-<!--   2. string: The name of the latent state variable -->
-
-<!--   3. matrix: The matrix $A$ -->
-
-<!--   4. matrix: The covariance matrix $Q$ -->
-
-<!-- ## Nonlinear-Gaussian transition proposal -->
-
-<!-- The nonlinear-Gaussian transition proposal subtype may be used to specify a proposal where the state $x_t$ has a Gaussian distribution where the mean depends nonlinearly on $x_{t-1}$, plus some Gaussian noise, i.e. -->
-
-<!-- $$ -->
-<!-- x_t \sim \mathcal{N}(g(x_{t-1}), Q) -->
-<!-- (\#eq:nlgtm) -->
-<!-- $$ -->
-<!-- where $g$ is a function and $Q$ is a covariance matrix. To specify the proposal we need to provide the variable name ($x$), the function $g$ and the matrix $Q$. To do this the user must provide three function types, respectively: `nonlinear_gaussian_transition_variable`, `nonlinear_gaussian_transition_function` and `nonlinear_gaussian_transition_covariance`. -->
-
-<!-- ### nonlinear_gaussian_transition_variable -->
-
-<!-- Specifies the name of the observed transition variable. There are no input arguments. -->
-
-<!-- Output: The name of the observed transition variable. -->
-
-<!--   -- of type `const std::string &` in a C++ function -->
-
-<!--   -- a string in R. -->
-
-<!-- C++ example: -->
-
-<!-- ```{Rcpp,eval=FALSE} -->
-<!-- /***nonlinear_gaussian_transition_variable***/ -->
-<!-- std::string set_variable() -->
-<!-- { -->
-<!--   return "x"; -->
-<!-- } -->
-<!-- ``` -->
-
-<!-- R example: -->
-
-<!-- ```{Rcpp,eval=FALSE} -->
-<!-- /***nonlinear_gaussian_transition_variable,"x"***/ -->
-<!-- ``` -->
-
-<!-- ### nonlinear_gaussian_transition_function -->
-
-<!-- Specifies the function $g$ in the nonlinear-Gaussian transition proposal. -->
-
-<!-- Input: The state $x$ and any parameters that the function relies on (the latter may be included to allow the specification of a parameter-dependent function) -->
-
-<!--   -- of type `const Parameters &` in a C++ function -->
-
-<!--   -- available as R list `parameters` in an R function -->
-
-<!-- Output: The output of the function $g$ in equation \@ref(eq:nlgtm). -->
-
-<!--   -- of type `const Parameters &` in a C++ function -->
-
-<!--   -- a list in R. -->
-
-<!-- C++ example: -->
-
-<!-- ```{Rcpp,eval=FALSE} -->
-<!-- /***nonlinear_gaussian_transition_function***/ -->
-<!-- Parameters transform_state(const Parameters &xtminus1_and_theta) -->
-<!-- { -->
-<!--   arma::colvec noiseless_xt(1,1); -->
-<!--   noiseless_xt[0] = exp(xtminus1_and_theta["x"][0]) + xtminus1_and_theta["theta"][0]; -->
-<!--   return Parameters("x", noiseless_xt); -->
-<!-- } -->
-<!-- ``` -->
-
-<!-- R example: -->
-
-<!-- ```{Rcpp,eval=FALSE} -->
-<!-- /***nonlinear_gaussian_transition_function,x=exp(parameters$x)+parameters$theta***/ -->
-<!-- ``` -->
-
-<!-- ### nonlinear_gaussian_transition_covariance -->
-
-<!-- Specifies the covariance matrix $Q$ in the nonlinear-Gaussian transition proposal. -->
-
-<!-- Input (optional): Parameters that the matrix relies on, to allow the specification of a parameter-dependent matrix. -->
-
-<!--   -- of type `const Parameters &` in a C++ function -->
-
-<!--   -- available as R list `parameters` in an R function -->
-
-<!-- Output: The covariance matrix $Q$ in equation \@ref(eq:nlgtm). -->
-
-<!--   -- of type `arma::mat` in a C++ function -->
-
-<!--   -- a matrix in R. -->
-
-<!-- C++ examples: -->
-
-<!-- ```{Rcpp,eval=FALSE} -->
-<!-- /***nonlinear_gaussian_transition_covariance***/ -->
-<!-- arma::mat set_covariance() -->
-<!-- { -->
-<!--   arma::mat Q(2,2); -->
-<!--   Q(0,0) = 1.0; -->
-<!--   Q(0,1) = 0.0; -->
-<!--   Q(1,0) = 0.0; -->
-<!--   Q(1,1) = 1.0; -->
-<!--   return Q; -->
-<!-- } -->
-<!-- ``` -->
-
-<!-- or -->
-
-<!-- ```{Rcpp,eval=FALSE} -->
-<!-- /***nonlinear_gaussian_transition_covariance***/ -->
-<!-- arma::mat set_covariance(const Parameters &parameters) -->
-<!-- { -->
-<!--   double scale = parameters["scale"][0]; -->
-<!--   arma::mat Q(2,2); -->
-<!--   Q,0) = scale; -->
-<!--   Q(0,1) = 0.0; -->
-<!--   Q(1,0) = 0.0; -->
-<!--   Q(1,1) = scale; -->
-<!--   return Q; -->
-<!-- } -->
-<!-- ``` -->
-
-<!-- R examples: -->
-
-<!-- ```{Rcpp,eval=FALSE} -->
-<!-- /***nonlinear_gaussian_transition_covariance,diag(2)***/ -->
-<!-- ``` -->
-
-<!-- or -->
-
-<!-- ```{Rcpp,eval=FALSE} -->
-<!-- /***nonlinear_gaussian_transition_covariance,parameters$scale*diag(2)***/ -->
-<!-- ``` -->
-
-## User-defined transition proposal
-
-The functions in this section allow the specification of a user-defined transition proposal. The two possible function types are `simulate_transition_proposal` and `evaluate_log_transition_proposal`. Only the functions required by the chosen inference algorithm need be specified: for example, bootstrap particle filter does not need to evaluate the density of the transition proposal, so this function type does not need to be provided.
-
-### simulate_transition proposal
-
-The `simulate_transition_proposal` function type simulates the latent state at time $t$ given the latent state at time $t-1$ and any parameters that the proposal relies on. Unlike the transition model, the proposal is also given the data, so that it may use the measurement at time $t$ (for example to construct a guided proposal).
-
-Input: (C++ only) The random number generator.
-
-  -- of type `RandomNumberGenerator &` in a C++ function
-
-Input: The latent state at time $t-1$ and any parameters that the proposal relies on. These also contain the index variable of the SSM (the first argument of `ilike::ssm`, e.g. `i`), set to the index of the time $t$ being proposed, together with the time and time-difference variables.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `parameters` in an R function
-
-Input: The data at time $t$: the measurement(s) of the time being proposed (e.g. `data["y"]` is $y_t$, not the whole series).
-
-  -- of type `const Data &` in a C++ function
-  
-  -- available as R list `data` in an R function
-  
-Output: The latent state at time $t$.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- of type `list` in R
-  
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***simulate_transition_proposal***/
-Parameters simulate_state(RandomNumberGenerator &rng,
-                          const Parameters &xtminus1_and_theta,
-                          const Data &data)
-{
-  arma::colvec xt(1);
-  xt[0] = rnorm(rng, exp(xtminus1_and_theta["x"][0]) + xtminus1_and_theta["theta"][0], 1.0);
-  return Parameters("x", xt);
-}
-```
-
-R example:
-
-```{Rcpp,eval=FALSE}
-/***simulate_transition_proposal,x=rnorm(1,exp(parameters$x)+parameters$theta,1)***/
-```
-
-### evaluate_log_transition_proposal
-
-The `evaluate_log_transition_proposal` function type evaluates the log transition density of the latent state at time $t$ given the latent state at time $t-1$ and any parameters that the proposal relies on.
-
-Input: The proposed latent state at time $t$ and any parameters that the proposal relies on.
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `proposed_parameters` in an R function
-  
-Input: The latent state at time $t-1$ and any parameters that the proposal relies on (including the index variable of the SSM, as for `simulate_transition_proposal`).
-
-  -- of type `const Parameters &` in a C++ function
-  
-  -- available as R list `parameters` in an R function
-
-Input: The data at time $t$: the measurement(s) of the time being proposed (e.g. `data["y"]` is $y_t$, not the whole series).
-
-  -- of type `const Data &` in a C++ function
-  
-  -- available as R list `data` in an R function
-  
-Output: The log transition density of the latent state at time $t$ given the latent state at time $t-1$. 
-
-  -- of type `double` in a C++ function
-  
-  -- of type `numeric` in R
-  
-C++ example:
-
-```{Rcpp,eval=FALSE}
-/***evaluate_log_transition_proposal***/
-double log_transition_density(const Parameters &proposed_parameters,
-                              const Parameters &parameters,
-                              const Data &data)
-{
-  double x = proposed_parameters["x"][0];
-  double xminus1 = parameters["x"][0];
-  double theta = parameters["theta"][0];
-  return dnorm(x, exp(xminus1) + theta, 1.0);
-}
-```
-
-R example:
-
-```{Rcpp,eval=FALSE}
-/***evaluate_log_transition_proposal,dnorm(proposed_parameters$x,exp(parameters$x)+parameters$theta,1,log=TRUE)***/
-```
-
-
+A particle filter with a transition proposal evaluates the transition model's density in its weights, so the transition model must then have `log` (or be one of the built-in transitions).

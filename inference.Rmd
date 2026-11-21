@@ -47,17 +47,17 @@ $$
 
 We may also be interested in maxima of the likelihood (the maximum likelihood estimator, MLE) or the posterior distribution (the maximum *a posteriori* estimator, MAP).
 
-One feature of the of the ilike package is the ability to use estimated likelihoods: for example using a sequential Monte Carlo algorithm for estimating the likelihood when using particle MCMC. A user might wonder at the validity of this approach when mixing and matching estimating likelihoods with different inference algorithms. Fortunately, this is easy to justify: details can be found in appendix \@ref(estimated-likelihoods).
+One feature of the ilike package is the ability to use estimated likelihoods: for example using a particle filter for estimating the likelihood when using particle MCMC (section \@ref(algorithmic-likelihood)). A user might wonder at the validity of this approach when mixing and matching estimated likelihoods with different inference algorithms. Fortunately, this is easy to justify: when the estimate of the likelihood is unbiased, each algorithm targets the correct distribution, through the pseudo-marginal argument [@andrieu2010particle].
 
 ## Inference algorithm arguments {#inference-arguments}
 
-All inference algorithms have the following arguments in common. All users are encouraged to reed about the first two items on this page: the `recipe`, which is the means for providing ilike with the functions used in the inference algorithm and is required in all runs of an ilike algorithm; and the `results_name`, which is used in most circumstances.
+All inference algorithms have the following arguments in common. All users are encouraged to read about the first two items on this page: the `recipe`, which is the means for providing ilike with the functions used in the inference algorithm and is required in all runs of an ilike algorithm; and the `results_name`, which is used in most circumstances.
 
 ### `recipe` (required)
 
-Every inference algorithm requires the specification of a model, in most cases additionally some observed data and parameters required by the inference algorithm (collectively referred to in this documentation as a "recipe"). These must be specified in ilike files by the user (see section \@ref(ilike-files)). The `recipe` argument for an inference algorithm can be provided in three possible ways:
+Every inference algorithm requires the specification of a model, in most cases additionally some observed data and parameters required by the inference algorithm (collectively referred to in this documentation as a "recipe"). These are written in ilike files by the user (see chapter \@ref(ilike-files)). The `recipe` argument for an inference algorithm can be provided in three possible ways:
 
-1. Compiled, as an ilike recipe object, through the `compile` function. Using a pre-compiled model is the most suitable approach where you wish to perform multiple runs of the same algorithm on the same model/data, where some parameters are changed from one run to the next.
+1. Compiled, as an ilike recipe object, through the `compile` function (section \@ref(compiling)). Using a pre-compiled model is the most suitable approach where you wish to perform multiple runs of the same algorithm on the same model/data, where some constants are changed from one run to the next.
 
 2. As the filename of an ilike file. This is a suitable approach when performing a single run of an algorithm on a particular model/data.
 
@@ -73,9 +73,15 @@ The results written to file depend on which algorithm is called. For MCMC, the f
 
 The name of the directory where the folder with name `results_name` will be written. The default is the current working directory.
 
+### `algorithm` (optional)
+
+The name of the algorithm section of the recipe to run (section \@ref(algorithm-sections)). It may be left out when the recipe has only one algorithm section.
+
 ### `model_parameter_list` (optional)
 
-In the ilike file, some parameters can be left unspecified - instead given as `p1`, `p2`, etc. These parameters must can be provided at runtime in the `model_parameter_list` argument. The order of the parameters in this list must match the order in which they appear in the ilike file.
+The values of the recipe's constants (section \@ref(constants)), as a named list: `model_parameter_list = list(Sigma0 = diag(2), n_iter = 50000)`. Constants with defaults need not be given. Constants whose values are needed when compiling (those used in model statements, for example) are given to `compile()` instead; see section \@ref(constants).
+
+(For a recipe in the earlier format of ilike files, appendix \@ref(old-format), the list is unnamed, and its elements are the values of `p1`, `p2`, … in order.)
 
 ### `fixed_parameter_list` (optional)
 
@@ -83,19 +89,19 @@ In C++ functions, for example those provided for evaluating a prior or likelihoo
 
 ### `external_packages` (optional)
 
-If the ilike file contains R functions (see section \@ref(R)) that make use of packages, their names must be provided here. Each package name must be an element in a vector of strings (e.g. `external_packages = c("distributional", "mvtnorm"))`.
+If the ilike file contains R functions (see section \@ref(functions-other-languages)) that make use of packages, their names must be provided here. Each package name must be an element in a vector of strings (e.g. `external_packages = c("distributional", "mvtnorm"))`.
 
 ### `julia_bin_dir` (optional)
 
-If the ilike file contains Julia functions (see section \@ref(julia)), the path to the Julia binary must be provided here.
+If the ilike file contains Julia functions (see section \@ref(functions-other-languages)), the path to the Julia binary must be provided here.
 
 ### `julia_required_libraries` (optional)
 
-If the ilike file contains Julia functions (see section \@ref(julia)) that make use of Julia librry, their names must be provided here. Each package name must be an element in a vector of strings (e.g. `julia_required_libraries = c("Distributions", "StatsBase"))`.
+If the ilike file contains Julia functions (see section \@ref(functions-other-languages)) that make use of Julia libraries, their names must be provided here. Each package name must be an element in a vector of strings (e.g. `julia_required_libraries = c("Distributions", "StatsBase"))`.
 
-### `keep_temporary_model_code` (optional)
+### `keep_temporary_recipe_code` (optional)
 
-If `TRUE`, the temporary files created during the compilation of the ilike file will be kept. This can be useful for debugging purposes. The default is `FALSE`.
+If `TRUE`, the C++ file generated when compiling the ilike file is kept, and its name printed. This can be useful for debugging purposes. The default is `FALSE`.
 
 ### `seed` (optional)
 
@@ -109,13 +115,13 @@ For `IS`, `MCMC`, `SMC_with_MCMC` and `PF`, a parallel run gives *exactly* the s
 
 Parallel runs require:
 
-- a recipe whose functions are written in C++ or are ilike built-in functions (functions written in R, Python or Julia cannot be called from several threads at once);
-- for `SMC_with_MCMC`: exact or annealed factors, and an MCMC termination with a fixed number of iterations (`ilike::iterations`);
+- a recipe whose functions are written in C++, as model statements, or are ilike built-in functions (functions written in R, Python or Julia cannot be called from several threads at once);
+- for `SMC_with_MCMC`: exact or annealed factors, and an MCMC termination with a fixed number of iterations (`termination = iterations(n)`);
 - MCMC moves that do not adapt (section \@ref(adaptive-mcmc)).
 
 If these are not met, the run (or the part of it that cannot be done in parallel) is done sequentially, with a warning. Resampling and the writing of output are always sequential.
 
-When the likelihood is itself estimated by an algorithm (e.g. a particle filter inside particle marginal Metropolis-Hastings, see section \@ref(algorithmic_likelihood)), parallelism can be used in either of two places: the outer algorithm can run its points in parallel (each with its own inner filter), or the inner filter can run its particles in parallel (by setting its own `parallel` argument; see the particle filter's arguments in section \@ref(algorithmic_likelihood)). Running the outer algorithm in parallel usually gives the larger gain.
+When the likelihood is itself estimated by an algorithm (e.g. a particle filter inside particle marginal Metropolis-Hastings, see section \@ref(algorithmic-likelihood)), parallelism can be used in either of two places: the outer algorithm can run its points in parallel (each with its own inner filter), or the inner filter can run its particles in parallel (by setting its own `parallel` argument; see the particle filter's arguments in section \@ref(algorithmic-likelihood)). Running the outer algorithm in parallel usually gives the larger gain.
 
 ### `grain_size` (optional)
 
@@ -132,6 +138,21 @@ If `TRUE`, a progress bar is shown while the algorithm runs. The default is `get
 ### `write_factor_output` (optional)
 
 If `TRUE` (the default), the output of each factor at each point is written along with the points: for example, the particles of a particle filter used to estimate the likelihood, which are needed to load nested output with `load_smc_output(..., nesting_level = 1)` (section \@ref(output)). If `FALSE`, only the points, their weights and the estimates of the normalising constant are written, which saves time and disk space.
+
+### Settings in files and in R {#settings-in-files}
+
+The arguments of the inference functions that describe the run, such as `number_of_particles`, `number_of_chains`, `grain_size` or `smc_iterations_to_store`, may also be written in the algorithm section of the recipe:
+
+```
+algorithm filter {
+  particles = 500
+  iterations_to_store = 3
+}
+```
+
+Each such setting has the same name as the argument, or the argument's name without its `number_of_` prefix (`particles` for `number_of_particles`, `chains` for `number_of_chains`), and `iterations_to_store` for the argument ending `_iterations_to_store`. An argument given in the call to the R function overrides the setting in the file. A setting that is not an argument of the function being run is an error, which lists the settings that the function accepts.
+
+The same names are used for the settings of an algorithmic likelihood (section \@ref(algorithmic-likelihood)): `factor f = pf(inner, particles = 500)` runs the filter with 500 particles, and, without `particles`, with the `particles` setting of `inner`'s algorithm section, which is also what `PF` uses when the file `inner.ilike` is run from R. So a model file behaves in the same way whether it is run from R or used inside another file.
 
 ### Stopping a run
 
@@ -179,13 +200,13 @@ To run an importance sampler, we need to be able to:
 
 3. in order to implement equation \@ref(eq:is-weight), evaluate the unnormalised target $\tilde{\pi}$ pointwise at $\theta$;
 
-Points 1 and 2 require a proposal to be fully specified (simulation and evaluation) in the recipe, using the approaches in sections \@ref(user-proposal) and \@ref(ilike-proposal). Point 3 requires the target distribution to be fully specified, via a model (section \@ref(models)).
+Points 1 and 2 require a proposal to be fully specified (simulation and evaluation) in the recipe, through the `proposal` setting of the algorithm section (section \@ref(is-proposal)). Point 3 requires the target distribution to be fully specified, via a model (chapter \@ref(models)).
 
 There is one exception to this rule: in the case of Bayesian computation where the prior $p$ is chosen as the proposal $q$. In this case equation \@ref(eq:is-weight) simplifies to
 $$
 \tilde{w}^i = \frac{\tilde{\pi}(\theta^i)}{q(\theta^i)} = \frac{p(\theta^i) f(y\mid \theta^i) }{p(\theta^i)} = f(y\mid \theta^i),
 $$
-so that to implement IS we need only to be able to simulate from the prior $p$ and evaluate the likelihood $f$. In this case the recipe may be entirely specified though following the model specification in section \@ref(models), and the `IS` function will automatically use the prior as the proposal. In this case, only a method for simulating from the prior need be specified.
+so that to implement IS we need only to be able to simulate from the prior $p$ and evaluate the likelihood $f$. In this case the recipe may be entirely specified through the model (chapter \@ref(models)), and the `IS` function will automatically use the prior as the proposal when no `proposal` is given. Only a method for simulating from the prior is then needed: priors written as model statements, and built-in priors, can always be simulated; a prior written as a function needs `simulate` (section \@ref(user-factors)). The algorithm section may then be empty (`algorithm is { }`), or hold settings such as `importance_points = 1000`.
 
 ## MCMC {#inference-mcmc}
 
@@ -212,11 +233,11 @@ Here $q$ is *proposal* distribution that is used at each iteration to propose a 
 
 Despite the apparent simplicity of this algorithm, MCMC encompasses a wide range of different approaches. Most well-known methods, including Gibbs sampling, MALA, HMC and NUTS are special cases of MH. For a description of a number of common approaches, see @brooks2011handbook.
 
-Most of the specification of an MCMC algorithm in ilike is done through the receipe: see section \@ref(mcmc) for full detail. Section \@ref(mcmc-output) then describes how to visualise the output of the MCMC algorithm after it has finished running. In this section we only describe how to run the MCMC algorithm, through calling the `MCMC` function.
+Most of the specification of an MCMC algorithm in ilike is done in the recipe's algorithm section: see chapter \@ref(mcmc) for full detail. Section \@ref(mcmc-output) then describes how to visualise the output of the MCMC algorithm after it has finished running. In this section we only describe how to run the MCMC algorithm, through calling the `MCMC` function.
 
 `MCMC` does not return anything^[MCMC output does not provide any useful direct estimate of $Z$. So in order to be be consistent with other inference algorithms which return the an estimate of $Z$.], but writes output to the specified `results_name` directory. In addition to the arguments described in section \@ref(inference-arguments), `MCMC` takes the arguments:
 
-- `initial_values` (optional) A list of lists containing the initial values for the chains. If it is not given, each of the `number_of_chains` chains starts at an independent draw from the recipe's importance proposal (the `is_proposal` blocks, section \@ref(smc)), or from the prior if the recipe has no importance proposal. Otherwise, the list gives the initial values directly. The length of the outer list should be equal to the number of chains; the inner list specifies the initial values of the parameters for each chain. For example, for a single chain on a model with parameters $\alpha$ and $\beta$, if we wanted the initial values to be 1 and 2 respectively, we would use
+- `initial_values` (optional) A list of lists containing the initial values for the chains. If it is not given, each of the `number_of_chains` chains starts at an independent draw from the algorithm section's importance proposal (the `proposal` setting, section \@ref(is-proposal)), or from the prior if it has none. Otherwise, the list gives the initial values directly. The length of the outer list should be equal to the number of chains; the inner list specifies the initial values of the parameters for each chain. For example, for a single chain on a model with parameters $\alpha$ and $\beta$, if we wanted the initial values to be 1 and 2 respectively, we would use
 
 ```{r}
 initial_values = list(list(α=1, β=2))
@@ -232,19 +253,19 @@ initial_values = replicate(3, list(α=1, β=2), simplify=FALSE)
 
 - `thin` (optional) Store only every `thin`th iteration of each chain (default is 1: every iteration is stored). There is no burn-in argument: discard the early iterations when analysing the output (section \@ref(mcmc-output)).
 
-- `check_factor_index` (optional) If `TRUE`, after every accepted update that has a factor index, re-evaluate the exact factors left out of the update and stop with an error if any changed value, that is, if one of them does not in fact cancel in the acceptance ratio (default `FALSE`; slower, intended for checking a model file; see section \@ref(mcmc)).
+- `check_factor_index` (optional) If `TRUE`, after every accepted update that has a factor index, re-evaluate the exact factors left out of the update and stop with an error if any changed value, that is, if one of them does not in fact cancel in the acceptance ratio (default `FALSE`; slower, intended for checking a model file; see section \@ref(selecting-factors)).
 
 MCMC moves can adapt their proposals as the chains run (adaptive MCMC): see section \@ref(adaptive-mcmc). Each chain then adapts its own proposal, and the adapted parameters can be loaded with `load_mcmc_adaptation` (section \@ref(mcmc-output)).
 
 ### ilike recipe requirements {#requirements-mcmc}
 
-To run an MCMC algorithm the user needs to provide the following in the recipe:
+To run an MCMC algorithm the user needs to provide the following in the algorithm section:
 
-1. a method for updating the chain;
+1. one or more moves for updating the chain (`move m = metropolis(…)`);
 
-2. the criterion for terminating the chain.
+2. the criterion for terminating the chain (`termination = iterations(10000)`).
 
-A complete description is provided in section \@ref(mcmc).
+A complete description is provided in chapter \@ref(mcmc).
 
 ## SMC with MCMC moves {#inference-smc}
 
@@ -272,9 +293,9 @@ A further illustration, on a different example, is shown in the animation below 
 
 The sequence of distributions is typically chosen such that the distance between successive distributions is small, with the aim that at step $t$, the particles from step $t-1$ do not need dramatically reweighting (we wish the variance of the weights to be small) to approximate $\pi_t$. One sequence of distributions that is commonly chosen in practice (including in the examples above) is $\pi_t \propto q^{1-\alpha_t} \pi^\alpha$, with $0 = \alpha_0 < \alpha_1 < ... < \alpha_{T} = 1$. This is commonly known as "annealing" or "tempering".
 
-The choice of the sequence of distributions significantly affects the performance of the algorithm, as does the choice of $K$, which moves the points at each iteration. In ilike, ths choice of $K$ is currently restricted to an MCMC kernel, which is specified in the same way as described in \@ref(mcmc). One use-case for ilike is that, having specifed an MCMC move, it is easy to use it in an SMC sampler as well as in a run of MCMC.
+The choice of the sequence of distributions significantly affects the performance of the algorithm, as does the choice of $K$, which moves the points at each iteration. In ilike, the choice of $K$ is currently restricted to an MCMC kernel, which is specified in the same way as described in chapter \@ref(mcmc). One use-case for ilike is that, having specifed an MCMC move, it is easy to use it in an SMC sampler as well as in a run of MCMC.
 
-Most of the specification of an SMC algorithm in ilike is done through the recipe: see section \@ref(smc) for full detail. Section \@ref(smc-output) then describes how to visualise the output of the SMC algorithm after it has finished running. In this section we only describe how to run the SMC algorithm, through calling the `SMC` function.
+Most of the specification of an SMC algorithm in ilike is done in the recipe's algorithm section: see chapter \@ref(smc) for full detail. Section \@ref(smc-output) then describes how to visualise the output of the SMC algorithm after it has finished running. In this section we only describe how to run the SMC algorithm, through calling the `SMC_with_MCMC` function.
 
 `SMC_with_MCMC` returns the estimate of the normalising constant $Z$ calculated from SMC output using
 
@@ -295,17 +316,17 @@ and also writes output to the specified `results_name` directory. In addition to
 
 In standard SMC, each of the $n$ particles is moved by an MCMC kernel, and only the final state of each MCMC chain is kept. Waste-free SMC [@dau2022waste] keeps every state instead. At each iteration, $M$ particles are resampled from the $n$ weighted particles, and each is used to start an MCMC chain of length $n/M$ (the resampled particle itself, followed by $n/M - 1$ MCMC moves). All $n$ states of the $M$ chains then form the next population of particles, which are reweighted for the next target as usual. With the same number of likelihood evaluations as standard SMC with one move per particle, the states that standard SMC would discard are used, and the length of the chains ($n/M$) replaces the number of MCMC iterations as the tuning parameter: longer chains (smaller $M$) suit targets on which the MCMC kernel mixes slowly. @dau2022waste suggest choosing $M$ so that $n/M$ is in the range of tens to hundreds.
 
-For example, with `number_of_particles = 10000` and `waste_free_chains = 100`, each iteration runs 100 chains of 100 states. When waste-free SMC is used, the number of MCMC moves is set by the chain length, whatever `mcmc_termination` says, and the estimate of the normalising constant is computed from all $n$ states.
+For example, with `number_of_particles = 10000` and `waste_free_chains = 100`, each iteration runs 100 chains of 100 states. When waste-free SMC is used, the number of MCMC moves is set by the chain length, whatever the `termination` of the moves says, and the estimate of the normalising constant is computed from all $n$ states.
 
-Waste-free SMC requires exact or annealed factors, an MCMC move that does not adapt, and `mcmc_termination` set to `ilike::iterations`.
+Waste-free SMC requires exact or annealed factors, an MCMC move that does not adapt, and the moves' termination set to `iterations(n)`.
 
 ### ilike recipe requirements {#requirements-smc}
 
-To run an SMC algorithm with MCMC moves the user needs to provide the requirements described in both those described in \@ref(requirements-is) (for IS) and in \@ref(requirements-mcmc) (for MCMC). As in IS, in the case of Bayesian computation, if the proposal is not specified, the prior will be used by default.
+To run an SMC algorithm with MCMC moves the user needs to provide the requirements described in both \@ref(requirements-is) (for IS) and \@ref(requirements-mcmc) (for MCMC), in one algorithm section. As in IS, in the case of Bayesian computation, if the proposal is not specified, the prior will be used by default.
 
-There are no other essential requirements to ensure that an SMC algorithm will run. However, if no sequence of distributions is set, the algorithm will default to performing IS. Thus the user should specify a sequence of distributions as described in section \@ref(smc-sequence).
+There are no other essential requirements to ensure that an SMC algorithm will run. However, if no sequence of distributions is set, the algorithm will default to performing IS. Thus the user should specify a sequence of distributions (`sequence = annealing(…)`) as described in section \@ref(smc-sequence).
 
-A complete description is provided in section \@ref(smc), including options to adaptively choose the sequence of distributions and to resample adaptively.
+A complete description is provided in chapter \@ref(smc), including options to adaptively choose the sequence of distributions and to resample adaptively.
 
 ## Particle filters {#inference-pf}
 
@@ -318,7 +339,7 @@ A further conditional independence assumption is made that $y_t$ is conditionall
 $$
 p\left( x_0 \right) \prod_{t=1}^T p_t\left(x_t \mid x_{t-1} \right) \prod_{t=0}^T f_t \left( y_t \mid x_t \right).
 $$
-SSMs are also used in sections \@ref(inference-enkf) and \ref@(inference-kf). We describe how to specify an SSM in ilike in chapter \@ref(ssm).
+SSMs are also used in sections \@ref(inference-enkf) and \@ref(inference-kf). We describe how to specify an SSM in ilike in chapter \@ref(ssm).
 
 PFs are focused on the inference goal of *filtering*: i.e. given measurements up to time $t$, inferring $\pi_t\left( x_t \mid y_{0:t} \right)$. As a by-product they also provide an estimator of the normalising constant $Z_t = p\left( y_{0:t} \right)$. A PF iteratively approximates $\pi_t\left( x_t \mid y_{0:t} \right)$ using a population of particles $\left\{ x^i_t \right\}_{i=1}^n$, with weights $\left\{ w^i_t \right\}_{i=1}^n$ through an SMC algorithm that use the following steps at iteration $t$ (on receipt of measurement $y_t$):
 
@@ -347,11 +368,13 @@ As for an SMC sampler, section \@ref(smc-output) then describes how to visualise
 
 To use the function `PF`, the recipe must specify:
 
-1. An IS proposal $q_0$, which is used to generate points at the 0th iteration of the PF. The specification would follow that described in section \@ref(user-proposal) or \@ref(user-builtin). As in section \ref(requirements-is), a method for simulating from and evaluating must both be specified. If no proposal is specified, the prior specified in the SSM (see the next point) is used as the initial proposal, and only a method to simulate from the prior is required (similarly to section \ref(requirements-is)).
+1. An SSM, as described in chapter \@ref(ssm).
 
-2. An SSM, as described in section \@ref(ssm).
+2. Optionally, an IS proposal $q_0$, which is used to generate points at the 0th iteration of the PF (the `proposal` setting, section \@ref(is-proposal)). As in section \@ref(requirements-is), a method for simulating from and evaluating it must both be specified. If no proposal is specified, the prior of the SSM's initial state is used as the initial proposal, and only a method to simulate from the prior is required (similarly to section \@ref(requirements-is)).
 
-3. A transition proposal $q_t$, which is also described in section \@ref(ssm). If no transition proposal is supplied, the transition model will be used as the transition proposal. In this case, only an approach to simulating from the transition model need be supplied when specifying the model, since the transition model need not be evaluated in the PF weight update (via a similar argument to that seen in section \ref(requirements-is)).
+3. Optionally, a transition proposal $q_t$ (the `transition_proposal` setting, chapter \@ref(ssm)). If no transition proposal is supplied, the transition model will be used as the transition proposal (the "bootstrap" filter). In this case, only an approach to simulating from the transition model need be supplied when specifying the model, since the transition model need not be evaluated in the PF weight update (via a similar argument to that seen in section \@ref(requirements-is)).
+
+The algorithm section may hold the number of particles (`particles = 500`).
 
 ## Kalman filters {#inference-kf}
 
@@ -369,7 +392,7 @@ ilike contains a straightforward implementation of the KF^[This implementation i
 
 ### ilike recipe requirements
 
-The KF requires only the specification of a linear-Gaussian SSM, following section \@ref(ssm). The transition model must be specified using the method from section \@ref(linear-gaussian-transition-model), and the measurement model must be specified using the method from section \@ref(linear-gaussian-data-model). The prior on the initial state $x_0$ must be Gaussian and given by a built-in prior: `prior,ilike::norm` for a one-dimensional state or `prior,ilike::mvnorm` (section \@ref(models)). It describes $x_0$ only; the dynamics are given entirely by the transition model.
+The KF requires only the specification of a linear-Gaussian SSM, following chapter \@ref(ssm): the transition model is `transition x = linear_gaussian(…)`, and the measurement model `factor obs = linear_gaussian(…)` (section \@ref(gaussian-data-models)). The prior on the initial state $x_0$ must be Gaussian and given by a simple prior: `x ~ norm(…)` for a one-dimensional state or `x ~ mvnorm(…)`. It describes $x_0$ only; the dynamics are given entirely by the transition model.
 
 ## Ensemble Kalman filters {#inference-enkf}
 
@@ -385,7 +408,7 @@ The ensemble-Kalman filter (EnKF) is a Monte Carlo approximation of the Kalman f
 
 Whilst the update is only exact in the linear/Gaussian case, the same sequence of operations can be used outside of this case to provide an approximation to the filtering distribution. @katzfuss2016understanding contains a useful review from the statistical perspective.
 
-Most of the specification of an EnKF algorithm in ilike is done through the recipe (see section \@ref(requirements-pf)). The `EnKF` function is used to run an EnKF, which returns the estimate of the normalising constant $Z_T$ (for $T$ measurements) calculated from PF output using the direct (biased) estimator described in @drovandi2022ensemble, and also writes output to the specified `results_name` directory. In addition to the arguments described in section \@ref(inference-arguments), `EnKF` takes the arguments:
+Most of the specification of an EnKF algorithm in ilike is done through the recipe (see the requirements below). The `EnKF` function is used to run an EnKF, which returns the estimate of the normalising constant $Z_T$ (for $T$ measurements) calculated from the EnKF output using the direct (biased) estimator described in @drovandi2022ensemble, and also writes output to the specified `results_name` directory. In addition to the arguments described in section \@ref(inference-arguments), `EnKF` takes the arguments:
 
 - `number_of_ensemble_members` (required) This argument provides the number of ensemble members $n$.
 
@@ -393,12 +416,52 @@ Most of the specification of an EnKF algorithm in ilike is done through the reci
 
 - `write_to_file_at_each_iteration` (optional) This boolean argument allows the user to choose if the output will be written to the file at the end of every iteration (use TRUE, which is also the default), or if the output of each EnKF iteration will be written to file between iterations (use FALSE).
 
-As for a PF, section \@ref(enk-output) then describes how to visualise the output of the PF after it has finished running.
+Section \@ref(enk-output) describes how to visualise the output of the EnKF after it has finished running.
 
 ### ilike recipe requirements
 
-The EnKF requires only the specification of a linear-Gaussian SSM, following section \@ref(ssm). The transition model must be specified using any approach, but the measurement model must be specified using the method from either section \@ref(linear-gaussian-data-model) or section \@ref(nonlinear-gaussian-data-model).
+The EnKF requires the specification of an SSM, following chapter \@ref(ssm). The transition model may be given in any way, but the measurement model must be a Gaussian data model, `linear_gaussian(…)` or `nonlinear_gaussian(…)` (section \@ref(gaussian-data-models)). The algorithm section may hold the number of ensemble members (`ensemble_members = 500`) and the shifter (`shifter = stochastic()`, `sqrt()` or `adjustment()`: the method for moving the ensemble at each update).
 
+## Iterative ensemble Kalman inversion {#inference-enki}
+
+Iterative ensemble Kalman inversion (IEnKI) uses the ensemble Kalman update to move an ensemble from the prior to the posterior of a model with a Gaussian likelihood, through a sequence of tempered targets $p(\theta) f(y \mid \theta)^{\phi_t}$ with $0 = \phi_0 < \phi_1 < \dots < \phi_T = 1$ [@iglesias2018bayesian]. The update is exact when the likelihood is linear-Gaussian and the prior Gaussian, and an approximation otherwise. The function `IENKI` returns an estimate of the log marginal likelihood, and writes the ensembles to `results_name` (loaded with `load_enk_output`, section \@ref(enk-output)). Its arguments are those of `EnKF`, with `enki_iterations_to_store` in place of `enkf_iterations_to_store`.
+
+Since the update treats the parameters as Gaussian, positive or bounded parameters are better moved on a transformed scale: `transform = auto` in the algorithm section (or a list such as `transform = [log(sigma), logit(p)]`, with the transformations of section \@ref(move-transforms)) makes the ensemble start from the transformed prior sample and move on that scale, while the model is evaluated, and the ensembles are written, on the parameters' own scale. For example, with a log-normal prior on $\sigma$ and an observation $y = \sigma + \varepsilon$, the members of an ensemble on $\sigma$ itself went below zero, and stayed positive on $\log\sigma$.
+
+```
+algorithm enki {
+  transform = auto
+  sequence = annealing(power, [0, 0.1, 0.3, 0.6, 1])
+}
+```
+
+The recipe needs a prior that can be simulated, a Gaussian data model (section \@ref(gaussian-data-models)), and, in the algorithm section, the sequence of powers and the shifter:
+
+```{r, echo=FALSE, comment=""}
+cat(readLines("examples/language/enki.ilike"), sep = "\n")
+```
+
+Without a `sequence`, the ensemble moves from the prior to the posterior in one step.
+
+## Mean-field dynamical system ensemble Kalman inversion {#inference-mfds}
+
+The function `MFDS` implements the derivative-free method of @huang2022efficient, in which the posterior is the fixed point of a filtering problem: at each iteration the ensemble is inflated about its mean and then updated by an ensemble Kalman step with an augmented observation (the data and the prior mean), with the noise scaled by $1/\Delta t$. For linear-Gaussian problems the ensemble's mean and covariance converge to the posterior's. `MFDS` estimates a posterior, not a normalising constant, so it is an algorithm in its own right and cannot be used as a likelihood. Its arguments include `number_of_ensemble_members`, `number_of_iterations` and `delta_t` (between 0 and 1; default 0.5), which may be written in the algorithm section as `ensemble_members`, `iterations` and `delta_t`; `shifter = stochastic()` (the default) or `adjustment()` chooses the update. The ensembles are read with `load_enk_output`, one target per iteration.
+
+`MFDS` needs:
+
+- **A Gaussian prior, or a transformation of a Gaussian**, with arguments that do not depend on parameters: `norm` and `mvnorm` priors, simple or in model statements with loops (`for (k in 1:K) theta[k] ~ norm(0, 1)`); and `lnorm` and `mvlnorm` priors, the exponential of a Gaussian, for which MFDS moves the logarithm of the parameter. Other transformations are written as a deterministic node (`u ~ norm(0, 1)`, `sigma <- exp(u)`), or as the setting `transform = cpp::f` of the algorithm section, a C++ function `Parameters f(const Parameters &parameters)` giving the model's parameters, under the same names, from the Gaussian scale on which the prior statements are written. (With `transform`, the prior statements describe the Gaussian before the transformation, so the same file means a different prior to other algorithms; a deterministic node gives the same model to all of them.)
+- **A likelihood it can simulate**: model statements on the data (simulated from their distributions), Gaussian data models (`linear_gaussian`, `nonlinear_gaussian`: $Hx$ or $h(x)$ plus Gaussian noise), or a simulator (`sbi(simulate = …, data = …)`, with or without a method). Several such factors are simulated together. A model whose likelihood cannot be simulated (`+=` terms, a log density written as a function, a filter) is refused with the reason.
+
+The output is on the model's scale (for a log-normal prior, the parameter itself, not its logarithm). For example:
+
+```{r, echo=FALSE, comment=""}
+cat(readLines("examples/language/mfds.ilike"), sep = "\n")
+```
+
+```{r,eval=FALSE}
+MFDS(compile("mfds.ilike"), results_name = "mfds", seed = 1)
+output = load_enk_output("mfds")
+```
 
 ## Evaluate {#inference-eval}
 
@@ -412,34 +475,14 @@ In addition to the arguments described in section \@ref(inference-arguments), th
 
 - `parameters` (required) This argument is a named list that provides the values of the parameters at which to evaluated the model;
 
-- `index` (optional) This argument is a vector that provides the indices of the factors (i.e. priors or likelihoods) of the model to evaluate, starting at 1 for the first factor provided in the recipe. The default is to evaluate all factors.
+- `index` (optional) This argument is a vector that provides the positions of the factors (i.e. priors or likelihoods) of the model to evaluate, starting at 1 for the first factor in the model section. The default is to evaluate all factors.
 
-### ilike recipe requirements {#requirements-is}
+### ilike recipe requirements {#requirements-eval}
 
-To run the evaluate function in the receipe we require either:
+To run the evaluate function we require either:
 
 - (with observed data) functions that are sufficient to evaluate the priors and likelihoods used as factors in the model, plus observed data to allow the likelihoods to be evaluated;
 
 or:
 
 - (without observed data) functions that are sufficient to evaluate the priors used as factors in the model, with no likelihoods specified.
-
-<!-- You can label chapter and section titles using `{#label}` after them, e.g., we can reference Chapter \@ref(intro). If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \@ref(methods). -->
-
-<!-- Figures and tables with captions will be placed in `figure` and `table` environments, respectively. -->
-
-<!-- ```{r nice-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'} -->
-<!-- par(mar = c(4, 4, .1, .1)) -->
-<!-- plot(pressure, type = 'b', pch = 19) -->
-<!-- ``` -->
-
-<!-- Reference a figure by its code chunk label with the `fig:` prefix, e.g., see Figure \@ref(fig:nice-fig). Similarly, you can reference tables generated from `knitr::kable()`, e.g., see Table \@ref(tab:nice-tab). -->
-
-<!-- ```{r nice-tab, tidy=FALSE} -->
-<!-- knitr::kable( -->
-<!--   head(iris, 20), caption = 'Here is a nice table!', -->
-<!--   booktabs = TRUE -->
-<!-- ) -->
-<!-- ``` -->
-
-<!-- You can write citations, too. For example, we are using the **bookdown** package [@R-bookdown] in this sample book, which was built on top of R Markdown and **knitr** [@xie2015]. -->
