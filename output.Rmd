@@ -13,7 +13,7 @@ library(ilike)
 model = compile("toy_model_rwm.ilike")
 mcmc(model,
      results_name = "toy_model_rwm",
-     initial_values = list(list(θ=c(0,0))),
+     initial_values = list(list(theta=c(0,0))),
      model_parameter_list = list(300.0*diag(2)))
 ```
 
@@ -65,7 +65,7 @@ We may use the `ggsmc` package to plot data in this format. The `plot_histogram`
 ```{r}
 library(ggsmc)
 plot_histogram(toy_model_rwm_ilike,
-               parameter = "θ",
+               parameter = "theta",
                dimension = 1,
                mcmc = TRUE)
 ```
@@ -74,7 +74,7 @@ plot_histogram(toy_model_rwm_ilike,
 
 ```{r}
 plot_density(toy_model_rwm_ilike,
-             parameter = "θ",
+             parameter = "theta",
              dimension = 1,
              mcmc = TRUE)
 ```
@@ -84,9 +84,9 @@ plot_density(toy_model_rwm_ilike,
 ```{r}
 library(ggsmc)
 plot_scatter(toy_model_rwm_ilike,
-             x_parameter = "θ",
+             x_parameter = "theta",
              x_dimension = 1,
-             y_parameter = "θ",
+             y_parameter = "theta",
              y_dimension = 2,
              mcmc = TRUE)
 ```
@@ -96,7 +96,7 @@ plot_scatter(toy_model_rwm_ilike,
 ```{r}
 library(ggsmc)
 plot_time_series(toy_model_rwm_ilike,
-                 parameters = "θ",
+                 parameters = "theta",
                  mcmc = TRUE,
                  alpha = 0.01)
 ```
@@ -133,7 +133,7 @@ The data frame contains the following columns:
 
 - `value` is the value of the given dimension of the parameter at the given iteration;
 
-- `Parameter` is the name of the parameter, which combines the variable name assigned in the model, and the dimension. In this output we see that the parameter names are `θ_1` and `θ_2`.
+- `Parameter` is the name of the parameter, which combines the variable name assigned in the model, and the dimension. In this output we see that the parameter names are `theta_1` and `theta_2`.
 
 ### Plotting using `ggmcmc`
 
@@ -168,14 +168,14 @@ This returns a list of two data frames:
 
 ```{r,eval=FALSE}
 library(ggplot2)
-ggplot(subset(adaptation$trace, Parameter == "θ.scale"),
+ggplot(subset(adaptation$trace, Parameter == "theta.scale"),
        aes(x = Iteration, y = Value, colour = factor(Chain))) +
   geom_line() + scale_y_log10()
 ```
 
-- `final`, with columns `Chain`, `Parameter` and `Value`: the adapted parameters at the end of each chain, which also include the estimated covariance of the target (its upper triangle, e.g. `θ.covariance[1,2]`), and, for the principal components adaptors, the eigenvalues and the principal directions.
+- `final`, with columns `Chain`, `Parameter` and `Value`: the adapted parameters at the end of each chain, which also include the estimated covariance of the target (its upper triangle, e.g. `theta.covariance[1,2]`), and, for the principal components adaptors, the eigenvalues and the principal directions.
 
-The parameter names are made of the variable's name and the parameter, for example `θ.scale`, `θ.mean[1]`, `θ.component_scale[2]` (componentwise adaptation), `θ.direction_scale[1]` (principal components) or `sd[1]` (a named proposal parameter); when the MCMC consists of several moves, they are prefixed by the move, e.g. `move2.θ.scale`. With averaging, the values reported are the averages, which are what the proposal uses.
+The parameter names are made of the variable's name and the parameter, for example `theta.scale`, `theta.mean[1]`, `theta.component_scale[2]` (componentwise adaptation), `theta.direction_scale[1]` (principal components) or `sd[1]` (a named proposal parameter); when the MCMC consists of several moves, they are prefixed by the move, e.g. `move2.theta.scale`. With averaging, the values reported are the averages, which are what the proposal uses.
 
 ## IS and SMC output {#is-smc-output}
 

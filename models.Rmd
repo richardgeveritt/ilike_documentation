@@ -187,7 +187,7 @@ Moves on $u$ suited to this:
 - `pcn(u, mean, cov, rho)`, the preconditioned Crank–Nicolson proposal $u^* = m + \rho (u - m) + \sqrt{1 - \rho^2}\, L \xi$ with $\mathrm{cov} = L L^\top$, for $u$ with a Gaussian distribution $N(m, \mathrm{cov})$ (used with `metropolis_hastings`). It leaves that distribution unchanged, so the acceptance probability depends only on the kernel, and does not fall as the dimension of $u$ grows;
 - a random walk scaled from the current population, `metropolis(mvnorm_rw(u, cov, 0.1), smc_adapt = gaussian(2.38))`.
 
-With MCMC on $\theta$ outside, this is rare-event ABC-MCMC.
+With MCMC on $\theta$ outside, this is rare-event ABC-MCMC. When the data that depend on $u$ are ABC kernels (`abc_uniform`, `abc_gaussian`, or C++ terms declared `kernel = true`) and the tolerances decrease, the inner SMC of a proposal stops as soon as its estimate so far, times the largest the remaining tolerances could add (the ratio of the kernels' maxima at the final and the current tolerance), is too small for the proposal to be accepted; the chain is the same as without stopping, only cheaper.
 
 With SMC on $\theta$ outside and a decreasing tolerance (`sequence = parameter(epsilon, …)`, fixed or adaptive), this is rare-event ABC-SMC² [@kerama2022rare]: each $\theta$-particle has its own SMC on $u$, which follows the outer tolerances instead of having its own — so `smc(…)` is then written without `sequence`:
 
@@ -320,6 +320,8 @@ double term(const Parameters &parameters, const Data &data, int i)
 ```
 
 The indices are passed as `int`, with the values they have in the file (from 1). Since ilike cannot read the function, it relies on the declaration: a move on `mu[2]` evaluates again only the terms that declare they read `mu[2]`. A term that reads an element it does not declare is therefore not evaluated again when that element changes, and the run targets the wrong distribution; running with `check_factor_index = TRUE` (section \@ref(selecting-factors)) finds such a term, by re-evaluating the terms left out of each move. A factor with a term written in C++ has no gradient: gradient-based proposals for the variables it reads are refused.
+
+A term may also give its largest value, `factor name += cpp::f(indices..., reads = [...], maximum = cpp::g)`, with `g` taking the same arguments as `f` and returning the largest log value the term can take given the parameters it reads (for a density of data, its value at its mode). ilike uses the maxima of a factor's terms to stop evaluating a proposal early when the rest of the factor could not make it accepted (section \@ref(mcmc-moves), early rejection); the maxima of the built-in distributions (`norm`, `mvnorm`, and the ABC kernels `abc_uniform` and `abc_gaussian`) are known without being written. A factor with a term written in C++ without `maximum` has no maximum, and is always evaluated in full. For a term that plays the part of an ABC kernel inside `integrate u with smc(…)` (section \@ref(integrate)), `kernel = true` (with `maximum`) states that, along decreasing tolerances, the ratio of its values at two tolerances is largest at its maximum, as for the built-in kernels; the inner SMC of a proposal in an MCMC move may then stop early.
 
 ### Gradients {#statement-gradients}
 

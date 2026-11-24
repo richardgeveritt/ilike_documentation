@@ -10,20 +10,20 @@ Before the ilike language, ilike files were C++ source files in which each funct
 /***evaluate_log_prior***/
 double prior_eval(const Parameters &parameters)
 {
-  arma::colvec θ = parameters["θ"];
-  return dnorm(θ[0],0.0,10.0) + dnorm(θ[1],0.0,10.0);
+  arma::colvec theta = parameters["theta"];
+  return dnorm(theta[0],0.0,10.0) + dnorm(theta[1],0.0,10.0);
 }
 
 /***evaluate_log_likelihood***/
 double llhd(const Parameters &parameters,
             const Data &data)
 {
-  arma::colvec θ = parameters["θ"];
+  arma::colvec theta = parameters["theta"];
   double y = data["y"];
-  return sum(dnorm(y,θ[0]+θ[1],1.0));
+  return sum(dnorm(y,theta[0]+theta[1],1.0));
 }
 
-/***m_proposal,ilike::mvnorm_rw(θ,p1)***/
+/***m_proposal,ilike::mvnorm_rw(theta,p1)***/
 
 /***mcmc_termination,ilike::iterations(100000)***/
 ```

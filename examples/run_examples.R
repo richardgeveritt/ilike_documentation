@@ -23,7 +23,7 @@ if ("gaussian" %in% sections)
   {
     recipe = compile("gaussian_model.ilike")
     time = system.time(MCMC(recipe, algorithm = algorithm, results_name = algorithm, results_path = results,
-                            initial_values = list(list(θ = 2)), seed = 1))[["elapsed"]]
+                            initial_values = list(list(theta = 2)), seed = 1))[["elapsed"]]
     output = load_mcmc_output(file.path(results, algorithm))
     output$Algorithm = algorithm
     saveRDS(output, file.path("output", paste("gaussian_", algorithm, ".rds", sep = "")))

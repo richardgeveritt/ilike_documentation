@@ -29,7 +29,7 @@ Several files can be compiled together, as in `compile(c("model.ilike", "mcmc.il
 ## The rules of the language {#lexical}
 
 - **Comments** run from `//` to the end of the line, or between `/*` and `*/`.
-- **Names** are made of letters, digits and `_`, and begin with a letter or `_`. Unlike in R, `.` is not allowed in names (it is not allowed in C++ or Python), except in calls to R functions, where R's names are used as they are (`r::read.csv`, `na.rm = TRUE`). Letters from other alphabets, such as `θ`, may be used.
+- **Names** are made of letters, digits and `_`, and begin with a letter or `_`. Unlike in R, `.` is not allowed in names (it is not allowed in C++ or Python), except in calls to R functions, where R's names are used as they are (`r::read.csv`, `na.rm = TRUE`). Letters from other alphabets, such as `θ`, may be used, in a UTF-8 locale (the usual one on macOS and Linux); in other locales (some Windows set-ups, or R started with the C locale) they cannot be read, so files meant to be shared are best written with ASCII names (`theta`).
 - **Numbers** are written as in R: `1`, `-2.5`, `1e-3`, `Inf`, `NaN`. Logical values are `TRUE` and `FALSE` (or `true` and `false`).
 - **Strings** are written in double quotes: `"stochastic"`.
 - **Vectors and matrices** are written in square brackets: `[0, 0.25, 0.5, 1]` is a vector, and `[[1, 0.5], [0.5, 2]]` is a matrix, written row by row (here a $2 \times 2$ matrix).

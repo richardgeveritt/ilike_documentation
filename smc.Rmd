@@ -85,6 +85,14 @@ The optional arguments are:
 - `order = random` (the default) or `order = given`: the order in which the data points enter, a random order fixed by the seed, or the order of the statements' loops.
 - `anneal = false`: add whole data points ($\lceil n \phi_t \rceil$ of them) instead of annealing each in. The target then does not change between the fractions at which data points enter, so an adaptive target cannot choose between them: give a fixed schedule (for example `seq(0, 1, length.out = n + 1)`), without `target`.
 
+**Particle filters (SMC²).** A factor estimated by a particle filter, `factor filter = pf(inner)` (section \@ref(algorithmic-likelihood)), can also take its observations in one at a time, with `anneal = false` and a fraction going up by $1/n$ at each step, $n$ the number of observations (the order is always the time order):
+
+```
+sequence = data(fraction, [0, 0.02, 0.04, ..., 1], factors = [filter], anneal = false)
+```
+
+This is SMC² [@chopin2013smc2]: each particle (a value of the parameters) keeps its own particle filter from one step to the next. At each step the filter's particles are weighted by the new observation, which gives the particle's weight; at the move stage the filter is resampled and propagated to the next time; and an MCMC move on the parameters (particle marginal Metropolis–Hastings) runs a new filter through the observations so far. The evidence it estimates is that of the whole series. Each move's filter runs through all the observations so far, so the cost grows with the square of the series' length. As in @chopin2013smc2, it is much cheaper to move only at the steps where the particles are resampled: `move_only_after_resampling = true` with `resampling = ess(0.5)` (section \@ref(moves-after-resampling)); for 50 observations this took 8 s instead of 110 s. Annealing within an observation (`anneal = true`) is not available for filters yet.
+
 Gradient-based proposals cannot be used with data tempering yet (the gradients generated from model statements include every data point), and data tempering cannot be combined with another sequence.
 
 ## Adaptive target
@@ -102,6 +110,10 @@ Gradient-based proposals cannot be used with data tempering yet (the gradients g
 
 Without `resampling`, the particles are resampled whenever the ESS falls below the number of particles.
 
+
+### Moving only after resampling {#moves-after-resampling}
+
+By default the particles are moved at every step of the SMC. With `move_only_after_resampling = true` they are moved only at the steps where they are resampled, and at the other steps go to the next target as they are (the weights do not depend on whether a move was made). This saves the moves at the steps where the particles are still diverse, and matters when moves are costly, as in SMC² (section \@ref(smc-sequence)). It needs a resampling rule that does not resample at every step, such as `resampling = ess(0.5)`.
 ## SMC termination
 
 An SMC sampler stops when it reaches the last value of its sequence. `termination` can also stop it earlier:
@@ -109,7 +121,7 @@ An SMC sampler stops when it reaches the last value of its sequence. `terminatio
 - `stable(threshold, consecutive)`: stop when the parameter of the sequence changes by at most `threshold` for `consecutive` iterations in a row. This is useful with an adaptive target: for example, in ABC-SMC with adaptive tolerances, it may become practically impossible to reduce the tolerance past a certain point.
 - `always()`: stop at the first check.
 
-An SMC algorithm section may thus have two `termination` settings: `iterations(n)` for the MCMC moves, and `stable(…)` for the sampler.
+An SMC algorithm section may thus have two `termination` settings: `iterations(n)` (or `adaptive_iterations(…)`, section \@ref(mcmc-termination)) for the MCMC moves, and `stable(…)` for the sampler.
 
 ## Settings of the run
 

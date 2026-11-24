@@ -30,19 +30,19 @@ double prior_sd = 10.0;
 
 double log_prior(const Parameters &parameters)
 {
-  return dnorm(parameters["θ"][0], prior_mean, prior_sd);
+  return dnorm(parameters["theta"][0], prior_mean, prior_sd);
 }
 
 Parameters simulate_prior(RandomNumberGenerator &rng)
 {
-  return Parameters("θ", rnorm(rng, prior_mean, prior_sd));
+  return Parameters("theta", rnorm(rng, prior_mean, prior_sd));
 }
 
 arma::mat gradient_log_prior(const std::string &variable,
                              const Parameters &parameters)
 {
   arma::mat gradient(1, 1);
-  gradient(0, 0) = -(parameters["θ"][0] - prior_mean)/(prior_sd*prior_sd);
+  gradient(0, 0) = -(parameters["theta"][0] - prior_mean)/(prior_sd*prior_sd);
   return gradient;
 }
 
@@ -52,7 +52,7 @@ double log_likelihood(const Parameters &parameters,
   arma::colvec y = data["y"];
   double result = 0.0;
   for (size_t i = 0; i < y.n_elem; ++i)
-    result = result + dnorm(y[i], parameters["θ"][0], 1.0);
+    result = result + dnorm(y[i], parameters["theta"][0], 1.0);
   return result;
 }
 
@@ -62,27 +62,27 @@ arma::mat gradient_log_likelihood(const std::string &variable,
 {
   arma::colvec y = data["y"];
   arma::mat gradient(1, 1);
-  gradient(0, 0) = arma::sum(y - parameters["θ"][0]);
+  gradient(0, 0) = arma::sum(y - parameters["theta"][0]);
   return gradient;
 }
 }
 
 // random walk Metropolis: θ* ~ N(θ, 0.2^2)
 algorithm rwm {
-  move m = metropolis(norm_rw(θ, 0.2))
+  move m = metropolis(norm_rw(theta, 0.2))
   termination = iterations(10000)
 }
 
 // the Metropolis-adjusted Langevin algorithm with preconditioning matrix 0.01
 // and scale s^2 = 1: θ* ~ N(θ + 0.005 d/dθ log π(θ), 0.01)
 algorithm langevin {
-  move m = metropolis_hastings(langevin(θ, 0.01, 1))
+  move m = metropolis_hastings(langevin(theta, 0.01, 1))
   termination = iterations(10000)
 }
 
 // the Barker proposal with preconditioning matrix 0.01 and scale s^2 = 1
 algorithm barker {
-  move m = metropolis_hastings(barker(θ, 0.01, 1))
+  move m = metropolis_hastings(barker(theta, 0.01, 1))
   termination = iterations(10000)
 }
 
@@ -91,7 +91,7 @@ algorithm barker {
 // sample size at 0.9 of the particles, and move the particles with ten
 // random walk Metropolis steps after each reweighting
 algorithm smc {
-  move = metropolis(norm_rw(θ, 0.2))
+  move = metropolis(norm_rw(theta, 0.2))
   termination = iterations(10)
   sequence = annealing(power, [0, 1])
   target = cess(0.9)
