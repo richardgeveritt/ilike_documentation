@@ -121,7 +121,7 @@ Parallel runs require:
 
 If these are not met, the run (or the part of it that cannot be done in parallel) is done sequentially, with a warning. Resampling and the writing of output are always sequential.
 
-When the likelihood is itself estimated by an algorithm (e.g. a particle filter inside particle marginal Metropolis-Hastings, see section \@ref(algorithmic-likelihood)), parallelism can be used in either of two places: the outer algorithm can run its points in parallel (each with its own inner filter), or the inner filter can run its particles in parallel (by setting its own `parallel` argument; see the particle filter's arguments in section \@ref(algorithmic-likelihood)). Running the outer algorithm in parallel usually gives the larger gain.
+When the likelihood is itself estimated by an algorithm (e.g. a particle filter inside particle marginal Metropolis-Hastings, see section \@ref(algorithmic-likelihood)), parallelism can be used in either of two places: the outer algorithm can run its points in parallel (each with its own inner filter), or the inner filter can run its particles in parallel (by setting its own `parallel` argument; see the particle filter's arguments in section \@ref(algorithmic-likelihood)). Running the outer algorithm in parallel usually gives the larger gain. The same holds when the likelihood is given by a Kalman filter (`kf`) or an ensemble Kalman filter (`enkf`), including in SMC² (section \@ref(smc-sequence)): the outer points then run in parallel, each chunk with its own copy of the filter.
 
 ### `grain_size` (optional)
 

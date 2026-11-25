@@ -47,7 +47,7 @@ Each returns the log of the estimated (for the KF, exact) marginal likelihood $\
 | `time_step` | the time step between states of the SSM |
 | `predictions_per_update` | the number of times the transition model is used between observations (more than 1 when, for example, the transition model is an SDE solver with a small time step) |
 
-The arguments may also be given in order: `time = ssm(i, 0, 4, t, 0, dt, 1, 1)`. The variables named by `index`, `time` and `time_difference` are passed to the transition model and the transition proposal with the parameters (`parameters["i"]` in C++), set for the time being proposed, so that the transition can depend on time.
+The arguments may also be given in order: `time = ssm(i, 0, 4, t, 0, dt, 1, 1)`. The variables named by `index`, `time` and `time_difference` are passed to the transition model, the transition proposal and the data model with the parameters (`parameters["i"]` in C++), set for the time being proposed, so that the models can depend on time. The `predictions_per_update` uses of the transition model between two observations all see the values for the observation they lead to. This holds for all the filters, including the Kalman filter, whose matrices and covariances may be functions of the time.
 
 ## Transition models {#transition-models}
 
@@ -64,6 +64,8 @@ x_t \sim \mathcal{N}(A x_{t-1}, Q),
 $$
 where $A$ is a matrix and $Q$ is a covariance matrix. Each may be numbers (`matrix = 0.9`, `covariance = [[0.5, 0], [0, 0.5]]`) or a function returning a matrix, which may depend on the parameters (`arma::mat f(const Parameters &parameters)` in C++; see the example in section \@ref(algorithmic-likelihood)). The arguments may also be given in order: `linear_gaussian(0.9, 0.5)`. The Kalman filter requires a linear-Gaussian transition.
 
+A filter evaluates the transition's matrix and covariance for every particle at every time step. A covariance given as numbers is factorised once. When they are functions that depend only on parameters, declaring which ones lets a filter compute them once per run instead: `linear_gaussian(matrix = cpp::A, covariance = cpp::Q, reads = [a, s])` says that `A` and `Q` read only the parameters `a` and `s`. At the start of each run, the filter evaluates them with only `a` and `s` available, so a function that reads anything else stops with a message; during the run it uses those values for every particle whose `a` and `s` are the ones it computed them with (and computes them again otherwise). `reads` may not name the state or the variables of `time = ssm(...)`, whose values change within a run. With a 10-dimensional state, this cut the time of a particle marginal Metropolis–Hastings run whose covariance depended on a parameter by about 40%.
+
 ### Nonlinear-Gaussian transition
 
 ```
@@ -74,7 +76,7 @@ gives the transition
 $$
 x_t \sim \mathcal{N}(f(x_{t-1}), Q),
 $$
-where $f$ is a function of the state (and parameters) returning the predicted state: `Parameters f(const Parameters &parameters)` in C++. The covariance is given as for the linear-Gaussian transition.
+where $f$ is a function of the state (and parameters) returning the predicted state: `Parameters f(const Parameters &parameters)` in C++. The covariance is given as for the linear-Gaussian transition, and `reads = [...]` declares the parameters a covariance function reads, in the same way.
 
 ### A built-in random walk
 
