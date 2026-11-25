@@ -558,7 +558,7 @@ The inner file's model uses the outer file's parameters (here `a`) and data (her
 
 The particle filter is a recursive algorithm that estimates the state of a general state-space model and, in this context, gives an unbiased estimate of the marginal likelihood of the parameters of the model (section \@ref(inference-pf)).
 
-`pf(model, particles, iterations_to_store = 1, parallel = FALSE, grain_size = 64)`
+`pf(model, particles, iterations_to_store = 1, parallel = FALSE, grain_size = 64, increase)`
 
 | Argument | Meaning |
 |---|---|
@@ -567,6 +567,7 @@ The particle filter is a recursive algorithm that estimates the state of a gener
 | `iterations_to_store` | the number of iterations of output of each filter to store, counting from the final iteration backwards: `1` (the default) stores the final particles and weights; `0` stores nothing; a number at least as large as the number of time points stores every iteration, with the ancestor of each particle |
 | `parallel` | whether to run the filter's particles in parallel. This parallelises *inside* each filter, and is used only when the outer algorithm runs sequentially (an outer algorithm run with `parallel = TRUE` runs its points in parallel instead, which usually gives the larger gain; see section \@ref(inference-arguments)) |
 | `grain_size` | the number of particles moved and weighted together as one chunk. As for `PF` (section \@ref(inference-arguments)), each chunk has its own random number stream, so the results depend on this number but not on whether the filter runs in parallel |
+| `increase` | SMC² only (section \@ref(smc-sequence)): `increase = exchange(below = b, multiply = 2, max = M)` multiplies the filters' number of particles by `multiply` (at most up to `max`, if given) after any step whose moves changed fewer than a share `b` of the particles |
 
 The stored output is loaded with `load_smc_output(results_directory, nesting_level = 1, factor = k)`, where `k` is the position of the algorithmic likelihood among the model's factors, counting from 1 in the order they appear in the model section. In the result, `ExternalIndex` is the outer point (e.g. the importance point or MCMC iteration) and `LogWeight` is the outer point's normalised log weight plus the particle's normalised log weight within its filter, so the rows are a weighted sample from the joint posterior of the parameters and the states. With MCMC output, use `as.mcmc = TRUE`.
 
@@ -580,7 +581,7 @@ The Kalman filter (KF) computes the exact marginal likelihood of the parameters 
 
 The ensemble Kalman filter (EnKF) estimates the marginal likelihood of the parameters of a state-space model with Gaussian observations (section \@ref(inference-enkf)).
 
-`enkf(model, ensemble_members, shifter, iterations_to_store = 0, parallel = FALSE, grain_size = 100000)`
+`enkf(model, ensemble_members, shifter, iterations_to_store = 0, parallel = FALSE, grain_size = 100000, increase)`
 
 | Argument | Meaning |
 |---|---|
@@ -589,6 +590,7 @@ The ensemble Kalman filter (EnKF) estimates the marginal likelihood of the param
 | `shifter` | the method for moving the ensemble at each iteration: `"stochastic"`, `"sqrt"` (square root) or `"adjustment"` |
 | `iterations_to_store` | the number of iterations of output to store, counting from the final iteration backwards |
 | `parallel`, `grain_size` | whether to run in parallel, and the grain size |
+| `increase` | SMC² only (section \@ref(smc-sequence)): `increase = exchange(below = b, multiply = 2, max = M)` multiplies the ensemble size by `multiply` (at most up to `max`) after any step whose moves changed fewer than a share `b` of the particles |
 
 ## Models written in Stan {#from-stan}
 
