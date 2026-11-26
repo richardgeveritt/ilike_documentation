@@ -172,6 +172,48 @@ move m = slice(theta, width = 1)
 move m = slice(u, lower = 0, upper = 1)
 ```
 
+### The exchange algorithm `exchange` {#exchange}
+
+`exchange(proposal, simulate = exact | sweeps(m))` is a move of its own for the parameters of the normalising constant of an unnormalised distribution (`x ~ ising(…)` or `potts(…)`, section \@ref(unnormalised)), whose value is unknown [@murray2006mcmc]. It proposes $\vartheta$ from `proposal` (a symmetric proposal, as for `metropolis`), draws an auxiliary field $u$ from the distribution at $\vartheta$, and accepts with the ratio of the move's factors times $\gamma(u \mid \theta)/\gamma(u \mid \vartheta)$ for each such distribution. That term is an unbiased estimate of $Z(\theta)/Z(\vartheta)$, and the move is exactly reversible with respect to the posterior: every normalising constant cancels. $u$ is drawn afresh for each proposal (it is not kept with the state, unlike the draws of `normaliser = sav(…)`), and only for proposals the other factors do not already rule out. The field may be observed (data) or latent (a parameter with its own moves). The draws are exact for `ising` (coupling from the past, the default), which makes the move exact; with `simulate = sweeps(m)` (and for `potts`) they are made by $m$ heat-bath sweeps, which makes the move approximate: its stationary distribution is not exactly the posterior, though it approaches it as $m$ grows [@everitt2012bayesian] (`compile` says so). `transform`, `factors`, `cut_factors` and `adapt` are as for `metropolis`.
+
+```
+model {
+  beta ~ unif(0, 1)
+  x ~ ising(beta, nb, nn)
+}
+algorithm mcmc {
+  move b = exchange(norm_rw(beta, 1), transform = auto)
+}
+```
+
+For the $4 \times 4$ field of section \@ref(unnormalised), five runs of 100000 iterations gave a posterior mean of $\beta$ of 0.3665 (standard error 0.0013) against the exact 0.3653, with an acceptance rate of about 0.53. With a latent $3 \times 3$ field observed with noise, Gibbs moves on the sites and the exchange move on $\beta$ gave 0.3778 (0.0005) against 0.3783.
+
+*Averaged acceptance ratios.* With `points = N`, the move draws $N$ fields and uses the averaged acceptance ratio of @andrieu2021mhaar, which keeps it exact. A direction $c$ is chosen with probability $\frac12$ each: for $c = 1$ all $N$ fields are drawn at $\vartheta$ and the ratio of the move's factors is multiplied by $\frac1N \sum_i \gamma(u_i \mid \theta)/\gamma(u_i \mid \vartheta)$; for $c = 2$ one field is drawn at $\vartheta$ and $N - 1$ at $\theta$, and the ratio is divided by $\frac1N \sum_i \gamma(u_i \mid \vartheta)/\gamma(u_i \mid \theta)$. Using the first average alone, every time, is the "noisy exchange" algorithm of @alquier2016noisy, which is not exact. The averaged move accepts more often (on the $4 \times 4$ example, 0.54, 0.59 and 0.61 for $N = 1$, 5 and 20) and mixes better per iteration, at $N$ times the cost of the draws. With `parallel = true` the $N$ draws are made in parallel threads (as many as `RcppParallel::setThreadOptions` allows); each draw has its own random-number stream, made from one number taken from the chain's generator, so the chain is exactly the same with or without `parallel`. How much time this saves depends on how long a draw takes compared with starting the threads: on the $4 \times 4$ example, whose exact draws take microseconds, 15 threads made runs 1.5 times faster for $N = 5$ and 3 times for $N = 20$; larger fields and draws by sweeps gain more. `points = 1` (the default) is the exchange move above.
+
+*Noisy and gradient-based versions* [@alquier2016noisy]. These need the gradient of $\log 1/Z(\beta)$ for gradient-based proposals, which is $-E_\beta[\partial \log\gamma(u \mid \beta)/\partial\beta]$ and is estimated from fields drawn at $\beta$ when the statement asks for it: `x ~ ising(beta, nb, nn, gradient = estimate(points = N))` (section \@ref(unnormalised)).
+
+- `exchange(proposal, points = N, noisy = true)`: the *noisy exchange* algorithm, which uses the plain average of the $N$ terms $\gamma(u_i \mid \theta)/\gamma(u_i \mid \vartheta)$. It is not exact, though its error falls as $N$ grows (`compile` says so); without `noisy = true`, `points = N` is the exact averaged move above.
+- `unadjusted(langevin(beta, …))` with the estimated gradient: the *noisy Langevin* algorithm, approximate both through its step and through the noise in the gradient (`compile` says so).
+- `exchange(langevin(beta, …))`: *MALA-exchange*, exact. The Langevin proposal uses the estimated gradient; the fields behind the gradient at the current point are kept with the state, and those at the proposed point are drawn with the proposal; the exchange term uses a field drawn independently of them. (Algorithm 9 of @alquier2016noisy reuses the first of the gradient's fields at the proposed point as the exchange field; enumerating the kernel of a small discrete version shows that this does not leave the target invariant once the proposal depends on the kept fields, while an independent draw does. The independent draw costs nothing extra in effect: `gradient = estimate(points = N - 1)` with one exchange field uses $N$ fields per iteration, as Algorithm 9 does, the difference being only that the exchange field is not also one of the gradient's.)
+- `exchange(langevin(beta, …), points = N, noisy = true)`: *noisy MALA-exchange*, with the noisy average in place of the single exchange term (approximate). Here its $N$ fields are drawn for the purpose, not taken from the gradient's.
+
+On the $4 \times 4$ example (five runs of 50000 iterations; exact mean 0.3653), MALA-exchange gave 0.3655 (standard error 0.0015); the noisy exchange with $N = 2$ and 20, 0.3665 and 0.3657; noisy Langevin, 0.3683 (0.0055); noisy MALA-exchange, 0.3674 (0.0008). On a field this small the noisy methods' errors are hard to see; they matter more when the draws are poor.
+
+### Moves written as involutions `involution` {#involution}
+
+Many Metropolis–Hastings moves can be written in one form [@andrieu2020general]: draw auxiliary variables $v \sim q(\cdot \mid x)$, map $(x, v)$ to $(x', v') = \phi(x, v)$ with $\phi$ an *involution* ($\phi(\phi(x, v)) = (x, v)$), and accept $x'$ with probability $\min\{1, r\}$, where
+$$r = \frac{\pi(x')\, q(v' \mid x')}{\pi(x)\, q(v \mid x)}\, \left|\det \frac{\partial \phi(x, v)}{\partial (x, v)}\right|.$$
+This is the Metropolis–Hastings update for the joint distribution $\pi(x) q(v \mid x)$ and the involution $\phi$, so it leaves $\pi$ invariant whatever $q$ and $\phi$ are. A random walk is $v \sim N(0, \Sigma)$ and $\phi(x, v) = (x + v, -v)$; Hamiltonian Monte Carlo (`hmc`, above) is $v$ the momentum and $\phi$ the leapfrog steps followed by flipping the momentum, which preserves volume; reversible jump uses a map between spaces of different dimension, with $v$ the dimension-matching variables.
+
+`move m = involution(x, auxiliary = cpp::draw, log_auxiliary = cpp::log_q, map = cpp::phi, log_jacobian = cpp::log_jacobian, check = 10)` is such a move written by the user, with the functions in the `cpp` section:
+
+- `Parameters draw(RandomNumberGenerator &rng, const Parameters &parameters, const Data &data)` returns the auxiliary variables $v$ (named variables that are not in the model);
+- `double log_q(const Parameters &parameters, const Data &data)` is $\log q(v \mid x)$, with the parameters holding $x$, $v$ and the model's other variables;
+- `Parameters phi(const Parameters &parameters, const Data &data)` returns $x'$ and $v'$;
+- `double log_jacobian(const Parameters &parameters, const Data &data)` is $\log|\det|$ at $(x, v)$; leave it out when $\phi$ preserves volume or the variables are discrete.
+
+The first argument names the variables the move changes (`x`, or `[x, y]`); $\pi$ is given by the factors that may read them, as for any move, and `factors` and `cut_factors` may be given. The auxiliary variables are not kept. Since a map that is not an involution, or a wrong Jacobian, gives a wrong answer without any sign, the move applies $\phi$ twice on its first `check` proposals (default 10) and stops if that does not give back $(x, v)$; a wrong Jacobian cannot be detected this way. For example, a reflection on the integers ($v = \pm 1$ with probability $\frac12$, $\phi(x, v) = (x + v, -v)$), Hamiltonian Monte Carlo written out in C++, and the multiplicative move $\phi(x, u) = (xu, 1/u)$ with $u \sim U(\frac12, 2)$ and log Jacobian $-\log u$ all reproduce their targets in the package's tests.
+
 ### Moving on a transformed scale {#move-transforms}
 
 A random walk on a positive or bounded parameter proposes values outside its range, which are rejected, and moves badly near the bounds; gradient-based moves (`langevin`, `barker`, `hmc`) need a target that is smooth on the whole real line. The argument `transform` of a move makes the proposal act on a transformed variable $z$ instead:
